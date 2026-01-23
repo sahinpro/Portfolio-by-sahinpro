@@ -1,0 +1,82 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "title": "E-Commerce Platform",
+      "description": "Full-featured e-commerce platform with product catalog, shopping cart, payment integration, and admin dashboard.",
+      "image": "/main-visual.png",
+      "technologies": ["React", "Next.js", "Node.js", "MongoDB", "Stripe"],
+      "role": "Full Stack Developer",
+      "liveUrl": "https://example-ecommerce.com",
+      "githubUrl": "https://github.com/sahincoderbd/ecommerce-platform",
+      "featured": true,
+      "details": "Built a scalable e-commerce platform handling 1000+ daily users with responsive design and secure payment processing."
+    },
+    {
+      "id": 2,
+      "title": "Portfolio Website",
+      "description": "Modern, responsive portfolio website showcasing projects and services with smooth animations.",
+      "image": "/main-visual---mask.png",
+      "technologies": ["React", "Tailwind CSS", "Figma", "JavaScript"],
+      "role": "Full Stack Developer & Designer",
+      "liveUrl": "https://example-portfolio.com",
+      "githubUrl": "https://github.com/sahincoderbd/portfolio",
+      "featured": true,
+      "details": "Designed and developed a modern portfolio website with advanced animations, dark mode, and optimized performance."
+    },
+    {
+      "id": 3,
+      "title": "Task Management App",
+      "description": "Collaborative task management application with real-time updates and team features.",
+      "image": "/image-395.png",
+      "technologies": ["React", "Firebase", "Tailwind CSS", "JavaScript"],
+      "role": "Full Stack Developer",
+      "liveUrl": "https://example-tasks.com",
+      "githubUrl": "https://github.com/sahincoderbd/task-app",
+      "featured": false,
+      "details": "Built a real-time task management app with Firebase backend, supporting teams and project collaboration."
+    },
+    {
+      "id": 4,
+      "title": "WordPress E-Commerce Store",
+      "description": "Custom WordPress e-commerce site with WooCommerce, custom plugins, and SEO optimization.",
+      "image": "/visual---main.png",
+      "technologies": ["WordPress", "WooCommerce", "PHP", "MySQL", "Elementor"],
+      "role": "WordPress Developer & Designer",
+      "liveUrl": "https://example-shop.com",
+      "githubUrl": "#",
+      "featured": true,
+      "details": "Developed a fully customized WooCommerce store with 500+ products, custom payment gateway, and inventory management."
+    },
+    {
+      "id": 5,
+      "title": "Restaurant Booking System",
+      "description": "Full-stack restaurant booking platform with reservation management and real-time availability.",
+      "image": "/visual.png",
+      "technologies": ["React", "Node.js", "Express", "MongoDB", "Stripe"],
+      "role": "Full Stack Developer",
+      "liveUrl": "https://example-restaurant.com",
+      "githubUrl": "https://github.com/sahincoderbd/restaurant-booking",
+      "featured": true,
+      "details": "Created a complete restaurant booking system with real-time table management, payment processing, and admin panel."
+    },
+    {
+      "id": 6,
+      "title": "Blog Platform",
+      "description": "Content management system for blogging with rich text editor, categories, and social sharing.",
+      "image": "/bg.png",
+      "technologies": ["Next.js", "Node.js", "MongoDB", "Tailwind CSS"],
+      "role": "Full Stack Developer",
+      "liveUrl": "https://example-blog.com",
+      "githubUrl": "https://github.com/sahincoderbd/blog-platform",
+      "featured": false,
+      "details": "Developed a scalable blog platform with SEO optimization, social sharing, and content management features."
+    }
+  ],
+  "stats": {
+    "totalProjects": 200,
+    "experience": "2+",
+    "satisfaction": 100,
+    "technologies": 15
+  }
+}

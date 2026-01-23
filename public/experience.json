@@ -1,0 +1,30 @@
+{
+  "experience": [
+    {
+      "id": 1,
+      "company": "We Next Coder Agency",
+      "position": "Junior Web Developer",
+      "startDate": "2023",
+      "endDate": "Present",
+      "description": "Developing web solutions for clients using WordPress, React, and modern web technologies. Specializing in full-stack development and UI/UX implementation.",
+      "responsibilities": [
+        "Develop responsive websites and web applications",
+        "Convert Figma designs to functional websites",
+        "Implement SEO optimization strategies",
+        "Manage WordPress and e-commerce platforms",
+        "Collaborate with designers and clients on projects",
+        "Provide technical support and maintenance"
+      ],
+      "url": "https://wenextcoder.com/"
+    }
+  ],
+  "education": [
+    {
+      "id": 1,
+      "institution": "Self-Taught",
+      "field": "Web Development",
+      "year": "2022-Present",
+      "details": "Continuously learning through online courses, projects, and community engagement"
+    }
+  ]
+}
