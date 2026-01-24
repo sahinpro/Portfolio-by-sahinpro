@@ -1,12 +1,11 @@
 import react from "@vitejs/plugin-react";
 import path from "path";
-import tailwind from "tailwindcss";
 import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "./",
+  base: "/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -15,11 +14,6 @@ export default defineConfig({
       "@/hooks": path.resolve(__dirname, "./src/hooks"),
       "@/lib": path.resolve(__dirname, "./src/lib"),
       "@/constants": path.resolve(__dirname, "./src/constants"),
-    },
-  },
-  css: {
-    postcss: {
-      plugins: [tailwind()],
     },
   },
 });
