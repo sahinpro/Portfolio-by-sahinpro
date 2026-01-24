@@ -1,0 +1,40 @@
+import { navItems } from "@/constants/navigation";
+import { cn } from "@/lib/utils";
+import { Fragment } from "react";
+import { Link, useLocation } from "react-router-dom";
+
+interface NavigationProps {
+  className?: string;
+  onItemClick?: () => void;
+}
+
+/**
+ * Navigation component for header menu items
+ */
+export const Navigation = ({ className, onItemClick }: NavigationProps) => {
+  const location = useLocation();
+
+  return (
+    <Fragment>
+      {navItems.map((item) => {
+        const isActive = location.pathname === item.href;
+        return (
+          <Link
+            key={item.name}
+            to={item.href}
+            onClick={onItemClick}
+            className={cn(
+              "text-lg transition-all duration-300 relative group",
+              isActive
+                ? "text-text-menu-active"
+                : "text-text-normal hover:text-text-menu-hover",
+              className
+            )}
+          >
+            {item.name}
+          </Link>
+        );
+      })}
+    </Fragment>
+  );
+};
