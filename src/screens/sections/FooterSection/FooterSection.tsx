@@ -1,3 +1,4 @@
+import { FaGithub, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { Separator } from "../../../components/ui/separator";
 
 const footerLinks = {
@@ -49,11 +50,24 @@ export const FooterSection = (): JSX.Element => {
                 Full Stack Web Developer & Designer
               </p>
             </div>
-            <img
-              className="flex-shrink-0"
-              alt="Socials icons"
-              src="/socials-icons.svg"
-            />
+            <div className="flex items-center gap-4">
+              <a href="#" aria-label="GitHub" className="text-white hover:text-white/80 transition-colors">
+                {/* @ts-expect-error - react-icons type issue with strict mode */}
+                {<FaGithub className="w-5 h-5" /> as any}
+              </a>
+              <a href="#" aria-label="LinkedIn" className="text-white hover:text-white/80 transition-colors">
+                {/* @ts-expect-error - react-icons type issue with strict mode */}
+                {<FaLinkedin className="w-5 h-5" /> as any}
+              </a>
+              <a href="#" aria-label="Twitter" className="text-white hover:text-white/80 transition-colors">
+                {/* @ts-expect-error - react-icons type issue with strict mode */}
+                {<FaTwitter className="w-5 h-5" /> as any}
+              </a>
+              <a href="#" aria-label="Instagram" className="text-white hover:text-white/80 transition-colors">
+                {/* @ts-expect-error - react-icons type issue with strict mode */}
+                {<FaInstagram className="w-5 h-5" /> as any}
+              </a>
+            </div>
           </div>
 
           <nav className="flex flex-wrap lg:flex-nowrap w-full lg:w-[616px] items-start gap-8 lg:gap-0">

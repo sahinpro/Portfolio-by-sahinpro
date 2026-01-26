@@ -3,7 +3,7 @@ import { CustomerStoriesSection } from "@/screens/sections/CustomerStoriesSectio
 import { FeaturesOverviewSection } from "@/screens/sections/FeaturesOverviewSection/FeaturesOverviewSection";
 import { FooterSection } from "@/screens/sections/FooterSection/FooterSection";
 import { GetStartedSection } from "@/screens/sections/GetStartedSection";
-import { HeroSection } from "@/screens/sections/HeroSection/HeroSection";
+import { HeroSection } from "@/screens/sections/HeroSection";
 import { PricingSection } from "@/screens/sections/PricingSection/PricingSection";
 import { SkillsSection } from "@/screens/sections/SkillsSection";
 import { WhyChooseUsSection } from "@/screens/sections/WhyChooseUsSection";
@@ -15,7 +15,7 @@ export const HomePage = (): JSX.Element => {
   return (
     <div className="flex overflow-hidden flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
-      <div className="pt-4 w-full shading-effect-light">
+      <div className=" w-full shading-effect-light">
         <HeroSection />
       </div>
       <SkillsSection />

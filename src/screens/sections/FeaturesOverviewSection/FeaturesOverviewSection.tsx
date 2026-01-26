@@ -1,4 +1,4 @@
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, Share2 } from "lucide-react";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
@@ -68,7 +68,7 @@ const pricingPlans = [
 
 export const FeaturesOverviewSection = (): JSX.Element => {
   return (
-    <section id="skills" className="flex flex-col w-full max-w-[1440px] items-center gap-12 p-[100px] relative">
+    <section id="skills" className="flex flex-col w-full max-w-[1440px] items-center gap-12 p-4 sm:p-8 md:p-12 lg:p-[100px] relative">
       <img
         className="top-[-130px] w-full max-w-[1440px] absolute left-0 h-[1136px]"
         alt="Rectangle"
@@ -90,17 +90,17 @@ export const FeaturesOverviewSection = (): JSX.Element => {
             alt="Rectangle"
             src="/rectangle-29.svg"
           />
-          <img className="relative w-4 h-4" alt="Share" src="/share.svg" />
+          <Share2 className="relative w-4 h-4 text-white" />
           <span className="relative w-fit bg-[linear-gradient(179deg,rgba(255,255,255,1)_0%,rgba(255,255,255,0.6)_100%)] [-webkit-background-clip:text] bg-clip-text [-webkit-text-fill-color:transparent] [text-fill-color:transparent] [font-family:'Inter_Display-Medium',Helvetica] font-medium text-transparent text-base text-center tracking-[0] leading-5 whitespace-nowrap">
             Services
           </span>
         </Badge>
 
-        <div className="flex-col gap-4 self-stretch w-full flex items-center relative">
-          <h2 className="relative flex items-center justify-center self-stretch mt-[-1.00px] section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-5xl text-center tracking-[-1.00px] leading-[56.0px]">
+        <div className="flex-col gap-4 self-stretch w-full flex items-center relative px-4 sm:px-8">
+          <h2 className="relative flex items-center justify-center self-stretch mt-[-1.00px] section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">
             Service Plans
           </h2>
-          <p className="relative flex items-center justify-center w-fit [font-family:'Inter_Display-Regular',Helvetica] font-normal text-[#b3b3b3] text-xl text-center tracking-[-0.20px] leading-[32.0px] whitespace-nowrap">
+          <p className="relative flex items-center justify-center w-full [font-family:'Inter_Display-Regular',Helvetica] font-normal text-[#b3b3b3] text-base sm:text-lg md:text-xl text-center tracking-[-0.20px] leading-6 sm:leading-7 md:leading-[32.0px]">
             Different service packages to fit your project needs and budget.
           </p>
         </div>
@@ -135,13 +135,13 @@ export const FeaturesOverviewSection = (): JSX.Element => {
           </Button>
         </div>
 
-        <div className="flex items-start justify-center gap-5 relative self-stretch w-full">
+        <div className="flex flex-col lg:flex-row items-start justify-center gap-5 relative self-stretch w-full px-4 sm:px-0">
           {pricingPlans.map((plan, index) => (
             <Card
               key={index}
-              className={`flex flex-col h-[574px] items-center justify-center gap-6 p-8 relative flex-1 ${plan.bgClass} rounded-[10.87px] overflow-hidden border-[none] before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[10.87px] ${plan.gradientClass} before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none ${index === 0 ? "w-[400px]" : ""}`}
+              className={`flex flex-col h-auto min-h-[500px] sm:min-h-[550px] md:h-[574px] items-center justify-center gap-6 p-6 sm:p-8 relative flex-1 w-full sm:w-auto ${plan.bgClass} rounded-[10.87px] overflow-hidden border-[none] before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[10.87px] ${plan.gradientClass} before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none ${index === 0 ? "sm:w-[400px]" : ""}`}
             >
-              <div className="top-0 w-[400px] h-[574px] overflow-hidden absolute left-0">
+              <div className="top-0 w-full sm:w-[400px] h-full overflow-hidden absolute left-0">
                 {index === 0 && (
                   <>
                     <div className="absolute top-[-21px] left-[268px] w-[255px] h-[63px] blur-[100px] opacity-[0.67]">
@@ -212,7 +212,7 @@ export const FeaturesOverviewSection = (): JSX.Element => {
                       </Badge>
                     )}
                   </div>
-                  <p className="relative flex items-center justify-center w-[333.33px] opacity-40 [font-family:'Inter_Display-Regular',Helvetica] font-normal text-white text-lg tracking-[-1.00px] leading-[24.0px]">
+                  <p className="relative flex items-center justify-center w-full sm:w-[333.33px] opacity-40 [font-family:'Inter_Display-Regular',Helvetica] font-normal text-white text-base sm:text-lg tracking-[-1.00px] leading-5 sm:leading-6 md:leading-[24.0px]">
                     {plan.description}
                   </p>
                 </div>

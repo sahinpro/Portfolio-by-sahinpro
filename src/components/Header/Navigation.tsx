@@ -1,5 +1,6 @@
 import { navItems } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { Fragment } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -19,20 +20,34 @@ export const Navigation = ({ className, onItemClick }: NavigationProps) => {
       {navItems.map((item) => {
         const isActive = location.pathname === item.href;
         return (
-          <Link
+          <motion.div
             key={item.name}
-            to={item.href}
-            onClick={onItemClick}
-            className={cn(
-              "text-lg transition-all duration-300 relative group",
-              isActive
-                ? "text-text-menu-active"
-                : "text-text-normal hover:text-text-menu-hover",
-              className
-            )}
+            variants={{
+              hidden: { opacity: 0, y: -10 },
+              visible: {
+                opacity: 1,
+                y: 0,
+                transition: {
+                  duration: 0.4,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+              },
+            }}
           >
-            {item.name}
-          </Link>
+            <Link
+              to={item.href}
+              onClick={onItemClick}
+              className={cn(
+                "text-lg transition-all duration-300 relative group",
+                isActive
+                  ? "text-text-menu-active"
+                  : "text-text-normal hover:text-text-menu-hover",
+                className
+              )}
+            >
+              {item.name}
+            </Link>
+          </motion.div>
         );
       })}
     </Fragment>

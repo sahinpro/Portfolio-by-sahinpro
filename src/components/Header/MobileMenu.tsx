@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Navigation } from "./Navigation";
 import { CTAButton } from "../CTAButton";
+import { Navigation } from "./Navigation";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="overflow-hidden border-t border-[#ffffff1a] lg:hidden"
+          className="overflow-hidden bg-black/50 backdrop-blur-sm rounded-xl border-t border-[#ffffff1a] lg:hidden mb-2"
         >
           <div className="px-4 py-4 space-y-2">
             <Navigation

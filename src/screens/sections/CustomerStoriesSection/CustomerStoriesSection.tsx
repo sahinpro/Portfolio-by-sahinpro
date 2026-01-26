@@ -30,12 +30,12 @@ const stepsData = [
 
 export const CustomerStoriesSection = (): JSX.Element => {
   return (
-    <section id="projects" className="flex flex-col w-full items-center gap-12 px-[100px] py-[100px] relative">
-      <img
+    <section id="projects" className="flex flex-col w-full items-center gap-12 px-4 sm:px-8 md:px-12 lg:px-[100px] py-12 sm:py-16 md:py-20 lg:py-[100px] relative">
+      {/* <img
         className="absolute top-[-310px] left-0 w-full max-w-[1372px] h-[1136px] pointer-events-none"
         alt="Background decoration"
         src="/rectangle-34629478-2.svg"
-      />
+      /> */}
 
       <div className="flex flex-col w-full max-w-[1240px] items-center gap-5 relative z-10">
         <div className="inline-flex gap-2 px-3.5 py-2.5 rounded-[46px] overflow-hidden backdrop-blur-[2px] backdrop-brightness-[100%] [-webkit-backdrop-filter:blur(2px)_brightness(100%)] items-center relative before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[46px] before:[background:linear-gradient(241deg,rgba(255,255,255,0.4)_0%,rgba(255,255,255,0)_100%)] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none">
@@ -52,36 +52,36 @@ export const CustomerStoriesSection = (): JSX.Element => {
           </span>
         </div>
 
-        <div className="flex flex-col items-center gap-4 px-[229px] py-0 w-full">
-          <h2 className="flex items-center justify-center self-stretch section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-5xl text-center tracking-[-1.00px] leading-[56.0px]">
+        <div className="flex flex-col items-center gap-4 px-4 sm:px-8 md:px-16 lg:px-[229px] py-0 w-full">
+          <h2 className="flex items-center justify-center self-stretch section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">
             My Development Process
           </h2>
 
-          <p className="flex items-center justify-center w-fit [font-family:'Inter_Display-Regular',Helvetica] font-normal text-[#b3b3b3] text-xl text-center tracking-[-0.20px] leading-[32.0px] whitespace-nowrap">
+          <p className="flex items-center justify-center w-full [font-family:'Inter_Display-Regular',Helvetica] font-normal text-[#b3b3b3] text-base sm:text-lg md:text-xl text-center tracking-[-0.20px] leading-6 sm:leading-7 md:leading-[32.0px]">
             A streamlined approach to deliver quality projects on time.
           </p>
         </div>
       </div>
 
-      <div className="flex w-full max-w-[1240px] items-start gap-5 relative z-10">
-        <div className="flex items-center gap-5 w-full">
+      <div className="flex flex-col sm:flex-row w-full max-w-[1240px] items-start gap-5 relative z-10 px-4 sm:px-0 overflow-x-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 w-full min-w-full sm:min-w-0">
           {stepsData.map((step, index) => (
             <Card
               key={`step-${index}`}
-              className="flex flex-col w-[400px] h-[460px] items-start relative bg-[#0d0d0d] rounded-[10.87px] overflow-hidden border-[none] before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[10.87px] before:[background:linear-gradient(173deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.12)_100%)] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none"
+              className="flex flex-col w-full sm:w-[400px] flex-shrink-0 h-[300px] sm:h-[400px] md:h-[460px] items-start relative bg-[#0d0d0d] rounded-[10.87px] overflow-hidden border-[none] before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[10.87px] before:[background:linear-gradient(173deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.12)_100%)] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none"
             >
               <div
-                className="absolute top-0 left-0 w-[400px] h-[460px] bg-[100%_100%]"
+                className="absolute top-0 left-0 w-full h-full bg-[100%_100%]"
                 style={{ backgroundImage: `url(${step.textureUrl})` }}
               />
 
               <img
-                className="relative w-[400px] h-[460px]"
+                className="relative w-full h-full object-cover"
                 alt={`${step.title} visual`}
                 src={step.maskUrl}
               />
 
-              <CardContent className="absolute left-0 bottom-0 w-[400px] flex flex-col items-start gap-2 p-6">
+              <CardContent className="absolute left-0 bottom-0 w-full flex flex-col items-start gap-2 p-4 sm:p-6">
                 <h3 className="flex items-center justify-center w-fit [font-family:'Inter_Display-Medium',Helvetica] font-medium text-white text-lg tracking-[0] leading-[24.0px] whitespace-nowrap">
                   {step.number}. {step.title}
                 </h3>
