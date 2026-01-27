@@ -31,6 +31,10 @@
     --destructive-foreground: 0 0% 100%;
     --ring: 0 0% 98%;
     --radius: 0.5rem;
+    
+    /* Brand colors for Glow component */
+    --brand-ember: lab(49.32% 84.65 -79.22);
+    --brand-ember-foreground: lab(44.62% 67.08 -87.23);
 
     /* Global Theme Color Variables */
     /* Background Colors */
@@ -213,6 +217,11 @@
     color: transparent;
     line-height: 3.5rem;
     font-weight: 700;
+  }
+  
+  /* Radial gradient utility for Glow component */
+  .bg-radial {
+    background-image: radial-gradient(var(--tw-gradient-stops));
   }
 }
 @media screen and (max-width: 768px) {
