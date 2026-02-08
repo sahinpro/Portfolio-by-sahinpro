@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { useEffect, useRef } from "react";
 import { ExternalLink, Github } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,14 +27,57 @@ export const ProjectCard = ({
   index,
   featured = false,
 }: ProjectCardProps) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!cardRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            gsap.fromTo(
+              cardRef.current,
+              { opacity: 0, y: 30 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                delay: index * 0.1,
+                ease: "power3.out",
+              }
+            );
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, [index]);
+
+  useEffect(() => {
+    if (!cardRef.current) return;
+
+    const card = cardRef.current;
+    const handleMouseEnter = () => {
+      gsap.to(card, { y: -5, duration: 0.3, ease: "power2.out" });
+    };
+    const handleMouseLeave = () => {
+      gsap.to(card, { y: 0, duration: 0.3, ease: "power2.out" });
+    };
+
+    card.addEventListener("mouseenter", handleMouseEnter);
+    card.addEventListener("mouseleave", handleMouseLeave);
+
+    return () => {
+      card.removeEventListener("mouseenter", handleMouseEnter);
+      card.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, []);
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      viewport={{ once: true }}
-      whileHover={{ y: -5 }}
-    >
+    <div ref={cardRef}>
       <Card className="glass-card glass-card-hover overflow-hidden">
         <CardContent className="p-0">
           {/* Project Image */}
@@ -118,6 +162,6 @@ export const ProjectCard = ({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 };

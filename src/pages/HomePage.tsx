@@ -14,11 +14,9 @@ import { WhyChooseUsSection } from "@/screens/sections/WhyChooseUsSection";
  */
 export const HomePage = (): JSX.Element => {
   return (
-    <div className="flex overflow-hidden flex-col items-start relative bg-[#050505] container mx-auto min-h-screen shading-effect">
-      <Header />
-      <div className=" w-full shading-effect-light">
-        <HeroSection />
-      </div>
+    <div className="flex overflow-hidden flex-col items-start relative bg-[#050505]  min-h-screen">
+      <Header /> 
+      <HeroSection />
       <VideoSection />
       <SkillsSection />
       <PricingSection />

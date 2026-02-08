@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { gsap } from "gsap";
+import { useEffect, useRef, useState } from "react";
 import Header from "@/components/Header";
 import { FooterSection } from "@/screens/sections/FooterSection/FooterSection";
 import { ProjectCard, Project } from "./ProjectsPage/ProjectCard";
@@ -44,6 +44,10 @@ const categories = ["All", "Full Stack", "Frontend", "CMS"];
 
 export const ProjectsPage = (): JSX.Element => {
   const [filter, setFilter] = useState<string>("All");
+  const headerRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const featuredRef = useRef<HTMLDivElement>(null);
+  const projectsRef = useRef<HTMLDivElement>(null);
 
   const filteredProjects =
     filter === "All"
@@ -55,18 +59,120 @@ export const ProjectsPage = (): JSX.Element => {
     (p) => !p.featured || filter !== "All"
   );
 
+  useEffect(() => {
+    // Header animation
+    if (headerRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                headerRef.current,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.8,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(headerRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Filters animation
+    if (filtersRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                filtersRef.current,
+                { opacity: 0, y: 20 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.6,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(filtersRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Featured projects animation
+    if (featuredRef.current && filter === "All") {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                featuredRef.current,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.8,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(featuredRef.current);
+      return () => observer.disconnect();
+    }
+  }, [filter]);
+
+  useEffect(() => {
+    // Projects grid animation
+    if (projectsRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                projectsRef.current,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.8,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(projectsRef.current);
+      return () => observer.disconnect();
+    }
+  }, [filter]);
+
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
       <section className="py-32 relative w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12"
-          >
+          <div ref={headerRef} className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white">
               My Projects
             </h1>
@@ -74,16 +180,10 @@ export const ProjectsPage = (): JSX.Element => {
               A collection of my recent work showcasing my skills in web
               development, design, and problem-solving
             </p>
-          </motion.div>
+          </div>
 
           {/* Filter Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-wrap justify-center gap-3 mb-12"
-          >
+          <div ref={filtersRef} className="flex flex-wrap justify-center gap-3 mb-12">
             {categories.map((category) => (
               <button
                 key={category}
@@ -97,17 +197,11 @@ export const ProjectsPage = (): JSX.Element => {
                 {category}
               </button>
             ))}
-          </motion.div>
+          </div>
 
           {/* Featured Projects */}
           {filter === "All" && featuredProjects.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="mb-16"
-            >
+            <div ref={featuredRef} className="mb-16">
               <h2 className="text-2xl font-bold mb-6 text-white">
                 Featured Projects
               </h2>
@@ -116,16 +210,11 @@ export const ProjectsPage = (): JSX.Element => {
                   <ProjectCard key={project.id} project={project} index={index} featured />
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* All Projects Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
+          <div ref={projectsRef}>
             {filter !== "All" && (
               <h2 className="text-2xl font-bold mb-6 text-white">
                 {filter} Projects
@@ -136,7 +225,7 @@ export const ProjectsPage = (): JSX.Element => {
                 <ProjectCard key={project.id} project={project} index={index} />
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
       <FooterSection />

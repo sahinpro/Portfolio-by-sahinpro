@@ -1,5 +1,6 @@
 import LightRays from "@/components/LightRays";
-import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { useEffect, useRef } from "react";
 import { FaBehance, FaDribbble, FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { HeroContent } from "./HeroContent";
 
@@ -13,6 +14,102 @@ const socialLinks = [
 
 // Main Hero Section Component
 export const HeroSection = (): JSX.Element => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const socialRef = useRef<HTMLDivElement>(null);
+  const socialLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
+
+  useEffect(() => {
+    // Main container animation
+    if (containerRef.current) {
+      gsap.fromTo(
+        containerRef.current,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power3.out",
+        }
+      );
+    }
+
+    // Content animation
+    if (contentRef.current) {
+      gsap.fromTo(
+        contentRef.current,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          delay: 0.2,
+          ease: "power3.out",
+        }
+      );
+    }
+
+    // Social icons animation
+    if (socialRef.current) {
+      gsap.fromTo(
+        socialRef.current,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: 0.5,
+          delay: 0.6,
+        }
+      );
+
+      const links = socialLinksRef.current.filter(Boolean) as HTMLAnchorElement[];
+      gsap.fromTo(
+        links,
+        { opacity: 0, scale: 0.6, y: 10 },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.5,
+          delay: 0.6,
+          stagger: 0.08,
+          ease: "power3.out",
+        }
+      );
+
+      // Hover animations
+      links.forEach((link) => {
+        link.addEventListener("mouseenter", () => {
+          gsap.to(link, {
+            scale: 1.15,
+            y: -5,
+            duration: 0.2,
+            ease: "power2.out",
+          });
+        });
+        link.addEventListener("mouseleave", () => {
+          gsap.to(link, {
+            scale: 1,
+            y: 0,
+            duration: 0.2,
+            ease: "power2.out",
+          });
+        });
+        link.addEventListener("mousedown", () => {
+          gsap.to(link, {
+            scale: 0.95,
+            duration: 0.1,
+          });
+        });
+        link.addEventListener("mouseup", () => {
+          gsap.to(link, {
+            scale: 1.15,
+            duration: 0.1,
+          });
+        });
+      });
+    }
+  }, []);
+
   return (
     <section className="relative w-full overflow-hidden py-12 min-h-screen flex items-center justify-center">
       {/* Light Rays Background Effect */}
@@ -21,110 +118,53 @@ export const HeroSection = (): JSX.Element => {
           raysOrigin="top-center"
           raysColor="#d400ff"
           raysSpeed={1}
-          lightSpread={2.4}
-          rayLength={2}
+          lightSpread={3.4}
+          rayLength={3}
           pulsating={false}
-          fadeDistance={0.9}
-          saturation={1.7}
+          fadeDistance={0.5}
+          saturation={1}
           followMouse
-          mouseInfluence={0.35}
+          mouseInfluence={0.1}
           noiseAmount={0}
           distortion={0}
         />
       </div>
 
-      {/* Dark Overlay for Better Text Readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/40 via-transparent to-[#050505]/60 z-[1]" />
-
       {/* Gradient Overlay at Bottom */}
       <div className="pointer-events-none absolute left-0 bottom-0 w-full h-[200px] bg-gradient-to-t from-[#050505] via-[#05050580] to-transparent z-[1]" />
       
       {/* Hero Content */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ 
-          duration: 0.6, 
-          ease: [0.22, 1, 0.36, 1], // Custom cubic-bezier for smooth easing
-        }}
+      <div
+        ref={containerRef}
         className="relative flex flex-col items-center justify-center py-8 z-[2] w-full"
       >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ 
-            duration: 0.7, 
-            delay: 0.2,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-        >
+        <div ref={contentRef}>
           <HeroContent />
-        </motion.div>
+        </div>
         
         {/* Social Media Icons */}
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                delayChildren: 0.6,
-                staggerChildren: 0.08,
-              },
-            },
-          }}
-          className="flex items-center gap-6 mt-8"
-        >
-          {socialLinks.map((link) => {
+        <div ref={socialRef} className="flex items-center gap-6 mt-8">
+          {socialLinks.map((link, index) => {
             const Icon = link.icon;
             return (
-              <motion.a
+              <a
                 key={link.label}
+                ref={(el) => {
+                  socialLinksRef.current[index] = el;
+                }}
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                variants={{
-                  hidden: { 
-                    opacity: 0, 
-                    scale: 0.6,
-                    y: 10,
-                  },
-                  visible: { 
-                    opacity: 1, 
-                    scale: 1,
-                    y: 0,
-                    transition: {
-                      duration: 0.5,
-                      ease: [0.22, 1, 0.36, 1],
-                    },
-                  },
-                }}
-                whileHover={{ 
-                  scale: 1.15, 
-                  y: -5,
-                  transition: {
-                    duration: 0.2,
-                    ease: "easeOut",
-                  },
-                }}
-                whileTap={{ 
-                  scale: 0.95,
-                  transition: {
-                    duration: 0.1,
-                  },
-                }}
                 className="text-white/70 hover:text-white transition-colors duration-300"
                 aria-label={link.label}
               >
                 {/* @ts-expect-error - react-icons type issue with strict mode */}
                 {<Icon size={24} /> as any}
-              </motion.a>
+              </a>
             );
           })}
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 };

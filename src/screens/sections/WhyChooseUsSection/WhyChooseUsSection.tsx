@@ -1,8 +1,7 @@
-import { ChevronLeftIcon, ChevronRightIcon, ShareIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { FaBuilding, FaPlay } from "react-icons/fa";
-import { Badge } from "../../../components/ui/badge";
-import { Button } from "../../../components/ui/button";
-import { Card, CardContent } from "../../../components/ui/card";
 
 const testimonials = [
   {
@@ -67,27 +66,9 @@ const testimonials = [
 export const WhyChooseUsSection = (): JSX.Element => {
   return (
     <section id="about" className="relative flex flex-col items-center gap-8 sm:gap-12 md:gap-16 lg:gap-[66px] p-4 sm:p-8 md:p-12 lg:p-[100px] w-full max-w-[1440px] mx-auto">
-      <img
-        className="absolute top-[-264px] left-0 w-full h-[1136px] pointer-events-none"
-        alt="Background decoration"
-        src="/rectangle-34629478-9.svg"
-      />
+    
 
       <header className="flex flex-col items-center gap-5 w-full max-w-[1240px] relative z-10">
-        <Badge
-          variant="outline"
-          className="inline-flex h-[39px] items-center gap-2 px-3.5 py-0 rounded-[46px] overflow-hidden border-none backdrop-blur-[2px] backdrop-brightness-[100%] [-webkit-backdrop-filter:blur(2px)_brightness(100%)] bg-[linear-gradient(182deg,rgba(0,0,0,0.05)_0%,rgba(255,255,255,0.1)_100%)] before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[46px] before:[background:linear-gradient(241deg,rgba(255,255,255,0.4)_0%,rgba(255,255,255,0)_100%)] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none"
-        >
-          <img
-            className="absolute top-[-15px] left-[calc(50%_-_103px)] w-[209px] h-[108px]"
-            alt="Badge decoration"
-            src="/rectangle-30.svg"
-          />
-          <ShareIcon className="w-4 h-4 relative z-10" />
-          <span className="relative z-10 bg-[linear-gradient(179deg,rgba(255,255,255,1)_0%,rgba(255,255,255,0.6)_100%)] [-webkit-background-clip:text] bg-clip-text [-webkit-text-fill-color:transparent] [text-fill-color:transparent] [font-family:'Inter_Display-Medium',Helvetica] font-medium text-base text-center tracking-[0] leading-5 whitespace-nowrap">
-            Testimonial
-          </span>
-        </Badge>
 
         <div className="flex flex-col gap-4 items-center w-full px-4 sm:px-8">
           <h2 className="section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">

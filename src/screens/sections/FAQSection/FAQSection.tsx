@@ -4,8 +4,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "../../../components/ui/accordion";
-import { Badge } from "../../../components/ui/badge";
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 
 const faqItems = [
   {

@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { useEffect, useRef } from "react";
 import { Calendar, Code, Heart, Users } from "lucide-react";
 import { useState } from "react";
 import Header from "@/components/Header";
@@ -44,6 +45,12 @@ const highlights = [
 export const AboutPage = (): JSX.Element => {
   const [copied, setCopied] = useState(false);
   const email = "sahinhub@gmail.com";
+  const headerRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const statCardsRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const highlightsRef = useRef<HTMLDivElement>(null);
+  const highlightCardsRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const ctaRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(email).then(() => {
@@ -59,19 +66,204 @@ export const AboutPage = (): JSX.Element => {
     link.click();
   };
 
+  useEffect(() => {
+    // Header animation
+    if (headerRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                headerRef.current,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.6,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(headerRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Stats animation
+    if (statsRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                statsRef.current,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.6,
+                  delay: 0.2,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(statsRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Stat cards animation
+    const cards = statCardsRefs.current.filter(Boolean) as HTMLDivElement[];
+    if (cards.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                cards,
+                { opacity: 0, scale: 0.9 },
+                {
+                  opacity: 1,
+                  scale: 1,
+                  duration: 0.5,
+                  stagger: 0.1,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      cards.forEach((card) => observer.observe(card));
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Highlights animation
+    if (highlightsRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                highlightsRef.current,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.6,
+                  delay: 0.3,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(highlightsRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Highlight cards animation
+    const cards = highlightCardsRefs.current.filter(Boolean) as HTMLDivElement[];
+    if (cards.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                cards,
+                { opacity: 0, y: 20 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.5,
+                  stagger: 0.1,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      cards.forEach((card) => observer.observe(card));
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // CTA buttons animation
+    if (ctaRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                ctaRef.current,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.6,
+                  delay: 0.4,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(ctaRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Hover animations for stat and highlight cards
+    const allCards = [
+      ...statCardsRefs.current,
+      ...highlightCardsRefs.current,
+    ].filter(Boolean) as HTMLDivElement[];
+    allCards.forEach((card) => {
+      const handleMouseEnter = () => {
+        gsap.to(card, { y: -5, duration: 0.3, ease: "power2.out" });
+      };
+      const handleMouseLeave = () => {
+        gsap.to(card, { y: 0, duration: 0.3, ease: "power2.out" });
+      };
+      card.addEventListener("mouseenter", handleMouseEnter);
+      card.addEventListener("mouseleave", handleMouseLeave);
+      return () => {
+        card.removeEventListener("mouseenter", handleMouseEnter);
+        card.removeEventListener("mouseleave", handleMouseLeave);
+      };
+    });
+  }, []);
+
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
       <section className="py-32 relative w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-12"
-          >
+          <div ref={headerRef} className="mb-12">
             <div className="flex gap-2 items-center mb-4">
               <h2 className="text-4xl md:text-5xl font-bold text-white">
                 About Me
@@ -95,26 +287,18 @@ export const AboutPage = (): JSX.Element => {
               experiences. My journey began with WordPress development, and now
               I'm expanding into Full Stack Development.
             </p>
-          </motion.div>
+          </div>
 
           {/* Stats Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
-          >
+          <div ref={statsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
+                  ref={(el) => {
+                    statCardsRefs.current[index] = el;
+                  }}
                 >
                   <Card className="glass-card glass-card-hover p-6 text-center group">
                     <CardContent className="p-0">
@@ -127,27 +311,19 @@ export const AboutPage = (): JSX.Element => {
                       <div className="text-text-normal text-sm">{stat.label}</div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               );
             })}
-          </motion.div>
+          </div>
 
           {/* Highlights Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
-          >
+          <div ref={highlightsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {highlights.map((highlight, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
+                ref={(el) => {
+                  highlightCardsRefs.current[index] = el;
+                }}
               >
                 <Card className="glass-card glass-card-hover p-6">
                   <CardContent className="p-0">
@@ -160,18 +336,12 @@ export const AboutPage = (): JSX.Element => {
                     </p>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
 
           {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-wrap gap-4 justify-center"
-          >
+          <div ref={ctaRef} className="flex flex-wrap gap-4 justify-center">
             <CTAButton onClick={handleResumeClick} variant="primary">
               Download Resume
             </CTAButton>
@@ -183,7 +353,7 @@ export const AboutPage = (): JSX.Element => {
             <CTAButton href="/contact" variant="primary">
               Schedule Call
             </CTAButton>
-          </motion.div>
+          </div>
         </div>
       </section>
       <FooterSection />

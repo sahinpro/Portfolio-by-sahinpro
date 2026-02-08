@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { useEffect, useRef } from "react";
 import { CheckCircle, Github, Linkedin, Mail, MapPin, Phone, Send, Twitter } from "lucide-react";
 import { ChangeEvent, FormEvent, useState } from "react";
 import Header from "@/components/Header";
@@ -48,6 +49,12 @@ export const ContactPage = (): JSX.Element => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  const infoRef = useRef<HTMLDivElement>(null);
+  const contactInfoRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const socialLinksRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const successRef = useRef<HTMLDivElement>(null);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -77,18 +84,167 @@ export const ContactPage = (): JSX.Element => {
     }
   };
 
+  useEffect(() => {
+    // Header animation
+    if (headerRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                headerRef.current,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.8,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(headerRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Form animation
+    if (formRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                formRef.current,
+                { opacity: 0, x: -30 },
+                {
+                  opacity: 1,
+                  x: 0,
+                  duration: 0.8,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(formRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Info section animation
+    if (infoRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                infoRef.current,
+                { opacity: 0, x: 30 },
+                {
+                  opacity: 1,
+                  x: 0,
+                  duration: 0.8,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(infoRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Contact info items animation
+    const items = contactInfoRefs.current.filter(Boolean) as HTMLAnchorElement[];
+    if (items.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                items,
+                { opacity: 0, y: 20 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.6,
+                  stagger: 0.1,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      items.forEach((item) => observer.observe(item));
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Social links animation
+    const links = socialLinksRefs.current.filter(Boolean) as HTMLAnchorElement[];
+    if (links.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                links,
+                { opacity: 0, y: 20 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.6,
+                  stagger: 0.1,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      links.forEach((link) => observer.observe(link));
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Success message animation
+    if (successRef.current && isSubmitted) {
+      gsap.fromTo(
+        successRef.current,
+        { opacity: 0, scale: 0.8 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.4,
+          ease: "back.out(1.7)",
+        }
+      );
+    }
+  }, [isSubmitted]);
+
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
       <section className="py-32 relative w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12"
-          >
+          <div ref={headerRef} className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white">
               Let's Build Something Amazing Together
             </h1>
@@ -96,16 +252,11 @@ export const ContactPage = (): JSX.Element => {
               Have a project in mind? Let's discuss how we can bring your ideas
               to life. I typically respond within 24 hours.
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
+            <div ref={formRef}>
               <Card className="glass-card glass-card-hover p-6">
                 <CardContent className="p-0">
                   <div className="mb-6">
@@ -118,11 +269,7 @@ export const ContactPage = (): JSX.Element => {
                     </p>
                   </div>
                   {isSubmitted ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="text-center py-8"
-                    >
+                    <div ref={successRef} className="text-center py-8">
                       <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
                       <h3 className="text-xl font-semibold text-white mb-2">
                         Message Sent Successfully!
@@ -130,7 +277,7 @@ export const ContactPage = (): JSX.Element => {
                       <p className="text-white/70">
                         Thank you for your message. I'll get back to you soon.
                       </p>
-                    </motion.div>
+                    </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div>
@@ -212,16 +359,10 @@ export const ContactPage = (): JSX.Element => {
                   )}
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
 
             {/* Contact Information */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
+            <div ref={infoRef} className="space-y-8">
               {/* Contact Details */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-bold text-white">
@@ -231,13 +372,12 @@ export const ContactPage = (): JSX.Element => {
                 {contactInfo.map((info, index) => {
                   const Icon = info.icon;
                   return (
-                    <motion.a
+                    <a
                       key={info.title}
+                      ref={(el) => {
+                        contactInfoRefs.current[index] = el;
+                      }}
                       href={info.href}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: index * 0.1 }}
                     >
                       <Card className="glass-card glass-card-hover p-4">
                         <CardContent className="p-0">
@@ -254,7 +394,7 @@ export const ContactPage = (): JSX.Element => {
                           </div>
                         </CardContent>
                       </Card>
-                    </motion.a>
+                    </a>
                   );
                 })}
               </div>
@@ -267,15 +407,14 @@ export const ContactPage = (): JSX.Element => {
                   {socialLinks.map((link, index) => {
                     const Icon = link.icon;
                     return (
-                      <motion.a
+                      <a
                         key={link.name}
+                        ref={(el) => {
+                          socialLinksRefs.current[index] = el;
+                        }}
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: index * 0.1 }}
                       >
                         <Card className="glass-card glass-card-hover p-4">
                           <CardContent className="p-0">
@@ -287,12 +426,12 @@ export const ContactPage = (): JSX.Element => {
                             </div>
                           </CardContent>
                         </Card>
-                      </motion.a>
+                      </a>
                     );
                   })}
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>

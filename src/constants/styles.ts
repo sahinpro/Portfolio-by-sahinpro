@@ -2,7 +2,7 @@
  * Design system constants and style utilities
  */
 
-import { colors } from '../theme/colors';
+import { colors } from '@/theme/colors';
 
 export const SCROLL_THRESHOLD = 50;
 export const HEADER_ANIMATION_DURATION = 0.4;

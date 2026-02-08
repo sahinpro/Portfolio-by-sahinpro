@@ -1,5 +1,6 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { gsap } from "gsap";
 import { Menu, X } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface MenuButtonProps {
   isOpen: boolean;
@@ -10,6 +11,36 @@ interface MenuButtonProps {
  * Animated menu toggle button for mobile navigation
  */
 export const MenuButton = ({ isOpen, onClick }: MenuButtonProps) => {
+  const iconRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!iconRef.current) return;
+
+    if (isOpen) {
+      gsap.fromTo(
+        iconRef.current,
+        { rotate: -90, opacity: 0 },
+        {
+          rotate: 0,
+          opacity: 1,
+          duration: 0.2,
+          ease: "power2.out",
+        }
+      );
+    } else {
+      gsap.fromTo(
+        iconRef.current,
+        { rotate: 90, opacity: 0 },
+        {
+          rotate: 0,
+          opacity: 1,
+          duration: 0.2,
+          ease: "power2.out",
+        }
+      );
+    }
+  }, [isOpen]);
+
   return (
     <button
       onClick={onClick}
@@ -17,29 +48,13 @@ export const MenuButton = ({ isOpen, onClick }: MenuButtonProps) => {
       aria-label={isOpen ? "Close menu" : "Open menu"}
       aria-expanded={isOpen}
     >
-      <AnimatePresence mode="wait">
+      <div ref={iconRef} className="relative w-5 h-5">
         {isOpen ? (
-          <motion.div
-            key="close"
-            initial={{ rotate: -90, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            exit={{ rotate: 90, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <X className="h-5 w-5 text-white" />
-          </motion.div>
+          <X className="h-5 w-5 text-white absolute inset-0" />
         ) : (
-          <motion.div
-            key="menu"
-            initial={{ rotate: 90, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            exit={{ rotate: -90, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Menu className="h-5 w-5 text-white" />
-          </motion.div>
+          <Menu className="h-5 w-5 text-white absolute inset-0" />
         )}
-      </AnimatePresence>
+      </div>
     </button>
   );
 };

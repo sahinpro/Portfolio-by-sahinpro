@@ -1,5 +1,5 @@
-import { CTAButton } from "../../../components/CTAButton";
-import { Card, CardContent } from "../../../components/ui/card";
+import { CTAButton } from "@/components/CTAButton";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const GetStartedSection = (): JSX.Element => {
   return (

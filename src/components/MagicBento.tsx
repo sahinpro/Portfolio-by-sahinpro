@@ -77,9 +77,9 @@ const createParticleElement = (x: number, y: number, color: string = DEFAULT_GLO
     position: absolute;
     width: 4px;
     height: 4px;
-    border-radius: 50%;
-    background: rgba(${color}, 1);
-    box-shadow: 0 0 6px rgba(${color}, 0.6);
+    border-radius: 20%;
+    background: rgba(${color}, .3);
+    box-shadow: 0 0 6px rgba(${color}, 0.3);
     pointer-events: none;
     z-index: 100;
     left: ${x}px;
@@ -297,10 +297,10 @@ const ParticleCard: React.FC<{
       const ripple = document.createElement('div');
       ripple.style.cssText = `
         position: absolute;
-        width: ${maxDistance * 2}px;
-        height: ${maxDistance * 2}px;
+        width: ${maxDistance * 1}px;
+        height: ${maxDistance * 1}px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(${glowColor}, 0.4) 0%, rgba(${glowColor}, 0.2) 30%, transparent 70%);
+        background: radial-gradient(circle, rgba(${glowColor}, 0.1) 0%, rgba(${glowColor}, 0.2) 20%, transparent 70%);
         left: ${x - maxDistance}px;
         top: ${y - maxDistance}px;
         pointer-events: none;
@@ -545,8 +545,7 @@ const MagicBento: React.FC<BentoProps> = ({
             --glow-intensity: 0;
             --glow-radius: 200px;
             --glow-color: ${glowColor};
-            --border-color: #392e4e;
-            --background-dark: #060010;
+            --border-color: rgba(${glowColor}, 0.2);
             --white: hsl(0, 0%, 100%);
             --purple-primary: rgba(132, 0, 255, 1);
             --purple-glow: rgba(132, 0, 255, 0.2);
@@ -866,7 +865,7 @@ const MagicBento: React.FC<BentoProps> = ({
                   </span>
                 </div>
                 <div className="card__content flex flex-col relative text-white z-10">
-                  <h3 className={`card__title font-bold text-xl md:text-2xl lg:text-3xl m-0 mb-3 tracking-tight ${textAutoHide ? 'text-clamp-1' : ''} text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`}>
+                  <h3 className={`card__title font-bold text-lg lg:text-xl m-0 mb-3 tracking-tight ${textAutoHide ? 'text-clamp-1' : ''} text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`}>
                     {card.title}
                   </h3>
                   <p className={`card__description text-sm md:text-base leading-6 opacity-95 ${textAutoHide ? 'text-clamp-2' : ''}`}>

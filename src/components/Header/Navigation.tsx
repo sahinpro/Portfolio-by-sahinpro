@@ -1,6 +1,5 @@
 import { navItems } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { Fragment } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -20,20 +19,7 @@ export const Navigation = ({ className, onItemClick }: NavigationProps) => {
       {navItems.map((item) => {
         const isActive = location.pathname === item.href;
         return (
-          <motion.div
-            key={item.name}
-            variants={{
-              hidden: { opacity: 0, y: -10 },
-              visible: {
-                opacity: 1,
-                y: 0,
-                transition: {
-                  duration: 0.4,
-                  ease: [0.22, 1, 0.36, 1],
-                },
-              },
-            }}
-          >
+          <div key={item.name}>
             <Link
               to={item.href}
               onClick={onItemClick}
@@ -47,7 +33,7 @@ export const Navigation = ({ className, onItemClick }: NavigationProps) => {
             >
               {item.name}
             </Link>
-          </motion.div>
+          </div>
         );
       })}
     </Fragment>

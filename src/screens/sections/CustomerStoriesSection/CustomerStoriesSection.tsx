@@ -1,5 +1,5 @@
 import { Share2Icon } from "lucide-react";
-import { Card, CardContent } from "../../../components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 const stepsData = [
   {

@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { useEffect, useRef } from "react";
 import { Check, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import { FooterSection } from "@/screens/sections/FooterSection/FooterSection";
@@ -88,18 +89,90 @@ const services: Service[] = [
 ];
 
 export const ServicesPage = (): JSX.Element => {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const servicesRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    // Header animation
+    if (headerRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                headerRef.current,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.6,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(headerRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Services cards animation
+    const cards = servicesRefs.current.filter(Boolean) as HTMLDivElement[];
+    if (cards.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              gsap.fromTo(
+                cards,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.6,
+                  stagger: 0.1,
+                  ease: "power3.out",
+                }
+              );
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      cards.forEach((card) => observer.observe(card));
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Hover animations for service cards
+    const cards = servicesRefs.current.filter(Boolean) as HTMLDivElement[];
+    cards.forEach((card) => {
+      const handleMouseEnter = () => {
+        gsap.to(card, { y: -8, duration: 0.3, ease: "power2.out" });
+      };
+      const handleMouseLeave = () => {
+        gsap.to(card, { y: 0, duration: 0.3, ease: "power2.out" });
+      };
+      card.addEventListener("mouseenter", handleMouseEnter);
+      card.addEventListener("mouseleave", handleMouseLeave);
+      return () => {
+        card.removeEventListener("mouseenter", handleMouseEnter);
+        card.removeEventListener("mouseleave", handleMouseLeave);
+      };
+    });
+  }, []);
+
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
       <section className="py-32 relative w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-12"
-          >
+          <div ref={headerRef} className="mb-12">
             <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
               Services I Provide
             </h2>
@@ -109,18 +182,16 @@ export const ServicesPage = (): JSX.Element => {
               services to bring your digital vision to life with precision and
               creativity.
             </p>
-          </motion.div>
+          </div>
 
           {/* Services Grid */}
           <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-8">
             {services.map((service, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -8 }}
+                ref={(el) => {
+                  servicesRefs.current[index] = el;
+                }}
               >
                 <Card className="glass-card glass-card-hover p-8 relative overflow-hidden group h-full flex flex-col">
                   <CardContent className="p-0 flex flex-col flex-1">
@@ -157,7 +228,7 @@ export const ServicesPage = (): JSX.Element => {
                     </CTAButton>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
