@@ -2,7 +2,7 @@ import { gsap } from "gsap";
 import { useEffect, useRef } from "react";
 import { Check, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
-import { FooterSection } from "@/screens/sections/FooterSection/FooterSection";
+import { FooterSection } from "@/screens/sections/FooterSection";
 import { CTAButton } from "@/components/CTAButton";
 import { Card, CardContent } from "@/components/ui/card";
 

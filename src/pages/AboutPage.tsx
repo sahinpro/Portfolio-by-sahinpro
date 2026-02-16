@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { Calendar, Code, Heart, Users } from "lucide-react";
 import { useState } from "react";
 import Header from "@/components/Header";
-import { FooterSection } from "@/screens/sections/FooterSection/FooterSection";
+import { FooterSection } from "@/screens/sections/FooterSection";
 import { CTAButton } from "@/components/CTAButton";
 import { Card, CardContent } from "@/components/ui/card";
 

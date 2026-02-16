@@ -1,7 +1,7 @@
 'use client';
 import { cn } from '@/lib/utils';
 import { gsap } from 'gsap';
-import { useState, useEffect, useRef, Children } from 'react';
+import { Children, useEffect, useRef, useState } from 'react';
 
 export type TextLoopProps = {
   children: React.ReactNode[];

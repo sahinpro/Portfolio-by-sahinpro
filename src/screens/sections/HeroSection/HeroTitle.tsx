@@ -1,4 +1,4 @@
-import { TextEffect } from "@/components/motion-primitives/text-effect";
+import { TextEffect } from "@/components/MotionPrimitives/TextEffect";
 
 export const HeroTitle = () => (
   <TextEffect 

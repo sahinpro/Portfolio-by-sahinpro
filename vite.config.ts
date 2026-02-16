@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react()],
   base: "/",
+  assetsInclude: ['**/*.glb'],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

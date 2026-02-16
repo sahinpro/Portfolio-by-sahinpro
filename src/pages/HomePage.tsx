@@ -1,10 +1,9 @@
 import Header from "@/components/Header";
-import { CustomerStoriesSection } from "@/screens/sections/CustomerStoriesSection/CustomerStoriesSection";
-import { FeaturesOverviewSection } from "@/screens/sections/FeaturesOverviewSection/FeaturesOverviewSection";
-import { FooterSection } from "@/screens/sections/FooterSection/FooterSection";
+import { CustomerStoriesSection } from "@/screens/sections/CustomerStoriesSection";
+import { DevelopmentProcessSection } from "@/screens/sections/DevelopmentProcessSection";
+import { FooterSection } from "@/screens/sections/FooterSection";
 import { GetStartedSection } from "@/screens/sections/GetStartedSection";
 import { HeroSection } from "@/screens/sections/HeroSection";
-import { PricingSection } from "@/screens/sections/PricingSection/PricingSection";
 import { SkillsSection } from "@/screens/sections/SkillsSection";
 import { VideoSection } from "@/screens/sections/VideoSection";
 import { WhyChooseUsSection } from "@/screens/sections/WhyChooseUsSection";
@@ -19,10 +18,9 @@ export const HomePage = (): JSX.Element => {
       <HeroSection />
       <VideoSection />
       <SkillsSection />
-      <PricingSection />
+      <DevelopmentProcessSection />
       <CustomerStoriesSection />
       <WhyChooseUsSection />
-      <FeaturesOverviewSection />
       <GetStartedSection />
       <FooterSection />
     </div>

@@ -17,6 +17,7 @@ export const HeroSection = (): JSX.Element => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const socialRef = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
   const socialLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
 
   useEffect(() => {
@@ -108,6 +109,22 @@ export const HeroSection = (): JSX.Element => {
         });
       });
     }
+
+    // Badge animation
+    if (badgeRef.current) {
+      gsap.fromTo(
+        badgeRef.current,
+        { opacity: 0, y: -20, scale: 0.9 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.6,
+          delay: 0.1,
+          ease: "power3.out",
+        }
+      );
+    }
   }, []);
 
   return (
@@ -132,6 +149,12 @@ export const HeroSection = (): JSX.Element => {
 
       {/* Gradient Overlay at Bottom */}
       <div className="pointer-events-none absolute left-0 bottom-0 w-full h-[200px] bg-gradient-to-t from-[#050505] via-[#05050580] to-transparent z-[1]" />
+      
+      {/* Lanyard 3D Component at Top */}
+      <div
+        ref={badgeRef}
+        className="absolute top-0 left-0 w-full h-[400px] sm:h-[500px] z-[3] pointer-events-auto"
+      >      </div>
       
       {/* Hero Content */}
       <div

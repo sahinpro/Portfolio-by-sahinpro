@@ -1,7 +1,7 @@
 import { gsap } from "gsap";
 import { useEffect, useRef, useState } from "react";
 import Header from "@/components/Header";
-import { FooterSection } from "@/screens/sections/FooterSection/FooterSection";
+import { FooterSection } from "@/screens/sections/FooterSection";
 import { ProjectCard, Project } from "./ProjectsPage/ProjectCard";
 
 const projects: Project[] = [

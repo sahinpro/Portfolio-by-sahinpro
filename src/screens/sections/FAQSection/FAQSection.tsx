@@ -1,4 +1,3 @@
-import { ShareIcon } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -6,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { ShareIcon } from "lucide-react";
 
 const faqItems = [
   {
@@ -38,19 +38,19 @@ const faqItems = [
 export const FAQSection = (): JSX.Element => {
   return (
     <section className="flex flex-col w-full items-center gap-12 px-[100px] py-[100px] relative">
-      <img
+      {/* <img
         className="absolute top-[-389px] left-0 w-full h-[1136px] pointer-events-none"
         alt="Rectangle"
         src="/rectangle-34629478-7.svg"
-      />
+      /> */}
 
       <div className="flex flex-col gap-5 w-full items-center relative z-10">
         <Badge className="inline-flex h-8 gap-2 px-3.5 py-0 rounded-[46px] overflow-hidden border-none backdrop-blur-[2px] backdrop-brightness-[100%] [-webkit-backdrop-filter:blur(2px)_brightness(100%)] bg-[linear-gradient(148deg,rgba(0,0,0,0.05)_0%,rgba(255,255,255,0.1)_100%)] items-center relative before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[46px] before:[background:linear-gradient(241deg,rgba(255,255,255,0.4)_0%,rgba(255,255,255,0)_100%)] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none">
-          <img
+          {/* <img
             className="absolute -top-9 left-[11px] w-[150px] h-[150px]"
             alt="Rectangle"
             src="/rectangle-29-1.svg"
-          />
+          /> */}
           <ShareIcon className="relative w-4 h-4 z-10" />
           <span className="relative z-10 bg-[linear-gradient(179deg,rgba(255,255,255,1)_0%,rgba(255,255,255,0.6)_100%)] [-webkit-background-clip:text] bg-clip-text [-webkit-text-fill-color:transparent] [text-fill-color:transparent] [font-family:'Inter_Display-Medium',Helvetica] font-medium text-transparent text-base text-center tracking-[0] leading-5 whitespace-nowrap">
             FAQs

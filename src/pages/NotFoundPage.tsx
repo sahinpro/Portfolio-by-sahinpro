@@ -1,7 +1,7 @@
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
-import FuzzyText from "@/components/ui/fuzzy-text";
-import { FooterSection } from "@/screens/sections/FooterSection/FooterSection";
+import FuzzyText from "@/components/ui/FuzzyText";
+import { FooterSection } from "@/screens/sections/FooterSection";
 import { gsap } from "gsap";
 import { ArrowLeft, Home } from "lucide-react";
 import { useEffect, useRef } from "react";

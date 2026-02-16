@@ -1,8 +1,7 @@
 'use client';
 import { cn } from '@/lib/utils';
 import { gsap } from 'gsap';
-import { useEffect, useRef, useState } from 'react';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export type PresetType = 'blur' | 'fade-in-blur' | 'scale' | 'fade' | 'slide';
 
