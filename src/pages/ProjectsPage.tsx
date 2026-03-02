@@ -1,8 +1,8 @@
-import { gsap } from "gsap";
-import { useEffect, useRef, useState } from "react";
 import Header from "@/components/Header";
 import { FooterSection } from "@/screens/sections/FooterSection";
-import { ProjectCard, Project } from "./ProjectsPage/ProjectCard";
+import { motion, useInView } from "framer-motion";
+import { useRef, useState } from "react";
+import { Project, ProjectCard } from "./ProjectsPage/ProjectCard";
 
 const projects: Project[] = [
   {
@@ -48,6 +48,11 @@ export const ProjectsPage = (): JSX.Element => {
   const filtersRef = useRef<HTMLDivElement>(null);
   const featuredRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
+  
+  const headerInView = useInView(headerRef, { once: true, margin: "-10%" });
+  const filtersInView = useInView(filtersRef, { once: true, margin: "-10%" });
+  const featuredInView = useInView(featuredRef, { once: true, margin: "-10%" });
+  const projectsInView = useInView(projectsRef, { once: true, margin: "-10%" });
 
   const filteredProjects =
     filter === "All"
@@ -59,120 +64,26 @@ export const ProjectsPage = (): JSX.Element => {
     (p) => !p.featured || filter !== "All"
   );
 
-  useEffect(() => {
-    // Header animation
-    if (headerRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                headerRef.current,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.8,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(headerRef.current);
-      return () => observer.disconnect();
-    }
-  }, []);
 
-  useEffect(() => {
-    // Filters animation
-    if (filtersRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                filtersRef.current,
-                { opacity: 0, y: 20 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.6,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(filtersRef.current);
-      return () => observer.disconnect();
-    }
-  }, []);
 
-  useEffect(() => {
-    // Featured projects animation
-    if (featuredRef.current && filter === "All") {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                featuredRef.current,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.8,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(featuredRef.current);
-      return () => observer.disconnect();
-    }
-  }, [filter]);
 
-  useEffect(() => {
-    // Projects grid animation
-    if (projectsRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                projectsRef.current,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.8,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(projectsRef.current);
-      return () => observer.disconnect();
-    }
-  }, [filter]);
+
+
+
+
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
       <section className="py-32 relative w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div ref={headerRef} className="text-center mb-12">
+          <motion.div 
+            ref={headerRef}
+            initial={{ opacity: 0, y: 30 }}
+            animate={headerInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] /* power3.out equivalent */ }}
+            className="text-center mb-12"
+          >
             <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white">
               My Projects
             </h1>
@@ -180,10 +91,16 @@ export const ProjectsPage = (): JSX.Element => {
               A collection of my recent work showcasing my skills in web
               development, design, and problem-solving
             </p>
-          </div>
+          </motion.div>
 
           {/* Filter Buttons */}
-          <div ref={filtersRef} className="flex flex-wrap justify-center gap-3 mb-12">
+          <motion.div 
+            ref={filtersRef}
+            initial={{ opacity: 0, y: 20 }}
+            animate={filtersInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, ease: [0.37, 0.04, 0.29, 1.01] /* power3.out equivalent */ }}
+            className="flex flex-wrap justify-center gap-3 mb-12"
+          >
             {categories.map((category) => (
               <button
                 key={category}
@@ -197,24 +114,35 @@ export const ProjectsPage = (): JSX.Element => {
                 {category}
               </button>
             ))}
-          </div>
+          </motion.div>
 
           {/* Featured Projects */}
           {filter === "All" && featuredProjects.length > 0 && (
-            <div ref={featuredRef} className="mb-16">
+            <motion.div 
+              ref={featuredRef}
+              initial={{ opacity: 0, y: 30 }}
+              animate={featuredInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] /* power3.out equivalent */ }}
+              className="mb-16"
+            >
               <h2 className="text-2xl font-bold mb-6 text-white">
                 Featured Projects
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {featuredProjects.map((project, index) => (
-                  <ProjectCard key={project.id} project={project} index={index} featured />
+                  <ProjectCard key={project.id} project={project} index={index} />
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* All Projects Grid */}
-          <div ref={projectsRef}>
+          <motion.div 
+            ref={projectsRef}
+            initial={{ opacity: 0, y: 30 }}
+            animate={projectsInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] /* power3.out equivalent */ }}
+          >
             {filter !== "All" && (
               <h2 className="text-2xl font-bold mb-6 text-white">
                 {filter} Projects
@@ -225,7 +153,7 @@ export const ProjectsPage = (): JSX.Element => {
                 <ProjectCard key={project.id} project={project} index={index} />
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
       <FooterSection />

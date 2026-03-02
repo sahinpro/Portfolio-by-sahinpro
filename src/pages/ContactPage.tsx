@@ -1,12 +1,11 @@
-import { gsap } from "gsap";
-import { useEffect, useRef } from "react";
-import { CheckCircle, Github, Linkedin, Mail, MapPin, Phone, Send, Twitter } from "lucide-react";
-import { ChangeEvent, FormEvent, useState } from "react";
-import Header from "@/components/Header";
-import { FooterSection } from "@/screens/sections/FooterSection";
 import { CTAButton } from "@/components/CTAButton";
+import Header from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { FooterSection } from "@/screens/sections/FooterSection";
+import { motion, useInView } from "framer-motion";
+import { CheckCircle, Github, Linkedin, Mail, MapPin, Phone, Send, Twitter } from "lucide-react";
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
 
 interface FormData {
   name: string;
@@ -55,6 +54,10 @@ export const ContactPage = (): JSX.Element => {
   const contactInfoRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const socialLinksRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const successRef = useRef<HTMLDivElement>(null);
+  
+  const headerInView = useInView(headerRef, { once: true, margin: "-10%" });
+  const formInView = useInView(formRef, { once: true, margin: "-10%" });
+  const infoInView = useInView(infoRef, { once: true, margin: "-10%" });
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -84,167 +87,76 @@ export const ContactPage = (): JSX.Element => {
     }
   };
 
-  useEffect(() => {
-    // Header animation
-    if (headerRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                headerRef.current,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.8,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(headerRef.current);
-      return () => observer.disconnect();
+  // Animation variants
+  const headerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Form animation
-    if (formRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                formRef.current,
-                { opacity: 0, x: -30 },
-                {
-                  opacity: 1,
-                  x: 0,
-                  duration: 0.8,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(formRef.current);
-      return () => observer.disconnect();
+  const formVariants = {
+    hidden: { opacity: 0, x: -30 },
+    visible: { 
+      opacity: 1, 
+      x: 0, 
+      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Info section animation
-    if (infoRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                infoRef.current,
-                { opacity: 0, x: 30 },
-                {
-                  opacity: 1,
-                  x: 0,
-                  duration: 0.8,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(infoRef.current);
-      return () => observer.disconnect();
+  const infoVariants = {
+    hidden: { opacity: 0, x: 30 },
+    visible: { 
+      opacity: 1, 
+      x: 0, 
+      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Contact info items animation
-    const items = contactInfoRefs.current.filter(Boolean) as HTMLAnchorElement[];
-    if (items.length > 0) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                items,
-                { opacity: 0, y: 20 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.6,
-                  stagger: 0.1,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      items.forEach((item) => observer.observe(item));
-      return () => observer.disconnect();
+  const contactItemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.6, 
+        ease: [0.37, 0.04, 0.29, 1.01], // power3.out equivalent
+        staggerChildren: 0.1
+      }
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Social links animation
-    const links = socialLinksRefs.current.filter(Boolean) as HTMLAnchorElement[];
-    if (links.length > 0) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                links,
-                { opacity: 0, y: 20 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.6,
-                  stagger: 0.1,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      links.forEach((link) => observer.observe(link));
-      return () => observer.disconnect();
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0 
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Success message animation
-    if (successRef.current && isSubmitted) {
-      gsap.fromTo(
-        successRef.current,
-        { opacity: 0, scale: 0.8 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.4,
-          ease: "back.out(1.7)",
-        }
-      );
+  const successVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { 
+      opacity: 1, 
+      scale: 1, 
+      transition: { duration: 0.4, ease: [0.68, -0.55, 0.27, 1.55] } // back.out(1.7) equivalent
     }
-  }, [isSubmitted]);
+  };
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
       <section className="py-32 relative w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div ref={headerRef} className="text-center mb-12">
+          <motion.div 
+            ref={headerRef}
+            initial="hidden"
+            animate={headerInView ? "visible" : "hidden"}
+            variants={headerVariants}
+            className="text-center mb-12"
+          >
             <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white">
               Let's Build Something Amazing Together
             </h1>
@@ -252,11 +164,16 @@ export const ContactPage = (): JSX.Element => {
               Have a project in mind? Let's discuss how we can bring your ideas
               to life. I typically respond within 24 hours.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <div ref={formRef}>
+            <motion.div 
+              ref={formRef}
+              initial="hidden"
+              animate={formInView ? "visible" : "hidden"}
+              variants={formVariants}
+            >
               <Card className="glass-card glass-card-hover p-6">
                 <CardContent className="p-0">
                   <div className="mb-6">
@@ -269,7 +186,13 @@ export const ContactPage = (): JSX.Element => {
                     </p>
                   </div>
                   {isSubmitted ? (
-                    <div ref={successRef} className="text-center py-8">
+                    <motion.div 
+                      ref={successRef}
+                      initial="hidden"
+                      animate="visible"
+                      variants={successVariants}
+                      className="text-center py-8"
+                    >
                       <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
                       <h3 className="text-xl font-semibold text-white mb-2">
                         Message Sent Successfully!
@@ -277,7 +200,7 @@ export const ContactPage = (): JSX.Element => {
                       <p className="text-white/70">
                         Thank you for your message. I'll get back to you soon.
                       </p>
-                    </div>
+                    </motion.div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div>
@@ -355,59 +278,77 @@ export const ContactPage = (): JSX.Element => {
                           </>
                         )}
                       </CTAButton>
-                </form>
+                    </form>
                   )}
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
 
             {/* Contact Information */}
-            <div ref={infoRef} className="space-y-8">
+            <motion.div 
+              ref={infoRef}
+              initial="hidden"
+              animate={infoInView ? "visible" : "hidden"}
+              variants={infoVariants}
+              className="space-y-8"
+            >
               {/* Contact Details */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-bold text-white">
                   Contact Information
                 </h3>
 
-                {contactInfo.map((info, index) => {
-                  const Icon = info.icon;
-                  return (
-                    <a
-                      key={info.title}
-                      ref={(el) => {
-                        contactInfoRefs.current[index] = el;
-                      }}
-                      href={info.href}
-                    >
-                      <Card className="glass-card glass-card-hover p-4">
-                        <CardContent className="p-0">
-                          <div className="flex items-center space-x-4 group">
-                            <div className="w-12 h-12 bg-cyan-400/10 rounded-lg flex items-center justify-center group-hover:bg-cyan-400/20 transition-colors">
-                              <Icon className="h-6 w-6 text-cyan-400" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-white">
-                                {info.title}
+                <motion.div 
+                  variants={contactItemVariants}
+                  initial="hidden"
+                  animate={infoInView ? "visible" : "hidden"}
+                >
+                  {contactInfo.map((info, index) => {
+                    const Icon = info.icon;
+                    return (
+                      <motion.a
+                        key={info.title}
+                        ref={(el) => {
+                          contactInfoRefs.current[index] = el;
+                        }}
+                        href={info.href}
+                        variants={itemVariants}
+                      >
+                        <Card className="glass-card glass-card-hover p-4">
+                          <CardContent className="p-0">
+                            <div className="flex items-center space-x-4 group">
+                              <div className="w-12 h-12 bg-cyan-400/10 rounded-lg flex items-center justify-center group-hover:bg-cyan-400/20 transition-colors">
+                                <Icon className="h-6 w-6 text-cyan-400" />
                               </div>
-                              <div className="text-white/70">{info.value}</div>
+                              <div>
+                                <div className="font-medium text-white">
+                                  {info.title}
+                                </div>
+                                <div className="text-white/70">{info.value}</div>
+                              </div>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </a>
-                  );
-                })}
+                          </CardContent>
+                        </Card>
+                      </motion.a>
+                    );
+                  })}
+                </motion.div>
               </div>
 
               {/* Social Links */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-bold text-white">Follow Me</h3>
 
-                <div className="grid grid-cols-2 gap-4">
+                <motion.div 
+                  variants={contactItemVariants}
+                  initial="hidden"
+                  animate={infoInView ? "visible" : "hidden"}
+                  className="grid grid-cols-2 gap-4"
+                >
                   {socialLinks.map((link, index) => {
                     const Icon = link.icon;
                     return (
-                      <a
+                      <motion.a
                         key={link.name}
                         ref={(el) => {
                           socialLinksRefs.current[index] = el;
@@ -415,6 +356,7 @@ export const ContactPage = (): JSX.Element => {
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
+                        variants={itemVariants}
                       >
                         <Card className="glass-card glass-card-hover p-4">
                           <CardContent className="p-0">
@@ -426,12 +368,12 @@ export const ContactPage = (): JSX.Element => {
                             </div>
                           </CardContent>
                         </Card>
-                      </a>
+                      </motion.a>
                     );
                   })}
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>

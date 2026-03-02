@@ -1,4 +1,4 @@
-import { gsap } from "gsap";
+import { animate } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 
@@ -17,26 +17,16 @@ export const MenuButton = ({ isOpen, onClick }: MenuButtonProps) => {
     if (!iconRef.current) return;
 
     if (isOpen) {
-      gsap.fromTo(
+      animate(
         iconRef.current,
-        { rotate: -90, opacity: 0 },
-        {
-          rotate: 0,
-          opacity: 1,
-          duration: 0.2,
-          ease: "power2.out",
-        }
+        { rotate: [-90, 0], opacity: [0, 1] },
+        { duration: 0.2, ease: "easeOut" }
       );
     } else {
-      gsap.fromTo(
+      animate(
         iconRef.current,
-        { rotate: 90, opacity: 0 },
-        {
-          rotate: 0,
-          opacity: 1,
-          duration: 0.2,
-          ease: "power2.out",
-        }
+        { rotate: [90, 0], opacity: [0, 1] },
+        { duration: 0.2, ease: "easeOut" }
       );
     }
   }, [isOpen]);

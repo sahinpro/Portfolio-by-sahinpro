@@ -2,7 +2,7 @@ import { CTAButton } from "@/components/CTAButton";
 import { HEADER_ANIMATION_DURATION, MOBILE_BREAKPOINT } from "@/constants/styles";
 import { useMobileMenu } from "@/hooks/useMobileMenu";
 import { useScrollPosition } from "@/hooks/useScrollPosition";
-import { gsap } from "gsap";
+import { animate } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { HeaderLogo } from "./HeaderLogo";
 import { MenuButton } from "./MenuButton";
@@ -34,60 +34,37 @@ const Header = () => {
   useEffect(() => {
     // Initial header animation
     if (headerRef.current) {
-      gsap.fromTo(
+      animate(
         headerRef.current,
-        { opacity: 0, y: -20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: "power3.out",
-        }
+        { opacity: [0, 1], y: [-20, 0] },
+        { duration: 0.5, ease: "easeOut" }
       );
     }
 
     // Logo animation
     if (logoRef.current) {
-      gsap.fromTo(
+      animate(
         logoRef.current,
-        { opacity: 0, x: -20 },
-        {
-          opacity: 1,
-          x: 0,
-          duration: 0.5,
-          delay: 0.1,
-          ease: "power3.out",
-        }
+        { opacity: [0, 1], x: [-20, 0] },
+        { duration: 0.5, delay: 0.1, ease: "easeOut" }
       );
     }
 
     // CTA button animation
     if (ctaRef.current) {
-      gsap.fromTo(
+      animate(
         ctaRef.current,
-        { opacity: 0, x: 20 },
-        {
-          opacity: 1,
-          x: 0,
-          duration: 0.4,
-          delay: 0.4,
-          ease: "power3.out",
-        }
+        { opacity: [0, 1], x: [20, 0] },
+        { duration: 0.4, delay: 0.4, ease: "easeOut" }
       );
     }
 
     // Menu button animation
     if (menuBtnRef.current) {
-      gsap.fromTo(
+      animate(
         menuBtnRef.current,
-        { opacity: 0, scale: 0.8 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.4,
-          delay: 0.48,
-          ease: "power3.out",
-        }
+        { opacity: [0, 1], scale: [0.8, 1] },
+        { duration: 0.4, delay: 0.48, ease: "easeOut" }
       );
     }
   }, []);
@@ -95,14 +72,16 @@ const Header = () => {
   useEffect(() => {
     // Animate container on scroll
     if (containerRef.current) {
-      gsap.to(containerRef.current, {
-        width: isScrolled ? getMaxWidth() : "100%",
-        borderRadius: "20px",
-        scale: isScrolled ? 1 : 0.95,
-        y: isScrolled ? 0 : -20,
-        duration: HEADER_ANIMATION_DURATION,
-        ease: "power2.inOut",
-      });
+      animate(
+        containerRef.current,
+        {
+          width: isScrolled ? getMaxWidth() : "100%",
+          borderRadius: "20px",
+          scale: isScrolled ? 1 : 0.95,
+          y: isScrolled ? 0 : -20,
+        },
+        { duration: HEADER_ANIMATION_DURATION, ease: "easeInOut" }
+      );
     }
   }, [isScrolled]);
 
@@ -136,7 +115,7 @@ const Header = () => {
               <Navigation />
             </nav>
 
-            {/* bottom Actions */}
+            {/* Bottom Actions */}
             <div ref={actionsRef} className="flex items-center space-x-4 m-0">
               {/* CTA Button */}
               <div ref={ctaRef}>

@@ -1,4 +1,4 @@
-import { gsap } from "gsap";
+import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
 
@@ -12,6 +12,8 @@ export const VideoSection = (): JSX.Element => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const playBtnRef = useRef<HTMLButtonElement>(null);
   const pauseBtnRef = useRef<HTMLButtonElement>(null);
+  
+  const containerInView = useInView(containerRef, { once: true, margin: "-10%" });
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -33,94 +35,19 @@ export const VideoSection = (): JSX.Element => {
     }
   }, []);
 
-  useEffect(() => {
-    // Container animation on scroll
-    if (containerRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                containerRef.current,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.8,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1, rootMargin: "-100px" }
-      );
-      observer.observe(containerRef.current);
-      return () => observer.disconnect();
-    }
-  }, []);
 
-  useEffect(() => {
-    // Loading animation
-    if (loadingRef.current) {
-      gsap.fromTo(
-        loadingRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3 }
-      );
-    }
-    if (spinnerRef.current) {
-      gsap.to(spinnerRef.current, {
-        rotate: 360,
-        duration: 1,
-        repeat: -1,
-        ease: "none",
-      });
-    }
-  }, []);
 
-  useEffect(() => {
-    // Overlay animation
-    if (overlayRef.current) {
-      gsap.fromTo(
-        overlayRef.current,
-        { opacity: 0 },
-        { opacity: 1, delay: 0.3, duration: 0.5 }
-      );
-    }
-    // Play button animation
-    if (playBtnRef.current && !isPlaying) {
-      gsap.fromTo(
-        playBtnRef.current,
-        { opacity: 0, scale: 0.8 },
-        {
-          opacity: 1,
-          scale: 1,
-          delay: 0.4,
-          duration: 0.4,
-          ease: "power3.out",
-        }
-      );
-    }
-    // Pause button animation
-    if (pauseBtnRef.current && isPlaying) {
-      gsap.fromTo(
-        pauseBtnRef.current,
-        { opacity: 0, scale: 0.8 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.3,
-          ease: "power3.out",
-        }
-      );
-    }
-  }, [isPlaying]);
+
+
+
 
   return (
     <section className="flex flex-col w-full items-center gap-12 px-4 sm:px-8 md:px-12 lg:px-[100px] pt-30 relative pt-20">
-      <div
+      <motion.div
         ref={containerRef}
+        initial={{ opacity: 0, y: 30 }}
+        animate={containerInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] /* power3.out equivalent */ }}
         className="relative max-w-[1000px] w-full rounded-[32px] border border-white/10 backdrop-blur-xl bg-gradient-to-b from-white/30 to-white/50 p-3"
       >
         {/* Gradient Overlay at Bottom */}
@@ -133,9 +60,11 @@ export const VideoSection = (): JSX.Element => {
             {!isLoaded && (
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0a0a0a] to-[#1a1a1a]">
                 <div ref={loadingRef} className="flex flex-col items-center gap-3">
-                  <div
+                  <motion.div
                     ref={spinnerRef}
                     className="w-12 h-12 border-2 border-white/20 border-t-white/60 rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   />
                   <span className="text-white/40 text-sm">Loading video...</span>
                 </div>
@@ -166,55 +95,33 @@ export const VideoSection = (): JSX.Element => {
               onClick={togglePlay}
             >
               {!isPlaying && (
-                <button
+                <motion.button
                   ref={playBtnRef}
-                  onMouseEnter={(e) => {
-                    gsap.to(e.currentTarget, { scale: 1.1, duration: 0.2 });
-                  }}
-                  onMouseLeave={(e) => {
-                    gsap.to(e.currentTarget, { scale: 1, duration: 0.2 });
-                  }}
-                  onMouseDown={(e) => {
-                    gsap.to(e.currentTarget, { scale: 0.95, duration: 0.1 });
-                  }}
-                  onMouseUp={(e) => {
-                    gsap.to(e.currentTarget, { scale: 1.1, duration: 0.1 });
-                  }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
                   className="flex items-center justify-center w-20 h-20 rounded-full bg-black/60 backdrop-blur-md border border-white/40 shadow-lg hover:bg-black/80 hover:border-white/30 transition-all duration-300"
                   aria-label="Play video"
                 >
                   {/* @ts-expect-error - react-icons type issue with strict mode */}
                   <FaPlay className="w-8 h-8 text-white ml-1" aria-hidden="true" />
-                </button>
+                </motion.button>
               )}
               {isPlaying && (
-                <button
+                <motion.button
                   ref={pauseBtnRef}
-                  onMouseEnter={(e) => {
-                    gsap.to(e.currentTarget, { scale: 1.1, duration: 0.2 });
-                  }}
-                  onMouseLeave={(e) => {
-                    gsap.to(e.currentTarget, { scale: 1, duration: 0.2 });
-                  }}
-                  onMouseDown={(e) => {
-                    gsap.to(e.currentTarget, { scale: 0.95, duration: 0.1 });
-                  }}
-                  onMouseUp={(e) => {
-                    gsap.to(e.currentTarget, { scale: 1.1, duration: 0.1 });
-                  }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
                   className="flex items-center justify-center w-20 h-20 rounded-full bg-black/60 backdrop-blur-md border border-white/20 shadow-lg hover:bg-black/80 hover:border-white/30 transition-all duration-300"
                   aria-label="Pause video"
                 >
                   {/* @ts-expect-error - react-icons type issue with strict mode */}
                   <FaPause className="w-8 h-8 text-white" aria-hidden="true" />
-                </button>
+                </motion.button>
               )}
             </div>
           </div>
-          
-          
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };

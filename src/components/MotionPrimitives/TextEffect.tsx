@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { gsap } from 'gsap';
+import { motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 
 export type PresetType = 'blur' | 'fade-in-blur' | 'scale' | 'fade' | 'slide';
@@ -83,88 +83,91 @@ export function TextEffect({
   style,
 }: TextEffectProps) {
   const containerRef = useRef<HTMLElement>(null);
-  const segmentsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const [isVisible, setIsVisible] = useState(trigger);
 
   useEffect(() => {
     setIsVisible(trigger);
   }, [trigger]);
 
-  useEffect(() => {
-    if (!isVisible || !containerRef.current) return;
-
-    const segments = segmentsRef.current.filter(Boolean) as HTMLSpanElement[];
-    if (segments.length === 0) return;
-
-    onAnimationStart?.();
-
-    const stagger = (defaultStaggerTimes[per] / speedReveal) * 1000;
-    const duration = (0.3 / speedSegment) * 1000;
-
-    const from = getPresetAnimation(preset);
-    const to = getPresetTo(preset);
-
-    gsap.fromTo(
-      segments,
-      from,
-      {
-        ...to,
-        duration: duration / 1000,
-        delay: delay,
-        stagger: stagger / 1000,
-        ease: 'power3.out',
-        onComplete: onAnimationComplete,
-      }
-    );
-  }, [isVisible, children, per, preset, delay, speedReveal, speedSegment, onAnimationComplete, onAnimationStart]);
-
   const segments = splitText(children, per);
   const Tag = as as keyof JSX.IntrinsicElements;
+
+  // Calculate stagger based on per type and speed
+  const stagger = (defaultStaggerTimes[per] / speedReveal);
+  const duration = (0.3 / speedSegment);
+
+  // Get animation properties
+  const from = getPresetAnimation(preset);
+  const to = getPresetTo(preset);
+
+  // Animation variants
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: stagger,
+        delayChildren: delay
+      }
+    }
+  };
+
+  const childVariants = {
+    hidden: { ...from },
+    visible: { 
+      ...to,
+      transition: { 
+        duration: duration,
+        ease: [0.37, 0.04, 0.29, 1.01] // power3.out equivalent
+      }
+    }
+  };
 
   return (
     <Tag ref={containerRef} className={className} style={style}>
       {per !== 'line' && <span className='sr-only'>{children}</span>}
-      {segments.map((segment, index) => {
-        if (per === 'line') {
+      <motion.div 
+        initial="hidden" 
+        animate={isVisible ? "visible" : "hidden"}
+        variants={containerVariants}
+        onAnimationStart={onAnimationStart}
+        onAnimationComplete={onAnimationComplete}
+      >
+        {segments.map((segment, index) => {
+          if (per === 'line') {
+            return (
+              <motion.span
+                key={`line-${index}-${segment}`}
+                variants={childVariants}
+                className={cn('block', segmentWrapperClassName)}
+              >
+                {segment}
+              </motion.span>
+            );
+          }
+          if (per === 'char') {
+            return (
+              <motion.span
+                key={`char-${index}-${segment}`}
+                variants={childVariants}
+                className={cn('inline-block whitespace-pre', segmentWrapperClassName)}
+                aria-hidden='true'
+              >
+                {segment}
+              </motion.span>
+            );
+          }
           return (
-            <span
-              key={`line-${index}-${segment}`}
-              ref={(el) => {
-                segmentsRef.current[index] = el;
-              }}
-              className={cn('block', segmentWrapperClassName)}
-            >
-              {segment}
-            </span>
-          );
-        }
-        if (per === 'char') {
-          return (
-            <span
-              key={`char-${index}-${segment}`}
-              ref={(el) => {
-                segmentsRef.current[index] = el;
-              }}
+            <motion.span
+              key={`word-${index}-${segment}`}
+              variants={childVariants}
               className={cn('inline-block whitespace-pre', segmentWrapperClassName)}
               aria-hidden='true'
             >
               {segment}
-            </span>
+            </motion.span>
           );
-        }
-        return (
-          <span
-            key={`word-${index}-${segment}`}
-            ref={(el) => {
-              segmentsRef.current[index] = el;
-            }}
-            className={cn('inline-block whitespace-pre', segmentWrapperClassName)}
-            aria-hidden='true'
-          >
-            {segment}
-          </span>
-        );
-      })}
+        })}
+      </motion.div>
     </Tag>
   );
 }

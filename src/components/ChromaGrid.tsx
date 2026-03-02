@@ -1,4 +1,4 @@
-import { gsap } from 'gsap';
+import { animate, AnimationPlaybackControls } from 'framer-motion';
 import React, { useEffect, useRef } from 'react';
 
 export interface ChromaItem {
@@ -24,22 +24,19 @@ export interface ChromaGridProps {
   ease?: string;
 }
 
-type SetterFn = (v: number | string) => void;
-
 const ChromaGrid: React.FC<ChromaGridProps> = ({
   items,
   className = '',
   radius = 400,
   damping = 0.35,
   fadeOut = 0.5,
-  ease = 'power3.out'
 }) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const fadeRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
-  const setX = useRef<SetterFn | null>(null);
-  const setY = useRef<SetterFn | null>(null);
   const pos = useRef({ x: 0, y: 0 });
+  const posControls = useRef<{ x: AnimationPlaybackControls | null; y: AnimationPlaybackControls | null }>({ x: null, y: null });
+  const fadeControls = useRef<AnimationPlaybackControls | null>(null);
 
   const demo: ChromaItem[] = [
     {
@@ -70,70 +67,66 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
 
   const data = items?.length ? items : demo;
 
+  // Initialize CSS custom properties for cursor position
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
-    setX.current = gsap.quickSetter(el, '--x', 'px') as SetterFn;
-    setY.current = gsap.quickSetter(el, '--y', 'px') as SetterFn;
     const { width, height } = el.getBoundingClientRect();
     pos.current = { x: width / 2, y: height / 2 };
-    setX.current(pos.current.x);
-    setY.current(pos.current.y);
+    el.style.setProperty('--x', `${pos.current.x}px`);
+    el.style.setProperty('--y', `${pos.current.y}px`);
   }, []);
 
+  // Card entrance animations
   useEffect(() => {
-    // Animate cards with fade-in-up effect
     const cards = cardRefs.current.filter(Boolean) as HTMLElement[];
-    if (cards.length > 0) {
-      gsap.fromTo(
-        cards,
-        {
-          opacity: 0,
-          y: 40,
-          scale: 0.95
-        },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.8,
-          ease: 'power3.out',
-          stagger: {
-            amount: 0.6,
-            from: 'start'
-          },
-          delay: 0.2
-        }
-      );
-    }
+    if (cards.length === 0) return;
+
+    const totalDuration = 0.6; // stagger amount
+    cards.forEach((card, i) => {
+      const delay = 0.2 + (i / Math.max(cards.length - 1, 1)) * totalDuration;
+      animate(card, { opacity: [0, 1], y: [40, 0], scale: [0.95, 1] }, { duration: 0.8, ease: 'easeOut', delay });
+    });
   }, [data.length]);
 
-  const moveTo = (x: number, y: number) => {
-    gsap.to(pos.current, {
-      x,
-      y,
+  const moveTo = (targetX: number, targetY: number) => {
+    const el = rootRef.current;
+    if (!el) return;
+
+    // Stop previous animations
+    posControls.current.x?.stop();
+    posControls.current.y?.stop();
+
+    posControls.current.x = animate(pos.current.x, targetX, {
       duration: damping,
-      ease,
-      onUpdate: () => {
-        setX.current?.(pos.current.x);
-        setY.current?.(pos.current.y);
+      ease: 'easeOut',
+      onUpdate: (v) => {
+        pos.current.x = v;
+        el.style.setProperty('--x', `${v}px`);
       },
-      overwrite: true
+    });
+
+    posControls.current.y = animate(pos.current.y, targetY, {
+      duration: damping,
+      ease: 'easeOut',
+      onUpdate: (v) => {
+        pos.current.y = v;
+        el.style.setProperty('--y', `${v}px`);
+      },
     });
   };
 
   const handleMove = (e: React.PointerEvent) => {
     const r = rootRef.current!.getBoundingClientRect();
     moveTo(e.clientX - r.left, e.clientY - r.top);
-    gsap.to(fadeRef.current, { opacity: 0, duration: 0.25, overwrite: true });
+
+    fadeControls.current?.stop();
+    fadeControls.current = animate(fadeRef.current!, { opacity: 0 }, { duration: 0.25 });
   };
 
   const handleLeave = () => {
-    gsap.to(fadeRef.current, {
-      opacity: 1,
-      duration: fadeOut,
-      overwrite: true
-    });
+    fadeControls.current?.stop();
+    fadeControls.current = animate(fadeRef.current!, { opacity: 1 }, { duration: fadeOut });
   };
 
   const handleCardClick = (url?: string) => {
@@ -197,7 +190,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
               <img src={c.bgImage} alt="" className="absolute inset-0 w-full h-full object-cover rounded-[10px] opacity-40" aria-hidden="true" />
             )}
           </div>
-          <footer className="relative z-10 p-3 text-white font-sans flex   flex-col  gap-x-3 gap-y-1">
+          <footer className="relative z-10 p-3 text-white font-sans flex flex-col gap-x-3 gap-y-1">
             <h3 className="m-0 text-xl font-semibold">{c.title}</h3>
             {c.handle && <span className="text-[0.95rem] opacity-80 text-right">{c.handle}</span>}
             <p className="m-0 text-[0.85rem] opacity-85">{c.subtitle || c.description}</p>

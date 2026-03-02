@@ -1,8 +1,8 @@
-import { gsap } from "gsap";
-import { useEffect, useRef } from "react";
-import { ExternalLink, Github } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { motion, useInView } from "framer-motion";
+import { ExternalLink, Github } from "lucide-react";
+import { useRef } from "react";
 
 export interface Project {
   id: number;
@@ -19,65 +19,32 @@ export interface Project {
 interface ProjectCardProps {
   project: Project;
   index: number;
-  featured?: boolean;
 }
 
 export const ProjectCard = ({
   project,
   index,
-  featured = false,
 }: ProjectCardProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  
+  const cardInView = useInView(cardRef, { once: true, margin: "-20%" });
 
-  useEffect(() => {
-    if (!cardRef.current) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            gsap.fromTo(
-              cardRef.current,
-              { opacity: 0, y: 30 },
-              {
-                opacity: 1,
-                y: 0,
-                duration: 0.6,
-                delay: index * 0.1,
-                ease: "power3.out",
-              }
-            );
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(cardRef.current);
-    return () => observer.disconnect();
-  }, [index]);
 
-  useEffect(() => {
-    if (!cardRef.current) return;
 
-    const card = cardRef.current;
-    const handleMouseEnter = () => {
-      gsap.to(card, { y: -5, duration: 0.3, ease: "power2.out" });
-    };
-    const handleMouseLeave = () => {
-      gsap.to(card, { y: 0, duration: 0.3, ease: "power2.out" });
-    };
-
-    card.addEventListener("mouseenter", handleMouseEnter);
-    card.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      card.removeEventListener("mouseenter", handleMouseEnter);
-      card.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, []);
 
   return (
-    <div ref={cardRef}>
+    <motion.div 
+      ref={cardRef}
+      initial={{ opacity: 0, y: 30 }}
+      animate={cardInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ 
+        duration: 0.6, 
+        delay: index * 0.1, 
+        ease: [0.37, 0.04, 0.29, 1.01] /* power3.out equivalent */ 
+      }}
+      whileHover={{ y: -5, transition: { duration: 0.3, ease: [0.42, 0, 0.58, 1] } /* power2.out equivalent */ }}
+    >
       <Card className="glass-card glass-card-hover overflow-hidden">
         <CardContent className="p-0">
           {/* Project Image */}
@@ -162,6 +129,6 @@ export const ProjectCard = ({
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 };

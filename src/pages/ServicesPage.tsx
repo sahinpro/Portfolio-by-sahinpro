@@ -1,10 +1,10 @@
-import { gsap } from "gsap";
-import { useEffect, useRef } from "react";
-import { Check, ArrowRight } from "lucide-react";
-import Header from "@/components/Header";
-import { FooterSection } from "@/screens/sections/FooterSection";
 import { CTAButton } from "@/components/CTAButton";
+import Header from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
+import { FooterSection } from "@/screens/sections/FooterSection";
+import { motion, useInView } from "framer-motion";
+import { Check } from "lucide-react";
+import { useRef } from "react";
 
 interface Service {
   icon: string;
@@ -91,88 +91,56 @@ const services: Service[] = [
 export const ServicesPage = (): JSX.Element => {
   const headerRef = useRef<HTMLDivElement>(null);
   const servicesRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  const headerInView = useInView(headerRef, { once: true, margin: "-10%" });
 
-  useEffect(() => {
-    // Header animation
-    if (headerRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                headerRef.current,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.6,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(headerRef.current);
-      return () => observer.disconnect();
+  // Animation variants
+  const headerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.6, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Services cards animation
-    const cards = servicesRefs.current.filter(Boolean) as HTMLDivElement[];
-    if (cards.length > 0) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                cards,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.6,
-                  stagger: 0.1,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      cards.forEach((card) => observer.observe(card));
-      return () => observer.disconnect();
+  const serviceCardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        duration: 0.6, 
+        ease: [0.37, 0.04, 0.29, 1.01], // power3.out equivalent
+        staggerChildren: 0.1
+      }
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Hover animations for service cards
-    const cards = servicesRefs.current.filter(Boolean) as HTMLDivElement[];
-    cards.forEach((card) => {
-      const handleMouseEnter = () => {
-        gsap.to(card, { y: -8, duration: 0.3, ease: "power2.out" });
-      };
-      const handleMouseLeave = () => {
-        gsap.to(card, { y: 0, duration: 0.3, ease: "power2.out" });
-      };
-      card.addEventListener("mouseenter", handleMouseEnter);
-      card.addEventListener("mouseleave", handleMouseLeave);
-      return () => {
-        card.removeEventListener("mouseenter", handleMouseEnter);
-        card.removeEventListener("mouseleave", handleMouseLeave);
-      };
-    });
-  }, []);
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0 
+    },
+    hover: {
+      y: -8,
+      transition: { duration: 0.3, ease: [0.42, 0, 0.58, 1] } // power2.out equivalent
+    }
+  };
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
       <section className="py-32 relative w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div ref={headerRef} className="mb-12">
+          <motion.div 
+            ref={headerRef}
+            initial="hidden"
+            animate={headerInView ? "visible" : "hidden"}
+            variants={headerVariants}
+            className="mb-12"
+          >
             <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
               Services I Provide
             </h2>
@@ -182,16 +150,24 @@ export const ServicesPage = (): JSX.Element => {
               services to bring your digital vision to life with precision and
               creativity.
             </p>
-          </div>
+          </motion.div>
 
           {/* Services Grid */}
-          <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-8">
+          <motion.div 
+            variants={serviceCardVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-8"
+          >
             {services.map((service, index) => (
-              <div
+              <motion.div
                 key={index}
                 ref={(el) => {
                   servicesRefs.current[index] = el;
                 }}
+                variants={cardVariants}
+                whileHover="hover"
+                className="h-full"
               >
                 <Card className="glass-card glass-card-hover p-8 relative overflow-hidden group h-full flex flex-col">
                   <CardContent className="p-0 flex flex-col flex-1">
@@ -228,9 +204,9 @@ export const ServicesPage = (): JSX.Element => {
                     </CTAButton>
                   </CardContent>
                 </Card>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
       <FooterSection />

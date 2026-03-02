@@ -1,5 +1,5 @@
-import { gsap } from "gsap";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
+import { useCallback, useRef, useState } from "react";
 
 // Types
 interface Author {
@@ -132,6 +132,8 @@ export const CustomerStoriesSection = (): JSX.Element => {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  const sectionInView = useInView(sectionRef, { once: true, margin: "-20%" });
+
   const activeTestimonial = TESTIMONIALS[activeIndex];
 
   // Handle testimonial change
@@ -139,55 +141,49 @@ export const CustomerStoriesSection = (): JSX.Element => {
     if (newIndex === activeIndex || isTransitioning) return;
 
     setIsTransitioning(true);
-
-    // Smooth fade transition
-    if (contentRef.current) {
-      gsap.to(contentRef.current, {
-        opacity: 0,
-        y: 10,
-        duration: 0.2,
-        ease: "power2.in",
-        onComplete: () => {
-          setActiveIndex(newIndex);
-          gsap.to(contentRef.current, {
-            opacity: 1,
-            y: 0,
-            duration: 0.3,
-            ease: "power2.out",
-            onComplete: () => setIsTransitioning(false),
-          });
-        },
-      });
-    }
+    setActiveIndex(newIndex);
+    setIsTransitioning(false);
   }, [activeIndex, isTransitioning]);
 
-  // Initial entrance animation
-  useEffect(() => {
-    if (!sectionRef.current) return;
+  // Animation variants
+  const headerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
+    }
+  };
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+  const cardVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
+    }
+  };
 
-      tl.from(".section-header", {
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-      })
-        .from(".testimonial-card", {
-          opacity: 0,
-          y: 40,
-          duration: 0.8,
-        }, "-=0.4")
-        .from(".avatar-button", {
-          opacity: 0,
-          scale: 0.8,
-          duration: 0.4,
-          stagger: 0.08,
-        }, "-=0.4");
-    }, sectionRef);
+  const avatarVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { 
+        duration: 0.4, 
+        ease: [0.37, 0.04, 0.29, 1.01], // power3.out equivalent
+        staggerChildren: 0.08
+      }
+    }
+  };
 
-    return () => ctx.revert();
-  }, []);
+  const avatarItemVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { 
+      opacity: 1, 
+      scale: 1 
+    }
+  };
 
   return (
     <>
@@ -218,7 +214,12 @@ export const CustomerStoriesSection = (): JSX.Element => {
         </div>
 
         {/* Header */}
-        <div className="section-header text-center mb-12 md:mb-16">
+        <motion.div 
+          className="section-header text-center mb-12 md:mb-16"
+          initial="hidden"
+          animate={sectionInView ? "visible" : "hidden"}
+          variants={headerVariants}
+        >
           <h2 className="flex items-center justify-center self-stretch mt-[-1.00px] section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">
             Customer Stories
           </h2>
@@ -226,10 +227,15 @@ export const CustomerStoriesSection = (): JSX.Element => {
             Hear from clients and teams who've transformed their online presence
             and accelerated their business growth with my web solutions.
           </p>
-        </div>
+        </motion.div>
 
         {/* Testimonial Card */}
-        <div className="testimonial-card relative max-w-[1100px] mx-auto mb-10 sm:mb-12 p-8 sm:p-12 md:p-14 lg:p-16 bg-gradient-to-br from-[rgba(15,15,15,0.6)] to-[rgba(10,10,10,0.6)] border border-white/[0.08] rounded-3xl backdrop-blur-xl overflow-hidden">
+        <motion.div 
+          className="testimonial-card relative max-w-[1100px] mx-auto mb-10 sm:mb-12 p-8 sm:p-12 md:p-14 lg:p-16 bg-gradient-to-br from-[rgba(15,15,15,0.6)] to-[rgba(10,10,10,0.6)] border border-white/[0.08] rounded-3xl backdrop-blur-xl overflow-hidden"
+          initial="hidden"
+          animate={sectionInView ? "visible" : "hidden"}
+          variants={cardVariants}
+        >
           {/* Card Grid Pattern */}
           <div 
             className="absolute inset-0 opacity-[0.06]"
@@ -267,9 +273,14 @@ export const CustomerStoriesSection = (): JSX.Element => {
           </svg>
 
           {/* Content */}
-          <div 
+          <motion.div 
             ref={contentRef} 
             className="relative z-10 min-h-[300px] sm:min-h-[350px] md:min-h-[400px] flex flex-col justify-center items-center text-center"
+            key={activeTestimonial.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: [0.42, 0, 0.58, 1] }} // power2.out equivalent
           >
             <blockquote className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light leading-snug text-white/95 mb-8 sm:mb-10 max-w-[900px]">
               <span
@@ -287,22 +298,31 @@ export const CustomerStoriesSection = (): JSX.Element => {
                 {activeTestimonial.author.role}, {activeTestimonial.author.company}
               </span>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Avatars */}
         <div className="relative z-20">
-          <div className="avatar-button flex justify-center items-center gap-3 sm:gap-4 md:gap-5 p-4 sm:p-5 md:p-0 bg-black/80 sm:bg-transparent border border-white/[0.08] sm:border-0 rounded-2xl backdrop-blur-xl sm:backdrop-blur-none max-w-fit mx-auto">
+          <motion.div 
+            className="avatar-button flex justify-center items-center gap-3 sm:gap-4 md:gap-5 p-4 sm:p-5 md:p-0 bg-black/80 sm:bg-transparent border border-white/[0.08] sm:border-0 rounded-2xl backdrop-blur-xl sm:backdrop-blur-none max-w-fit mx-auto"
+            initial="hidden"
+            animate={sectionInView ? "visible" : "hidden"}
+            variants={avatarVariants}
+          >
             {TESTIMONIALS.map((testimonial, index) => (
-              <Avatar
+              <motion.div
                 key={testimonial.id}
-                testimonial={testimonial}
-                isActive={index === activeIndex}
-                onClick={() => changeTestimonial(index)}
-                disabled={isTransitioning}
-              />
+                variants={avatarItemVariants}
+              >
+                <Avatar
+                  testimonial={testimonial}
+                  isActive={index === activeIndex}
+                  onClick={() => changeTestimonial(index)}
+                  disabled={isTransitioning}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
         {/* Screen reader announcement */}

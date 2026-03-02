@@ -4,7 +4,7 @@ interface ShapeHeroProps {
   className?: string;
 }
 
-export const ShapeHero = ({ className = '' }: ShapeHeroProps) => {
+export const ShapeHero: React.FC<ShapeHeroProps> = ({ className = '' }) => {
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none z-0 ${className}`}>
       {/* Animated gradient shapes */}

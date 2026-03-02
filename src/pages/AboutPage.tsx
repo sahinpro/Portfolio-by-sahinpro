@@ -1,11 +1,10 @@
-import { gsap } from "gsap";
-import { useEffect, useRef } from "react";
-import { Calendar, Code, Heart, Users } from "lucide-react";
-import { useState } from "react";
-import Header from "@/components/Header";
-import { FooterSection } from "@/screens/sections/FooterSection";
 import { CTAButton } from "@/components/CTAButton";
+import Header from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
+import { FooterSection } from "@/screens/sections/FooterSection";
+import { motion, useInView } from "framer-motion";
+import { Calendar, Code, Heart, Users } from "lucide-react";
+import { useRef, useState } from "react";
 
 const stats = [
   { icon: Calendar, value: "2+", label: "Years Experience" },
@@ -52,6 +51,11 @@ export const AboutPage = (): JSX.Element => {
   const highlightCardsRefs = useRef<(HTMLDivElement | null)[]>([]);
   const ctaRef = useRef<HTMLDivElement>(null);
 
+  const headerInView = useInView(headerRef, { once: true, margin: "-10%" });
+  const statsInView = useInView(statsRef, { once: true, margin: "-10%" });
+  const highlightsInView = useInView(highlightsRef, { once: true, margin: "-10%" });
+  const ctaInView = useInView(ctaRef, { once: true, margin: "-10%" });
+
   const handleCopy = () => {
     navigator.clipboard.writeText(email).then(() => {
       setCopied(true);
@@ -66,196 +70,84 @@ export const AboutPage = (): JSX.Element => {
     link.click();
   };
 
-  useEffect(() => {
-    // Header animation
-    if (headerRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                headerRef.current,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.6,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(headerRef.current);
-      return () => observer.disconnect();
+  // Animation variants
+  const headerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.6, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Stats animation
-    if (statsRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                statsRef.current,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.6,
-                  delay: 0.2,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(statsRef.current);
-      return () => observer.disconnect();
+  const statsVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.6, delay: 0.2, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Stat cards animation
-    const cards = statCardsRefs.current.filter(Boolean) as HTMLDivElement[];
-    if (cards.length > 0) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                cards,
-                { opacity: 0, scale: 0.9 },
-                {
-                  opacity: 1,
-                  scale: 1,
-                  duration: 0.5,
-                  stagger: 0.1,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      cards.forEach((card) => observer.observe(card));
-      return () => observer.disconnect();
+  const statCardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { 
+        duration: 0.5, 
+        ease: [0.37, 0.04, 0.29, 1.01], // power3.out equivalent
+        staggerChildren: 0.1
+      }
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Highlights animation
-    if (highlightsRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                highlightsRef.current,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.6,
-                  delay: 0.3,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(highlightsRef.current);
-      return () => observer.disconnect();
+  const statItemVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1 
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Highlight cards animation
-    const cards = highlightCardsRefs.current.filter(Boolean) as HTMLDivElement[];
-    if (cards.length > 0) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                cards,
-                { opacity: 0, y: 20 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.5,
-                  stagger: 0.1,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      cards.forEach((card) => observer.observe(card));
-      return () => observer.disconnect();
+  const highlightsVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.6, delay: 0.3, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // CTA buttons animation
-    if (ctaRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              gsap.fromTo(
-                ctaRef.current,
-                { opacity: 0, y: 30 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.6,
-                  delay: 0.4,
-                  ease: "power3.out",
-                }
-              );
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(ctaRef.current);
-      return () => observer.disconnect();
+  const highlightCardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.5, 
+        ease: [0.37, 0.04, 0.29, 1.01], // power3.out equivalent
+        staggerChildren: 0.1
+      }
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    // Hover animations for stat and highlight cards
-    const allCards = [
-      ...statCardsRefs.current,
-      ...highlightCardsRefs.current,
-    ].filter(Boolean) as HTMLDivElement[];
-    allCards.forEach((card) => {
-      const handleMouseEnter = () => {
-        gsap.to(card, { y: -5, duration: 0.3, ease: "power2.out" });
-      };
-      const handleMouseLeave = () => {
-        gsap.to(card, { y: 0, duration: 0.3, ease: "power2.out" });
-      };
-      card.addEventListener("mouseenter", handleMouseEnter);
-      card.addEventListener("mouseleave", handleMouseLeave);
-      return () => {
-        card.removeEventListener("mouseenter", handleMouseEnter);
-        card.removeEventListener("mouseleave", handleMouseLeave);
-      };
-    });
-  }, []);
+  const highlightItemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0 
+    }
+  };
+
+  const ctaVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.6, delay: 0.4, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
+    }
+  };
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
@@ -263,7 +155,13 @@ export const AboutPage = (): JSX.Element => {
       <section className="py-32 relative w-full">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <div ref={headerRef} className="mb-12">
+          <motion.div 
+            ref={headerRef}
+            initial="hidden"
+            animate={headerInView ? "visible" : "hidden"}
+            variants={headerVariants}
+            className="mb-12"
+          >
             <div className="flex gap-2 items-center mb-4">
               <h2 className="text-4xl md:text-5xl font-bold text-white">
                 About Me
@@ -287,61 +185,93 @@ export const AboutPage = (): JSX.Element => {
               experiences. My journey began with WordPress development, and now
               I'm expanding into Full Stack Development.
             </p>
-          </div>
+          </motion.div>
 
           {/* Stats Section */}
-          <div ref={statsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div
-                  key={index}
-                  ref={(el) => {
-                    statCardsRefs.current[index] = el;
-                  }}
-                >
-                  <Card className="glass-card glass-card-hover p-6 text-center group">
-                    <CardContent className="p-0">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-[#141414] flex items-center justify-center group-hover:scale-110 transition-transform border-[0.81px] border-solid border-[#ffffff08]">
-                        <Icon className="w-8 h-8 text-white" />
-                      </div>
-                      <div className="text-4xl font-bold mb-2 text-white">
-                        {stat.value}
-                      </div>
-                      <div className="text-text-normal text-sm">{stat.label}</div>
-                    </CardContent>
-                  </Card>
-                </div>
-              );
-            })}
-          </div>
+          <motion.div 
+            ref={statsRef}
+            initial="hidden"
+            animate={statsInView ? "visible" : "hidden"}
+            variants={statsVariants}
+            className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
+          >
+            <motion.div 
+              variants={statCardVariants}
+              initial="hidden"
+              animate={statsInView ? "visible" : "hidden"}
+            >
+              {stats.map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div
+                    key={index}
+                    ref={(el) => {
+                      statCardsRefs.current[index] = el;
+                    }}
+                    variants={statItemVariants}
+                  >
+                    <Card className="glass-card glass-card-hover p-6 text-center group">
+                      <CardContent className="p-0">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-[#141414] flex items-center justify-center group-hover:scale-110 transition-transform border-[0.81px] border-solid border-[#ffffff08]">
+                          <Icon className="w-8 h-8 text-white" />
+                        </div>
+                        <div className="text-4xl font-bold mb-2 text-white">
+                          {stat.value}
+                        </div>
+                        <div className="text-text-normal text-sm">{stat.label}</div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </motion.div>
 
           {/* Highlights Grid */}
-          <div ref={highlightsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {highlights.map((highlight, index) => (
-              <div
-                key={index}
-                ref={(el) => {
-                  highlightCardsRefs.current[index] = el;
-                }}
-              >
-                <Card className="glass-card glass-card-hover p-6">
-                  <CardContent className="p-0">
-                    <div className="text-4xl mb-4">{highlight.icon}</div>
-                    <h3 className="text-xl font-bold mb-2 text-white">
-                      {highlight.title}
-                    </h3>
-                    <p className="text-text-normal text-sm leading-relaxed">
-                      {highlight.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
+          <motion.div 
+            ref={highlightsRef}
+            initial="hidden"
+            animate={highlightsInView ? "visible" : "hidden"}
+            variants={highlightsVariants}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+          >
+            <motion.div 
+              variants={highlightCardVariants}
+              initial="hidden"
+              animate={highlightsInView ? "visible" : "hidden"}
+            >
+              {highlights.map((highlight, index) => (
+                <motion.div
+                  key={index}
+                  ref={(el) => {
+                    highlightCardsRefs.current[index] = el;
+                  }}
+                  variants={highlightItemVariants}
+                >
+                  <Card className="glass-card glass-card-hover p-6">
+                    <CardContent className="p-0">
+                      <div className="text-4xl mb-4">{highlight.icon}</div>
+                      <h3 className="text-xl font-bold mb-2 text-white">
+                        {highlight.title}
+                      </h3>
+                      <p className="text-text-normal text-sm leading-relaxed">
+                        {highlight.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
 
           {/* CTA Buttons */}
-          <div ref={ctaRef} className="flex flex-wrap gap-4 justify-center">
+          <motion.div 
+            ref={ctaRef}
+            initial="hidden"
+            animate={ctaInView ? "visible" : "hidden"}
+            variants={ctaVariants}
+            className="flex flex-wrap gap-4 justify-center"
+          >
             <CTAButton onClick={handleResumeClick} variant="primary">
               Download Resume
             </CTAButton>
@@ -353,7 +283,7 @@ export const AboutPage = (): JSX.Element => {
             <CTAButton href="/contact" variant="primary">
               Schedule Call
             </CTAButton>
-          </div>
+          </motion.div>
         </div>
       </section>
       <FooterSection />

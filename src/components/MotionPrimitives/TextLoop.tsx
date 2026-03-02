@@ -1,7 +1,7 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { gsap } from 'gsap';
-import { Children, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Children, useEffect, useState } from 'react';
 
 export type TextLoopProps = {
   children: React.ReactNode[];
@@ -20,7 +20,6 @@ export function TextLoop({
 }: TextLoopProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const items = Children.toArray(children);
-  const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!trigger) return;
@@ -36,26 +35,29 @@ export function TextLoop({
     return () => clearInterval(timer);
   }, [items.length, interval, onIndexChange, trigger]);
 
-  useEffect(() => {
-    if (!textRef.current) return;
-
-    gsap.fromTo(
-      textRef.current,
-      { y: 20, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.3,
-        ease: 'power3.out',
-      }
-    );
-  }, [currentIndex]);
+  // Animation variants
+  const textVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1, 
+      transition: { 
+        duration: 0.3, 
+        ease: [0.37, 0.04, 0.29, 1.01] // power3.out equivalent
+      } 
+    }
+  };
 
   return (
     <div className={cn('relative inline-block whitespace-nowrap', className)}>
-      <div ref={textRef} key={currentIndex}>
+      <motion.div
+        key={currentIndex}
+        initial="hidden"
+        animate="visible"
+        variants={textVariants}
+      >
         {items[currentIndex]}
-      </div>
+      </motion.div>
     </div>
   );
 }
