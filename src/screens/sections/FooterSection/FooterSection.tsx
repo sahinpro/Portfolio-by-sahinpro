@@ -1,10 +1,24 @@
-import { HeroTitle } from "../HeroSection";
+import { HeaderLogo } from "@/components/Header";
+import { TextEffect } from "@/components/MotionPrimitives/TextEffect";
 
 export const FooterSection = (): JSX.Element => {
   return (
-    <footer className="flex flex-col w-full mx-auto items-center justify-center gap-[62px] pt-14 pb-12 px-4 md:px-[154px] relative bg-transparent border-t border-[#e6e6e61a] bg-[linear-gradient(0deg,rgba(112,112,112,0.01)_0%,rgba(112,112,112,0.01)_100%)] ">
+    <footer className="flex flex-col container mx-auto items-center justify-center gap-[62px] pt-14 pb-12 px-4 md:px-[154px] relative  ">
         <div className="flex flex-col container mx-auto  items-center justify-center gap-2">
-          <HeroTitle/>
+          <HeaderLogo/>
+            <TextEffect 
+              per="char" 
+              preset="fade"
+              className="font-monte-carlo text-4xl text-center leading-[70px]"
+              style={{
+                backgroundImage: 'linear-gradient(45deg, #ee2a7b, #6228d7, #2b8ace)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              Sahin Alam
+            </TextEffect>
         <p className="flex items-center justify-center mt-[-1.00px] [font-family:'Inter_Display-Regular',Helvetica] font-normal text-[#ebebeb99] text-sm tracking-[0] leading-5 whitespace-nowrap">
           © 2026 Sahin Alam. All rights reserved.
         </p>

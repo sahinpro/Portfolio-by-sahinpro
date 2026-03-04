@@ -17,9 +17,6 @@ const getMaxWidth = (): string => {
   return window.innerWidth < MOBILE_BREAKPOINT ? "calc(100% - 2rem)" : "800px";
 };
 
-/**
- * Main header component with scroll animations and responsive navigation
- */
 const Header = () => {
   const isScrolled = useScrollPosition();
   const { isOpen, toggle, close } = useMobileMenu();
@@ -94,7 +91,7 @@ const Header = () => {
         ref={containerRef}
         className={`px-2 ${
           isScrolled
-            ? "shadow-lg shading-effect bg-black/50 backdrop-blur-sm rounded-xl relative border border-[#ffffff1a] shadow-cyan-500/10 after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-cyan-500/5 after:to-transparent after:pointer-events-none after:rounded-xl"
+            ? "shadow-lg shading-effect bg-black/50 backdrop-blur-sm rounded-xl relative border border-[#ffffff1a] shadow-cyan-500/10 after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-cyan-500/5 after:to-transparent  after:pointer-events-none after:rounded-xl"
             : "backdrop-blur-md border border-white/10 r  "
         }`}
       >

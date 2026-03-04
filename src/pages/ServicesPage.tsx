@@ -1,214 +1,589 @@
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
-import { Card, CardContent } from "@/components/ui/card";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
-import { Check } from "lucide-react";
-import { useRef } from "react";
+import { ArrowRight, Check, Sparkles, Zap } from "lucide-react";
+import { useRef, useState } from "react";
 
+/* ─── Data ──────────────────────────────────────────── */
 interface Service {
   icon: string;
   title: string;
   description: string;
   features: string[];
+  tag?: string;
+  accent: string;
+  border: string;
 }
 
 const services: Service[] = [
   {
     icon: "🎨",
-    title: "Web Design",
+    title: "UI/UX Design",
     description:
-      "Beautiful, user-friendly interfaces that align with your brand and user expectations.",
+      "Beautiful, user-friendly interfaces that align with your brand, optimised for conversion and delight.",
     features: [
-      "UI/UX Design",
-      "Responsive Design",
-      "Prototyping",
+      "Figma Prototyping",
       "Design Systems",
+      "Responsive Design",
+      "Accessibility (WCAG)",
     ],
+    tag: "Design",
+    accent: "from-pink-500/10 to-rose-500/5",
+    border: "border-pink-500/20",
   },
   {
     icon: "⚡",
     title: "Full Stack Development",
     description:
-      "End-to-end web application development from database design to frontend implementation.",
+      "End-to-end web applications from database design to pixel-perfect frontend — built to scale.",
     features: [
       "React & Next.js",
       "Node.js & Express",
-      "Database Design",
-      "API Development",
+      "MongoDB / PostgreSQL",
+      "REST & GraphQL APIs",
     ],
+    tag: "Dev",
+    accent: "from-yellow-500/10 to-amber-500/5",
+    border: "border-yellow-500/20",
   },
   {
     icon: "📱",
     title: "WordPress Development",
     description:
-      "Professional WordPress website development with custom themes, plugins, and optimization.",
+      "Professional, fast, and SEO-ready WordPress builds — themes, plugins, and full custom sites.",
     features: [
       "Custom Themes",
       "Plugin Development",
-      "Performance Optimization",
-      "SEO Optimization",
+      "WooCommerce",
+      "Gutenberg Blocks",
     ],
+    tag: "CMS",
+    accent: "from-blue-500/10 to-cyan-500/5",
+    border: "border-blue-500/20",
   },
   {
     icon: "🛒",
     title: "E-Commerce Solutions",
     description:
-      "Complete e-commerce implementation with WooCommerce, Shopify, and custom shopping experiences.",
+      "Complete e-commerce with WooCommerce or Shopify — from product pages to checkout and beyond.",
     features: [
-      "WooCommerce",
-      "Shopify",
+      "WooCommerce & Shopify",
       "Payment Integration",
       "Inventory Management",
+      "Order Automation",
     ],
+    tag: "E-Commerce",
+    accent: "from-emerald-500/10 to-teal-500/5",
+    border: "border-emerald-500/20",
   },
   {
     icon: "🚀",
     title: "Performance & SEO",
     description:
-      "Fast-loading, SEO-optimized websites that rank well in search engines.",
+      "Speed optimisation, Core Web Vitals improvements, and technical SEO to help you rank and retain.",
     features: [
-      "Speed Optimization",
-      "SEO Audit",
-      "Content Strategy",
+      "Core Web Vitals",
+      "Technical SEO Audit",
+      "Image & Code Optimisation",
       "Analytics Setup",
     ],
+    tag: "Growth",
+    accent: "from-violet-500/10 to-purple-500/5",
+    border: "border-violet-500/20",
   },
   {
     icon: "🔧",
     title: "Maintenance & Support",
     description:
-      "Ongoing support and maintenance to keep your website running smoothly.",
+      "Ongoing peace of mind — regular updates, security monitoring, and fast response to any issues.",
     features: [
       "Regular Updates",
-      "Security Monitoring",
-      "Backup Solutions",
-      "Technical Support",
+      "Security Scanning",
+      "Daily Backups",
+      "Priority Support",
     ],
+    tag: "Support",
+    accent: "from-orange-500/10 to-red-500/5",
+    border: "border-orange-500/20",
   },
 ];
 
+interface PricingTier {
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  cta: string;
+  highlight?: boolean;
+}
+
+const pricingTiers: PricingTier[] = [
+  {
+    name: "Starter",
+    price: "$499",
+    period: "project",
+    description: "Perfect for landing pages and simple WordPress sites.",
+    features: [
+      "Up to 5 pages",
+      "Responsive design",
+      "Basic SEO setup",
+      "1 revision round",
+      "1-week delivery",
+    ],
+    cta: "Get started",
+  },
+  {
+    name: "Professional",
+    price: "$1,499",
+    period: "project",
+    description: "For growing businesses that need a powerful online presence.",
+    features: [
+      "Up to 15 pages",
+      "Custom WordPress / React site",
+      "E-commerce ready",
+      "3 revision rounds",
+      "Performance optimisation",
+      "3-week delivery",
+    ],
+    cta: "Most popular",
+    highlight: true,
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "",
+    description: "Full-stack applications and long-term partnerships.",
+    features: [
+      "Unlimited pages",
+      "Full stack development",
+      "Custom API & integrations",
+      "Unlimited revisions",
+      "Ongoing maintenance",
+      "Dedicated support",
+    ],
+    cta: "Let's talk",
+  },
+];
+
+const process = [
+  {
+    step: "01",
+    title: "Discovery",
+    desc: "We align on goals, audience, and technical requirements.",
+    icon: "🔍",
+  },
+  {
+    step: "02",
+    title: "Design",
+    desc: "Wireframes and mockups — approved before a line is coded.",
+    icon: "🎨",
+  },
+  {
+    step: "03",
+    title: "Build",
+    desc: "Clean, tested code delivered in transparent milestones.",
+    icon: "⚡",
+  },
+  {
+    step: "04",
+    title: "Launch",
+    desc: "Deployed, optimised, and handed over with full docs.",
+    icon: "🚀",
+  },
+];
+
+/* ─── Animation helpers ─────────────────────────────── */
+const fadeUp = (delay = 0) => ({
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, delay, ease: [0.37, 0.04, 0.29, 1.01] },
+  },
+});
+
+const SectionLabel = ({ children }: { children: string }) => (
+  <span
+    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-widest
+    uppercase bg-white/5 border border-white/10 text-white/50 mb-4"
+  >
+    {children}
+  </span>
+);
+
+/* ─── Service Card ───────────────────────────────────── */
+const ServiceCard = ({
+  service,
+  index,
+}: {
+  service: Service;
+  index: number;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const inV = useInView(ref, { once: true, margin: "-10%" });
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={inV ? "visible" : "hidden"}
+      variants={fadeUp(index * 0.07)}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      whileHover={{ y: -6, transition: { duration: 0.3 } }}
+      className="h-full"
+    >
+      <div
+        className={`relative flex flex-col h-full p-7 rounded-2xl border bg-gradient-to-br
+        ${service.accent} ${service.border} overflow-hidden
+        transition-shadow duration-300 ${hovered ? "shadow-xl shadow-black/20" : ""}`}
+      >
+        {/* Tag */}
+        <div className="flex items-center justify-between mb-5">
+          <span className="text-4xl">{service.icon}</span>
+          {service.tag && (
+            <span
+              className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-widest uppercase
+              bg-white/5 border border-white/10 text-white/40"
+            >
+              {service.tag}
+            </span>
+          )}
+        </div>
+
+        <h3 className="text-xl font-bold text-white mb-2 tracking-tight">
+          {service.title}
+        </h3>
+        <p className="text-sm text-white/50 leading-relaxed mb-6 flex-1">
+          {service.description}
+        </p>
+
+        {/* Features */}
+        <ul className="space-y-2.5 mb-7">
+          {service.features.map((f) => (
+            <li
+              key={f}
+              className="flex items-center gap-2.5 text-sm text-white/60"
+            >
+              <Check className="w-4 h-4 text-white/40 flex-shrink-0" />
+              {f}
+            </li>
+          ))}
+        </ul>
+
+        <CTAButton
+          href="/contact"
+          variant="secondary"
+          className="w-full justify-center"
+        >
+          Get a quote
+        </CTAButton>
+
+        {/* Decorative blob */}
+        <div
+          className="pointer-events-none absolute -bottom-8 -right-8 w-24 h-24
+          rounded-full bg-white/[0.04] blur-xl"
+        />
+      </div>
+    </motion.div>
+  );
+};
+
+/* ─── Pricing Card ───────────────────────────────────── */
+const PricingCard = ({ tier, index }: { tier: PricingTier; index: number }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const inV = useInView(ref, { once: true, margin: "-10%" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={inV ? "visible" : "hidden"}
+      variants={fadeUp(index * 0.1)}
+      className="h-full"
+    >
+      <div
+        className={`relative flex flex-col h-full p-8 rounded-2xl border overflow-hidden
+        ${
+          tier.highlight
+            ? "bg-gradient-to-b from-violet-500/10 via-purple-500/5 to-transparent border-violet-500/30"
+            : "bg-gradient-to-b from-white/[0.03] to-transparent border-white/[0.08]"
+        }`}
+      >
+        {/* Popular ribbon */}
+        {tier.highlight && (
+          <div className="absolute top-0 right-0 overflow-hidden w-20 h-20">
+            <div
+              className="absolute top-3 right-[-26px] rotate-45 bg-violet-500 text-[9px]
+              font-bold tracking-wider text-white py-1 w-24 text-center uppercase shadow-lg"
+            >
+              Popular
+            </div>
+          </div>
+        )}
+
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-white/50 mb-2 uppercase tracking-widest">
+            {tier.name}
+          </p>
+          <div className="flex items-end gap-1 mb-3">
+            <span
+              className={`text-5xl font-bold tracking-tight
+              ${tier.highlight ? "text-violet-300" : "text-white"}`}
+            >
+              {tier.price}
+            </span>
+            {tier.period && (
+              <span className="text-white/30 text-sm mb-2">
+                / {tier.period}
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-white/50 leading-relaxed">
+            {tier.description}
+          </p>
+        </div>
+
+        <ul className="space-y-3 mb-8 flex-1">
+          {tier.features.map((f) => (
+            <li
+              key={f}
+              className="flex items-center gap-2.5 text-sm text-white/70"
+            >
+              <div
+                className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0
+                ${tier.highlight ? "bg-violet-500/20" : "bg-white/5"}`}
+              >
+                <Check
+                  className={`w-3 h-3 ${tier.highlight ? "text-violet-400" : "text-white/50"}`}
+                />
+              </div>
+              {f}
+            </li>
+          ))}
+        </ul>
+
+        <CTAButton
+          href="/contact"
+          variant={tier.highlight ? "primary" : "secondary"}
+          className="w-full justify-center"
+        >
+          {tier.cta}
+          <ArrowRight className="w-4 h-4 ml-1" />
+        </CTAButton>
+      </div>
+    </motion.div>
+  );
+};
+
+/* ─── Page ───────────────────────────────────────────── */
 export const ServicesPage = (): JSX.Element => {
   const headerRef = useRef<HTMLDivElement>(null);
-  const servicesRefs = useRef<(HTMLDivElement | null)[]>([]);
-  
-  const headerInView = useInView(headerRef, { once: true, margin: "-10%" });
+  const processRef = useRef<HTMLDivElement>(null);
+  const pricingRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
 
-  // Animation variants
-  const headerVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.6, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
-    }
-  };
-
-  const serviceCardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { 
-        duration: 0.6, 
-        ease: [0.37, 0.04, 0.29, 1.01], // power3.out equivalent
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0 
-    },
-    hover: {
-      y: -8,
-      transition: { duration: 0.3, ease: [0.42, 0, 0.58, 1] } // power2.out equivalent
-    }
-  };
+  const headerInV = useInView(headerRef, { once: true, margin: "-10%" });
+  const processInV = useInView(processRef, { once: true, margin: "-10%" });
+  const pricingInV = useInView(pricingRef, { once: true, margin: "-10%" });
+  const ctaInV = useInView(ctaRef, { once: true, margin: "-10%" });
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
-      <section className="py-32 relative w-full">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            ref={headerRef}
+
+      {/* ── HEADER ─────────────────────────────────────────── */}
+      <section className="w-full pt-40 pb-16 relative overflow-hidden">
+        <div
+          className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[800px] h-[400px]
+          bg-gradient-to-b from-violet-600/8 via-purple-600/4 to-transparent rounded-full blur-3xl"
+        />
+
+        <div ref={headerRef} className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
             initial="hidden"
-            animate={headerInView ? "visible" : "hidden"}
-            variants={headerVariants}
-            className="mb-12"
+            animate={headerInV ? "visible" : "hidden"}
+            variants={fadeUp(0)}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
-              Services I Provide
+            <SectionLabel>Services</SectionLabel>
+          </motion.div>
+          <motion.h1
+            initial="hidden"
+            animate={headerInV ? "visible" : "hidden"}
+            variants={fadeUp(0.05)}
+            className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4"
+          >
+            What I build{" "}
+            <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
+              for you
+            </span>
+          </motion.h1>
+          <motion.p
+            initial="hidden"
+            animate={headerInV ? "visible" : "hidden"}
+            variants={fadeUp(0.1)}
+            className="text-lg text-white/50 max-w-xl"
+          >
+            Comprehensive web development services — from concept to launch —
+            crafted with precision and purpose.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* ── SERVICES GRID ──────────────────────────────────── */}
+      <section className="w-full pb-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {services.map((s, i) => (
+              <ServiceCard key={s.title} service={s} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PROCESS ────────────────────────────────────────── */}
+      <section className="w-full pb-24 relative overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-0
+          bg-gradient-to-b from-white/[0.01] via-white/[0.02] to-transparent"
+        />
+
+        <div
+          ref={processRef}
+          className="container mx-auto px-4 sm:px-6 lg:px-8"
+        >
+          <motion.div
+            initial="hidden"
+            animate={processInV ? "visible" : "hidden"}
+            variants={fadeUp(0)}
+            className="text-center mb-12"
+          >
+            <SectionLabel>Process</SectionLabel>
+            <h2 className="text-4xl font-bold text-white tracking-tight">
+              How I work
             </h2>
-            <p className="max-w-2xl text-lg text-white/70">
-              Comprehensive{" "}
-              <span className="text-white font-semibold">web development</span>{" "}
-              services to bring your digital vision to life with precision and
-              creativity.
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {process.map((step, i) => (
+              <motion.div
+                key={step.step}
+                initial="hidden"
+                animate={processInV ? "visible" : "hidden"}
+                variants={fadeUp(i * 0.1)}
+                className="relative"
+              >
+                {/* connector line */}
+                {i < process.length - 1 && (
+                  <div
+                    className="hidden lg:block absolute top-9 left-[calc(50%+24px)] w-[calc(100%+20px-48px)]
+                    h-px bg-gradient-to-r from-white/10 to-transparent pointer-events-none"
+                  />
+                )}
+
+                <div
+                  className="flex flex-col items-center text-center gap-4 p-7 rounded-2xl
+                  border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04]
+                  hover:border-white/[0.12] transition-all duration-300"
+                >
+                  <div className="text-3xl">{step.icon}</div>
+                  <div>
+                    <span className="text-[11px] font-bold tracking-widest text-white/20 uppercase">
+                      {step.step}
+                    </span>
+                    <h3 className="text-lg font-bold text-white mt-0.5 mb-2">
+                      {step.title}
+                    </h3>
+                    <p className="text-sm text-white/40 leading-relaxed">
+                      {step.desc}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRICING ────────────────────────────────────────── */}
+      <section className="w-full pb-24">
+        <div
+          ref={pricingRef}
+          className="container mx-auto px-4 sm:px-6 lg:px-8"
+        >
+          <motion.div
+            initial="hidden"
+            animate={pricingInV ? "visible" : "hidden"}
+            variants={fadeUp(0)}
+            className="text-center mb-12"
+          >
+            <SectionLabel>Pricing</SectionLabel>
+            <h2 className="text-4xl font-bold text-white tracking-tight mb-3">
+              Transparent pricing
+            </h2>
+            <p className="text-white/40 max-w-md mx-auto">
+              Straightforward packages — no hidden fees, no surprises.
+              Everything is discussed upfront.
             </p>
           </motion.div>
 
-          {/* Services Grid */}
-          <motion.div 
-            variants={serviceCardVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-8"
-          >
-            {services.map((service, index) => (
-              <motion.div
-                key={index}
-                ref={(el) => {
-                  servicesRefs.current[index] = el;
-                }}
-                variants={cardVariants}
-                whileHover="hover"
-                className="h-full"
-              >
-                <Card className="glass-card glass-card-hover p-8 relative overflow-hidden group h-full flex flex-col">
-                  <CardContent className="p-0 flex flex-col flex-1">
-                    {/* Icon */}
-                    <div className="text-5xl mb-6">{service.icon}</div>
-
-                    {/* Title */}
-                    <h3 className="text-2xl font-bold mb-3 text-white group-hover:text-white transition-colors">
-                      {service.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-white/70 mb-6 leading-relaxed flex-1">
-                      {service.description}
-                    </p>
-
-                    {/* Features List */}
-                    <ul className="space-y-3 mb-6">
-                      {service.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <Check className="w-5 h-5 text-white/80 flex-shrink-0 mt-0.5" />
-                          <span className="text-white/70 text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* CTA Button */}
-                    <CTAButton
-                      href="/contact"
-                      variant="secondary"
-                      className="w-full justify-center"
-                    >
-                      Learn More
-                    </CTAButton>
-                  </CardContent>
-                </Card>
-              </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+            {pricingTiers.map((t, i) => (
+              <PricingCard key={t.name} tier={t} index={i} />
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
+
+      {/* ── CTA ────────────────────────────────────────────── */}
+      <section className="w-full pb-28">
+        <motion.div
+          ref={ctaRef}
+          initial="hidden"
+          animate={ctaInV ? "visible" : "hidden"}
+          variants={fadeUp(0)}
+          className="container mx-auto px-4 sm:px-6 lg:px-8"
+        >
+          <div
+            className="relative flex flex-col lg:flex-row items-center justify-between gap-8
+            rounded-3xl border border-white/[0.08] p-10 md:p-14 overflow-hidden
+            bg-gradient-to-br from-white/[0.03] to-transparent"
+          >
+            <div
+              className="pointer-events-none absolute -top-20 left-1/4 w-80 h-80
+              bg-violet-600/8 rounded-full blur-3xl"
+            />
+
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 mb-4 text-sm text-violet-400">
+                <Sparkles className="w-4 h-4" />
+                <span>Not sure what you need?</span>
+              </div>
+              <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">
+                Let's figure it out together
+              </h3>
+              <p className="text-white/50 max-w-md">
+                Book a free 30-minute discovery call. No pitch, just a real
+                conversation about your project and goals.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3 flex-shrink-0 justify-center">
+              <CTAButton href="/contact" variant="primary">
+                <Zap className="w-4 h-4 mr-1.5" />
+                Free consultation
+              </CTAButton>
+              <CTAButton href="/projects" variant="secondary">
+                View work
+              </CTAButton>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
       <FooterSection />
     </div>
   );

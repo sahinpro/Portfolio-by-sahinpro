@@ -1,7 +1,7 @@
+import { BUTTON_VARIANTS } from "@/constants/buttonStyles";
+import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { BUTTON_VARIANTS } from "@/constants/buttonStyles";
 
 interface CTAButtonProps {
   href?: string;
@@ -28,7 +28,7 @@ export const CTAButton = ({
   disabled = false,
 }: CTAButtonProps) => {
   const baseStyles =
-    "inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9";
+    "inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity- px-4 py-3 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10";
 
   const variantConfig = BUTTON_VARIANTS[variant];
   const variantStyles = cn(
