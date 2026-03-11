@@ -17,7 +17,9 @@ import { Navigation } from "./Navigation";
  */
 const getMaxWidth = (): string => {
   if (typeof window === "undefined") return "800px";
-  return window.innerWidth < MOBILE_BREAKPOINT ? "calc(100% - 2rem)" : "800px";
+  return window.innerWidth < MOBILE_BREAKPOINT
+    ? "calc(100% - 0.5rem)"
+    : "800px";
 };
 
 const Header = () => {
