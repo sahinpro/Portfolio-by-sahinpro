@@ -2,23 +2,39 @@ import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
-import { ArrowRight, Check, Sparkles, Zap } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  Check,
+  Code,
+  LayoutTemplate,
+  Paintbrush,
+  Palette,
+  Rocket,
+  Search,
+  ShoppingCart,
+  Sparkles,
+  TrendingUp,
+  Wrench,
+  Zap,
+} from "lucide-react";
 import { useRef, useState } from "react";
 
 /* ─── Data ──────────────────────────────────────────── */
 interface Service {
-  icon: string;
+  icon: LucideIcon;
   title: string;
   description: string;
   features: string[];
   tag?: string;
   accent: string;
   border: string;
+  /** Button background/border to match card accent */
+  buttonAccent: string;
 }
 
 const services: Service[] = [
   {
-    icon: "🎨",
+    icon: Palette,
     title: "UI/UX Design",
     description:
       "Beautiful, user-friendly interfaces that align with your brand, optimised for conversion and delight.",
@@ -31,9 +47,10 @@ const services: Service[] = [
     tag: "Design",
     accent: "from-pink-500/10 to-rose-500/5",
     border: "border-pink-500/20",
+    buttonAccent: "bg-pink-500/20 border-pink-500/30 hover:bg-pink-500/30",
   },
   {
-    icon: "⚡",
+    icon: Zap,
     title: "Full Stack Development",
     description:
       "End-to-end web applications from database design to pixel-perfect frontend — built to scale.",
@@ -46,9 +63,11 @@ const services: Service[] = [
     tag: "Dev",
     accent: "from-yellow-500/10 to-amber-500/5",
     border: "border-yellow-500/20",
+    buttonAccent:
+      "bg-yellow-500/20 border-yellow-500/30 hover:bg-yellow-500/30",
   },
   {
-    icon: "📱",
+    icon: LayoutTemplate,
     title: "WordPress Development",
     description:
       "Professional, fast, and SEO-ready WordPress builds — themes, plugins, and full custom sites.",
@@ -61,9 +80,10 @@ const services: Service[] = [
     tag: "CMS",
     accent: "from-blue-500/10 to-cyan-500/5",
     border: "border-blue-500/20",
+    buttonAccent: "bg-blue-500/20 border-blue-500/30 hover:bg-blue-500/30",
   },
   {
-    icon: "🛒",
+    icon: ShoppingCart,
     title: "E-Commerce Solutions",
     description:
       "Complete e-commerce with WooCommerce or Shopify — from product pages to checkout and beyond.",
@@ -76,9 +96,11 @@ const services: Service[] = [
     tag: "E-Commerce",
     accent: "from-emerald-500/10 to-teal-500/5",
     border: "border-emerald-500/20",
+    buttonAccent:
+      "bg-emerald-500/20 border-emerald-500/30 hover:bg-emerald-500/30",
   },
   {
-    icon: "🚀",
+    icon: TrendingUp,
     title: "Performance & SEO",
     description:
       "Speed optimisation, Core Web Vitals improvements, and technical SEO to help you rank and retain.",
@@ -91,9 +113,11 @@ const services: Service[] = [
     tag: "Growth",
     accent: "from-violet-500/10 to-purple-500/5",
     border: "border-violet-500/20",
+    buttonAccent:
+      "bg-violet-500/20 border-violet-500/30 hover:bg-violet-500/30",
   },
   {
-    icon: "🔧",
+    icon: Wrench,
     title: "Maintenance & Support",
     description:
       "Ongoing peace of mind — regular updates, security monitoring, and fast response to any issues.",
@@ -106,64 +130,8 @@ const services: Service[] = [
     tag: "Support",
     accent: "from-orange-500/10 to-red-500/5",
     border: "border-orange-500/20",
-  },
-];
-
-interface PricingTier {
-  name: string;
-  price: string;
-  period: string;
-  description: string;
-  features: string[];
-  cta: string;
-  highlight?: boolean;
-}
-
-const pricingTiers: PricingTier[] = [
-  {
-    name: "Starter",
-    price: "$499",
-    period: "project",
-    description: "Perfect for landing pages and simple WordPress sites.",
-    features: [
-      "Up to 5 pages",
-      "Responsive design",
-      "Basic SEO setup",
-      "1 revision round",
-      "1-week delivery",
-    ],
-    cta: "Get started",
-  },
-  {
-    name: "Professional",
-    price: "$1,499",
-    period: "project",
-    description: "For growing businesses that need a powerful online presence.",
-    features: [
-      "Up to 15 pages",
-      "Custom WordPress / React site",
-      "E-commerce ready",
-      "3 revision rounds",
-      "Performance optimisation",
-      "3-week delivery",
-    ],
-    cta: "Most popular",
-    highlight: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "Full-stack applications and long-term partnerships.",
-    features: [
-      "Unlimited pages",
-      "Full stack development",
-      "Custom API & integrations",
-      "Unlimited revisions",
-      "Ongoing maintenance",
-      "Dedicated support",
-    ],
-    cta: "Let's talk",
+    buttonAccent:
+      "bg-orange-500/20 border-orange-500/30 hover:bg-orange-500/30",
   },
 ];
 
@@ -172,25 +140,25 @@ const process = [
     step: "01",
     title: "Discovery",
     desc: "We align on goals, audience, and technical requirements.",
-    icon: "🔍",
+    icon: Search,
   },
   {
     step: "02",
     title: "Design",
     desc: "Wireframes and mockups — approved before a line is coded.",
-    icon: "🎨",
+    icon: Paintbrush,
   },
   {
     step: "03",
     title: "Build",
     desc: "Clean, tested code delivered in transparent milestones.",
-    icon: "⚡",
+    icon: Code,
   },
   {
     step: "04",
     title: "Launch",
     desc: "Deployed, optimised, and handed over with full docs.",
-    icon: "🚀",
+    icon: Rocket,
   },
 ];
 
@@ -243,7 +211,9 @@ const ServiceCard = ({
       >
         {/* Tag */}
         <div className="flex items-center justify-between mb-5">
-          <span className="text-4xl">{service.icon}</span>
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
+            <service.icon className="size-6 text-white/90" />
+          </div>
           {service.tag && (
             <span
               className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-widest uppercase
@@ -277,6 +247,7 @@ const ServiceCard = ({
         <CTAButton
           href="/contact"
           variant="secondary"
+          accentClassName={service.buttonAccent}
           className="w-full justify-center"
         >
           Get a quote
@@ -292,103 +263,14 @@ const ServiceCard = ({
   );
 };
 
-/* ─── Pricing Card ───────────────────────────────────── */
-const PricingCard = ({ tier, index }: { tier: PricingTier; index: number }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const inV = useInView(ref, { once: true, margin: "-10%" });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={inV ? "visible" : "hidden"}
-      variants={fadeUp(index * 0.1)}
-      className="h-full"
-    >
-      <div
-        className={`relative flex flex-col h-full p-8 rounded-2xl border overflow-hidden
-        ${
-          tier.highlight
-            ? "bg-gradient-to-b from-violet-500/10 via-purple-500/5 to-transparent border-violet-500/30"
-            : "bg-gradient-to-b from-white/[0.03] to-transparent border-white/[0.08]"
-        }`}
-      >
-        {/* Popular ribbon */}
-        {tier.highlight && (
-          <div className="absolute top-0 right-0 overflow-hidden w-20 h-20">
-            <div
-              className="absolute top-3 right-[-26px] rotate-45 bg-violet-500 text-[9px]
-              font-bold tracking-wider text-white py-1 w-24 text-center uppercase shadow-lg"
-            >
-              Popular
-            </div>
-          </div>
-        )}
-
-        <div className="mb-6">
-          <p className="text-sm font-semibold text-white/50 mb-2 uppercase tracking-widest">
-            {tier.name}
-          </p>
-          <div className="flex items-end gap-1 mb-3">
-            <span
-              className={`text-5xl font-bold tracking-tight
-              ${tier.highlight ? "text-violet-300" : "text-white"}`}
-            >
-              {tier.price}
-            </span>
-            {tier.period && (
-              <span className="text-white/30 text-sm mb-2">
-                / {tier.period}
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-white/50 leading-relaxed">
-            {tier.description}
-          </p>
-        </div>
-
-        <ul className="space-y-3 mb-8 flex-1">
-          {tier.features.map((f) => (
-            <li
-              key={f}
-              className="flex items-center gap-2.5 text-sm text-white/70"
-            >
-              <div
-                className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0
-                ${tier.highlight ? "bg-violet-500/20" : "bg-white/5"}`}
-              >
-                <Check
-                  className={`w-3 h-3 ${tier.highlight ? "text-violet-400" : "text-white/50"}`}
-                />
-              </div>
-              {f}
-            </li>
-          ))}
-        </ul>
-
-        <CTAButton
-          href="/contact"
-          variant={tier.highlight ? "primary" : "secondary"}
-          className="w-full justify-center"
-        >
-          {tier.cta}
-          <ArrowRight className="w-4 h-4 ml-1" />
-        </CTAButton>
-      </div>
-    </motion.div>
-  );
-};
-
 /* ─── Page ───────────────────────────────────────────── */
 export const ServicesPage = (): JSX.Element => {
   const headerRef = useRef<HTMLDivElement>(null);
   const processRef = useRef<HTMLDivElement>(null);
-  const pricingRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
 
   const headerInV = useInView(headerRef, { once: true, margin: "-10%" });
   const processInV = useInView(processRef, { once: true, margin: "-10%" });
-  const pricingInV = useInView(pricingRef, { once: true, margin: "-10%" });
   const ctaInV = useInView(ctaRef, { once: true, margin: "-10%" });
 
   return (
@@ -417,7 +299,7 @@ export const ServicesPage = (): JSX.Element => {
             className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4"
           >
             What I build{" "}
-            <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-400 to-purple-800 bg-clip-text text-transparent">
               for you
             </span>
           </motion.h1>
@@ -489,7 +371,9 @@ export const ServicesPage = (): JSX.Element => {
                   border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04]
                   hover:border-white/[0.12] transition-all duration-300"
                 >
-                  <div className="text-3xl">{step.icon}</div>
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
+                    <step.icon className="size-5 text-white/70" />
+                  </div>
                   <div>
                     <span className="text-[11px] font-bold tracking-widest text-white/20 uppercase">
                       {step.step}
@@ -503,36 +387,6 @@ export const ServicesPage = (): JSX.Element => {
                   </div>
                 </div>
               </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── PRICING ────────────────────────────────────────── */}
-      <section className="w-full pb-24">
-        <div
-          ref={pricingRef}
-          className="container mx-auto px-4 sm:px-6 lg:px-8"
-        >
-          <motion.div
-            initial="hidden"
-            animate={pricingInV ? "visible" : "hidden"}
-            variants={fadeUp(0)}
-            className="text-center mb-12"
-          >
-            <SectionLabel>Pricing</SectionLabel>
-            <h2 className="text-4xl font-bold text-white tracking-tight mb-3">
-              Transparent pricing
-            </h2>
-            <p className="text-white/40 max-w-md mx-auto">
-              Straightforward packages — no hidden fees, no surprises.
-              Everything is discussed upfront.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            {pricingTiers.map((t, i) => (
-              <PricingCard key={t.name} tier={t} index={i} />
             ))}
           </div>
         </div>

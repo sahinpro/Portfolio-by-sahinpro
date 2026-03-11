@@ -1,27 +1,43 @@
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import {
-  CheckCircle2,
+  CheckIcon,
+  ChevronsUpDown,
   Clock,
   Github,
   Linkedin,
   Mail,
   MapPin,
   MessageCircle,
-  Phone,
   Send,
-  Twitter,
-  Zap,
 } from "lucide-react";
-import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import Lottie, { type LottieRefCurrentProps } from "lottie-react";
+import type { ComponentType } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import successAnimationData from "@/assets/lottie/success.json";
+import errorAnimationData from "@/assets/lottie/error.json";
+import { BsBehance, BsDribbble, BsWhatsapp } from "react-icons/bs";
+import { isValidPhoneNumber } from "react-phone-number-input";
+import Turnstile from "react-turnstile";
 
 /* ─── Data ──────────────────────────────────────────── */
+/** Calendly, Cal.com, or Google Calendar appointment link — opens in new tab. Leave empty to scroll to the form. */
+const BOOKING_CALL_URL = ""; // e.g. "https://calendly.com/your-username/30min"
+
 interface FormData {
   name: string;
   email: string;
+  subject: string;
+  phone: string;
   budget: string;
   message: string;
 }
@@ -32,27 +48,25 @@ const contactInfo = [
     title: "Email",
     value: "sahinhub@gmail.com",
     href: "mailto:sahinhub@gmail.com",
-    desc: "Best for detailed project briefs",
     color: "text-violet-400",
     bg: "bg-violet-500/10",
     border: "border-violet-500/20",
   },
   {
-    icon: Phone,
-    title: "Phone",
-    value: "+1 (555) 123-4567",
-    href: "tel:+15551234567",
-    desc: "Available Mon–Fri, 9am–6pm",
-    color: "text-blue-400",
+    icon: BsWhatsapp,
+    title: "Chat on WhatsApp",
+    value: "+8801791992313",
+    desc: "WhatsApp is the best way to get in touch with me.",
+    href: "tel:+8801791992313",
+    color: "text-green-400",
     bg: "bg-blue-500/10",
     border: "border-blue-500/20",
   },
   {
     icon: MapPin,
     title: "Location",
-    value: "San Francisco, CA",
+    value: "Sunamganj, Sylhet, Bangladesh",
     href: "#",
-    desc: "Open to remote worldwide",
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/20",
@@ -62,24 +76,31 @@ const contactInfo = [
 const socialLinks = [
   {
     name: "GitHub",
-    href: "https://github.com/sahincoderbd",
+    href: "https://github.com/sahinhub",
     icon: Github,
-    color: "hover:text-white",
+    brandColor: "#f0f6fc",
     bg: "hover:bg-white/10",
   },
   {
     name: "LinkedIn",
-    href: "https://linkedin.com/in/sahincoder",
+    href: "https://linkedin.com/in/sahinhub",
     icon: Linkedin,
-    color: "hover:text-blue-400",
-    bg: "hover:bg-blue-500/10",
+    brandColor: "#0A66C2",
+    bg: "hover:bg-[#0A66C2]/20",
   },
   {
-    name: "Twitter",
-    href: "https://twitter.com/sahincoder",
-    icon: Twitter,
-    color: "hover:text-sky-400",
-    bg: "hover:bg-sky-500/10",
+    name: "Behance",
+    href: "https://behance.net/sahinhub",
+    icon: BsBehance,
+    brandColor: "#1769FF",
+    bg: "hover:bg-[#1769FF]/20",
+  },
+  {
+    name: "Dribbble",
+    href: "https://dribbble.com/sahinhub",
+    icon: BsDribbble,
+    brandColor: "#EA4C89",
+    bg: "hover:bg-[#EA4C89]/20",
   },
 ];
 
@@ -90,6 +111,31 @@ const budgetOptions = [
   "$5,000+",
   "Let's discuss",
 ];
+
+/* ─── One submission per day (per browser) ──────────── */
+const CONTACT_FORM_SUCCESS_DATE_KEY = "contact_form_success_date";
+
+function getTodayDateString(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function hasAlreadySubmittedToday(): boolean {
+  try {
+    const stored = localStorage.getItem(CONTACT_FORM_SUCCESS_DATE_KEY);
+    return stored === getTodayDateString();
+  } catch {
+    return false;
+  }
+}
+
+function markSubmittedToday(): void {
+  try {
+    localStorage.setItem(CONTACT_FORM_SUCCESS_DATE_KEY, getTodayDateString());
+  } catch {
+    /* ignore */
+  }
+}
 
 const faqs = [
   {
@@ -116,17 +162,79 @@ const fadeUp = (delay = 0) => ({
   },
 });
 
+/* ─── Lottie feedback ────────────────────────────────── */
+const SUCCESS_SPEED = 1;
+const ERROR_SPEED = 1;
+/** Success animation has content up to frame 354 (precomp); play full range so it doesn't stop early. */
+const SUCCESS_SEGMENT: [number, number] = [0, 354];
+/** Error animation: 24fps, op 21 → play [0, 21]. */
+const ERROR_SEGMENT: [number, number] = [0, 21];
+
+function SuccessLottie() {
+  const lottieRef = useRef<LottieRefCurrentProps | null>(null);
+  return (
+    <div className="w-[180px] h-[180px] shrink-0 flex items-center justify-center">
+      <Lottie
+        lottieRef={lottieRef}
+        animationData={successAnimationData}
+        loop={false}
+        autoplay
+        initialSegment={SUCCESS_SEGMENT}
+        onDOMLoaded={() => {
+          lottieRef.current?.setSpeed(SUCCESS_SPEED);
+          lottieRef.current?.play();
+        }}
+        style={{ width: 180, height: 180 }}
+      />
+    </div>
+  );
+}
+
+function ErrorLottie() {
+  const lottieRef = useRef<LottieRefCurrentProps | null>(null);
+  return (
+    <div className="w-[100px] h-[100px] shrink-0 flex items-center justify-center mx-auto">
+      <Lottie
+        lottieRef={lottieRef}
+        animationData={errorAnimationData}
+        loop={false}
+        autoplay
+        initialSegment={ERROR_SEGMENT}
+        onDOMLoaded={() => {
+          lottieRef.current?.setSpeed(ERROR_SPEED);
+          lottieRef.current?.play();
+        }}
+        style={{ width: 100, height: 100 }}
+      />
+    </div>
+  );
+}
+
 /* ─── Page ───────────────────────────────────────────── */
 export const ContactPage = (): JSX.Element => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
+    subject: "",
+    phone: "",
     budget: "",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedJustNow, setSubmittedJustNow] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [budgetOpen, setBudgetOpen] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as
+    | string
+    | undefined;
+  const formEndpoint = import.meta.env.VITE_CONTACT_FORM_ID
+    ? `https://formspree.io/f/${import.meta.env.VITE_CONTACT_FORM_ID}`
+    : null;
 
   const headerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -138,6 +246,14 @@ export const ContactPage = (): JSX.Element => {
   const infoInV = useInView(infoRef, { once: true, margin: "-10%" });
   const faqInV = useInView(faqRef, { once: true, margin: "-10%" });
 
+  /* One successful submission per day: hide form if already submitted today. */
+  useEffect(() => {
+    if (hasAlreadySubmittedToday()) {
+      setIsSubmitted(true);
+      setSubmittedJustNow(false);
+    }
+  }, []);
+
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
@@ -147,24 +263,104 @@ export const ContactPage = (): JSX.Element => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setPhoneError(null);
+    setSubmitError(null);
+
+    const missing = [];
+    if (!formData.name.trim()) missing.push("Full name");
+    if (!formData.email.trim()) missing.push("Email");
+    if (!formData.budget.trim()) missing.push("Budget range");
+    if (!formData.message.trim()) missing.push("Message");
+    if (missing.length) {
+      setSubmitError(`Please fill in: ${missing.join(", ")}`);
+      return;
+    }
+    if (formData.phone && !isValidPhoneNumber(formData.phone)) {
+      setPhoneError("Invalid phone number");
+      return;
+    }
+    if (turnstileSiteKey && !turnstileToken) {
+      setSubmitError("Please complete the verification check.");
+      return;
+    }
+    if (hasAlreadySubmittedToday()) {
+      setSubmitError("You can only send one message per day. Try again tomorrow.");
+      return;
+    }
+
     setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setIsSubmitted(true);
-    setIsSubmitting(false);
-    setFormData({ name: "", email: "", budget: "", message: "" });
-    setTimeout(() => setIsSubmitted(false), 6000);
+
+    const payload: Record<string, string | undefined> = {
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject,
+      phone: formData.phone || undefined,
+      budget: formData.budget,
+      message: formData.message,
+    };
+    if (turnstileToken) {
+      payload["cf-turnstile-response"] = turnstileToken;
+    }
+
+    if (formEndpoint) {
+      try {
+        const res = await fetch(formEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          setFormData({
+            name: "",
+            email: "",
+            subject: "",
+            phone: "",
+            budget: "",
+            message: "",
+          });
+          markSubmittedToday();
+          setSubmittedJustNow(true);
+          setIsSubmitted(true);
+          setIsSubmitting(false);
+          /* Form stays hidden until refresh; one submission per day per browser. */
+        } else {
+          setSubmitError("Message not sent. Please try again or email me directly.");
+          setTurnstileToken(null);
+          setIsSubmitting(false);
+        }
+      } catch {
+        setSubmitError("Message not sent. Check your connection and try again.");
+        setTurnstileToken(null);
+        setIsSubmitting(false);
+      }
+    } else {
+      await new Promise((r) => setTimeout(r, 1200));
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        phone: "",
+        budget: "",
+        message: "",
+      });
+      markSubmittedToday();
+      setSubmittedJustNow(true);
+      setIsSubmitted(true);
+      setIsSubmitting(false);
+      /* Form stays hidden until refresh; one submission per day per browser. */
+    }
   };
 
-  const inputClass = `w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04]
-    text-white text-sm placeholder-white/25 focus:outline-none focus:border-white/25
-    focus:bg-white/[0.06] transition-all duration-200 h-auto`;
+  const inputClass = `w-full px-4 py-3 sm:py-2.5 rounded-xl border border-white/10 bg-white/[0.04]
+    text-white text-base sm:text-sm placeholder-white/25 focus:outline-none focus:border-white/25
+    focus:bg-white/[0.06] transition-all duration-200 h-auto min-h-[44px]`;
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
 
       {/* ── HEADER ─────────────────────────────────────────── */}
-      <section className="w-full pt-40 pb-16 relative overflow-hidden">
+      <section className="w-full pt-28 sm:pt-36 lg:pt-40 pb-10 sm:pb-16 relative overflow-hidden">
         <div
           className="pointer-events-none absolute -top-20 right-1/4 w-[600px] h-[400px]
           bg-gradient-to-b from-violet-600/8 to-transparent rounded-full blur-3xl"
@@ -172,7 +368,7 @@ export const ContactPage = (): JSX.Element => {
 
         <div
           ref={headerRef}
-          className="container mx-auto px-4 sm:px-6 lg:px-8 text-center"
+          className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-full"
         >
           <motion.div
             initial="hidden"
@@ -192,10 +388,10 @@ export const ContactPage = (): JSX.Element => {
             initial="hidden"
             animate={headerInV ? "visible" : "hidden"}
             variants={fadeUp(0.05)}
-            className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4"
+            className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mb-3 sm:mb-4"
           >
             Let's build something{" "}
-            <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-400 to-purple-800 bg-clip-text text-transparent">
               amazing
             </span>
           </motion.h1>
@@ -204,7 +400,7 @@ export const ContactPage = (): JSX.Element => {
             initial="hidden"
             animate={headerInV ? "visible" : "hidden"}
             variants={fadeUp(0.1)}
-            className="text-lg text-white/50 max-w-lg mx-auto mb-8"
+            className="text-base sm:text-lg text-white/50 max-w-lg mx-auto mb-6 sm:mb-8 px-1"
           >
             Have a project in mind? Tell me about it — I typically respond
             within 24 hours.
@@ -228,18 +424,20 @@ export const ContactPage = (): JSX.Element => {
       </section>
 
       {/* ── MAIN GRID ──────────────────────────────────────── */}
-      <section className="w-full pb-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10">
+      <section className="container mx-auto pb-16 sm:pb-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-10 max-w-full">
           {/* Form */}
           <motion.div
+            id="contact-form"
             ref={formRef}
             initial="hidden"
             animate={formInV ? "visible" : "hidden"}
             variants={fadeUp(0)}
+            className="min-w-0"
           >
             <div
               className="relative rounded-2xl border border-white/[0.08] bg-gradient-to-b
-              from-white/[0.03] to-transparent p-8 md:p-10 overflow-hidden"
+              from-white/[0.03] to-transparent p-5 sm:p-6 md:p-8 lg:p-7 overflow-hidden"
             >
               <div
                 className="pointer-events-none absolute -top-10 -right-10 w-40 h-40
@@ -253,30 +451,29 @@ export const ContactPage = (): JSX.Element => {
                   transition={{ duration: 0.4, ease: [0.37, 0.04, 0.29, 1.01] }}
                   className="flex flex-col items-center justify-center py-16 gap-4 text-center"
                 >
-                  <div
-                    className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20
-                    flex items-center justify-center"
-                  >
-                    <CheckCircle2 className="w-8 h-8 text-emerald-400" />
-                  </div>
+                  <SuccessLottie />
                   <h3 className="text-2xl font-bold text-white">
-                    Message sent!
+                    {submittedJustNow ? "Message sent!" : "Already sent today"}
                   </h3>
-                  <p className="text-white/50 max-w-sm">
-                    Thanks for reaching out. I'll review your message and get
-                    back to you within 24 hours.
+                  <p className="text-white/50 text-sm sm:text-base max-w-sm">
+                    {submittedJustNow
+                      ? "Thanks for reaching out. I'll get back to you within 24 hours."
+                      : "You've already sent a message today. You can send another tomorrow."}
                   </p>
                 </motion.div>
               ) : (
                 <>
-                  <h2 className="text-2xl font-bold text-white mb-1 tracking-tight">
+                  <h2 className="flex lg:py-5 py-2 self-stretch mt-[-1.00px] section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-3xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[50px]">
                     Send a message
                   </h2>
-                  <p className="text-sm text-white/40 mb-8">
+                  <p className="text-sm text-white/40 mb-6 sm:mb-8">
                     Fill in the details below — the more context, the better.
                   </p>
 
-                  <form onSubmit={handleSubmit} className="space-y-5">
+                  <form
+                    onSubmit={handleSubmit}
+                    className="space-y-4 sm:space-y-5"
+                  >
                     {/* Name + Email */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
@@ -288,7 +485,7 @@ export const ContactPage = (): JSX.Element => {
                           required
                           value={formData.name}
                           onChange={handleInputChange}
-                          placeholder="John Doe"
+                          placeholder="Sahin Alam"
                           className={inputClass}
                         />
                       </div>
@@ -302,35 +499,121 @@ export const ContactPage = (): JSX.Element => {
                           required
                           value={formData.email}
                           onChange={handleInputChange}
-                          placeholder="john@company.com"
+                          placeholder="sahinhub@gmail.com"
                           className={inputClass}
                         />
                       </div>
                     </div>
 
-                    {/* Budget */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
-                        Budget range
+                    {/* Subject */}
+                    <div className="space-y-1.5">
+                      <label
+                        htmlFor="subject"
+                        className="text-xs font-semibold text-white/50 uppercase tracking-widest"
+                      >
+                        Subject
                       </label>
-                      <div className="flex flex-wrap gap-2">
-                        {budgetOptions.map((opt) => (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() =>
-                              setFormData((p) => ({ ...p, budget: opt }))
-                            }
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200
-                              ${
-                                formData.budget === opt
-                                  ? "bg-violet-500/20 border border-violet-500/40 text-violet-300"
-                                  : "bg-white/5 border border-white/10 text-white/50 hover:text-white hover:border-white/20"
-                              }`}
+                      <Input
+                        id="subject"
+                        name="subject"
+                        type="text"
+                        value={formData.subject}
+                        onChange={handleInputChange}
+                        placeholder="e.g. Website project, Brand design, Consultation…"
+                        className={inputClass}
+                      />
+                    </div>
+
+                    {/* Phone + Budget (50% each, inline) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5 w-full min-w-0">
+                        <label
+                          htmlFor="phone"
+                          className="text-xs font-semibold text-white/50 uppercase tracking-widest"
+                        >
+                          Phone number
+                        </label>
+                        <PhoneInput
+                          id="phone"
+                          value={formData.phone}
+                          onChange={(val: string | undefined) => {
+                            setFormData((p) => ({ ...p, phone: val ?? "" }));
+                            if (phoneError && val && isValidPhoneNumber(val))
+                              setPhoneError(null);
+                          }}
+                          placeholder="Enter a phone number"
+                          defaultCountry="BD"
+                          error={phoneError ?? undefined}
+                          numberInputProps={{
+                            className:
+                              "text-white placeholder:text-white/25 focus:outline-none",
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1.5 w-full min-w-0">
+                        <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+                          Budget range
+                        </label>
+                        <Popover open={budgetOpen} onOpenChange={setBudgetOpen}>
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              className={`${inputClass} w-full flex items-center justify-between cursor-pointer text-left`}
+                              aria-label="Budget range"
+                              aria-haspopup="listbox"
+                              aria-expanded={budgetOpen}
+                            >
+                              <span
+                                className={
+                                  formData.budget
+                                    ? "text-white"
+                                    : "text-white/40"
+                                }
+                              >
+                                {formData.budget || "Select budget"}
+                              </span>
+                              <ChevronsUpDown className="h-4 w-4 shrink-0 text-white/40" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-[var(--radix-popover-trigger-width)] min-w-[260px] max-w-[calc(100vw-2rem)] p-1 border-white/10 bg-[#0d0d0d] text-white rounded-xl shadow-xl shadow-black/40"
+                            align="start"
+                            sideOffset={4}
                           >
-                            {opt}
-                          </button>
-                        ))}
+                            <ul
+                              className="max-h-[240px] overflow-y-auto py-1 touch-pan-y"
+                              role="listbox"
+                            >
+                              {budgetOptions.map((opt) => {
+                                const isSelected = formData.budget === opt;
+                                return (
+                                  <li key={opt}>
+                                    <button
+                                      type="button"
+                                      role="option"
+                                      aria-selected={isSelected}
+                                      className={`w-full flex items-center justify-between rounded-lg px-3 py-3 sm:py-2.5 text-sm text-left transition-colors min-h-[44px] sm:min-h-0
+                                        text-white/90 hover:bg-white/10 hover:text-white active:bg-white/10
+                                        ${isSelected ? "bg-white/10 text-white" : ""}`}
+                                      onClick={() => {
+                                        setFormData((p) => ({
+                                          ...p,
+                                          budget: opt,
+                                        }));
+                                        setBudgetOpen(false);
+                                      }}
+                                    >
+                                      {opt}
+                                      {isSelected && (
+                                        <CheckIcon className="h-4 w-4 shrink-0 text-violet-400" />
+                                      )}
+                                    </button>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     </div>
 
@@ -346,14 +629,38 @@ export const ContactPage = (): JSX.Element => {
                         onChange={handleInputChange}
                         placeholder="Describe your project, goals, and any specific requirements…"
                         rows={5}
-                        className={`${inputClass} resize-none`}
+                        className={`${inputClass} resize-none min-h-[120px] sm:min-h-0`}
                       />
                     </div>
+
+                    {turnstileSiteKey && (
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+                          Verification
+                        </span>
+                        <Turnstile
+                          sitekey={turnstileSiteKey}
+                          theme="dark"
+                          onVerify={setTurnstileToken}
+                          onExpire={() => setTurnstileToken(null)}
+                          onError={() => setTurnstileToken(null)}
+                        />
+                      </div>
+                    )}
+
+                    {submitError && (
+                      <div className="flex flex-col items-center gap-3 rounded-xl bg-rose-500/10 border border-rose-500/20 px-4 py-3">
+                        <ErrorLottie />
+                        <p className="text-sm text-rose-400 text-center">
+                          {submitError}
+                        </p>
+                      </div>
+                    )}
 
                     <CTAButton
                       type="submit"
                       variant="primary"
-                      className="w-full justify-center"
+                      className="w-full justify-center min-h-[44px] py-3 sm:py-2.5 text-base sm:text-sm"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -380,12 +687,12 @@ export const ContactPage = (): JSX.Element => {
             initial="hidden"
             animate={infoInV ? "visible" : "hidden"}
             variants={fadeUp(0.1)}
-            className="space-y-5"
+            className="space-y-4 sm:space-y-5 min-w-0 lg:max-w-[380px]"
           >
             {/* Contact methods */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               {contactInfo.map((info, i) => {
-                const Icon = info.icon;
+                const Icon = info.icon as ComponentType<{ className?: string }>;
                 return (
                   <motion.a
                     key={info.title}
@@ -393,9 +700,9 @@ export const ContactPage = (): JSX.Element => {
                     initial="hidden"
                     animate={infoInV ? "visible" : "hidden"}
                     variants={fadeUp(0.1 + i * 0.07)}
-                    className={`flex items-start gap-4 p-4 rounded-xl border ${info.border}
+                    className={`flex items-start gap-3 p-3 rounded-xl border ${info.border}
                       bg-gradient-to-br from-white/[0.02] to-transparent
-                      hover:border-white/20 hover:bg-white/[0.04] transition-all duration-200 group`}
+                      hover:border-white/20 hover:bg-white/[0.04] transition-all duration-200 group min-h-[44px] sm:min-h-0`}
                   >
                     <div
                       className={`w-10 h-10 rounded-xl ${info.bg} border ${info.border}
@@ -403,16 +710,14 @@ export const ContactPage = (): JSX.Element => {
                     >
                       <Icon className={`w-5 h-5 ${info.color}`} />
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-0.5">
                         {info.title}
                       </p>
                       <p className="text-sm font-medium text-white group-hover:text-white/90 transition-colors">
                         {info.value}
                       </p>
-                      <p className="text-xs text-white/30 mt-0.5">
-                        {info.desc}
-                      </p>
+                      <p className="text-xs text-white/50">{info.desc}</p>
                     </div>
                   </motion.a>
                 );
@@ -433,8 +738,8 @@ export const ContactPage = (): JSX.Element => {
                 </span>
               </div>
               <p className="text-sm text-white/50 leading-relaxed">
-                I reply to all messages within{" "}
-                <span className="text-white font-medium">24 hours</span> on
+                I reply to all messages{" "}
+                <span className="text-white font-medium"> ASAP</span> on
                 weekdays. Urgent? Drop a line directly to my email.
               </p>
             </motion.div>
@@ -449,20 +754,26 @@ export const ContactPage = (): JSX.Element => {
                 Find me online
               </p>
               <div className="flex gap-2">
-                {socialLinks.map(({ name, href, icon: Icon, color, bg }) => (
-                  <a
-                    key={name}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={name}
-                    className={`w-10 h-10 rounded-xl bg-white/5 border border-white/10
-                      flex items-center justify-center text-white/40 ${color} ${bg}
-                      border-white/10 transition-all duration-200`}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </a>
-                ))}
+                {socialLinks.map(({ name, href, icon, brandColor, bg }) => {
+                  const Icon = icon as ComponentType<{ className?: string }>;
+                  return (
+                    <a
+                      key={name}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={name}
+                      aria-label={name}
+                      className={`group w-10 h-10 rounded-xl bg-white/5 border border-white/10
+                        flex items-center justify-center ${bg} transition-all duration-200`}
+                      style={{ ["--brand-color" as string]: brandColor }}
+                    >
+                      <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
+                        <Icon className="w-4 h-4" />
+                      </span>
+                    </a>
+                  );
+                })}
               </div>
             </motion.div>
 
@@ -474,22 +785,26 @@ export const ContactPage = (): JSX.Element => {
               className="p-5 rounded-xl border border-violet-500/20
                 bg-gradient-to-br from-violet-500/8 to-transparent"
             >
-              <div className="flex items-center gap-2 mb-3">
-                <Zap className="w-4 h-4 text-violet-400" />
+              <div className="flex items-center gap-3 mb-3">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/9/9b/Google_Meet_icon_%282020%29.svg"
+                  alt="Google Meet"
+                  className="w-5 h-5 object-contain"
+                />
                 <span className="text-sm font-semibold text-white">
                   Quick start
                 </span>
               </div>
               <p className="text-sm text-white/50 mb-4 leading-relaxed">
-                Not sure what to say? Book a free 30-min discovery call — no
-                pitch, just an honest conversation.
+                Prefer to talk? Schedule a free 15-minute Google Meet — no
+                pitch, no pressure, just an honest conversation.
               </p>
               <CTAButton
-                href="/contact"
+                href={BOOKING_CALL_URL || "#contact-form"}
                 variant="secondary"
                 className="w-full justify-center text-xs"
               >
-                Schedule a call
+                Schedule your free Google Meet
               </CTAButton>
             </motion.div>
           </motion.div>

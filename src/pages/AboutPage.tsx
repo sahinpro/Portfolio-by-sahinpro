@@ -2,18 +2,20 @@ import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
+import type { LucideIcon } from "lucide-react";
 import {
   Award,
   BookOpen,
   Briefcase,
   Calendar,
+  ClipboardCheck,
   Code2,
   Coffee,
   Copy,
   Download,
   ExternalLink,
   Heart,
-  MessageCircle,
+  Paintbrush,
   Rocket,
   Users,
   Zap,
@@ -52,9 +54,16 @@ const stats = [
   },
 ];
 
-const highlights = [
+const highlights: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  tag: string;
+  color: string;
+  border: string;
+}[] = [
   {
-    icon: "🎨",
+    icon: Paintbrush,
     title: "WordPress Expert",
     description:
       "Custom plugin development and theme customization with 200+ successful projects.",
@@ -63,7 +72,7 @@ const highlights = [
     border: "border-orange-500/20",
   },
   {
-    icon: "⚡",
+    icon: Zap,
     title: "Full Stack Dev",
     description:
       "Building modern web applications with React, Next.js, Express.js, and MongoDB.",
@@ -72,7 +81,7 @@ const highlights = [
     border: "border-yellow-500/20",
   },
   {
-    icon: "🚀",
+    icon: Rocket,
     title: "Problem Solver",
     description:
       "Transforming complex requirements into elegant, scalable solutions.",
@@ -81,7 +90,7 @@ const highlights = [
     border: "border-sky-500/20",
   },
   {
-    icon: "📚",
+    icon: BookOpen,
     title: "Continuous Learner",
     description:
       "Always exploring new technologies and best practices to stay ahead.",
@@ -367,7 +376,9 @@ export const AboutPage = (): JSX.Element => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {highlights.map((h, i) => (
+            {highlights.map((h, i) => {
+              const Icon = h.icon;
+              return (
               <motion.div
                 key={h.title}
                 initial="hidden"
@@ -376,7 +387,9 @@ export const AboutPage = (): JSX.Element => {
                 className={`relative flex flex-col gap-4 p-6 rounded-2xl border bg-gradient-to-br ${h.color} ${h.border}
                   backdrop-blur-sm hover:-translate-y-1 transition-transform duration-300 group overflow-hidden`}
               >
-                <span className="text-4xl">{h.icon}</span>
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
+                  <Icon className="size-6 text-white/90" />
+                </div>
                 <div>
                   <span
                     className="inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold tracking-widest uppercase
@@ -393,7 +406,8 @@ export const AboutPage = (): JSX.Element => {
                 </div>
                 <div className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full bg-white/[0.04] blur-lg pointer-events-none" />
               </motion.div>
-            ))}
+            );
+            })}
           </div>
         </div>
       </section>
@@ -518,15 +532,26 @@ export const AboutPage = (): JSX.Element => {
                 Resume
               </CTAButton>
               <CTAButton
+                className="text-md font-medium"
                 onClick={handleCopy}
                 variant="secondary"
                 showArrow={false}
+                leftIcon={
+                  copied ? (
+                    <ClipboardCheck className="w-5 h-5" />
+                  ) : (
+                    <Copy className="w-5 h-5" />
+                  )
+                }
               >
-                <Copy className="w-4 h-4 mr-1.5" />
                 {copied ? "Copied!" : "Copy Email"}
               </CTAButton>
-              <CTAButton href="/contact" variant="primary">
-                <MessageCircle className="w-4 h-4 mr-1.5" />
+              <CTAButton
+                className="text-md font-medium"
+                href="/contact"
+                variant="secondary"
+                showArrow={true}
+              >
                 Schedule Call
               </CTAButton>
             </div>
@@ -546,7 +571,7 @@ export const AboutPage = (): JSX.Element => {
             {[
               { icon: Zap, text: "Obsessed with performance" },
               { icon: Award, text: "Detail-oriented by default" },
-              { icon: Coffee, text: "Powered by coffee ☕" },
+              { icon: Coffee, text: "Powered by coffee" },
               { icon: Code2, text: "Open source enthusiast" },
             ].map(({ icon: Icon, text }) => (
               <div
