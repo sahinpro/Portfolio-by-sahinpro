@@ -753,7 +753,6 @@ const MagicBento: React.FC<BentoProps> = ({
                   glowColor={glowColor}
                   enableTilt={enableTilt}
                   clickEffect={clickEffect}
-                  enableMagnetism={enableMagnetism}
                 >
                   {card.image && (
                     <>
@@ -772,7 +771,7 @@ const MagicBento: React.FC<BentoProps> = ({
                   </div>
                   <div className="card__content flex flex-col relative text-white z-10">
                     <h3
-                      className={`card__title font-bold text-xl md:text-2xl lg:text-3xl m-0 mb-3 tracking-tight ${textAutoHide ? "text-clamp-1" : ""} text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`}
+                      className={`card__title font-bold text-xl lg:text-2xl m-0 mb-3 tracking-tight ${textAutoHide ? "text-clamp-1" : ""} text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`}
                     >
                       {card.title}
                     </h3>
