@@ -1,11 +1,11 @@
-'use client';
-import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
-import React, { useEffect, useRef, useState } from 'react';
+"use client";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
 
-export type PresetType = 'blur' | 'fade-in-blur' | 'scale' | 'fade' | 'slide';
+export type PresetType = "blur" | "fade-in-blur" | "scale" | "fade" | "slide";
 
-export type PerType = 'word' | 'char' | 'line';
+export type PerType = "word" | "char" | "line";
 
 export type TextEffectProps = {
   children: string;
@@ -31,15 +31,15 @@ const defaultStaggerTimes: Record<PerType, number> = {
 
 const getPresetAnimation = (preset: PresetType) => {
   switch (preset) {
-    case 'blur':
-      return { opacity: 0, filter: 'blur(12px)' };
-    case 'fade-in-blur':
-      return { opacity: 0, y: 20, filter: 'blur(12px)' };
-    case 'scale':
+    case "blur":
+      return { opacity: 0, filter: "blur(12px)" };
+    case "fade-in-blur":
+      return { opacity: 0, y: 20, filter: "blur(12px)" };
+    case "scale":
       return { opacity: 0, scale: 0 };
-    case 'slide':
+    case "slide":
       return { opacity: 0, y: 20 };
-    case 'fade':
+    case "fade":
     default:
       return { opacity: 0 };
   }
@@ -47,32 +47,37 @@ const getPresetAnimation = (preset: PresetType) => {
 
 const getPresetTo = (preset: PresetType) => {
   switch (preset) {
-    case 'blur':
-      return { opacity: 1, filter: 'blur(0px)' };
-    case 'fade-in-blur':
-      return { opacity: 1, y: 0, filter: 'blur(0px)' };
-    case 'scale':
+    case "blur":
+      return { opacity: 1, filter: "blur(0px)" };
+    case "fade-in-blur":
+      return { opacity: 1, y: 0, filter: "blur(0px)" };
+    case "scale":
       return { opacity: 1, scale: 1 };
-    case 'slide':
+    case "slide":
       return { opacity: 1, y: 0 };
-    case 'fade':
+    case "fade":
     default:
       return { opacity: 1 };
   }
 };
 
 const splitText = (text: string, per: PerType) => {
-  if (per === 'line') return text.split('\n');
-  if (per === 'char') return text.split('');
+  if (per === "line") return text.split("\n");
+  if (per === "char") return text.split("");
+  return text.split(/(\s+)/);
+};
+
+/** Split text into segments that are either a word or a space (keeps word boundaries for char animation). */
+const splitWordsWithSpaces = (text: string): string[] => {
   return text.split(/(\s+)/);
 };
 
 export function TextEffect({
   children,
-  per = 'word',
-  as = 'p',
+  per = "word",
+  as = "p",
   className,
-  preset = 'fade',
+  preset = "fade",
   delay = 0,
   speedReveal = 1,
   speedSegment = 1,
@@ -90,11 +95,12 @@ export function TextEffect({
   }, [trigger]);
 
   const segments = splitText(children, per);
+  const wordSegments = per === "char" ? splitWordsWithSpaces(children) : null;
   const Tag = as as keyof JSX.IntrinsicElements;
 
   // Calculate stagger based on per type and speed
-  const stagger = (defaultStaggerTimes[per] / speedReveal);
-  const duration = (0.3 / speedSegment);
+  const stagger = defaultStaggerTimes[per] / speedReveal;
+  const duration = 0.3 / speedSegment;
 
   // Get animation properties
   const from = getPresetAnimation(preset);
@@ -106,51 +112,106 @@ export function TextEffect({
     visible: {
       transition: {
         staggerChildren: stagger,
-        delayChildren: delay
-      }
-    }
+        delayChildren: delay,
+      },
+    },
   };
 
   const childVariants = {
     hidden: { ...from },
-    visible: { 
+    visible: {
       ...to,
-      transition: { 
+      transition: {
         duration: duration,
-        ease: [0.37, 0.04, 0.29, 1.01] // power3.out equivalent
-      }
-    }
+        ease: [0.37, 0.04, 0.29, 1.01], // power3.out equivalent
+      },
+    },
   };
+
+  // When per is 'char', render by word so words don't break mid-character. Use per-char delay since motion.span are not direct children.
+  if (per === "char" && wordSegments) {
+    let charIndex = 0;
+    return (
+      <Tag ref={containerRef} className={className} style={style}>
+        <span className="sr-only">{children}</span>
+        <motion.div
+          initial="hidden"
+          animate={isVisible ? "visible" : "hidden"}
+          variants={containerVariants}
+          onAnimationStart={onAnimationStart}
+          onAnimationComplete={onAnimationComplete}
+          className="inline"
+        >
+          {wordSegments.map((wordOrSpace, wordIndex) => {
+            const isSpace = /^\s+$/.test(wordOrSpace);
+            if (isSpace) {
+              return (
+                <span
+                  key={`space-${wordIndex}`}
+                  className="whitespace-pre leading-9 sm:leading-7 md:leading-8 lg:leading-[60px]"
+                  aria-hidden="true"
+                >
+                  {wordOrSpace}
+                </span>
+              );
+            }
+            const chars = wordOrSpace.split("");
+            return (
+              <span
+                key={`word-${wordIndex}-${wordOrSpace}`}
+                className="inline-block whitespace-nowrap align-baseline"
+                aria-hidden="true"
+              >
+                {chars.map((char) => {
+                  const i = charIndex++;
+                  const charDelay = delay + i * stagger;
+                  return (
+                    <motion.span
+                      key={`char-${i}-${char}`}
+                      variants={{
+                        hidden: childVariants.hidden,
+                        visible: {
+                          ...childVariants.visible,
+                          transition: {
+                            ...childVariants.visible.transition,
+                            delay: charDelay,
+                          },
+                        },
+                      }}
+                      className={cn(
+                        "inline-block whitespace-pre",
+                        segmentWrapperClassName,
+                      )}
+                    >
+                      {char}
+                    </motion.span>
+                  );
+                })}
+              </span>
+            );
+          })}
+        </motion.div>
+      </Tag>
+    );
+  }
 
   return (
     <Tag ref={containerRef} className={className} style={style}>
-      {per !== 'line' && <span className='sr-only'>{children}</span>}
-      <motion.div 
-        initial="hidden" 
+      {per !== "line" && <span className="sr-only">{children}</span>}
+      <motion.div
+        initial="hidden"
         animate={isVisible ? "visible" : "hidden"}
         variants={containerVariants}
         onAnimationStart={onAnimationStart}
         onAnimationComplete={onAnimationComplete}
       >
         {segments.map((segment, index) => {
-          if (per === 'line') {
+          if (per === "line") {
             return (
               <motion.span
                 key={`line-${index}-${segment}`}
                 variants={childVariants}
-                className={cn('block', segmentWrapperClassName)}
-              >
-                {segment}
-              </motion.span>
-            );
-          }
-          if (per === 'char') {
-            return (
-              <motion.span
-                key={`char-${index}-${segment}`}
-                variants={childVariants}
-                className={cn('inline-block whitespace-pre', segmentWrapperClassName)}
-                aria-hidden='true'
+                className={cn("block", segmentWrapperClassName)}
               >
                 {segment}
               </motion.span>
@@ -160,8 +221,11 @@ export function TextEffect({
             <motion.span
               key={`word-${index}-${segment}`}
               variants={childVariants}
-              className={cn('inline-block whitespace-pre', segmentWrapperClassName)}
-              aria-hidden='true'
+              className={cn(
+                "inline-block whitespace-pre",
+                segmentWrapperClassName,
+              )}
+              aria-hidden="true"
             >
               {segment}
             </motion.span>

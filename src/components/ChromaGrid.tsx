@@ -1,5 +1,5 @@
-import { animate, AnimationPlaybackControls } from 'framer-motion';
-import React, { useEffect, useRef } from 'react';
+import { animate, AnimationPlaybackControls } from "framer-motion";
+import React, { useEffect, useRef } from "react";
 
 export interface ChromaItem {
   image?: string;
@@ -26,7 +26,7 @@ export interface ChromaGridProps {
 
 const ChromaGrid: React.FC<ChromaGridProps> = ({
   items,
-  className = '',
+  className = "",
   radius = 400,
   damping = 0.35,
   fadeOut = 0.5,
@@ -35,34 +35,41 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
   const fadeRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const pos = useRef({ x: 0, y: 0 });
-  const posControls = useRef<{ x: AnimationPlaybackControls | null; y: AnimationPlaybackControls | null }>({ x: null, y: null });
+  const posControls = useRef<{
+    x: AnimationPlaybackControls | null;
+    y: AnimationPlaybackControls | null;
+  }>({ x: null, y: null });
   const fadeControls = useRef<AnimationPlaybackControls | null>(null);
 
   const demo: ChromaItem[] = [
     {
-      image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80&fm=jpg',
-      title: 'Quality Focused',
-      subtitle: 'Clean code and best practices',
-      gradient: 'linear-gradient(145deg,#4F46E5,#000)',
+      image:
+        "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80&fm=jpg",
+      title: "Quality Focused",
+      subtitle: "Clean code and best practices",
+      gradient: "linear-gradient(145deg,#4F46E5,#000)",
     },
     {
-      image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80&fm=jpg',
-      title: 'Fast & Reliable',
-      subtitle: 'Quick turnaround and responsive',
-      gradient: 'linear-gradient(210deg,#10B981,#000)',
+      image:
+        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80&fm=jpg",
+      title: "Fast & Reliable",
+      subtitle: "Quick turnaround and responsive",
+      gradient: "linear-gradient(210deg,#10B981,#000)",
     },
     {
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&fm=jpg',
-      title: 'Growth Oriented',
-      subtitle: 'Solutions that help your business grow',
-      gradient: 'linear-gradient(165deg,#F59E0B,#000)',
+      image:
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&fm=jpg",
+      title: "Growth Oriented",
+      subtitle: "Solutions that help your business grow",
+      gradient: "linear-gradient(165deg,#F59E0B,#000)",
     },
     {
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&fm=jpg',
-      title: 'Professional Service',
-      subtitle: 'Expert development and support',
-      gradient: 'linear-gradient(195deg,#EF4444,#000)',
-    }
+      image:
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&fm=jpg",
+      title: "Professional Service",
+      subtitle: "Expert development and support",
+      gradient: "linear-gradient(195deg,#EF4444,#000)",
+    },
   ];
 
   const data = items?.length ? items : demo;
@@ -73,8 +80,8 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
     if (!el) return;
     const { width, height } = el.getBoundingClientRect();
     pos.current = { x: width / 2, y: height / 2 };
-    el.style.setProperty('--x', `${pos.current.x}px`);
-    el.style.setProperty('--y', `${pos.current.y}px`);
+    el.style.setProperty("--x", `${pos.current.x}px`);
+    el.style.setProperty("--y", `${pos.current.y}px`);
   }, []);
 
   // Card entrance animations
@@ -85,7 +92,11 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
     const totalDuration = 0.6; // stagger amount
     cards.forEach((card, i) => {
       const delay = 0.2 + (i / Math.max(cards.length - 1, 1)) * totalDuration;
-      animate(card, { opacity: [0, 1], y: [40, 0], scale: [0.95, 1] }, { duration: 0.8, ease: 'easeOut', delay });
+      animate(
+        card,
+        { opacity: [0, 1], y: [40, 0], scale: [0.95, 1] },
+        { duration: 0.8, ease: "easeOut", delay },
+      );
     });
   }, [data.length]);
 
@@ -99,19 +110,19 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
 
     posControls.current.x = animate(pos.current.x, targetX, {
       duration: damping,
-      ease: 'easeOut',
+      ease: "easeOut",
       onUpdate: (v) => {
         pos.current.x = v;
-        el.style.setProperty('--x', `${v}px`);
+        el.style.setProperty("--x", `${v}px`);
       },
     });
 
     posControls.current.y = animate(pos.current.y, targetY, {
       duration: damping,
-      ease: 'easeOut',
+      ease: "easeOut",
       onUpdate: (v) => {
         pos.current.y = v;
-        el.style.setProperty('--y', `${v}px`);
+        el.style.setProperty("--y", `${v}px`);
       },
     });
   };
@@ -121,23 +132,31 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
     moveTo(e.clientX - r.left, e.clientY - r.top);
 
     fadeControls.current?.stop();
-    fadeControls.current = animate(fadeRef.current!, { opacity: 0 }, { duration: 0.25 });
+    fadeControls.current = animate(
+      fadeRef.current!,
+      { opacity: 0 },
+      { duration: 0.25 },
+    );
   };
 
   const handleLeave = () => {
     fadeControls.current?.stop();
-    fadeControls.current = animate(fadeRef.current!, { opacity: 1 }, { duration: fadeOut });
+    fadeControls.current = animate(
+      fadeRef.current!,
+      { opacity: 1 },
+      { duration: fadeOut },
+    );
   };
 
   const handleCardClick = (url?: string) => {
-    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const handleCardMove: React.MouseEventHandler<HTMLElement> = e => {
+  const handleCardMove: React.MouseEventHandler<HTMLElement> = (e) => {
     const c = e.currentTarget as HTMLElement;
     const rect = c.getBoundingClientRect();
-    c.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-    c.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+    c.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+    c.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
   };
 
   return (
@@ -148,9 +167,9 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
       className={`relative w-full h-full flex flex-wrap justify-center items-start gap-3 ${className}`}
       style={
         {
-          '--r': `${radius}px`,
-          '--x': '50%',
-          '--y': '50%'
+          "--r": `${radius}px`,
+          "--x": "50%",
+          "--y": "50%",
         } as React.CSSProperties
       }
     >
@@ -162,14 +181,14 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
           }}
           onMouseMove={handleCardMove}
           onClick={() => handleCardClick(c.url)}
-          className="group relative flex flex-col w-[300px] rounded-[20px] overflow-hidden border transition-colors duration-300 cursor-pointer"
+          className="group relative flex flex-col w-full lg:w-[300px] rounded-[20px] overflow-hidden border transition-colors duration-300 cursor-pointer"
           style={
             {
-              '--card-border': c.borderColor || 'transparent',
+              "--card-border": c.borderColor || "transparent",
               background: c.gradient,
-              '--spotlight-color': 'rgba(255,255,255,0.3)',
+              "--spotlight-color": "rgba(255,255,255,0.3)",
               opacity: 0,
-              transform: 'translateY(40px) scale(0.95)'
+              transform: "translateY(40px) scale(0.95)",
             } as React.CSSProperties
           }
         >
@@ -177,51 +196,76 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
             className="absolute inset-0 pointer-events-none transition-opacity duration-500 z-20 opacity-0 group-hover:opacity-100"
             style={{
               background:
-                'radial-gradient(circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 70%)'
+                "radial-gradient(circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 70%)",
             }}
           />
           <div className="relative z-10 flex-1 p-[10px] box-border">
             {c.mainVisual ? (
-              <img src={c.mainVisual} alt={c.title} loading="lazy" className="w-full h-[200px] object-cover rounded-[10px]" />
+              <img
+                src={c.mainVisual}
+                alt={c.title}
+                loading="lazy"
+                className="w-full h-[200px] object-cover rounded-[10px]"
+              />
             ) : c.image ? (
-              <img src={c.image} alt={c.title} loading="lazy" className="w-full h-[200px] object-cover rounded-[10px]" />
+              <img
+                src={c.image}
+                alt={c.title}
+                loading="lazy"
+                className="w-full h-[200px] object-cover rounded-[10px]"
+              />
             ) : null}
             {c.bgImage && (
-              <img src={c.bgImage} alt="" className="absolute inset-0 w-full h-full object-cover rounded-[10px] opacity-40" aria-hidden="true" />
+              <img
+                src={c.bgImage}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover rounded-[10px] opacity-40"
+                aria-hidden="true"
+              />
             )}
           </div>
           <footer className="relative z-10 p-3 text-white font-sans flex flex-col gap-x-3 gap-y-1">
             <h3 className="m-0 text-xl font-semibold">{c.title}</h3>
-            {c.handle && <span className="text-[0.95rem] opacity-80 text-right">{c.handle}</span>}
-            <p className="m-0 text-[0.85rem] opacity-85">{c.subtitle || c.description}</p>
-            {c.location && <span className="text-[0.85rem] opacity-85 text-right">{c.location}</span>}
+            {c.handle && (
+              <span className="text-[0.95rem] opacity-80 text-right">
+                {c.handle}
+              </span>
+            )}
+            <p className="m-0 text-[0.85rem] opacity-85">
+              {c.subtitle || c.description}
+            </p>
+            {c.location && (
+              <span className="text-[0.85rem] opacity-85 text-right">
+                {c.location}
+              </span>
+            )}
           </footer>
         </article>
       ))}
       <div
         className="absolute inset-0 pointer-events-none z-30"
         style={{
-          backdropFilter: 'grayscale(1) brightness(0.78)',
-          WebkitBackdropFilter: 'grayscale(1) brightness(0.78)',
-          background: 'rgba(0,0,0,0.001)',
+          backdropFilter: "grayscale(1) brightness(0.78)",
+          WebkitBackdropFilter: "grayscale(1) brightness(0.78)",
+          background: "rgba(0,0,0,0.001)",
           maskImage:
-            'radial-gradient(circle var(--r) at var(--x) var(--y),transparent 0%,transparent 15%,rgba(0,0,0,0.10) 30%,rgba(0,0,0,0.22)45%,rgba(0,0,0,0.35)60%,rgba(0,0,0,0.50)75%,rgba(0,0,0,0.68)88%,white 100%)',
+            "radial-gradient(circle var(--r) at var(--x) var(--y),transparent 0%,transparent 15%,rgba(0,0,0,0.10) 30%,rgba(0,0,0,0.22)45%,rgba(0,0,0,0.35)60%,rgba(0,0,0,0.50)75%,rgba(0,0,0,0.68)88%,white 100%)",
           WebkitMaskImage:
-            'radial-gradient(circle var(--r) at var(--x) var(--y),transparent 0%,transparent 15%,rgba(0,0,0,0.10) 30%,rgba(0,0,0,0.22)45%,rgba(0,0,0,0.35)60%,rgba(0,0,0,0.50)75%,rgba(0,0,0,0.68)88%,white 100%)'
+            "radial-gradient(circle var(--r) at var(--x) var(--y),transparent 0%,transparent 15%,rgba(0,0,0,0.10) 30%,rgba(0,0,0,0.22)45%,rgba(0,0,0,0.35)60%,rgba(0,0,0,0.50)75%,rgba(0,0,0,0.68)88%,white 100%)",
         }}
       />
       <div
         ref={fadeRef}
         className="absolute inset-0 pointer-events-none transition-opacity duration-[250ms] z-40"
         style={{
-          backdropFilter: 'grayscale(1) brightness(0.78)',
-          WebkitBackdropFilter: 'grayscale(1) brightness(0.78)',
-          background: 'rgba(0,0,0,0.001)',
+          backdropFilter: "grayscale(1) brightness(0.78)",
+          WebkitBackdropFilter: "grayscale(1) brightness(0.78)",
+          background: "rgba(0,0,0,0.001)",
           maskImage:
-            'radial-gradient(circle var(--r) at var(--x) var(--y),white 0%,white 15%,rgba(255,255,255,0.90)30%,rgba(255,255,255,0.78)45%,rgba(255,255,255,0.65)60%,rgba(255,255,255,0.50)75%,rgba(255,255,255,0.32)88%,transparent 100%)',
+            "radial-gradient(circle var(--r) at var(--x) var(--y),white 0%,white 15%,rgba(255,255,255,0.90)30%,rgba(255,255,255,0.78)45%,rgba(255,255,255,0.65)60%,rgba(255,255,255,0.50)75%,rgba(255,255,255,0.32)88%,transparent 100%)",
           WebkitMaskImage:
-            'radial-gradient(circle var(--r) at var(--x) var(--y),white 0%,white 15%,rgba(255,255,255,0.90)30%,rgba(255,255,255,0.78)45%,rgba(255,255,255,0.65)60%,rgba(255,255,255,0.50)75%,rgba(255,255,255,0.32)88%,transparent 100%)',
-          opacity: 1
+            "radial-gradient(circle var(--r) at var(--x) var(--y),white 0%,white 15%,rgba(255,255,255,0.90)30%,rgba(255,255,255,0.78)45%,rgba(255,255,255,0.65)60%,rgba(255,255,255,0.50)75%,rgba(255,255,255,0.32)88%,transparent 100%)",
+          opacity: 1,
         }}
       />
     </div>

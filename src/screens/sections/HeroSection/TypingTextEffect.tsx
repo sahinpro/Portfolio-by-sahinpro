@@ -25,11 +25,12 @@ export const TypingTextEffect = ({ words }: TypingTextEffectProps) => {
       preset="fade"
       className="text-center section-hero-subtitle "
       style={{
-        backgroundImage: 'linear-gradient(169deg,rgba(120, 156, 255, 1) 0%, rgba(149, 0, 255, 1) 35%, rgba(195, 122, 255, 1) 100%);',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-        color: 'transparent',
+        backgroundImage:
+          "linear-gradient(169deg,rgba(120, 156, 255, 1) 0%, rgba(149, 0, 255, 1) 35%, rgba(195, 122, 255, 1) 100%);",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        backgroundClip: "text",
+        color: "transparent",
       }}
     >
       {words[currentIndex]}

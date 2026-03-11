@@ -28,7 +28,7 @@ export const Navigation = ({ className, onItemClick }: NavigationProps) => {
                 isActive
                   ? "text-text-menu-active"
                   : "text-text-normal hover:text-text-menu-hover",
-                className
+                className,
               )}
             >
               {item.name}

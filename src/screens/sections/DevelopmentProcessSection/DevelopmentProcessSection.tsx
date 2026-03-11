@@ -7,7 +7,8 @@ const stepsData = [
     description:
       "We discuss your requirements, goals, and vision. I create wireframes and plan the technical approach.",
     textureUrl: "/texture-3.png",
-    maskUrl: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop&q=80",
+    maskUrl:
+      "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop&q=80",
   },
   {
     number: "02",
@@ -15,7 +16,8 @@ const stepsData = [
     description:
       "I design mockups and develop your website using latest technologies, ensuring best practices and performance.",
     textureUrl: "/texture-4.png",
-    maskUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop&q=80",
+    maskUrl:
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop&q=80",
   },
   {
     number: "03",
@@ -23,17 +25,18 @@ const stepsData = [
     description:
       "Thorough testing, optimization, and deployment. Ongoing support and maintenance for your peace of mind.",
     textureUrl: "/texture-5.png",
-    maskUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&q=80",
+    maskUrl:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&q=80",
   },
 ];
 
 export const DevelopmentProcessSection = (): JSX.Element => {
   return (
-    <section id="process" className="flex flex-col w-full items-center gap-12 px-4 sm:px-8 md:px-12 lg:px-[100px] py-12 sm:py-16 md:py-20 lg:py-[100px] relative">
-      
-
+    <section
+      id="process"
+      className="flex flex-col w-full items-center gap-12 px-4 sm:px-8 md:px-12 lg:px-[100px] py-12 sm:py-16 md:py-20 lg:py-[100px] relative"
+    >
       <div className="flex flex-col w-full max-w-[1240px] items-center gap-5 relative z-10">
-
         <div className="flex flex-col items-center gap-4 px-4 sm:px-8 md:px-16 lg:px-[229px] py-0 w-full">
           <h2 className="flex items-center justify-center self-stretch section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">
             My Development Process
@@ -45,7 +48,7 @@ export const DevelopmentProcessSection = (): JSX.Element => {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row w-full max-w-[1240px] items-start gap-5 relative z-10 px-4 sm:px-0 overflow-x-auto">
+      <div className="flex flex-col sm:flex-row w-full container px-0 mx-auto items-start gap-5 relative z-10 overflow-x-auto">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 w-full min-w-full sm:min-w-0">
           {stepsData.map((step, index) => (
             <Card

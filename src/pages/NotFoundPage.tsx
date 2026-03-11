@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import FuzzyText from "@/components/ui/FuzzyText";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
-import { ArrowLeft, Home } from "lucide-react";
+import { Home } from "lucide-react";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -16,8 +16,11 @@ export const NotFoundPage = (): JSX.Element => {
   const titleRef = useRef<HTMLDivElement>(null);
   const messageRef = useRef<HTMLDivElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
-  
-  const containerInView = useInView(containerRef, { once: true, margin: "-10%" });
+
+  const containerInView = useInView(containerRef, {
+    once: true,
+    margin: "-10%",
+  });
   const titleInView = useInView(titleRef, { once: true, margin: "-10%" });
   const messageInView = useInView(messageRef, { once: true, margin: "-10%" });
   const buttonsInView = useInView(buttonsRef, { once: true, margin: "-10%" });
@@ -25,39 +28,39 @@ export const NotFoundPage = (): JSX.Element => {
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
-    }
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+    },
   };
 
   const titleVariants = {
     hidden: { opacity: 0, scale: 0.9, y: 20 },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
-      y: 0, 
-      transition: { duration: 0.8, delay: 0.1, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
-    }
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { duration: 0.8, delay: 0.1, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+    },
   };
 
   const messageVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.7, delay: 0.3, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
-    }
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, delay: 0.3, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+    },
   };
 
   const buttonsVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.7, delay: 0.5, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
-    }
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, delay: 0.5, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+    },
   };
 
   const handleGoHome = () => {
@@ -80,7 +83,7 @@ export const NotFoundPage = (): JSX.Element => {
           className="text-center space-y-8 max-w-2xl w-full"
         >
           {/* Fuzzy 404 Text */}
-          <motion.div 
+          <motion.div
             ref={titleRef}
             initial="hidden"
             animate={titleInView ? "visible" : "hidden"}
@@ -98,7 +101,7 @@ export const NotFoundPage = (): JSX.Element => {
           </motion.div>
 
           {/* Error Message */}
-          <motion.div 
+          <motion.div
             ref={messageRef}
             initial="hidden"
             animate={messageInView ? "visible" : "hidden"}
@@ -131,11 +134,11 @@ export const NotFoundPage = (): JSX.Element => {
               Return Home
             </CTAButton>
             <CTAButton
+              className="text-md font-medium"
               onClick={handleGoBack}
               variant="secondary"
-              className="flex items-center gap-2"
+              showArrow={true}
             >
-              <ArrowLeft className="w-4 h-4" />
               Go Back
             </CTAButton>
           </motion.div>
