@@ -1,3 +1,5 @@
+import errorAnimationData from "@/assets/lottie/error.json";
+import successAnimationData from "@/assets/lottie/success.json";
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
@@ -9,6 +11,7 @@ import {
 } from "@/components/ui/popover";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
+import Lottie, { type LottieRefCurrentProps } from "lottie-react";
 import {
   CheckIcon,
   ChevronsUpDown,
@@ -20,11 +23,8 @@ import {
   MessageCircle,
   Send,
 } from "lucide-react";
-import Lottie, { type LottieRefCurrentProps } from "lottie-react";
 import type { ComponentType } from "react";
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
-import successAnimationData from "@/assets/lottie/success.json";
-import errorAnimationData from "@/assets/lottie/error.json";
 import { BsBehance, BsDribbble, BsWhatsapp } from "react-icons/bs";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import Turnstile from "react-turnstile";
@@ -284,7 +284,9 @@ export const ContactPage = (): JSX.Element => {
       return;
     }
     if (hasAlreadySubmittedToday()) {
-      setSubmitError("You can only send one message per day. Try again tomorrow.");
+      setSubmitError(
+        "You can only send one message per day. Try again tomorrow.",
+      );
       return;
     }
 
@@ -324,12 +326,16 @@ export const ContactPage = (): JSX.Element => {
           setIsSubmitting(false);
           /* Form stays hidden until refresh; one submission per day per browser. */
         } else {
-          setSubmitError("Message not sent. Please try again or email me directly.");
+          setSubmitError(
+            "Message not sent. Please try again or email me directly.",
+          );
           setTurnstileToken(null);
           setIsSubmitting(false);
         }
       } catch {
-        setSubmitError("Message not sent. Check your connection and try again.");
+        setSubmitError(
+          "Message not sent. Check your connection and try again.",
+        );
         setTurnstileToken(null);
         setIsSubmitting(false);
       }
@@ -424,8 +430,8 @@ export const ContactPage = (): JSX.Element => {
       </section>
 
       {/* ── MAIN GRID ──────────────────────────────────────── */}
-      <section className="container mx-auto pb-16 sm:pb-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-10 max-w-full">
+      <section className="container mx-auto px-3 lg:px-4 pb-16 sm:pb-24">
+        <div className=" lg:px-8 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-10 max-w-full">
           {/* Form */}
           <motion.div
             id="contact-form"

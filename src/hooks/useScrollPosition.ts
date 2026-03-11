@@ -1,36 +1,38 @@
+"use client";
+
 import { SCROLL_THRESHOLD } from "@/constants/styles";
 import { useEffect, useState } from "react";
+// For Next.js App Router, use: import { usePathname } from "next/navigation"; and pathname = usePathname()
+import { useLocation } from "react-router-dom";
 
 export const useScrollPosition = (): boolean => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const location = useLocation();
+  const pathname = location.pathname;
 
+  // On route change: scroll to top and reset scrolled state so the header
+  // never stays in "scrolled" state on the new page. Runs before the
+  // scroll-listener effect (same tick, declared first).
   useEffect(() => {
-    setIsClient(true);
+    window.scrollTo(0, 0);
+    setIsScrolled(false);
+  }, [pathname]);
 
-    // Restore state from sessionStorage after client-side hydration
-    const savedState = sessionStorage.getItem("headerScrolled");
-    if (savedState !== null) {
-      setIsScrolled(savedState === "true");
-    }
-  }, []);
-
-  // Save header state to sessionStorage when it changes
+  // Re-run when pathname changes so we re-check scroll position (no scroll
+  // event fires on navigation). This runs after the effect above.
   useEffect(() => {
-    sessionStorage.setItem("headerScrolled", isScrolled.toString());
-  }, [isScrolled]);
+    setIsMounted(true);
 
-  useEffect(() => {
-    // Only add scroll listener after client-side hydration
-    if (!isClient) return;
-
-    const handleScroll = () => {
+    const checkScroll = () => {
       setIsScrolled(window.scrollY > SCROLL_THRESHOLD);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isClient]);
+    checkScroll();
 
-  return isScrolled;
+    window.addEventListener("scroll", checkScroll, { passive: true });
+    return () => window.removeEventListener("scroll", checkScroll);
+  }, [pathname]);
+
+  return isMounted ? isScrolled : false;
 };

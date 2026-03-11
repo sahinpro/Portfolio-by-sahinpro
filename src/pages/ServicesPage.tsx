@@ -299,7 +299,7 @@ export const ServicesPage = (): JSX.Element => {
             className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4"
           >
             What I build{" "}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-800 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-500 to-purple-800 bg-clip-text text-transparent">
               for you
             </span>
           </motion.h1>

@@ -111,7 +111,10 @@ const Header = () => {
             </div>
 
             {/* Desktop Navigation */}
-            <nav ref={navRef} className="hidden lg:flex items-center space-x-8">
+            <nav
+              ref={navRef}
+              className="hidden lg:flex items-center space-x-10"
+            >
               <Navigation />
             </nav>
 

@@ -1,10 +1,14 @@
 import { CTAButton } from "@/components/CTAButton";
 import { Card, CardContent } from "@/components/ui/card";
+import { navItems } from "@/constants/navigation";
+
+const contactHref = navItems.find((item) => item.name === "Contact")?.href ?? "/contact";
+const contactFormHref = `${contactHref}#contact-form`;
 
 export const GetStartedSection = (): JSX.Element => {
   return (
     <section className="flex flex-col w-full items-center gap-20 px-4 md:px-[100px] py-10 sm:px-8 lg:px-12 lg:py-14 relative container mx-auto">
-      <Card className="relative w-full max-w-[1240px] rounded-[20px] overflow-hidden border border-[#ffffff1a] glass-card">
+      <Card className="relative z-10 w-full max-w-[1240px] rounded-[20px] overflow-hidden border border-[#ffffff1a] glass-card">
         <img
           className="absolute top-0 left-[77px] w-[1158px] h-[404px] pointer-events-none"
           alt="Group"
@@ -23,19 +27,20 @@ export const GetStartedSection = (): JSX.Element => {
           </div>
 
           <div className="inline-flex items-start gap-3 relative flex-wrap justify-center">
-            <CTAButton href="/contact" variant="primary">
+            <CTAButton href={contactHref} variant="primary">
               Get In Touch
             </CTAButton>
 
-            <CTAButton href="/contact" variant="secondary" showArrow={true}>
+            <CTAButton href={contactFormHref} variant="secondary" showArrow={true}>
               Schedule Call
             </CTAButton>
           </div>
         </CardContent>
       </Card>
-      <div className="absolute bottom-0 left-0 w-full h-full bg-radial-gradient(50% 50% at 50% 0%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(0deg, rgba(9, 9, 9, 1) 0%, rgba(9, 9, 9, 1) 100%)">
-    
-      </div>
+      <div
+        className="absolute bottom-0 left-0 w-full h-full pointer-events-none bg-radial-gradient(50% 50% at 50% 0%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(0deg, rgba(9, 9, 9, 1) 0%, rgba(9, 9, 9, 1) 100%)"
+        aria-hidden
+      />
     </section>
   );
 };

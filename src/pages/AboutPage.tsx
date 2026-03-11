@@ -290,7 +290,7 @@ export const AboutPage = (): JSX.Element => {
           >
             Crafting digital{" "}
             <span
-              className="bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400
+              className="bg-gradient-to-r from-blue-500 to-purple-800
               bg-clip-text text-transparent"
             >
               experiences
@@ -379,34 +379,34 @@ export const AboutPage = (): JSX.Element => {
             {highlights.map((h, i) => {
               const Icon = h.icon;
               return (
-              <motion.div
-                key={h.title}
-                initial="hidden"
-                animate={highlightInV ? "visible" : "hidden"}
-                variants={fadeUp(i * 0.08)}
-                className={`relative flex flex-col gap-4 p-6 rounded-2xl border bg-gradient-to-br ${h.color} ${h.border}
+                <motion.div
+                  key={h.title}
+                  initial="hidden"
+                  animate={highlightInV ? "visible" : "hidden"}
+                  variants={fadeUp(i * 0.08)}
+                  className={`relative flex flex-col gap-4 p-6 rounded-2xl border bg-gradient-to-br ${h.color} ${h.border}
                   backdrop-blur-sm hover:-translate-y-1 transition-transform duration-300 group overflow-hidden`}
-              >
-                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
-                  <Icon className="size-6 text-white/90" />
-                </div>
-                <div>
-                  <span
-                    className="inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold tracking-widest uppercase
+                >
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
+                    <Icon className="size-6 text-white/90" />
+                  </div>
+                  <div>
+                    <span
+                      className="inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold tracking-widest uppercase
                     bg-white/10 text-white/50 mb-2"
-                  >
-                    {h.tag}
-                  </span>
-                  <h3 className="text-lg font-bold text-white mb-1">
-                    {h.title}
-                  </h3>
-                  <p className="text-sm text-white/50 leading-relaxed">
-                    {h.description}
-                  </p>
-                </div>
-                <div className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full bg-white/[0.04] blur-lg pointer-events-none" />
-              </motion.div>
-            );
+                    >
+                      {h.tag}
+                    </span>
+                    <h3 className="text-lg font-bold text-white mb-1">
+                      {h.title}
+                    </h3>
+                    <p className="text-sm text-white/50 leading-relaxed">
+                      {h.description}
+                    </p>
+                  </div>
+                  <div className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full bg-white/[0.04] blur-lg pointer-events-none" />
+                </motion.div>
+              );
             })}
           </div>
         </div>
