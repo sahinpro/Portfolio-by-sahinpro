@@ -1,0 +1,192 @@
+import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
+import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
+import { useToast } from "@/admin/context/ToastContext";
+import type { SocialLinkRow } from "@/admin/types/database";
+import { supabase } from "@/utils/supabase";
+import { Plus, Save } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
+const field =
+  "w-full rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1.5 text-xs text-white outline-none focus:border-white/20";
+
+function formatSocialLinkError(error: { message: string; code?: string }): string {
+  if (error.code === "23505") {
+    return "That URL is already used by another row. Each social link URL must be unique.";
+  }
+  return error.message;
+}
+
+export function AdminSocialLinksPage(): JSX.Element {
+  const { showToast } = useToast();
+  const [rows, setRows] = useState<SocialLinkRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [drafts, setDrafts] = useState<Record<string, Partial<SocialLinkRow>>>({});
+  const [savingId, setSavingId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("social_links")
+      .select("*")
+      .order("sort_order", { ascending: true });
+    setLoading(false);
+    if (error) {
+      showToast(error.message, "error");
+      return;
+    }
+    setRows((data ?? []) as SocialLinkRow[]);
+    setDrafts({});
+  }, [showToast]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const d = (id: string): Partial<SocialLinkRow> => drafts[id] ?? {};
+
+  const setD = (id: string, patch: Partial<SocialLinkRow>) => {
+    setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
+  };
+
+  const merged = (r: SocialLinkRow): SocialLinkRow => ({ ...r, ...d(r.id) });
+
+  const saveRow = async (r: SocialLinkRow) => {
+    const m = merged(r);
+    setSavingId(r.id);
+    const { error } = await supabase
+      .from("social_links")
+      .update({
+        platform: m.platform,
+        url: m.url,
+        icon: m.icon,
+        visible: m.visible,
+        sort_order: m.sort_order,
+      })
+      .eq("id", r.id);
+    setSavingId(null);
+    if (error) {
+      showToast(formatSocialLinkError(error), "error");
+      return;
+    }
+    showToast("Saved");
+    setDrafts((prev) => {
+      const next = { ...prev };
+      delete next[r.id];
+      return next;
+    });
+    void load();
+  };
+
+  const addRow = async () => {
+    const { error } = await supabase.from("social_links").insert({
+      platform: "New",
+      url: "https://",
+      icon: "link",
+      visible: true,
+      sort_order: rows.length,
+    });
+    if (error) {
+      showToast(formatSocialLinkError(error), "error");
+      return;
+    }
+    showToast("Row added");
+    void load();
+  };
+
+  if (loading) {
+    return <p className="text-white/45 text-sm">Loading…</p>;
+  }
+
+  return (
+    <div className="max-w-5xl">
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h1 className="text-2xl font-semibold text-white">Social links</h1>
+          <p className="text-sm text-white/45 mt-1">Footer and hero icons.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void addRow()}
+          className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-black"
+        >
+          <Plus className="h-4 w-4" />
+          Add
+        </button>
+      </div>
+
+      <div className="rounded-xl border border-white/[0.08] bg-[#111] overflow-x-auto">
+        <table className="w-full text-left text-xs min-w-[640px]">
+          <thead>
+            <tr className="border-b border-white/[0.08] text-white/40 uppercase tracking-wider">
+              <th className="px-3 py-2">Platform</th>
+              <th className="px-3 py-2">URL</th>
+              <th className="px-3 py-2 min-w-[200px]">Icon / image</th>
+              <th className="px-3 py-2">Order</th>
+              <th className="px-3 py-2">Visible</th>
+              <th className="px-3 py-2 w-24" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const m = merged(r);
+              return (
+                <tr key={r.id} className="border-b border-white/[0.05]">
+                  <td className="px-3 py-2">
+                    <input
+                      className={field}
+                      value={m.platform}
+                      onChange={(e) => setD(r.id, { platform: e.target.value })}
+                    />
+                  </td>
+                  <td className="px-3 py-2">
+                    <input
+                      className={field}
+                      value={m.url}
+                      onChange={(e) => setD(r.id, { url: e.target.value })}
+                    />
+                  </td>
+                  <td className="px-3 py-2 align-top">
+                    <ImageUrlField
+                      variant="compact"
+                      value={m.icon ?? ""}
+                      onChange={(url) => setD(r.id, { icon: url })}
+                      bucket="portfolio-assets"
+                      pathPrefix={`social/${r.id}`}
+                    />
+                  </td>
+                  <td className="px-3 py-2 w-20">
+                    <input
+                      type="number"
+                      className={field}
+                      value={m.sort_order}
+                      onChange={(e) =>
+                        setD(r.id, { sort_order: Number(e.target.value) || 0 })
+                      }
+                    />
+                  </td>
+                  <td className="px-3 py-2">
+                    <ToggleSwitch
+                      checked={m.visible}
+                      onChange={(v) => setD(r.id, { visible: v })}
+                    />
+                  </td>
+                  <td className="px-3 py-2">
+                    <button
+                      type="button"
+                      disabled={savingId === r.id}
+                      onClick={() => void saveRow(r)}
+                      className="p-2 rounded-lg text-white/60 hover:bg-white/[0.08] hover:text-white disabled:opacity-50"
+                      title="Save row"
+                    >
+                      <Save className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

@@ -1,5 +1,9 @@
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
+import { PublicSeo } from "@/components/public/PublicSeo";
+import { SocialLinksRow } from "@/components/public/SocialLinksRow";
+import { useActiveResume } from "@/hooks/useActiveResume";
+import { triggerResumeDownload } from "@/lib/resumeDownload";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
@@ -13,7 +17,6 @@ import {
   Coffee,
   Copy,
   Download,
-  ExternalLink,
   Heart,
   Paintbrush,
   Rocket,
@@ -229,6 +232,7 @@ const SkillBar = ({
 export const AboutPage = (): JSX.Element => {
   const [copied, setCopied] = useState(false);
   const email = "sahinhub@gmail.com";
+  const { data: activeResume, loading: resumeLoading } = useActiveResume();
 
   const heroRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -251,14 +255,12 @@ export const AboutPage = (): JSX.Element => {
   };
 
   const handleResumeClick = () => {
-    const link = document.createElement("a");
-    link.href = "/resume.pdf";
-    link.download = "Sahin_Alam_Resume.pdf";
-    link.click();
+    if (activeResume) void triggerResumeDownload(activeResume);
   };
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+      <PublicSeo />
       <Header />
 
       <section className="w-full pt-40 pb-20 relative overflow-hidden">
@@ -294,7 +296,7 @@ export const AboutPage = (): JSX.Element => {
 
           <motion.p
             variants={fadeUp(0.1)}
-            className="max-w-2xl text-lg text-white/60 leading-relaxed mb-8"
+            className="max-w-2xl text-lg text-white/60 leading-relaxed"
           >
             Since 2023 I've been a{" "}
             <span className="text-white font-semibold">
@@ -314,27 +316,8 @@ export const AboutPage = (): JSX.Element => {
             business impact.
           </motion.p>
 
-          <motion.div variants={fadeUp(0.15)} className="flex flex-wrap gap-3">
-            <a
-              href="https://github.com/sahincoderbd"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10
-                text-sm text-white/70 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200"
-            >
-              <ExternalLink className="w-4 h-4" />
-              GitHub Profile
-            </a>
-            <a
-              href="https://linkedin.com/in/sahincoder"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10
-                text-sm text-white/70 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200"
-            >
-              <ExternalLink className="w-4 h-4" />
-              LinkedIn
-            </a>
+          <motion.div variants={fadeUp(0.15)}>
+            <SocialLinksRow size="hero" />
           </motion.div>
         </motion.div>
       </section>
@@ -513,14 +496,16 @@ export const AboutPage = (): JSX.Element => {
             </div>
 
             <div className="flex flex-wrap gap-3 flex-shrink-0">
-              <CTAButton
-                onClick={handleResumeClick}
-                variant="primary"
-                showArrow={false}
-              >
-                <Download className="w-4 h-4 mr-1.5" />
-                Resume
-              </CTAButton>
+              {!resumeLoading && activeResume ? (
+                <CTAButton
+                  onClick={handleResumeClick}
+                  variant="primary"
+                  showArrow={false}
+                >
+                  <Download className="w-4 h-4 mr-1.5" />
+                  Resume
+                </CTAButton>
+              ) : null}
               <CTAButton
                 className="text-md font-medium"
                 onClick={handleCopy}

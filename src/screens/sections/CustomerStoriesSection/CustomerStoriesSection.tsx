@@ -1,5 +1,8 @@
-import { motion, useInView } from "framer-motion";
-import { useCallback, useRef, useState } from "react";
+import type { TestimonialRow } from "@/admin/types/database";
+import { usePublishedTestimonials } from "@/hooks/usePublishedTestimonials";
+import { motion } from "framer-motion";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface Author {
   name: string;
@@ -9,69 +12,37 @@ interface Author {
 }
 
 interface Testimonial {
-  id: number;
+  id: string;
   author: Author;
   quote: string;
   highlightedQuote: string;
 }
 
-const TESTIMONIALS: Testimonial[] = [
-  {
-    id: 1,
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function mapRowToTestimonial(row: TestimonialRow): Testimonial {
+  const hq = row.highlighted_quote?.trim();
+  const fallbackHighlight = `<span class="text-white/95">${escapeHtml(row.quote)}</span>`;
+  return {
+    id: row.id,
     author: {
-      name: "Alex Chen",
-      role: "Product Manager",
-      company: "Digital Assets Corp",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+      name: row.author_name,
+      role: row.author_role ?? "",
+      company: row.author_company ?? "",
+      avatar:
+        row.author_avatar?.trim() ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(row.author_name)}&background=7e22ce&color=fff&size=150`,
     },
-    quote: "Working with Sahin transformed our online presence. The website he built increased our conversion rate by 40% and the clean, modern design perfectly represents our brand.",
-    highlightedQuote: "Working with Sahin <span class='text-purple-700 font-medium'>transformed our online presence</span>. The website he built increased our conversion rate by 40% and the clean, modern design <span class='text-purple-700 font-medium'>perfectly represents our brand</span>.",
-  },
-  {
-    id: 2,
-    author: {
-      name: "Michael Rodriguez",
-      role: "CEO",
-      company: "TechFlow Solutions",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    },
-    quote: "Sahin delivered an exceptional e-commerce solution that exceeded our expectations. The site loads incredibly fast, ranks well on Google, and our sales have increased significantly since launch.",
-    highlightedQuote: "Sahin delivered an <span class='text-purple-700 font-medium'>exceptional e-commerce solution</span> that exceeded our expectations. The site loads incredibly fast, ranks well on Google, and our sales have <span class='text-purple-700 font-medium'>increased significantly since launch</span>.",
-  },
-  {
-    id: 3,
-    author: {
-      name: "David Thompson",
-      role: "CTO",
-      company: "Digital Innovations",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    },
-    quote: "The custom WordPress theme Sahin created for us is exactly what we needed. It's fast, SEO-optimized, and easy to manage. His attention to detail and technical expertise made the entire process smooth and stress-free.",
-    highlightedQuote: "The custom WordPress theme Sahin created for us is <span class='text-purple-700 font-medium'>exactly what we needed</span>. It's fast, SEO-optimized, and easy to manage. His attention to detail made the entire process <span class='text-purple-700 font-medium'>smooth and stress-free</span>.",
-  },
-  {
-    id: 4,
-    author: {
-      name: "Sarah Martinez",
-      role: "Marketing Director",
-      company: "Creative Studios",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    },
-    quote: "The website Sahin built has become our most powerful marketing tool. The user experience is intuitive, the design is stunning, and we've seen a dramatic increase in qualified leads.",
-    highlightedQuote: "The website Sahin built has become our <span class='text-purple-700 font-medium'>most powerful marketing tool</span>. The user experience is intuitive, the design is stunning, and we've seen a <span class='text-purple-700 font-medium'>dramatic increase in qualified leads</span>.",
-  },
-  {
-    id: 5,
-    author: {
-      name: "James Wilson",
-      role: "Founder",
-      company: "StartupHub",
-      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face",
-    },
-    quote: "Working with Sahin was a game-changer for our startup. He delivered a professional, high-performing website that has helped us secure funding and attract top talent.",
-    highlightedQuote: "Working with Sahin was a <span class='text-purple-700 font-medium'>game-changer for our startup</span>. He delivered a professional, high-performing website that has helped us <span class='text-purple-700 font-medium'>secure funding and attract top talent</span>.",
-  },
-];
+    quote: row.quote,
+    highlightedQuote: hq ? hq : fallbackHighlight,
+  };
+}
 
 interface AvatarProps {
   testimonial: Testimonial;
@@ -122,23 +93,32 @@ const Avatar = ({ testimonial, isActive, onClick, disabled }: AvatarProps) => {
 };
 
 export const CustomerStoriesSection = (): JSX.Element => {
+  const { rows, loading, error } = usePublishedTestimonials();
+  const testimonials = useMemo(() => rows.map(mapRowToTestimonial), [rows]);
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  
-  const sectionRef = useRef<HTMLElement>(null);
+
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const sectionInView = useInView(sectionRef, { once: true, margin: "-20%" });
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [testimonials.length]);
 
-  const activeTestimonial = TESTIMONIALS[activeIndex];
+  const safeIndex =
+    testimonials.length === 0 ? 0 : Math.min(activeIndex, testimonials.length - 1);
+  const activeTestimonial = testimonials[safeIndex];
 
-  const changeTestimonial = useCallback((newIndex: number) => {
-    if (newIndex === activeIndex || isTransitioning) return;
+  const changeTestimonial = useCallback(
+    (newIndex: number) => {
+      if (newIndex === safeIndex || isTransitioning || testimonials.length === 0) return;
 
-    setIsTransitioning(true);
-    setActiveIndex(newIndex);
-    setIsTransitioning(false);
-  }, [activeIndex, isTransitioning]);
+      setIsTransitioning(true);
+      setActiveIndex(newIndex);
+      setIsTransitioning(false);
+    },
+    [safeIndex, isTransitioning, testimonials.length],
+  );
 
   const headerVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -179,10 +159,69 @@ export const CustomerStoriesSection = (): JSX.Element => {
     }
   };
 
+  if (loading && testimonials.length === 0) {
+    return (
+      <section
+        className="relative w-full max-w-[1440px] mx-auto px-4 py-10 sm:px-8 lg:px-12 lg:py-14"
+        aria-busy="true"
+        aria-label="Loading testimonials"
+      >
+        <div className="text-center mb-12 md:mb-16 space-y-4 animate-pulse">
+          <div className="h-10 max-w-md mx-auto rounded-lg bg-white/10" />
+          <div className="h-5 max-w-[656px] mx-auto rounded bg-white/[0.06]" />
+        </div>
+        <div className="max-w-[1100px] mx-auto mb-10 rounded-3xl border border-white/[0.08] p-8 sm:p-12 min-h-[320px] animate-pulse space-y-6">
+          <div className="h-6 w-full max-w-2xl mx-auto rounded bg-white/[0.06]" />
+          <div className="h-6 w-full max-w-xl mx-auto rounded bg-white/[0.06]" />
+          <div className="h-6 w-3/4 mx-auto rounded bg-white/[0.05]" />
+          <div className="flex justify-center gap-4 pt-8">
+            <div className="h-14 w-14 rounded-xl bg-white/10" />
+            <div className="h-14 w-14 rounded-xl bg-white/10" />
+            <div className="h-14 w-14 rounded-xl bg-white/10" />
+          </div>
+        </div>
+        <p className="text-center text-white/35 text-sm">Loading testimonials…</p>
+      </section>
+    );
+  }
+
+  if (error && testimonials.length === 0) {
+    return (
+      <section className="relative w-full max-w-[1440px] mx-auto px-4 py-12 sm:px-8 lg:px-12 text-center text-red-400/80 text-sm">
+        Could not load testimonials.
+      </section>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return (
+      <section
+        id="testimonials"
+        className="relative w-full max-w-[1440px] mx-auto px-4 py-12 sm:px-8 lg:px-12 lg:py-16"
+        aria-label="Customer testimonials"
+      >
+        <div className="max-w-[656px] mx-auto text-center space-y-4">
+          <h2 className="section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl text-white">
+            Customer Stories
+          </h2>
+          <p className="text-base sm:text-lg text-neutral-400 leading-relaxed">
+            Client testimonials will show here once they are <strong className="text-white/80">published</strong> in
+            your admin panel. Until then, this space stays open so the home layout stays balanced.
+          </p>
+          <p className="text-sm text-white/35">
+            Working together?{" "}
+            <Link to="/contact" className="text-violet-400 hover:text-violet-300 underline underline-offset-2">
+              Get in touch
+            </Link>
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <>
       <section
-        ref={sectionRef}
         id="testimonials"
         className="relative w-full max-w-[1440px] mx-auto px-4 py-10 sm:px-8 lg:px-12 lg:py-14 "
         aria-label="Customer testimonials"
@@ -208,10 +247,10 @@ export const CustomerStoriesSection = (): JSX.Element => {
         </div>
 
         {/* Header */}
-        <motion.div 
+        <motion.div
           className="section-header text-center mb-12 md:mb-16"
           initial="hidden"
-          animate={sectionInView ? "visible" : "hidden"}
+          animate="visible"
           variants={headerVariants}
         >
           <h2 className="flex items-center justify-center self-stretch mt-[-1.00px] section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">
@@ -224,10 +263,10 @@ export const CustomerStoriesSection = (): JSX.Element => {
         </motion.div>
 
         {/* Testimonial Card */}
-        <motion.div 
+        <motion.div
           className="testimonial-card relative max-w-[1100px] mx-auto mb-10 sm:mb-12 p-8 sm:p-12 md:p-14 lg:p-16 bg-gradient-to-br from-[rgba(15,15,15,0.6)] to-[rgba(10,10,10,0.6)] border border-white/[0.08] rounded-3xl backdrop-blur-xl overflow-hidden"
           initial="hidden"
-          animate={sectionInView ? "visible" : "hidden"}
+          animate="visible"
           variants={cardVariants}
         >
           {/* Card Grid Pattern */}
@@ -270,7 +309,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
           <motion.div 
             ref={contentRef} 
             className="relative z-10 min-h-[300px] sm:min-h-[350px] md:min-h-[400px] flex flex-col justify-center items-center text-center"
-            key={activeTestimonial.id}
+            key={activeTestimonial?.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -279,17 +318,20 @@ export const CustomerStoriesSection = (): JSX.Element => {
             <blockquote className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light leading-snug text-white/95 mb-8 sm:mb-10 max-w-[900px]">
               <span
                 dangerouslySetInnerHTML={{
-                  __html: activeTestimonial.highlightedQuote,
+                  __html: activeTestimonial?.highlightedQuote ?? "",
                 }}
               />
             </blockquote>
 
             <div className="flex flex-col items-center gap-1">
               <cite className="text-base sm:text-lg font-semibold text-white/95 not-italic">
-                {activeTestimonial.author.name}
+                {activeTestimonial?.author.name}
               </cite>
               <span className="text-sm sm:text-base text-white/50">
-                {activeTestimonial.author.role}, {activeTestimonial.author.company}
+                {activeTestimonial?.author.role}
+                {activeTestimonial?.author.company
+                  ? `, ${activeTestimonial.author.company}`
+                  : ""}
               </span>
             </div>
           </motion.div>
@@ -297,20 +339,20 @@ export const CustomerStoriesSection = (): JSX.Element => {
 
         {/* Avatars */}
         <div className="relative z-20">
-          <motion.div 
+          <motion.div
             className="avatar-button flex justify-center items-center gap-3 sm:gap-4 md:gap-5 p-4 sm:p-5 md:p-0 bg-black/80 sm:bg-transparent border border-white/[0.08] sm:border-0 rounded-2xl backdrop-blur-xl sm:backdrop-blur-none max-w-fit mx-auto"
             initial="hidden"
-            animate={sectionInView ? "visible" : "hidden"}
+            animate="visible"
             variants={avatarVariants}
           >
-            {TESTIMONIALS.map((testimonial, index) => (
+            {testimonials.map((testimonial, index) => (
               <motion.div
                 key={testimonial.id}
                 variants={avatarItemVariants}
               >
                 <Avatar
                   testimonial={testimonial}
-                  isActive={index === activeIndex}
+                  isActive={index === safeIndex}
                   onClick={() => changeTestimonial(index)}
                   disabled={isTransitioning}
                 />
@@ -321,7 +363,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
 
         {/* Screen reader announcement */}
         <div className="sr-only" role="status" aria-live="polite">
-          Showing testimonial {activeIndex + 1} of {TESTIMONIALS.length}
+          Showing testimonial {safeIndex + 1} of {testimonials.length}
         </div>
       </section>
     </>

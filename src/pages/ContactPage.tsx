@@ -9,6 +9,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { PublicSeo } from "@/components/public/PublicSeo";
+import { SocialLinksRow } from "@/components/public/SocialLinksRow";
+import { isSupabaseBrowserConfigured } from "@/lib/supabaseFunctions";
+import { submitContactToSupabase } from "@/lib/submitContact";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
@@ -16,8 +20,6 @@ import {
   CheckIcon,
   ChevronsUpDown,
   Clock,
-  Github,
-  Linkedin,
   Mail,
   MapPin,
   MessageCircle,
@@ -25,7 +27,7 @@ import {
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
-import { BsBehance, BsDribbble, BsWhatsapp } from "react-icons/bs";
+import { BsWhatsapp } from "react-icons/bs";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import Turnstile from "react-turnstile";
 
@@ -69,37 +71,6 @@ const contactInfo = [
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/20",
-  },
-];
-
-const socialLinks = [
-  {
-    name: "GitHub",
-    href: "https://github.com/sahinhub",
-    icon: Github,
-    brandColor: "#f0f6fc",
-    bg: "hover:bg-white/10",
-  },
-  {
-    name: "LinkedIn",
-    href: "https://linkedin.com/in/sahinhub",
-    icon: Linkedin,
-    brandColor: "#0A66C2",
-    bg: "hover:bg-[#0A66C2]/20",
-  },
-  {
-    name: "Behance",
-    href: "https://behance.net/sahinhub",
-    icon: BsBehance,
-    brandColor: "#1769FF",
-    bg: "hover:bg-[#1769FF]/20",
-  },
-  {
-    name: "Dribbble",
-    href: "https://dribbble.com/sahinhub",
-    icon: BsDribbble,
-    brandColor: "#EA4C89",
-    bg: "hover:bg-[#EA4C89]/20",
   },
 ];
 
@@ -284,7 +255,7 @@ export const ContactPage = (): JSX.Element => {
 
     setIsSubmitting(true);
 
-    const payload: Record<string, string | undefined> = {
+    const formspreePayload: Record<string, string | undefined> = {
       name: formData.name,
       email: formData.email,
       subject: formData.subject,
@@ -293,45 +264,10 @@ export const ContactPage = (): JSX.Element => {
       message: formData.message,
     };
     if (turnstileToken) {
-      payload["cf-turnstile-response"] = turnstileToken;
+      formspreePayload["cf-turnstile-response"] = turnstileToken;
     }
 
-    if (formEndpoint) {
-      try {
-        const res = await fetch(formEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (res.ok) {
-          setFormData({
-            name: "",
-            email: "",
-            subject: "",
-            phone: "",
-            budget: "",
-            message: "",
-          });
-          markSubmittedToday();
-          setSubmittedJustNow(true);
-          setIsSubmitted(true);
-          setIsSubmitting(false);
-        } else {
-          setSubmitError(
-            "Message not sent. Please try again or email me directly.",
-          );
-          setTurnstileToken(null);
-          setIsSubmitting(false);
-        }
-      } catch {
-        setSubmitError(
-          "Message not sent. Check your connection and try again.",
-        );
-        setTurnstileToken(null);
-        setIsSubmitting(false);
-      }
-    } else {
-      await new Promise((r) => setTimeout(r, 1200));
+    const applySuccess = () => {
       setFormData({
         name: "",
         email: "",
@@ -344,7 +280,69 @@ export const ContactPage = (): JSX.Element => {
       setSubmittedJustNow(true);
       setIsSubmitted(true);
       setIsSubmitting(false);
+    };
+
+    const postFormspree = async (): Promise<boolean> => {
+      if (!formEndpoint) return false;
+      try {
+        const res = await fetch(formEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formspreePayload),
+        });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    };
+
+    let supabaseOk = false;
+    if (isSupabaseBrowserConfigured()) {
+      const r = await submitContactToSupabase({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        phone: formData.phone,
+        budget: formData.budget,
+        message: formData.message,
+        turnstileToken,
+      });
+      supabaseOk = r.ok;
     }
+
+    if (supabaseOk) {
+      applySuccess();
+      if (formEndpoint) {
+        void postFormspree();
+      }
+      return;
+    }
+
+    if (formEndpoint) {
+      const ok = await postFormspree();
+      if (ok) {
+        applySuccess();
+        return;
+      }
+      setSubmitError(
+        "Message not sent. Please try again or email me directly.",
+      );
+      setTurnstileToken(null);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (isSupabaseBrowserConfigured()) {
+      setSubmitError(
+        "Message not saved. Check Supabase Edge Function `submit-contact` and try again.",
+      );
+      setTurnstileToken(null);
+      setIsSubmitting(false);
+      return;
+    }
+
+    await new Promise((r) => setTimeout(r, 1200));
+    applySuccess();
   };
 
   const inputClass = `w-full px-4 py-3 sm:py-2.5 rounded-xl border border-white/10 bg-white/[0.04]
@@ -353,6 +351,7 @@ export const ContactPage = (): JSX.Element => {
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+      <PublicSeo />
       <Header />
 
       <section className="w-full pt-28 sm:pt-36 lg:pt-40 pb-10 sm:pb-16 relative overflow-hidden">
@@ -746,28 +745,7 @@ export const ContactPage = (): JSX.Element => {
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-3">
                 Find me online
               </p>
-              <div className="flex gap-2">
-                {socialLinks.map(({ name, href, icon, brandColor, bg }) => {
-                  const Icon = icon as ComponentType<{ className?: string }>;
-                  return (
-                    <a
-                      key={name}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={name}
-                      aria-label={name}
-                      className={`group w-10 h-10 rounded-xl bg-white/5 border border-white/10
-                        flex items-center justify-center ${bg} transition-all duration-200`}
-                      style={{ ["--brand-color" as string]: brandColor }}
-                    >
-                      <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
-                        <Icon className="w-4 h-4" />
-                      </span>
-                    </a>
-                  );
-                })}
-              </div>
+              <SocialLinksRow size="contact" />
             </motion.div>
 
             {/* Quick actions */}

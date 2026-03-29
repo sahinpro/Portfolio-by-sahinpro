@@ -1,3 +1,4 @@
+import { PublicSeo } from "@/components/public/PublicSeo";
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
 import { FooterSection } from "@/screens/sections/FooterSection";
@@ -269,6 +270,7 @@ export const ServicesPage = (): JSX.Element => {
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+      <PublicSeo />
       <Header />
 
       <section className="w-full pt-40 pb-16 relative overflow-hidden">

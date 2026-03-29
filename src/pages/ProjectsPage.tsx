@@ -1,132 +1,13 @@
+import { PublicSeo } from "@/components/public/PublicSeo";
+import type { PublicProject } from "@/data/projectUiMapper";
+import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import Header from "@/components/Header";
 import { FooterSection } from "@/screens/sections/FooterSection";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { ExternalLink, Github, Layers, Search, Star, Tag } from "lucide-react";
-import { useRef, useState } from "react";
+import { useMemo, useState } from "react";
 
-export interface Project {
-  id: number;
-  title: string;
-  description: string;
-  longDescription?: string;
-  image: string;
-  technologies: string[];
-  category: string;
-  liveUrl: string | null;
-  githubUrl: string | null;
-  featured: boolean;
-  year?: string;
-  stats?: { label: string; value: string }[];
-}
-
-const projects: Project[] = [
-  {
-    id: 1,
-    title: "E-Commerce Platform",
-    description:
-      "Full-stack e-commerce solution with payment integration and admin dashboard",
-    longDescription:
-      "A complete end-to-end shopping experience with real-time inventory, Stripe payments, and a custom admin dashboard built with React and Node.js.",
-    image:
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=90&fm=png",
-    technologies: ["React", "Node.js", "MongoDB", "Stripe"],
-    category: "Full Stack",
-    liveUrl: "https://example.com",
-    githubUrl: "https://github.com",
-    featured: true,
-    year: "2024",
-    stats: [
-      { label: "Revenue processed", value: "$50K+" },
-      { label: "Monthly users", value: "2K+" },
-    ],
-  },
-  {
-    id: 2,
-    title: "Portfolio Website",
-    description:
-      "Modern portfolio website with animations and responsive design",
-    longDescription:
-      "A high-performance portfolio with framer-motion animations, WebGL light effects, and a perfect Lighthouse score.",
-    image:
-      "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&q=90",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS"],
-    category: "Frontend",
-    liveUrl: "https://example.com",
-    githubUrl: "https://github.com",
-    featured: true,
-    year: "2024",
-    stats: [
-      { label: "Lighthouse score", value: "100" },
-      { label: "Load time", value: "< 1s" },
-    ],
-  },
-  {
-    id: 3,
-    title: "WordPress Theme",
-    description: "Custom WordPress theme with advanced customization options",
-    longDescription:
-      "A performance-first WordPress theme with custom Gutenberg blocks, WooCommerce support, and live customizer preview.",
-    image:
-      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=90",
-    technologies: ["WordPress", "PHP", "JavaScript", "WooCommerce"],
-    category: "CMS",
-    liveUrl: null,
-    githubUrl: "https://github.com",
-    featured: false,
-    year: "2023",
-    stats: [{ label: "Sites using it", value: "40+" }],
-  },
-  {
-    id: 4,
-    title: "SaaS Dashboard",
-    description: "Analytics dashboard with real-time data visualization",
-    longDescription:
-      "A modern analytics dashboard with WebSocket real-time updates, complex D3.js charts, and role-based access control.",
-    image:
-      "https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    technologies: ["React", "D3.js", "Express", "PostgreSQL"],
-    category: "Full Stack",
-    liveUrl: "https://example.com",
-    githubUrl: "https://github.com",
-    featured: false,
-    year: "2024",
-    stats: [{ label: "Data points", value: "1M+" }],
-  },
-  {
-    id: 5,
-    title: "Agency Landing Page",
-    description: "High-converting landing page for a digital marketing agency",
-    longDescription:
-      "Conversion-optimised landing page with A/B-tested hero sections, scroll-triggered animations, and integrated CRM forms.",
-    image:
-      "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=90",
-    technologies: ["Next.js", "Tailwind CSS", "Framer Motion"],
-    category: "Frontend",
-    liveUrl: "https://example.com",
-    githubUrl: null,
-    featured: false,
-    year: "2023",
-    stats: [{ label: "Conversion rate", value: "8.4%" }],
-  },
-  {
-    id: 6,
-    title: "WooCommerce Plugin",
-    description: "Custom WooCommerce plugin for advanced product bundling",
-    longDescription:
-      "A WordPress plugin that extends WooCommerce with product bundling, dynamic pricing rules, and upsell logic.",
-    image:
-      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=90",
-    technologies: ["PHP", "WordPress", "WooCommerce", "React"],
-    category: "CMS",
-    liveUrl: null,
-    githubUrl: "https://github.com",
-    featured: false,
-    year: "2023",
-    stats: [{ label: "Active installs", value: "300+" }],
-  },
-];
-
-const categories = ["All", "Full Stack", "Frontend", "CMS"];
+export type { PublicProject as Project };
 
 const categoryBadge: Record<string, string> = {
   "Full Stack": "bg-violet-500/20 text-violet-300 border-violet-500/30",
@@ -143,22 +24,23 @@ const fadeUp = (delay = 0) => ({
   },
 });
 
+const featuredViewport = { once: true as const, amount: 0.08, margin: "120px 0px 80px 0px" };
+const cardViewport = { once: true as const, amount: 0.08, margin: "80px 0px 80px 0px" };
+
 const FeaturedCard = ({
   project,
   index,
 }: {
-  project: Project;
+  project: PublicProject;
   index: number;
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const inV = useInView(ref, { once: true, margin: "-10%" });
   const even = index % 2 === 0;
 
   return (
     <motion.div
-      ref={ref}
       initial="hidden"
-      animate={inV ? "visible" : "hidden"}
+      whileInView="visible"
+      viewport={featuredViewport}
       variants={fadeUp(index * 0.1)}
     >
       <div
@@ -178,14 +60,15 @@ const FeaturedCard = ({
           <div
             className={`absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent lg:hidden`}
           />
-          {/* Featured badge */}
-          <div
-            className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1 rounded-full
+          {project.featured ? (
+            <div
+              className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1 rounded-full
             bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-semibold"
-          >
-            <Star className="w-3 h-3 fill-current" />
-            Featured
-          </div>
+            >
+              <Star className="w-3 h-3 fill-current" />
+              Featured
+            </div>
+          ) : null}
         </div>
 
         {/* Content */}
@@ -274,17 +157,14 @@ const ProjectCard = ({
   project,
   index,
 }: {
-  project: Project;
+  project: PublicProject;
   index: number;
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const inV = useInView(ref, { once: true, margin: "-10%" });
-
   return (
     <motion.div
-      ref={ref}
       initial="hidden"
-      animate={inV ? "visible" : "hidden"}
+      whileInView="visible"
+      viewport={cardViewport}
       variants={fadeUp(index * 0.08)}
       whileHover={{ y: -6, transition: { duration: 0.3 } }}
     >
@@ -392,11 +272,14 @@ const ProjectCard = ({
 };
 
 export const ProjectsPage = (): JSX.Element => {
+  const { projects, loading, error } = usePublishedProjects();
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
 
-  const headerRef = useRef<HTMLDivElement>(null);
-  const headerInV = useInView(headerRef, { once: true, margin: "-10%" });
+  const categories = useMemo(() => {
+    const set = new Set(projects.map((p) => p.category).filter(Boolean));
+    return ["All", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+  }, [projects]);
 
   const filteredProjects = projects.filter((p) => {
     const matchCat = filter === "All" || p.category === filter;
@@ -412,8 +295,53 @@ export const ProjectsPage = (): JSX.Element => {
   const featuredProjects = filteredProjects.filter((p) => p.featured);
   const regularProjects = filteredProjects.filter((p) => !p.featured);
 
+  const countForCategory = (cat: string) =>
+    cat === "All" ? projects.length : projects.filter((p) => p.category === cat).length;
+
+  if (loading && projects.length === 0) {
+    return (
+      <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+        <div className="relative z-[1] flex flex-col w-full">
+          <PublicSeo />
+          <Header />
+          <section className="w-full flex-1 pt-40 pb-16 relative" aria-busy="true">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 animate-pulse space-y-6">
+              <div className="h-7 w-28 rounded-full bg-white/10" />
+              <div className="h-14 max-w-md rounded-lg bg-white/10" />
+              <div className="h-5 max-w-xl rounded bg-white/[0.06]" />
+              <div className="flex flex-wrap gap-2 pt-2">
+                <div className="h-10 w-20 rounded-xl bg-white/10" />
+                <div className="h-10 w-24 rounded-xl bg-white/10" />
+                <div className="h-10 w-28 rounded-xl bg-white/10" />
+              </div>
+              <p className="text-white/40 text-sm pt-4">Loading projects…</p>
+            </div>
+          </section>
+          <FooterSection />
+        </div>
+      </div>
+    );
+  }
+
+  if (error && projects.length === 0) {
+    return (
+      <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+        <div className="relative z-[1] flex flex-col w-full">
+          <PublicSeo />
+          <Header />
+          <div className="w-full flex-1 pt-40 pb-24 text-center text-red-400/80 text-sm px-4">
+            Could not load projects. Check Supabase env and published items in the admin.
+          </div>
+          <FooterSection />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+      <div className="relative z-[1] flex flex-col w-full">
+      <PublicSeo />
       <Header />
 
       <section className="w-full pt-40 pb-16 relative overflow-hidden">
@@ -422,12 +350,8 @@ export const ProjectsPage = (): JSX.Element => {
           bg-gradient-to-b from-blue-600/8 via-violet-600/5 to-transparent rounded-full blur-3xl"
         />
 
-        <div ref={headerRef} className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
-            variants={fadeUp(0)}
-          >
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div initial="hidden" animate="visible" variants={fadeUp(0)}>
             <span
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
               tracking-widest uppercase bg-white/5 border border-white/10 text-white/50 mb-4"
@@ -439,7 +363,7 @@ export const ProjectsPage = (): JSX.Element => {
 
           <motion.h1
             initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
+            animate="visible"
             variants={fadeUp(0.05)}
             className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4"
           >
@@ -448,7 +372,7 @@ export const ProjectsPage = (): JSX.Element => {
 
           <motion.p
             initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
+            animate="visible"
             variants={fadeUp(0.1)}
             className="text-lg text-white/50 max-w-xl mb-10"
           >
@@ -459,7 +383,7 @@ export const ProjectsPage = (): JSX.Element => {
           {/* Controls */}
           <motion.div
             initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
+            animate="visible"
             variants={fadeUp(0.15)}
             className="flex flex-col sm:flex-row gap-3"
           >
@@ -480,11 +404,7 @@ export const ProjectsPage = (): JSX.Element => {
                   <span
                     className={`ml-1.5 text-xs ${filter === cat ? "text-[#161616]/60" : "text-white/30"}`}
                   >
-                    (
-                    {cat === "All"
-                      ? projects.length
-                      : projects.filter((p) => p.category === cat).length}
-                    )
+                    ({countForCategory(cat)})
                   </span>
                 </button>
               ))}
@@ -540,7 +460,19 @@ export const ProjectsPage = (): JSX.Element => {
         </section>
       )}
 
-      {filteredProjects.length === 0 && (
+      {projects.length === 0 && !loading && !error && (
+        <section className="w-full pb-28">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center py-20 gap-3 max-w-lg text-center">
+            <Layers className="w-8 h-8 text-white/20" />
+            <p className="text-white/50 text-sm leading-relaxed">
+              No published projects yet. Open the admin, add projects, and set status to{" "}
+              <span className="text-white/70">published</span> — they will appear here automatically.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {projects.length > 0 && filteredProjects.length === 0 && (
         <section className="w-full pb-28">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center py-20 gap-3">
             <Search className="w-8 h-8 text-white/20" />
@@ -548,6 +480,7 @@ export const ProjectsPage = (): JSX.Element => {
               No projects match your search.
             </p>
             <button
+              type="button"
               onClick={() => {
                 setFilter("All");
                 setSearch("");
@@ -561,6 +494,7 @@ export const ProjectsPage = (): JSX.Element => {
       )}
 
       <FooterSection />
+      </div>
     </div>
   );
 };

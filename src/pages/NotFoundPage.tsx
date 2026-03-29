@@ -1,3 +1,4 @@
+import { PublicSeo } from "@/components/public/PublicSeo";
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
 import FuzzyText from "@/components/ui/FuzzyText";
@@ -69,6 +70,7 @@ export const NotFoundPage = (): JSX.Element => {
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen">
+      <PublicSeo />
       <Header />
       <div className="flex items-center justify-center w-full min-h-screen px-4 sm:px-6 lg:px-8 py-32">
         <motion.div

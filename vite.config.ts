@@ -1,6 +1,18 @@
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
+import type { RollupLog } from "rollup";
 import { defineConfig } from "vite";
+
+function suppressLottieEvalWarning(warning: RollupLog, handler: (w: RollupLog) => void) {
+  if (
+    warning.code === "EVAL" &&
+    typeof warning.id === "string" &&
+    warning.id.includes("lottie-web")
+  ) {
+    return;
+  }
+  handler(warning);
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -30,16 +42,28 @@ export default defineConfig({
       }
     },
     rollupOptions: {
+      onwarn(warning, defaultHandler) {
+        suppressLottieEvalWarning(warning, defaultHandler);
+      },
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          framer: ['framer-motion'],
-          ui: ['@radix-ui/react-accordion', '@radix-ui/react-separator'],
-          icons: ['lucide-react', 'react-icons']
-        }
-      }
+          vendor: ["react", "react-dom", "react-router-dom"],
+          framer: ["framer-motion"],
+          ui: [
+            "@radix-ui/react-accordion",
+            "@radix-ui/react-separator",
+            "@radix-ui/react-scroll-area",
+            "@radix-ui/react-popover",
+            "@radix-ui/react-slot",
+          ],
+          icons: ["lucide-react", "react-icons"],
+          supabase: ["@supabase/supabase-js"],
+          lottie: ["lottie-react", "lottie-web"],
+        },
+      },
     },
-    chunkSizeWarningLimit: 1000
+    // @uiw/react-md-editor (CodeMirror) is ~1 MiB; it loads only via BlogMarkdownEditor on the admin blog form.
+    chunkSizeWarningLimit: 1200,
   },
   server: {
     port: 3000,

@@ -1,20 +1,14 @@
 import LightRays from "@/components/LightRays";
+import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
+import { getSocialBrand } from "@/components/public/socialBrands";
+import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
 import { motion } from "framer-motion";
-import { Github, Linkedin } from "lucide-react";
-import type { ComponentType } from "react";
 import { useRef } from "react";
-import { BsBehance, BsDribbble } from "react-icons/bs";
 import { HeroContent } from "./HeroContent";
-
-const socialLinks = [
-  { name: "GitHub", href: "https://github.com/sahinhub", icon: Github, brandColor: "#f0f6fc", bg: "hover:bg-white/10" },
-  { name: "LinkedIn", href: "https://linkedin.com/in/sahinhub", icon: Linkedin, brandColor: "#0A66C2", bg: "hover:bg-[#0A66C2]/20" },
-  { name: "Behance", href: "https://behance.net/sahinhub", icon: BsBehance, brandColor: "#1769FF", bg: "hover:bg-[#1769FF]/20" },
-  { name: "Dribbble", href: "https://dribbble.com/sahinhub", icon: BsDribbble, brandColor: "#EA4C89", bg: "hover:bg-[#EA4C89]/20" },
-];
 
 export const HeroSection = (): JSX.Element => {
   const socialLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
+  const { links: socialLinks, loading: socialLoading } = useVisibleSocialLinks();
 
   const containerVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -31,6 +25,16 @@ export const HeroSection = (): JSX.Element => {
       opacity: 1,
       y: 0,
       transition: { duration: 0.7, delay: 0.2, ease: [0.37, 0.04, 0.29, 1.01] },
+    },
+  };
+
+  const badgeVariants = {
+    hidden: { opacity: 0, y: -20, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.6, delay: 0.1, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 
@@ -57,16 +61,6 @@ export const HeroSection = (): JSX.Element => {
     tap: {
       scale: 0.95,
       transition: { duration: 0.1 },
-    },
-  };
-
-  const badgeVariants = {
-    hidden: { opacity: 0, y: -20, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: { duration: 0.6, delay: 0.1, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 
@@ -115,35 +109,37 @@ export const HeroSection = (): JSX.Element => {
             if (el) el.style.transform = "translateZ(0)";
           }}
           variants={socialVariants}
-          className="flex items-center gap-2 mt-8"
+          className="flex items-center gap-2 mt-8 min-h-[32px]"
         >
-          {socialLinks.map((link, index) => {
-            const Icon = link.icon as ComponentType<{ className?: string }>;
-            return (
-              <motion.a
-                key={link.name}
-                ref={(el) => {
-                  socialLinksRef.current[index] = el;
-                }}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={link.name}
-                aria-label={link.name}
-                variants={iconVariants}
-                whileHover="hover"
-                whileTap="tap"
-                className={`group w-8 h-8 rounded-xl bg-white/5 border border-white/10
-                  flex items-center justify-center ${link.bg}
+          {!socialLoading || socialLinks.length > 0
+            ? socialLinks.map((link, index) => {
+                const { brandColor, bg } = getSocialBrand(link);
+                return (
+                  <motion.a
+                    key={link.id}
+                    ref={(el) => {
+                      socialLinksRef.current[index] = el;
+                    }}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={link.platform}
+                    aria-label={link.platform}
+                    variants={iconVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                    className={`group w-8 h-8 rounded-xl bg-white/5 border border-white/10
+                  flex items-center justify-center ${bg}
                   transition-all duration-200`}
-                style={{ ["--brand-color" as string]: link.brandColor }}
-              >
-                <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
-                  <Icon className="w-4 h-4" />
-                </span>
-              </motion.a>
-            );
-          })}
+                    style={{ ["--brand-color" as string]: brandColor }}
+                  >
+                    <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
+                      <SocialLinkGlyph link={link} />
+                    </span>
+                  </motion.a>
+                );
+              })
+            : null}
         </motion.div>
       </motion.div>
     </section>

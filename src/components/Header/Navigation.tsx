@@ -8,13 +8,20 @@ interface NavigationProps {
   onItemClick?: () => void;
 }
 
+function navItemActive(pathname: string, href: string, matchPrefix?: boolean): boolean {
+  if (href === "/") return pathname === "/" || pathname === "";
+  if (matchPrefix) return pathname === href || pathname.startsWith(`${href}/`);
+  return pathname === href;
+}
+
 export const Navigation = ({ className, onItemClick }: NavigationProps) => {
   const location = useLocation();
+  const pathname = location.pathname.replace(/\/$/, "") || "/";
 
   return (
     <Fragment>
       {navItems.map((item) => {
-        const isActive = location.pathname === item.href;
+        const isActive = navItemActive(pathname, item.href, item.matchPrefix);
         return (
           <div key={item.name}>
             <Link

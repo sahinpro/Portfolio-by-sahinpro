@@ -2,8 +2,8 @@ import { CTAButton } from "@/components/CTAButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { navItems } from "@/constants/navigation";
 
-const contactHref = navItems.find((item) => item.name === "Contact")?.href ?? "/contact";
-const contactFormHref = `${contactHref}#contact-form`;
+const contactHref =
+  navItems.find((item) => item.name === "Contact")?.href ?? "/contact";
 
 export const GetStartedSection = (): JSX.Element => {
   return (
@@ -22,17 +22,18 @@ export const GetStartedSection = (): JSX.Element => {
             </h2>
 
             <p className="flex items-center justify-center max-w-[656px] [font-family:'Inter_Display-Regular',Helvetica] font-normal text-[#b3b3b3] text-lg md:text-xl text-center tracking-[-0.20px] leading-[28px] md:leading-[32.0px]">
-              Have an exciting project in mind? Let's discuss how I can help bring your vision to life. I'm ready to start your next project.
+              Have an exciting project in mind? Let's discuss how I can help
+              bring your vision to life. I'm ready to start your next project.
             </p>
           </div>
 
           <div className="inline-flex items-start gap-3 relative flex-wrap justify-center">
-            <CTAButton href={contactHref} variant="primary">
-              Get In Touch
+            <CTAButton href="/projects" variant="primary">
+              View My Work
             </CTAButton>
 
-            <CTAButton href={contactFormHref} variant="secondary" showArrow={true}>
-              Schedule Call
+            <CTAButton href={contactHref} variant="secondary" showArrow={true}>
+              Get In Touch
             </CTAButton>
           </div>
         </CardContent>
