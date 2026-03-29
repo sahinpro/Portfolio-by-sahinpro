@@ -2,6 +2,8 @@ import errorAnimationData from "@/assets/lottie/error.json";
 import successAnimationData from "@/assets/lottie/success.json";
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
+import { PublicSeo } from "@/components/public/PublicSeo";
+import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
 import {
@@ -9,10 +11,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { PublicSeo } from "@/components/public/PublicSeo";
-import { SocialLinksRow } from "@/components/public/SocialLinksRow";
-import { isSupabaseBrowserConfigured } from "@/lib/supabaseFunctions";
 import { submitContactToSupabase } from "@/lib/submitContact";
+import { isSupabaseBrowserConfigured } from "@/lib/supabaseFunctions";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
@@ -32,7 +32,7 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import Turnstile from "react-turnstile";
 
 const CALENDLY_POPUP_URL =
-  "https://calendly.com/sahinhub?hide_landing_page_details=1&background_color=1a1a1a&text_color=ffffff";
+  "https://calendly.com/sahinhub/15-min-one-by-one-meeting?hide_landing_page_details=1&background_color=1a1a1a&text_color=ffffff";
 
 interface FormData {
   name: string;
