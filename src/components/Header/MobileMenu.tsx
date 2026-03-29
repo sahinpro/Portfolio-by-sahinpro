@@ -8,18 +8,8 @@ interface MobileMenuProps {
   onClose: () => void;
 }
 
-/**
- * Mobile menu component with slide animation.
- *
- * Note: framer-motion's imperative `animate()` cannot tween to `height: 'auto'`
- * directly. Instead we measure the scrollHeight on open and animate to that
- * pixel value, then reset to `auto` after the transition so the element
- * stays responsive to content changes.
- */
 export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
   const menuRef = useRef<HTMLDivElement>(null);
-  // Track whether the element is mounted so we can run the close animation
-  // before hiding it via display/visibility rather than conditional rendering.
   const isMountedRef = useRef(false);
 
   useEffect(() => {
@@ -27,7 +17,6 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
     const el = menuRef.current;
 
     if (isOpen) {
-      // Measure natural height then animate from 0 → measured height
       el.style.display = "block";
       el.style.overflow = "hidden";
       const targetHeight = el.scrollHeight;
@@ -39,7 +28,6 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
           duration: 0.3,
           ease: "easeInOut",
           onComplete: () => {
-            // Let the element breathe at natural height
             el.style.height = "auto";
             el.style.overflow = "";
           },
@@ -48,8 +36,6 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
       isMountedRef.current = true;
     } else {
       if (!isMountedRef.current) return;
-
-      // Collapse from current height → 0 before hiding
       const currentHeight = el.scrollHeight;
       el.style.overflow = "hidden";
 
@@ -70,7 +56,6 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
     }
   }, [isOpen]);
 
-  // Always render the element in the DOM; we show/hide via animation + display
   return (
     <div
       ref={menuRef}

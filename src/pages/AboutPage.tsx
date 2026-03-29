@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 
-/* ─── Data ─────────────────────────────────────────── */
 const stats = [
   {
     icon: Calendar,
@@ -133,7 +132,6 @@ const timeline = [
   },
 ];
 
-/* ─── Animation Variants ───────────────────────────── */
 const fadeUp = (delay = 0) => ({
   hidden: { opacity: 0, y: 24 },
   visible: {
@@ -155,7 +153,6 @@ const scaleIn = (delay = 0) => ({
   },
 });
 
-/* ─── Sub-components ────────────────────────────────── */
 const SectionLabel = ({ children }: { children: string }) => (
   <span
     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-widest uppercase
@@ -198,7 +195,6 @@ const StatCard = ({
         <p className="text-sm text-white/50 text-center leading-tight">
           {stat.label}
         </p>
-        {/* subtle corner glow */}
         <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/[0.03] blur-xl pointer-events-none" />
       </div>
     </motion.div>
@@ -230,7 +226,6 @@ const SkillBar = ({
   </div>
 );
 
-/* ─── Main Component ────────────────────────────────── */
 export const AboutPage = (): JSX.Element => {
   const [copied, setCopied] = useState(false);
   const email = "sahinhub@gmail.com";
@@ -266,7 +261,6 @@ export const AboutPage = (): JSX.Element => {
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
 
-      {/* ── HERO ───────────────────────────────────────────── */}
       <section className="w-full pt-40 pb-20 relative overflow-hidden">
         {/* decorative gradient blob */}
         <div
@@ -345,7 +339,6 @@ export const AboutPage = (): JSX.Element => {
         </motion.div>
       </section>
 
-      {/* ── STATS ──────────────────────────────────────────── */}
       <section className="w-full pb-20">
         <div
           ref={statsRef}
@@ -357,7 +350,6 @@ export const AboutPage = (): JSX.Element => {
         </div>
       </section>
 
-      {/* ── HIGHLIGHTS ─────────────────────────────────────── */}
       <section className="w-full pb-24">
         <div
           ref={highlightRef}
@@ -412,7 +404,6 @@ export const AboutPage = (): JSX.Element => {
         </div>
       </section>
 
-      {/* ── SKILLS + TIMELINE ──────────────────────────────── */}
       <section className="w-full pb-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Skills */}
@@ -492,7 +483,6 @@ export const AboutPage = (): JSX.Element => {
         </div>
       </section>
 
-      {/* ── CTA STRIP ──────────────────────────────────────── */}
       <section className="w-full pb-28">
         <motion.div
           ref={ctaRef}
@@ -559,7 +549,6 @@ export const AboutPage = (): JSX.Element => {
         </motion.div>
       </section>
 
-      {/* ── FUN FACTS ──────────────────────────────────────── */}
       <section className="w-full pb-28">
         <motion.div
           initial="hidden"

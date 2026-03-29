@@ -45,7 +45,6 @@ const FuzzyText = React.forwardRef<HTMLDivElement, FuzzyTextProps>(
       };
     }, [enableHover, hoverIntensity, baseIntensity]);
 
-    // Generate multiple text shadows for a more realistic fuzzy effect
     const generateTextShadow = (intensity: number) => {
       const shadows: string[] = [];
       const steps = 8;

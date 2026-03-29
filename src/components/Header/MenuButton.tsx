@@ -7,9 +7,6 @@ interface MenuButtonProps {
   onClick: () => void;
 }
 
-/**
- * Animated menu toggle button for mobile navigation
- */
 export const MenuButton = ({ isOpen, onClick }: MenuButtonProps) => {
   const iconRef = useRef<HTMLDivElement>(null);
 

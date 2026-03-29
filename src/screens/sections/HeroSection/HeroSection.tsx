@@ -13,17 +13,15 @@ const socialLinks = [
   { name: "Dribbble", href: "https://dribbble.com/sahinhub", icon: BsDribbble, brandColor: "#EA4C89", bg: "hover:bg-[#EA4C89]/20" },
 ];
 
-// Main Hero Section Component
 export const HeroSection = (): JSX.Element => {
   const socialLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
 
-  // Variants for animations
   const containerVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+      transition: { duration: 0.6, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 
@@ -32,7 +30,7 @@ export const HeroSection = (): JSX.Element => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.7, delay: 0.2, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+      transition: { duration: 0.7, delay: 0.2, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 
@@ -54,7 +52,7 @@ export const HeroSection = (): JSX.Element => {
     hover: {
       scale: 1.15,
       y: -5,
-      transition: { duration: 0.2, ease: [0.42, 0, 0.58, 1] }, // power2.out equivalent
+      transition: { duration: 0.2, ease: [0.42, 0, 0.58, 1] },
     },
     tap: {
       scale: 0.95,
@@ -68,13 +66,12 @@ export const HeroSection = (): JSX.Element => {
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { duration: 0.6, delay: 0.1, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+      transition: { duration: 0.6, delay: 0.1, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 
   return (
     <section className="relative w-full overflow-hidden py-12 min-h-screen flex items-center justify-center">
-      {/* Light Rays Background Effect */}
       <div className="absolute inset-0 w-full h-full z-0">
         <LightRays
           raysOrigin="top-center"
@@ -92,10 +89,8 @@ export const HeroSection = (): JSX.Element => {
         />
       </div>
 
-      {/* Gradient Overlay at Bottom */}
       <div className="pointer-events-none absolute left-0 bottom-0 w-full h-[200px] bg-gradient-to-t from-[#050505] via-[#05050580] to-transparent z-[1]" />
 
-      {/* Lanyard 3D Component at Top */}
       <motion.div
         initial="hidden"
         animate="visible"
@@ -105,7 +100,6 @@ export const HeroSection = (): JSX.Element => {
         {" "}
       </motion.div>
 
-      {/* Hero Content */}
       <motion.div
         initial="hidden"
         animate="visible"
@@ -116,11 +110,10 @@ export const HeroSection = (): JSX.Element => {
           <HeroContent />
         </motion.div>
 
-        {/* Social Media Icons */}
         <motion.div
           ref={(el) => {
             if (el) el.style.transform = "translateZ(0)";
-          }} // Ensure the ref is still accessible if needed
+          }}
           variants={socialVariants}
           className="flex items-center gap-2 mt-8"
         >

@@ -35,7 +35,6 @@ export function TextLoop({
     return () => clearInterval(timer);
   }, [items.length, interval, onIndexChange, trigger]);
 
-  // Animation variants
   const textVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: { 
@@ -43,7 +42,7 @@ export function TextLoop({
       opacity: 1, 
       transition: { 
         duration: 0.3, 
-        ease: [0.37, 0.04, 0.29, 1.01] // power3.out equivalent
+        ease: [0.37, 0.04, 0.29, 1.01]
       } 
     }
   };

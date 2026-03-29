@@ -8,9 +8,6 @@ interface NavigationProps {
   onItemClick?: () => void;
 }
 
-/**
- * Navigation component for header menu items
- */
 export const Navigation = ({ className, onItemClick }: NavigationProps) => {
   const location = useLocation();
 

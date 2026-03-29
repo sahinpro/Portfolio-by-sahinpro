@@ -67,7 +67,6 @@ const splitText = (text: string, per: PerType) => {
   return text.split(/(\s+)/);
 };
 
-/** Split text into segments that are either a word or a space (keeps word boundaries for char animation). */
 const splitWordsWithSpaces = (text: string): string[] => {
   return text.split(/(\s+)/);
 };
@@ -98,15 +97,11 @@ export function TextEffect({
   const wordSegments = per === "char" ? splitWordsWithSpaces(children) : null;
   const Tag = as as keyof JSX.IntrinsicElements;
 
-  // Calculate stagger based on per type and speed
   const stagger = defaultStaggerTimes[per] / speedReveal;
   const duration = 0.3 / speedSegment;
-
-  // Get animation properties
   const from = getPresetAnimation(preset);
   const to = getPresetTo(preset);
 
-  // Animation variants
   const containerVariants = {
     hidden: {},
     visible: {
@@ -123,12 +118,11 @@ export function TextEffect({
       ...to,
       transition: {
         duration: duration,
-        ease: [0.37, 0.04, 0.29, 1.01], // power3.out equivalent
+        ease: [0.37, 0.04, 0.29, 1.01],
       },
     },
   };
 
-  // When per is 'char', render by word so words don't break mid-character. Use per-char delay since motion.span are not direct children.
   if (per === "char" && wordSegments) {
     let charIndex = 0;
     return (

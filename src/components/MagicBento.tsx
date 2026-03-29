@@ -70,10 +70,6 @@ const cardData: BentoCardProps[] = [
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 const createParticleElement = (
   x: number,
   y: number,
@@ -117,10 +113,6 @@ const updateCardGlowProperties = (
   card.style.setProperty("--glow-radius", `${radius}px`);
 };
 
-// ---------------------------------------------------------------------------
-// ParticleCard
-// ---------------------------------------------------------------------------
-
 const ParticleCard: React.FC<{
   children: React.ReactNode;
   className?: string;
@@ -143,7 +135,6 @@ const ParticleCard: React.FC<{
   enableMagnetism = false,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  // Track all running animation controls so we can stop them on cleanup
   const activeParticleControls = useRef<AnimationPlaybackControls[]>([]);
   const particlesRef = useRef<HTMLDivElement[]>([]);
   const timeoutsRef = useRef<number[]>([]);
@@ -168,11 +159,7 @@ const ParticleCard: React.FC<{
   const clearAllParticles = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
-
-    // Stop magnetism animation
     magnetismAnimationRef.current?.stop();
-
-    // Stop all particle looping animations then fade out
     activeParticleControls.current.forEach((c) => c.stop());
     activeParticleControls.current = [];
 
@@ -200,14 +187,12 @@ const ParticleCard: React.FC<{
         cardRef.current.appendChild(clone);
         particlesRef.current.push(clone);
 
-        // Entrance
         animate(
           clone,
           { scale: [0, 1], opacity: [0, 1] },
           { duration: 0.3, ease: "backOut" },
         );
 
-        // Continuous float (yoyo = repeatType: 'reverse')
         const floatCtrl = animate(
           clone,
           {
@@ -223,7 +208,6 @@ const ParticleCard: React.FC<{
           },
         );
 
-        // Opacity pulse
         const opacityCtrl = animate(
           clone,
           { opacity: [1, 0.3] },
@@ -375,10 +359,6 @@ const ParticleCard: React.FC<{
   );
 };
 
-// ---------------------------------------------------------------------------
-// GlobalSpotlight
-// ---------------------------------------------------------------------------
-
 const GlobalSpotlight: React.FC<{
   gridRef: React.RefObject<HTMLDivElement | null>;
   disableAnimations?: boolean;
@@ -482,7 +462,6 @@ const GlobalSpotlight: React.FC<{
         );
       });
 
-      // Move spotlight — use very short duration for snappy tracking
       animate(
         spotlightRef.current,
         { left: e.clientX, top: e.clientY },
@@ -530,10 +509,6 @@ const GlobalSpotlight: React.FC<{
   return null;
 };
 
-// ---------------------------------------------------------------------------
-// BentoCardGrid
-// ---------------------------------------------------------------------------
-
 const BentoCardGrid: React.FC<{
   children: React.ReactNode;
   gridRef?: React.RefObject<HTMLDivElement | null>;
@@ -546,10 +521,6 @@ const BentoCardGrid: React.FC<{
     {children}
   </div>
 );
-
-// ---------------------------------------------------------------------------
-// useMobileDetection
-// ---------------------------------------------------------------------------
 
 const useMobileDetection = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -564,10 +535,6 @@ const useMobileDetection = () => {
 
   return isMobile;
 };
-
-// ---------------------------------------------------------------------------
-// MagicBento (main export)
-// ---------------------------------------------------------------------------
 
 const MagicBento: React.FC<BentoProps> = ({
   textAutoHide = true,
@@ -741,7 +708,6 @@ const MagicBento: React.FC<BentoProps> = ({
               "--glow-radius": "200px",
             } as React.CSSProperties;
 
-            // ----- With particle stars -----
             if (enableStars) {
               return (
                 <ParticleCard
@@ -785,7 +751,6 @@ const MagicBento: React.FC<BentoProps> = ({
               );
             }
 
-            // ----- Without particle stars (plain div + Motion imperative) -----
             return (
               <div
                 key={index}

@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 
-/* ─── Data ──────────────────────────────────────────── */
 interface Service {
   icon: LucideIcon;
   title: string;
@@ -28,7 +27,6 @@ interface Service {
   tag?: string;
   accent: string;
   border: string;
-  /** Button background/border to match card accent */
   buttonAccent: string;
 }
 
@@ -162,7 +160,6 @@ const process = [
   },
 ];
 
-/* ─── Animation helpers ─────────────────────────────── */
 const fadeUp = (delay = 0) => ({
   hidden: { opacity: 0, y: 24 },
   visible: {
@@ -181,7 +178,6 @@ const SectionLabel = ({ children }: { children: string }) => (
   </span>
 );
 
-/* ─── Service Card ───────────────────────────────────── */
 const ServiceCard = ({
   service,
   index,
@@ -209,7 +205,6 @@ const ServiceCard = ({
         ${service.accent} ${service.border} overflow-hidden
         transition-shadow duration-300 ${hovered ? "shadow-xl shadow-black/20" : ""}`}
       >
-        {/* Tag */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
             <service.icon className="size-6 text-white/90" />
@@ -263,7 +258,6 @@ const ServiceCard = ({
   );
 };
 
-/* ─── Page ───────────────────────────────────────────── */
 export const ServicesPage = (): JSX.Element => {
   const headerRef = useRef<HTMLDivElement>(null);
   const processRef = useRef<HTMLDivElement>(null);
@@ -277,7 +271,6 @@ export const ServicesPage = (): JSX.Element => {
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
 
-      {/* ── HEADER ─────────────────────────────────────────── */}
       <section className="w-full pt-40 pb-16 relative overflow-hidden">
         <div
           className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[800px] h-[400px]
@@ -315,7 +308,6 @@ export const ServicesPage = (): JSX.Element => {
         </div>
       </section>
 
-      {/* ── SERVICES GRID ──────────────────────────────────── */}
       <section className="w-full pb-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -326,7 +318,6 @@ export const ServicesPage = (): JSX.Element => {
         </div>
       </section>
 
-      {/* ── PROCESS ────────────────────────────────────────── */}
       <section className="w-full pb-24 relative overflow-hidden">
         <div
           className="pointer-events-none absolute inset-0
@@ -392,7 +383,6 @@ export const ServicesPage = (): JSX.Element => {
         </div>
       </section>
 
-      {/* ── CTA ────────────────────────────────────────────── */}
       <section className="w-full pb-28">
         <motion.div
           ref={ctaRef}

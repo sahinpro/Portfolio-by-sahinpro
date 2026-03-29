@@ -4,7 +4,6 @@ import { motion, useInView } from "framer-motion";
 import { ExternalLink, Github, Layers, Search, Star, Tag } from "lucide-react";
 import { useRef, useState } from "react";
 
-/* ─── Types ─────────────────────────────────────────── */
 export interface Project {
   id: number;
   title: string;
@@ -20,7 +19,6 @@ export interface Project {
   stats?: { label: string; value: string }[];
 }
 
-/* ─── Data ──────────────────────────────────────────── */
 const projects: Project[] = [
   {
     id: 1,
@@ -136,7 +134,6 @@ const categoryBadge: Record<string, string> = {
   CMS: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
 };
 
-/* ─── Fade-up variant helper ─────────────────────────── */
 const fadeUp = (delay = 0) => ({
   hidden: { opacity: 0, y: 24 },
   visible: {
@@ -146,7 +143,6 @@ const fadeUp = (delay = 0) => ({
   },
 });
 
-/* ─── Featured Project Card ──────────────────────────── */
 const FeaturedCard = ({
   project,
   index,
@@ -170,9 +166,8 @@ const FeaturedCard = ({
         bg-gradient-to-br from-white/[0.03] to-transparent overflow-hidden
         hover:border-white/[0.14] transition-all duration-500"
       >
-        {/* Image */}
         <div
-          className={`relative overflow-hidden aspect-video lg:aspect-auto min-h-[280px] ${even ? "lg:order-1" : "lg:order-2"}`}
+          className={`relative overflow-hidden aspect-auto h-[480px] ${even ? "lg:order-1" : "lg:order-2"}`}
         >
           <img
             src={project.image}
@@ -275,7 +270,6 @@ const FeaturedCard = ({
   );
 };
 
-/* ─── Regular Project Card ───────────────────────────── */
 const ProjectCard = ({
   project,
   index,
@@ -299,7 +293,6 @@ const ProjectCard = ({
         bg-gradient-to-b from-white/[0.03] to-transparent hover:border-white/[0.14]
         transition-all duration-400 h-full"
       >
-        {/* Image */}
         <div className="relative overflow-hidden aspect-video">
           <img
             src={project.image}
@@ -308,7 +301,6 @@ const ProjectCard = ({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
 
-          {/* Category badge */}
           <div className="absolute top-3 left-3">
             <span
               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border
@@ -399,7 +391,6 @@ const ProjectCard = ({
   );
 };
 
-/* ─── Page ───────────────────────────────────────────── */
 export const ProjectsPage = (): JSX.Element => {
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
@@ -425,7 +416,6 @@ export const ProjectsPage = (): JSX.Element => {
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
 
-      {/* ── HEADER ─────────────────────────────────────────── */}
       <section className="w-full pt-40 pb-16 relative overflow-hidden">
         <div
           className="pointer-events-none absolute -top-32 right-1/3 w-[500px] h-[400px]
@@ -517,7 +507,6 @@ export const ProjectsPage = (): JSX.Element => {
         </div>
       </section>
 
-      {/* ── FEATURED ───────────────────────────────────────── */}
       {featuredProjects.length > 0 && (
         <section className="w-full pb-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -534,7 +523,6 @@ export const ProjectsPage = (): JSX.Element => {
         </section>
       )}
 
-      {/* ── ALL PROJECTS ───────────────────────────────────── */}
       {regularProjects.length > 0 && (
         <section className="w-full pb-28">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -552,7 +540,6 @@ export const ProjectsPage = (): JSX.Element => {
         </section>
       )}
 
-      {/* ── EMPTY STATE ────────────────────────────────────── */}
       {filteredProjects.length === 0 && (
         <section className="w-full pb-28">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center py-20 gap-3">

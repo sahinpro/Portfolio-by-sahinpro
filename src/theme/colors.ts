@@ -1,12 +1,4 @@
-/**
- * Global Color Theme System
- * 
- * This file contains all colors used throughout the application.
- * Update colors here to easily change the theme across the entire codebase.
- */
-
 export const colors = {
-  // Background Colors
   background: {
     primary: "#050505",
     secondary: "#070707",
@@ -23,8 +15,6 @@ export const colors = {
     grayLight: "#2d2d2d",
     grayMedium: "#474747",
   },
-
-  // Text Colors
   text: {
     primary: "rgb(255, 255, 255)",
     secondary: "rgba(255, 255, 255, 0.8)",
@@ -43,8 +33,6 @@ export const colors = {
     darkMedium: "#181818",
     darkLight: "#1a1a1b",
   },
-
-  // Border Colors
   border: {
     primary: "rgba(255, 255, 255, 0.1)",
     secondary: "rgba(255, 255, 255, 0.2)",
@@ -63,8 +51,6 @@ export const colors = {
     gray80: "#47474780",
     gray33: "#47474733",
   },
-
-  // Accent Colors
   accent: {
     cyan: "#06b6d4",
     cyanLight: "#22d3ee",
@@ -74,8 +60,6 @@ export const colors = {
     grayLight: "#ababab",
     beige: "#fcf6eb",
   },
-
-  // Shadow Colors
   shadow: {
     black40: "#00000040",
     black1f: "#0000001f",
@@ -90,8 +74,6 @@ export const colors = {
     white1c: "#ffffff1c",
     blue08: "#becaea08",
   },
-
-  // Overlay/Blur Colors
   overlay: {
     white05: "rgba(255, 255, 255, 0.05)",
     white08: "rgba(255, 255, 255, 0.08)",
@@ -112,8 +94,6 @@ export const colors = {
     gray80: "#d9d9d980",
     grayLight: "rgba(246, 247, 250, 0.2)",
   },
-
-  // Gradient Colors (for reference - actual gradients defined separately)
   gradient: {
     whiteToTransparent: "rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 86%",
     whiteToTransparentFull: "rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%",
@@ -128,10 +108,6 @@ export const colors = {
   },
 } as const;
 
-/**
- * Helper function to get color value
- * Usage: getColor('text.primary') or getColor('background.card')
- */
 export const getColor = (path: string): string => {
   const keys = path.split('.');
   let value: any = colors;
@@ -147,9 +123,6 @@ export const getColor = (path: string): string => {
   return value;
 };
 
-/**
- * Export individual color categories for easier imports
- */
 export const backgroundColors = colors.background;
 export const textColors = colors.text;
 export const borderColors = colors.border;

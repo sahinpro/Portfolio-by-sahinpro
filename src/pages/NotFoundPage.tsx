@@ -7,9 +7,6 @@ import { Home } from "lucide-react";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-/**
- * 404 Not Found page component - Professional error page with FuzzyText animation
- */
 export const NotFoundPage = (): JSX.Element => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -25,13 +22,12 @@ export const NotFoundPage = (): JSX.Element => {
   const messageInView = useInView(messageRef, { once: true, margin: "-10%" });
   const buttonsInView = useInView(buttonsRef, { once: true, margin: "-10%" });
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 
@@ -41,7 +37,7 @@ export const NotFoundPage = (): JSX.Element => {
       opacity: 1,
       scale: 1,
       y: 0,
-      transition: { duration: 0.8, delay: 0.1, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+      transition: { duration: 0.8, delay: 0.1, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 
@@ -50,7 +46,7 @@ export const NotFoundPage = (): JSX.Element => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.7, delay: 0.3, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+      transition: { duration: 0.7, delay: 0.3, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 
@@ -59,7 +55,7 @@ export const NotFoundPage = (): JSX.Element => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.7, delay: 0.5, ease: [0.37, 0.04, 0.29, 1.01] }, // power3.out equivalent
+      transition: { duration: 0.7, delay: 0.5, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 

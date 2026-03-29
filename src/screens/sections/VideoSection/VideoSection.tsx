@@ -30,7 +30,6 @@ export const VideoSection = (): JSX.Element => {
   };
 
   useEffect(() => {
-    // Preload video metadata to get dimensions
     if (videoRef.current) {
       videoRef.current.addEventListener("loadedmetadata", () => {
         setIsLoaded(true);
@@ -46,7 +45,7 @@ export const VideoSection = (): JSX.Element => {
         animate={containerInView ? { opacity: 1, y: 0 } : {}}
         transition={{
           duration: 0.8,
-          ease: [0.37, 0.04, 0.29, 1.01] /* power3.out equivalent */,
+          ease: [0.37, 0.04, 0.29, 1.01],
         }}
         className="relative max-w-[1000px] w-full rounded-[25px] lg:rounded-[32px] border border-white/10 backdrop-blur-xl bg-gradient-to-b from-white/30 to-white/50 lg:p-3 p-2"
       >

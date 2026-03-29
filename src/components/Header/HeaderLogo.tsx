@@ -1,8 +1,5 @@
 import { Link } from "react-router-dom";
 
-/**
- * Header logo component
- */
 export const HeaderLogo = () => {
   return (
     <Link

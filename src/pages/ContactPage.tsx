@@ -29,9 +29,8 @@ import { BsBehance, BsDribbble, BsWhatsapp } from "react-icons/bs";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import Turnstile from "react-turnstile";
 
-/* ─── Data ──────────────────────────────────────────── */
-/** Calendly, Cal.com, or Google Calendar appointment link — opens in new tab. Leave empty to scroll to the form. */
-const BOOKING_CALL_URL = ""; // e.g. "https://calendly.com/your-username/30min"
+const CALENDLY_POPUP_URL =
+  "https://calendly.com/sahinhub?hide_landing_page_details=1&background_color=1a1a1a&text_color=ffffff";
 
 interface FormData {
   name: string;
@@ -112,7 +111,6 @@ const budgetOptions = [
   "Let's discuss",
 ];
 
-/* ─── One submission per day (per browser) ──────────── */
 const CONTACT_FORM_SUCCESS_DATE_KEY = "contact_form_success_date";
 
 function getTodayDateString(): string {
@@ -152,7 +150,6 @@ const faqs = [
   },
 ];
 
-/* ─── Animation helpers ─────────────────────────────── */
 const fadeUp = (delay = 0) => ({
   hidden: { opacity: 0, y: 24 },
   visible: {
@@ -162,12 +159,9 @@ const fadeUp = (delay = 0) => ({
   },
 });
 
-/* ─── Lottie feedback ────────────────────────────────── */
 const SUCCESS_SPEED = 1;
 const ERROR_SPEED = 1;
-/** Success animation has content up to frame 354 (precomp); play full range so it doesn't stop early. */
 const SUCCESS_SEGMENT: [number, number] = [0, 354];
-/** Error animation: 24fps, op 21 → play [0, 21]. */
 const ERROR_SEGMENT: [number, number] = [0, 21];
 
 function SuccessLottie() {
@@ -210,7 +204,6 @@ function ErrorLottie() {
   );
 }
 
-/* ─── Page ───────────────────────────────────────────── */
 export const ContactPage = (): JSX.Element => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -246,7 +239,6 @@ export const ContactPage = (): JSX.Element => {
   const infoInV = useInView(infoRef, { once: true, margin: "-10%" });
   const faqInV = useInView(faqRef, { once: true, margin: "-10%" });
 
-  /* One successful submission per day: hide form if already submitted today. */
   useEffect(() => {
     if (hasAlreadySubmittedToday()) {
       setIsSubmitted(true);
@@ -324,7 +316,6 @@ export const ContactPage = (): JSX.Element => {
           setSubmittedJustNow(true);
           setIsSubmitted(true);
           setIsSubmitting(false);
-          /* Form stays hidden until refresh; one submission per day per browser. */
         } else {
           setSubmitError(
             "Message not sent. Please try again or email me directly.",
@@ -353,7 +344,6 @@ export const ContactPage = (): JSX.Element => {
       setSubmittedJustNow(true);
       setIsSubmitted(true);
       setIsSubmitting(false);
-      /* Form stays hidden until refresh; one submission per day per browser. */
     }
   };
 
@@ -365,7 +355,6 @@ export const ContactPage = (): JSX.Element => {
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
 
-      {/* ── HEADER ─────────────────────────────────────────── */}
       <section className="w-full pt-28 sm:pt-36 lg:pt-40 pb-10 sm:pb-16 relative overflow-hidden">
         <div
           className="pointer-events-none absolute -top-20 right-1/4 w-[600px] h-[400px]
@@ -412,7 +401,6 @@ export const ContactPage = (): JSX.Element => {
             within 24 hours.
           </motion.p>
 
-          {/* Availability badge */}
           <motion.div
             initial="hidden"
             animate={headerInV ? "visible" : "hidden"}
@@ -429,7 +417,6 @@ export const ContactPage = (): JSX.Element => {
         </div>
       </section>
 
-      {/* ── MAIN GRID ──────────────────────────────────────── */}
       <section className="container mx-auto px-3 lg:px-4 pb-16 sm:pb-24">
         <div className=" lg:px-8 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-10 max-w-full">
           {/* Form */}
@@ -745,8 +732,8 @@ export const ContactPage = (): JSX.Element => {
               </div>
               <p className="text-sm text-white/50 leading-relaxed">
                 I reply to all messages{" "}
-                <span className="text-white font-medium"> ASAP</span> on
-                weekdays. Urgent? Drop a line directly to my email.
+                <span className="text-white font-medium"> ASAP</span>. Urgent?
+                Drop a line directly to my email.
               </p>
             </motion.div>
 
@@ -806,9 +793,14 @@ export const ContactPage = (): JSX.Element => {
                 pitch, no pressure, just an honest conversation.
               </p>
               <CTAButton
-                href={BOOKING_CALL_URL || "#contact-form"}
+                type="button"
                 variant="secondary"
                 className="w-full justify-center text-xs"
+                onClick={() => {
+                  window.Calendly?.initPopupWidget({
+                    url: CALENDLY_POPUP_URL,
+                  });
+                }}
               >
                 Schedule your free Google Meet
               </CTAButton>
@@ -817,7 +809,6 @@ export const ContactPage = (): JSX.Element => {
         </div>
       </section>
 
-      {/* ── FAQ ────────────────────────────────────────────── */}
       <section className="w-full pb-28">
         <div
           ref={faqRef}

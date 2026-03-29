@@ -1,7 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 
-// Types
 interface Author {
   name: string;
   role: string;
@@ -16,7 +15,6 @@ interface Testimonial {
   highlightedQuote: string;
 }
 
-// Data
 const TESTIMONIALS: Testimonial[] = [
   {
     id: 1,
@@ -75,7 +73,6 @@ const TESTIMONIALS: Testimonial[] = [
   },
 ];
 
-// Avatar Component
 interface AvatarProps {
   testimonial: Testimonial;
   isActive: boolean;
@@ -124,7 +121,6 @@ const Avatar = ({ testimonial, isActive, onClick, disabled }: AvatarProps) => {
   );
 };
 
-// Main Component
 export const CustomerStoriesSection = (): JSX.Element => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -136,7 +132,6 @@ export const CustomerStoriesSection = (): JSX.Element => {
 
   const activeTestimonial = TESTIMONIALS[activeIndex];
 
-  // Handle testimonial change
   const changeTestimonial = useCallback((newIndex: number) => {
     if (newIndex === activeIndex || isTransitioning) return;
 
@@ -145,13 +140,12 @@ export const CustomerStoriesSection = (): JSX.Element => {
     setIsTransitioning(false);
   }, [activeIndex, isTransitioning]);
 
-  // Animation variants
   const headerVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: { 
       opacity: 1, 
       y: 0, 
-      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
+      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] }
     }
   };
 
@@ -160,7 +154,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
     visible: { 
       opacity: 1, 
       y: 0, 
-      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] } // power3.out equivalent
+      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] }
     }
   };
 
@@ -171,7 +165,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
       scale: 1,
       transition: { 
         duration: 0.4, 
-        ease: [0.37, 0.04, 0.29, 1.01], // power3.out equivalent
+        ease: [0.37, 0.04, 0.29, 1.01],
         staggerChildren: 0.08
       }
     }
@@ -280,7 +274,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: [0.42, 0, 0.58, 1] }} // power2.out equivalent
+            transition={{ duration: 0.3, ease: [0.42, 0, 0.58, 1] }}
           >
             <blockquote className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light leading-snug text-white/95 mb-8 sm:mb-10 max-w-[900px]">
               <span

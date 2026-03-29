@@ -12,9 +12,6 @@ import { MenuButton } from "./MenuButton";
 import { MobileMenu } from "./MobileMenu";
 import { Navigation } from "./Navigation";
 
-/**
- * Get responsive max width for header based on screen size
- */
 const getMaxWidth = (): string => {
   if (typeof window === "undefined") return "800px";
   return window.innerWidth < MOBILE_BREAKPOINT
@@ -34,7 +31,6 @@ const Header = () => {
   const menuBtnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Initial header animation
     if (headerRef.current) {
       animate(
         headerRef.current,
@@ -42,8 +38,6 @@ const Header = () => {
         { duration: 0.5, ease: "easeOut" },
       );
     }
-
-    // Logo animation
     if (logoRef.current) {
       animate(
         logoRef.current,
@@ -51,8 +45,6 @@ const Header = () => {
         { duration: 0.5, delay: 0.1, ease: "easeOut" },
       );
     }
-
-    // CTA button animation
     if (ctaRef.current) {
       animate(
         ctaRef.current,
@@ -60,8 +52,6 @@ const Header = () => {
         { duration: 0.4, delay: 0.4, ease: "easeOut" },
       );
     }
-
-    // Menu button animation
     if (menuBtnRef.current) {
       animate(
         menuBtnRef.current,
@@ -72,7 +62,6 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    // Animate container on scroll
     if (containerRef.current) {
       animate(
         containerRef.current,
@@ -100,17 +89,14 @@ const Header = () => {
             : "backdrop-blur-md border border-white/10 r  "
         }`}
       >
-        {/* Shade line underneath header */}
         <div className="absolute bottom-0 left-0 right-0 h-px [background:radial-gradient(50%_50%_at_50%_50%,rgba(224,224,224,.2)_0%,rgba(225,225,225,0)_100%)] transition-all duration-[400ms]" />
 
         <div className="px-0 lg:px-3 rounded-xl w-full relative z-10 ">
           <div className="flex items-center justify-between h-16 w-full">
-            {/* Logo */}
             <div ref={logoRef}>
               <HeaderLogo />
             </div>
 
-            {/* Desktop Navigation */}
             <nav
               ref={navRef}
               className="hidden lg:flex items-center space-x-10"
@@ -118,9 +104,7 @@ const Header = () => {
               <Navigation />
             </nav>
 
-            {/* Bottom Actions */}
             <div ref={actionsRef} className="flex items-center space-x-4 m-0">
-              {/* CTA Button */}
               <div ref={ctaRef}>
                 <CTAButton
                   variant="primary"
@@ -131,14 +115,12 @@ const Header = () => {
                 </CTAButton>
               </div>
 
-              {/* Mobile menu button */}
               <div ref={menuBtnRef} className="lg:hidden">
                 <MenuButton isOpen={isOpen} onClick={toggle} />
               </div>
             </div>
           </div>
 
-          {/* Mobile Navigation */}
           <MobileMenu isOpen={isOpen} onClose={close} />
         </div>
       </div>

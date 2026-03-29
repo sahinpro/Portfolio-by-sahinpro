@@ -9,18 +9,13 @@ interface CTAButtonProps {
   children: React.ReactNode;
   className?: string;
   variant?: "primary" | "secondary" | "outline";
-  /** When set with variant="secondary", replaces default background/border so button matches card accent */
   accentClassName?: string;
   showArrow?: boolean;
-  /** Rendered outside gradient span for secondary variant so icon stays visible */
   leftIcon?: React.ReactNode;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
 }
 
-/**
- * Call-to-action button component with multiple variants
- */
 export const CTAButton = ({
   href,
   onClick,

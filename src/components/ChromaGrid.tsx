@@ -74,7 +74,6 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
 
   const data = items?.length ? items : demo;
 
-  // Initialize CSS custom properties for cursor position
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
@@ -84,12 +83,11 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
     el.style.setProperty("--y", `${pos.current.y}px`);
   }, []);
 
-  // Card entrance animations
   useEffect(() => {
     const cards = cardRefs.current.filter(Boolean) as HTMLElement[];
     if (cards.length === 0) return;
 
-    const totalDuration = 0.6; // stagger amount
+    const totalDuration = 0.6;
     cards.forEach((card, i) => {
       const delay = 0.2 + (i / Math.max(cards.length - 1, 1)) * totalDuration;
       animate(
@@ -103,8 +101,6 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
   const moveTo = (targetX: number, targetY: number) => {
     const el = rootRef.current;
     if (!el) return;
-
-    // Stop previous animations
     posControls.current.x?.stop();
     posControls.current.y?.stop();
 
