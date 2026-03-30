@@ -6,15 +6,22 @@ import { supabase } from "@/utils/supabase";
 import { useCallback, useEffect, useState } from "react";
 
 export function AdminAnalyticsPage(): JSX.Element {
-  const { data, loading, refresh } = useDashboardData();
+  const { data, loading, error: dashboardError, refresh } = useDashboardData();
   const [recent, setRecent] = useState<PageViewRow[]>([]);
+  const [recentError, setRecentError] = useState<string | null>(null);
 
   const loadRecent = useCallback(async () => {
-    const { data: d } = await supabase
+    const { data: d, error } = await supabase
       .from("page_views")
       .select("*")
       .order("visited_at", { ascending: false })
       .limit(50);
+    if (error) {
+      setRecentError(error.message);
+      setRecent([]);
+      return;
+    }
+    setRecentError(null);
     setRecent((d ?? []) as PageViewRow[]);
   }, []);
 
@@ -40,6 +47,25 @@ export function AdminAnalyticsPage(): JSX.Element {
           <code className="rounded bg-black/30 px-1 py-0.5 text-xs">ANALYTICS_INGEST_SECRET</code> on the{" "}
           <code className="rounded bg-black/30 px-1 py-0.5 text-xs">record-page-view</code> function), then
           redeploy so Vite embeds it at build time.
+        </div>
+      ) : null}
+      {dashboardError ? (
+        <div
+          className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100/95"
+          role="alert"
+        >
+          <span className="font-medium">Dashboard query failed:</span> {dashboardError} — often missing{" "}
+          <code className="rounded bg-black/30 px-1 text-xs">page_views</code> table, RLS blocking{" "}
+          <code className="rounded bg-black/30 px-1 text-xs">SELECT</code> for{" "}
+          <code className="rounded bg-black/30 px-1 text-xs">authenticated</code>, or wrong project.
+        </div>
+      ) : null}
+      {recentError ? (
+        <div
+          className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100/95"
+          role="alert"
+        >
+          <span className="font-medium">Recent visits query failed:</span> {recentError}
         </div>
       ) : null}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">

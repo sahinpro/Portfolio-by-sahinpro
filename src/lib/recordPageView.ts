@@ -1,27 +1,21 @@
 import { getSupabaseBrowserKey, getSupabaseProjectUrl } from "@/lib/supabaseFunctions";
+import { supabase } from "@/utils/supabase";
 
 /**
  * Sends a page view to the `record-page-view` Edge Function.
+ * Uses `supabase.functions.invoke` so auth matches the JS client (publishable + legacy anon keys).
  * Requires the same secret in Supabase (`ANALYTICS_INGEST_SECRET`) and in the app
- * (`VITE_ANALYTICS_INGEST_SECRET`). The value is exposed to the client (similar to a GA measurement ID).
+ * (`VITE_ANALYTICS_INGEST_SECRET`).
  */
 export async function recordPageView(path: string): Promise<void> {
   const base = getSupabaseProjectUrl();
   const key = getSupabaseBrowserKey();
-  /** Must match Supabase secret `ANALYTICS_INGEST_SECRET` on `record-page-view`. Set in Vercel at build time as `VITE_ANALYTICS_INGEST_SECRET` (not only in Supabase). */
   const secret = import.meta.env.VITE_ANALYTICS_INGEST_SECRET;
   if (!base || !key || !secret) return;
 
   try {
-    const res = await fetch(`${base}/functions/v1/record-page-view`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
-        apikey: key,
-        "x-analytics-secret": secret,
-      },
-      body: JSON.stringify({
+    const { error } = await supabase.functions.invoke("record-page-view", {
+      body: {
         path: path.slice(0, 512),
         referrer:
           typeof document !== "undefined" && document.referrer
@@ -31,12 +25,17 @@ export async function recordPageView(path: string): Promise<void> {
           typeof navigator !== "undefined"
             ? navigator.userAgent.slice(0, 512)
             : null,
-      }),
+      },
+      headers: {
+        "x-analytics-secret": secret,
+      },
     });
-    if (import.meta.env.DEV && !res.ok) {
-      console.warn("[analytics] record-page-view failed:", res.status, await res.text().catch(() => ""));
+    if (import.meta.env.DEV && error) {
+      console.warn("[analytics] record-page-view failed:", error.message);
     }
-  } catch {
-    /* non-blocking */
+  } catch (e) {
+    if (import.meta.env.DEV) {
+      console.warn("[analytics] record-page-view", e);
+    }
   }
 }
