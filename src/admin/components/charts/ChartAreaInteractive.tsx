@@ -75,12 +75,9 @@ export function ChartAreaInteractive({
     return data.slice(-n);
   }, [data, meta.slice]);
 
-  const hasAnyViews = chartData.some(
-    (d) => d.desktop > 0 || d.mobile > 0,
-  );
+  const hasAnyViews = chartData.some((d) => d.desktop > 0 || d.mobile > 0);
 
-  const visibleSeries =
-    (showDesktop ? 1 : 0) + (showMobile ? 1 : 0);
+  const visibleSeries = (showDesktop ? 1 : 0) + (showMobile ? 1 : 0);
 
   return (
     <Card
@@ -90,10 +87,10 @@ export function ChartAreaInteractive({
     >
       <CardHeader
         className={cn(
-          "flex flex-col gap-4 p-6 pb-2 sm:flex-row sm:items-start sm:justify-between sm:gap-6",
+          "relative flex flex-col gap-4 p-6 pb-2 sm:flex-row sm:items-start sm:justify-between sm:gap-6",
         )}
       >
-        <div className="min-w-0 flex-1 space-y-1">
+        <div className="absolute top-0 left-0 min-w-0 flex-1 space-y-1">
           <CardTitle className="text-base text-white">Total visitors</CardTitle>
           <CardDescription className="text-white/45">
             <span className="hidden min-[540px]:block">{meta.description}</span>
@@ -212,7 +209,13 @@ export function ChartAreaInteractive({
                 margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
               >
                 <defs>
-                  <linearGradient id={fillDesktopId} x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id={fillDesktopId}
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop
                       offset="5%"
                       stopColor="rgba(255,255,255,0.45)"
@@ -305,9 +308,7 @@ export function ChartAreaInteractive({
                     type="natural"
                     dataKey="mobile"
                     name="mobile"
-                    stackId={
-                      showDesktop && showMobile ? "visitors" : undefined
-                    }
+                    stackId={showDesktop && showMobile ? "visitors" : undefined}
                     stroke="rgba(255,255,255,0.55)"
                     strokeWidth={1}
                     fill={`url(#${fillMobileId})`}
@@ -320,9 +321,7 @@ export function ChartAreaInteractive({
                     type="natural"
                     dataKey="desktop"
                     name="desktop"
-                    stackId={
-                      showDesktop && showMobile ? "visitors" : undefined
-                    }
+                    stackId={showDesktop && showMobile ? "visitors" : undefined}
                     stroke="rgba(255,255,255,0.9)"
                     strokeWidth={1}
                     fill={`url(#${fillDesktopId})`}
