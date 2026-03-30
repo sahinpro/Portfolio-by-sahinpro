@@ -3,6 +3,15 @@ import { SlideOver } from "@/admin/components/ui/SlideOver";
 import { StatusBadge } from "@/admin/components/ui/StatusBadge";
 import { useToast } from "@/admin/context/ToastContext";
 import type { TestimonialRow } from "@/admin/types/database";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/utils/supabase";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -197,7 +206,7 @@ export function AdminTestimonialsPage(): JSX.Element {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Author name</label>
-              <input
+              <Input
                 className={field}
                 value={form.author_name}
                 onChange={(e) => setForm((f) => ({ ...f, author_name: e.target.value }))}
@@ -205,7 +214,7 @@ export function AdminTestimonialsPage(): JSX.Element {
             </div>
             <div>
               <label className={labelCls}>Sort order</label>
-              <input
+              <Input
                 type="number"
                 className={field}
                 value={form.sort_order}
@@ -218,7 +227,7 @@ export function AdminTestimonialsPage(): JSX.Element {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Role</label>
-              <input
+              <Input
                 className={field}
                 value={form.author_role}
                 onChange={(e) => setForm((f) => ({ ...f, author_role: e.target.value }))}
@@ -226,7 +235,7 @@ export function AdminTestimonialsPage(): JSX.Element {
             </div>
             <div>
               <label className={labelCls}>Company</label>
-              <input
+              <Input
                 className={field}
                 value={form.author_company}
                 onChange={(e) => setForm((f) => ({ ...f, author_company: e.target.value }))}
@@ -242,7 +251,7 @@ export function AdminTestimonialsPage(): JSX.Element {
           />
           <div>
             <label className={labelCls}>Quote</label>
-            <textarea
+            <Textarea
               className={`${field} min-h-[100px]`}
               value={form.quote}
               onChange={(e) => setForm((f) => ({ ...f, quote: e.target.value }))}
@@ -250,7 +259,7 @@ export function AdminTestimonialsPage(): JSX.Element {
           </div>
           <div>
             <label className={labelCls}>Highlighted quote (HTML)</label>
-            <textarea
+            <Textarea
               className={`${field} min-h-[100px] font-mono text-xs`}
               value={form.highlighted_quote}
               onChange={(e) => setForm((f) => ({ ...f, highlighted_quote: e.target.value }))}
@@ -258,23 +267,27 @@ export function AdminTestimonialsPage(): JSX.Element {
           </div>
           <div>
             <label className={labelCls}>Status</label>
-            <select
-              className={field}
+            <Select
               value={form.status}
-              onChange={(e) =>
+              onValueChange={(v) =>
                 setForm((f) => ({
                   ...f,
-                  status: e.target.value as "draft" | "published",
+                  status: v as "draft" | "published",
                 }))
               }
             >
-              <option value="draft" className="bg-[#111]">
-                Draft
-              </option>
-              <option value="published" className="bg-[#111]">
-                Published
-              </option>
-            </select>
+              <SelectTrigger className={field}>
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent className="border-white/10 bg-[#111] text-white">
+                <SelectItem value="draft" className="focus:bg-white/10">
+                  Draft
+                </SelectItem>
+                <SelectItem value="published" className="focus:bg-white/10">
+                  Published
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </SlideOver>

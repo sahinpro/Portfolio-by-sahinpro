@@ -1,4 +1,5 @@
 import { PageViewTracker } from "@/components/PageViewTracker";
+import { VercelWebAnalytics } from "@/components/VercelWebAnalytics";
 import { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import * as P from "@/routes/lazyPages";
@@ -9,10 +10,12 @@ export function AppRoutes(): JSX.Element {
     <>
       {/* Outside Suspense so views record while lazy route chunks load */}
       <PageViewTracker />
+      <VercelWebAnalytics />
       <Suspense fallback={<PageSpinner />}>
         <Routes>
           <Route path="/" element={<P.HomePage />} />
           <Route path="/about" element={<P.AboutPage />} />
+          <Route path="/projects/:id" element={<P.ProjectDetailPage />} />
           <Route path="/projects" element={<P.ProjectsPage />} />
           <Route path="/services" element={<P.ServicesPage />} />
           <Route path="/blogs" element={<P.BlogsPage />} />

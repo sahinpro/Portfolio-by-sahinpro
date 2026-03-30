@@ -1,5 +1,7 @@
 import type { BlogPostRow } from "@/admin/types/database";
+import { BLOG_COVER_PLACEHOLDER } from "@/constants/placeholders";
 import Header from "@/components/Header";
+import { Input } from "@/components/ui/input";
 import { PublicSeo } from "@/components/public/PublicSeo";
 import { usePublishedBlogPosts } from "@/hooks/usePublishedBlogPosts";
 import { FooterSection } from "@/screens/sections/FooterSection";
@@ -72,25 +74,23 @@ function FeaturedPostCard({ post }: { post: BlogPostRow }) {
         bg-gradient-to-br from-violet-500/[0.06] via-white/[0.02] to-transparent
         hover:border-violet-500/30 transition-all duration-400"
     >
-      {post.cover_image ? (
-        <div className="relative h-56 sm:h-72 overflow-hidden">
-          <img
-            src={post.cover_image}
-            alt=""
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
-          <div className="absolute top-4 left-4">
-            <span
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+      <div className="relative h-56 sm:h-72 overflow-hidden">
+        <img
+          src={post.cover_image || BLOG_COVER_PLACEHOLDER}
+          alt=""
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
+        <div className="absolute top-4 left-4">
+          <span
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
               bg-violet-500/20 border border-violet-500/30 text-violet-300 text-[11px] font-semibold tracking-wider uppercase"
-            >
-              <TrendingUp className="w-3 h-3" />
-              Featured
-            </span>
-          </div>
+          >
+            <TrendingUp className="w-3 h-3" />
+            Featured
+          </span>
         </div>
-      ) : null}
+      </div>
 
       <div className="p-6 sm:p-8">
         <div className="flex flex-wrap items-center gap-3 text-xs text-white/40 mb-3">
@@ -146,16 +146,14 @@ function PostCard({ post, index }: { post: BlogPostRow; index: number }) {
       className="group flex flex-col rounded-2xl border border-white/[0.07] bg-white/[0.02]
         hover:border-white/[0.14] hover:bg-white/[0.035] transition-all duration-300 overflow-hidden"
     >
-      {post.cover_image ? (
-        <div className="relative h-44 overflow-hidden">
-          <img
-            src={post.cover_image}
-            alt=""
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/80 to-transparent" />
-        </div>
-      ) : null}
+      <div className="relative h-44 overflow-hidden">
+        <img
+          src={post.cover_image || BLOG_COVER_PLACEHOLDER}
+          alt=""
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/80 to-transparent" />
+      </div>
 
       <div className="flex flex-col flex-1 p-5">
         <div className="flex flex-wrap items-center gap-2.5 text-xs text-white/35 mb-3">
@@ -341,14 +339,14 @@ export const BlogsPage = (): JSX.Element => {
               className="relative w-full sm:w-64 shrink-0"
             >
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-              <input
+              <Input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search posts…"
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/10
-                  text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/20
-                  focus:bg-white/[0.07] transition-all duration-200"
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border-white/10
+                  text-sm text-white placeholder:text-white/30 focus-visible:border-white/20
+                  focus-visible:bg-white/[0.07] transition-all duration-200"
               />
             </motion.div>
           </div>

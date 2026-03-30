@@ -2,6 +2,7 @@ import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { useToast } from "@/admin/context/ToastContext";
 import type { SocialLinkRow } from "@/admin/types/database";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/utils/supabase";
 import { Plus, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -132,14 +133,14 @@ export function AdminSocialLinksPage(): JSX.Element {
               return (
                 <tr key={r.id} className="border-b border-white/[0.05]">
                   <td className="px-3 py-2">
-                    <input
+                    <Input
                       className={field}
                       value={m.platform}
                       onChange={(e) => setD(r.id, { platform: e.target.value })}
                     />
                   </td>
                   <td className="px-3 py-2">
-                    <input
+                    <Input
                       className={field}
                       value={m.url}
                       onChange={(e) => setD(r.id, { url: e.target.value })}
@@ -155,7 +156,7 @@ export function AdminSocialLinksPage(): JSX.Element {
                     />
                   </td>
                   <td className="px-3 py-2 w-20">
-                    <input
+                    <Input
                       type="number"
                       className={field}
                       value={m.sort_order}

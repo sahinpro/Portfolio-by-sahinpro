@@ -6,6 +6,7 @@ import { PublicSeo } from "@/components/public/PublicSeo";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Popover,
   PopoverContent,
@@ -616,7 +617,7 @@ export const ContactPage = (): JSX.Element => {
                       <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
                         Tell me about your project
                       </label>
-                      <textarea
+                      <Textarea
                         name="message"
                         required
                         value={formData.message}

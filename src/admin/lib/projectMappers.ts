@@ -22,6 +22,11 @@ function parseExtensions(raw: unknown): string[] {
   return raw.filter((x): x is string => typeof x === "string");
 }
 
+export function parseScreenshotUrls(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((x): x is string => typeof x === "string" && x.trim().length > 0);
+}
+
 function normalizeCategory(cat: string): ProjectFormValues["category"] {
   return (PROJECT_CATEGORIES as readonly string[]).includes(cat)
     ? (cat as ProjectFormValues["category"])
@@ -31,6 +36,7 @@ function normalizeCategory(cat: string): ProjectFormValues["category"] {
 export function projectRowToFormValues(row: ProjectRow): ProjectFormValues {
   const stats = parseStats(row.stats);
   const extensions = parseExtensions(row.cms_extensions);
+  const screenshots = parseScreenshotUrls(row.screenshot_urls);
   const facets =
     row.custom_stack_facets &&
     typeof row.custom_stack_facets === "object" &&
@@ -43,6 +49,7 @@ export function projectRowToFormValues(row: ProjectRow): ProjectFormValues {
     description: row.description ?? "",
     long_description: row.long_description ?? "",
     image_url: row.image_url ?? "",
+    screenshot_urls: screenshots,
     technologies: row.technologies ?? [],
     category: normalizeCategory(row.category),
     live_url: row.live_url ?? "",
@@ -68,12 +75,14 @@ export function formValuesToProjectPayload(
   const statsClean = values.stats.filter((s) => s.label.trim() && s.value.trim());
   const techClean = values.technologies.map((t) => t.trim()).filter(Boolean);
   const extClean = values.cms_extensions.map((e) => e.trim()).filter(Boolean);
+  const screenshotClean = values.screenshot_urls.map((u) => u.trim()).filter(Boolean);
 
   const base = {
     title: values.title.trim(),
     description: values.description.trim() || null,
     long_description: values.long_description.trim() || null,
     image_url: values.image_url.trim() || null,
+    screenshot_urls: screenshotClean,
     technologies: techClean,
     category: values.category,
     live_url: values.live_url.trim() || null,
@@ -127,6 +136,7 @@ export function defaultEmptyProjectForm(): ProjectFormValues {
     description: "",
     long_description: "",
     image_url: "",
+    screenshot_urls: [],
     technologies: [],
     category: "Frontend",
     live_url: "",

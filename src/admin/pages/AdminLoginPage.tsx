@@ -1,4 +1,5 @@
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/utils/supabase";
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { FormEvent, useEffect, useId, useState } from "react";
@@ -207,7 +208,7 @@ export function AdminLoginPage(): JSX.Element {
               >
                 Email
               </label>
-              <input
+              <Input
                 id="admin-email"
                 type="email"
                 autoComplete="email"
@@ -216,9 +217,9 @@ export function AdminLoginPage(): JSX.Element {
                 required
                 aria-invalid={Boolean(combinedError)}
                 aria-describedby={combinedError ? errorAlertId : undefined}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.12]
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border-white/[0.12]
                   text-white text-sm placeholder:text-white/25
-                  focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20
+                  focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:border-white/20
                   transition-[box-shadow,border-color]"
                 placeholder="you@example.com"
               />
@@ -271,7 +272,7 @@ export function AdminLoginPage(): JSX.Element {
               )}
 
               <div className="relative">
-                <input
+                <Input
                   id="admin-password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
@@ -280,9 +281,9 @@ export function AdminLoginPage(): JSX.Element {
                   required
                   aria-invalid={Boolean(combinedError)}
                   aria-describedby={combinedError ? errorAlertId : undefined}
-                  className="w-full pl-3.5 pr-11 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.12]
+                  className="w-full pl-3.5 pr-11 py-2.5 rounded-xl bg-white/[0.04] border-white/[0.12]
                     text-white text-sm placeholder:text-white/25
-                    focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20
+                    focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:border-white/20
                     transition-[box-shadow,border-color]"
                   placeholder="••••••••"
                 />

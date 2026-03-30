@@ -3,6 +3,8 @@ import { CharCounter } from "@/admin/components/ui/CharCounter";
 import { TagInput } from "@/admin/components/ui/TagInput";
 import { useToast } from "@/admin/context/ToastContext";
 import type { SeoSettingsRow } from "@/admin/types/database";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/utils/supabase";
 import { useCallback, useEffect, useState } from "react";
 
@@ -98,14 +100,14 @@ export function AdminSEOPage(): JSX.Element {
               <label className={labelCls}>Meta title</label>
               <CharCounter value={metaTitle} max={60} />
             </div>
-            <input className={field} value={metaTitle} onChange={(e) => setMetaTitle(e.target.value)} />
+            <Input className={field} value={metaTitle} onChange={(e) => setMetaTitle(e.target.value)} />
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className={labelCls}>Meta description</label>
               <CharCounter value={metaDesc} max={160} />
             </div>
-            <textarea
+            <Textarea
               className={`${field} min-h-[100px]`}
               value={metaDesc}
               onChange={(e) => setMetaDesc(e.target.value)}

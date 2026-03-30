@@ -2,6 +2,7 @@ import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
 import { uploadPublicFile } from "@/admin/lib/storageUpload";
 import type { ResumeRow } from "@/admin/types/database";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/utils/supabase";
 import { Copy, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -92,7 +93,7 @@ export function AdminResumePage(): JSX.Element {
         <p className="text-xs text-white/40 uppercase tracking-wider">Active file</p>
         {active ? (
           <div className="space-y-2">
-            <input readOnly className={field} value={active.file_name ?? "resume"} />
+            <Input readOnly className={field} value={active.file_name ?? "resume"} />
             <div className="flex flex-wrap gap-2">
               <a
                 href={active.file_url}

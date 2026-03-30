@@ -5,12 +5,23 @@ import {
   formValuesToProjectPayload,
   projectRowToFormValues,
 } from "@/admin/lib/projectMappers";
+import { ImageGalleryField } from "@/admin/components/ui/ImageGalleryField";
 import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
 import { projectFormSchema, type ProjectFormValues } from "@/admin/schemas/projectFormSchema";
 import type { ProjectRow } from "@/admin/types/database";
 import { TagInput } from "@/admin/components/ui/TagInput";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { PROJECT_CATEGORIES } from "@/admin/constants/frameworkFieldConfig";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/utils/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
@@ -137,21 +148,21 @@ export function AdminProjectFormPage(): JSX.Element {
           <h2 className="text-sm font-semibold text-white">Basics</h2>
           <div>
             <label className={labelCls}>Title</label>
-            <input className={field} {...register("title")} />
+            <Input className={field} {...register("title")} />
             {errors.title ? (
               <p className="mt-1 text-xs text-red-400">{errors.title.message}</p>
             ) : null}
           </div>
           <div>
             <label className={labelCls}>Short description</label>
-            <textarea className={`${field} min-h-[80px]`} {...register("description")} />
+            <Textarea className={`${field} min-h-[80px]`} {...register("description")} />
             {errors.description ? (
               <p className="mt-1 text-xs text-red-400">{errors.description.message}</p>
             ) : null}
           </div>
           <div>
             <label className={labelCls}>Long description</label>
-            <textarea className={`${field} min-h-[120px]`} {...register("long_description")} />
+            <Textarea className={`${field} min-h-[120px]`} {...register("long_description")} />
           </div>
           <Controller
             name="image_url"
@@ -163,6 +174,19 @@ export function AdminProjectFormPage(): JSX.Element {
                 onChange={field.onChange}
                 bucket="portfolio-assets"
                 pathPrefix="projects"
+              />
+            )}
+          />
+          <Controller
+            name="screenshot_urls"
+            control={control}
+            render={({ field }) => (
+              <ImageGalleryField
+                label="Screenshot gallery"
+                value={field.value}
+                onChange={field.onChange}
+                bucket="portfolio-assets"
+                pathPrefix="projects/screenshots"
               />
             )}
           />
@@ -179,33 +203,44 @@ export function AdminProjectFormPage(): JSX.Element {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Category</label>
-              <select className={field} {...register("category")}>
-                {PROJECT_CATEGORIES.map((c) => (
-                  <option key={c} value={c} className="bg-[#111]">
-                    {c}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name="category"
+                control={control}
+                render={({ field: f }) => (
+                  <Select value={f.value} onValueChange={f.onChange}>
+                    <SelectTrigger className={field}>
+                      <SelectValue placeholder="Category" />
+                    </SelectTrigger>
+                    <SelectContent className="border-white/10 bg-[#111] text-white">
+                      {PROJECT_CATEGORIES.map((c) => (
+                        <SelectItem key={c} value={c} className="focus:bg-white/10">
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div>
               <label className={labelCls}>Year</label>
-              <input className={field} {...register("year")} />
+              <Input className={field} {...register("year")} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Live URL</label>
-              <input className={field} {...register("live_url")} placeholder="https://" />
+              <Input className={field} {...register("live_url")} placeholder="https://" />
             </div>
             <div>
               <label className={labelCls}>GitHub URL</label>
-              <input className={field} {...register("github_url")} placeholder="https://" />
+              <Input className={field} {...register("github_url")} placeholder="https://" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             <div>
               <label className={labelCls}>Sort order</label>
-              <input type="number" className={field} {...register("sort_order")} />
+              <Input type="number" className={field} {...register("sort_order")} />
             </div>
             <Controller
               name="featured"
@@ -217,14 +252,25 @@ export function AdminProjectFormPage(): JSX.Element {
           </div>
           <div>
             <label className={labelCls}>Status</label>
-            <select className={field} {...register("status")}>
-              <option value="draft" className="bg-[#111]">
-                Draft
-              </option>
-              <option value="published" className="bg-[#111]">
-                Published
-              </option>
-            </select>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field: f }) => (
+                <Select value={f.value} onValueChange={f.onChange}>
+                  <SelectTrigger className={field}>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent className="border-white/10 bg-[#111] text-white">
+                    <SelectItem value="draft" className="focus:bg-white/10">
+                      Draft
+                    </SelectItem>
+                    <SelectItem value="published" className="focus:bg-white/10">
+                      Published
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
         </section>
 
@@ -233,14 +279,14 @@ export function AdminProjectFormPage(): JSX.Element {
           {statFields.map((sf, index) => (
             <div key={sf.id} className="flex gap-2 items-start">
               <div className="flex-1">
-                <input
+                <Input
                   className={field}
                   placeholder="Label"
                   {...register(`stats.${index}.label` as const)}
                 />
               </div>
               <div className="flex-1">
-                <input
+                <Input
                   className={field}
                   placeholder="Value"
                   {...register(`stats.${index}.value` as const)}
@@ -267,28 +313,59 @@ export function AdminProjectFormPage(): JSX.Element {
 
         <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
           <h2 className="text-sm font-semibold text-white">Build type</h2>
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 text-sm text-white/80 cursor-pointer">
-              <input type="radio" value="custom" {...register("build_kind")} className="accent-white" />
-              Custom code
-            </label>
-            <label className="flex items-center gap-2 text-sm text-white/80 cursor-pointer">
-              <input type="radio" value="cms" {...register("build_kind")} className="accent-white" />
-              CMS (WordPress / Shopify)
-            </label>
-          </div>
+          <Controller
+            name="build_kind"
+            control={control}
+            render={({ field: f }) => (
+              <RadioGroup
+                value={f.value}
+                onValueChange={f.onChange}
+                className="flex flex-wrap gap-6"
+              >
+                <label className="flex items-center gap-2 text-sm text-white/80 cursor-pointer">
+                  <RadioGroupItem value="custom" id="build-kind-custom" className="border-white/25 text-white" />
+                  Custom code
+                </label>
+                <label className="flex items-center gap-2 text-sm text-white/80 cursor-pointer">
+                  <RadioGroupItem value="cms" id="build-kind-cms" className="border-white/25 text-white" />
+                  CMS (WordPress / Shopify)
+                </label>
+              </RadioGroup>
+            )}
+          />
 
           {buildKind === "custom" ? (
             <div className="space-y-4 pt-2 border-t border-white/[0.06]">
               <div>
                 <label className={labelCls}>Framework</label>
-                <select className={field} {...register("custom_framework")}>
-                  <option value="">Select…</option>
-                  <option value="react">React</option>
-                  <option value="next">Next.js</option>
-                  <option value="vue">Vue</option>
-                  <option value="other">Other</option>
-                </select>
+                <Controller
+                  name="custom_framework"
+                  control={control}
+                  render={({ field: f }) => (
+                    <Select
+                      value={f.value || undefined}
+                      onValueChange={f.onChange}
+                    >
+                      <SelectTrigger className={field}>
+                        <SelectValue placeholder="Select…" />
+                      </SelectTrigger>
+                      <SelectContent className="border-white/10 bg-[#111] text-white">
+                        <SelectItem value="react" className="focus:bg-white/10">
+                          React
+                        </SelectItem>
+                        <SelectItem value="next" className="focus:bg-white/10">
+                          Next.js
+                        </SelectItem>
+                        <SelectItem value="vue" className="focus:bg-white/10">
+                          Vue
+                        </SelectItem>
+                        <SelectItem value="other" className="focus:bg-white/10">
+                          Other
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.custom_framework ? (
                   <p className="mt-1 text-xs text-red-400">{errors.custom_framework.message}</p>
                 ) : null}
@@ -296,7 +373,7 @@ export function AdminProjectFormPage(): JSX.Element {
               {customFramework === "other" ? (
                 <div>
                   <label className={labelCls}>Stack name</label>
-                  <input className={field} {...register("custom_framework_label")} />
+                  <Input className={field} {...register("custom_framework_label")} />
                   {errors.custom_framework_label ? (
                     <p className="mt-1 text-xs text-red-400">
                       {errors.custom_framework_label.message}
@@ -315,18 +392,25 @@ export function AdminProjectFormPage(): JSX.Element {
                       return (
                         <div key={facet.key}>
                           <label className={labelCls}>{facet.label}</label>
-                          <select
-                            className={field}
-                            value={v}
-                            onChange={(e) => setFacet(facet.key, e.target.value)}
+                          <Select
+                            value={v || undefined}
+                            onValueChange={(val) => setFacet(facet.key, val)}
                           >
-                            <option value="">—</option>
-                            {facet.options.map((o) => (
-                              <option key={o.value} value={o.value} className="bg-[#111]">
-                                {o.label}
-                              </option>
-                            ))}
-                          </select>
+                            <SelectTrigger className={field}>
+                              <SelectValue placeholder="—" />
+                            </SelectTrigger>
+                            <SelectContent className="border-white/10 bg-[#111] text-white">
+                              {facet.options.map((o) => (
+                                <SelectItem
+                                  key={o.value}
+                                  value={o.value}
+                                  className="focus:bg-white/10"
+                                >
+                                  {o.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       );
                     }
@@ -368,18 +452,32 @@ export function AdminProjectFormPage(): JSX.Element {
             <div className="space-y-4 pt-2 border-t border-white/[0.06]">
               <div>
                 <label className={labelCls}>Platform</label>
-                <select className={field} {...register("cms_platform")}>
-                  <option value="">Select…</option>
-                  <option value="wordpress">WordPress</option>
-                  <option value="shopify">Shopify</option>
-                </select>
+                <Controller
+                  name="cms_platform"
+                  control={control}
+                  render={({ field: f }) => (
+                    <Select value={f.value || undefined} onValueChange={f.onChange}>
+                      <SelectTrigger className={field}>
+                        <SelectValue placeholder="Select…" />
+                      </SelectTrigger>
+                      <SelectContent className="border-white/10 bg-[#111] text-white">
+                        <SelectItem value="wordpress" className="focus:bg-white/10">
+                          WordPress
+                        </SelectItem>
+                        <SelectItem value="shopify" className="focus:bg-white/10">
+                          Shopify
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.cms_platform ? (
                   <p className="mt-1 text-xs text-red-400">{errors.cms_platform.message}</p>
                 ) : null}
               </div>
               <div>
                 <label className={labelCls}>Theme name</label>
-                <input className={field} {...register("cms_theme_name")} />
+                <Input className={field} {...register("cms_theme_name")} />
                 {errors.cms_theme_name ? (
                   <p className="mt-1 text-xs text-red-400">{errors.cms_theme_name.message}</p>
                 ) : null}
@@ -390,7 +488,7 @@ export function AdminProjectFormPage(): JSX.Element {
                 </label>
                 {cmsExtensions.map((_, index) => (
                   <div key={index} className="flex gap-2 mb-2">
-                    <input
+                    <Input
                       className={field}
                       {...register(`cms_extensions.${index}` as const)}
                     />

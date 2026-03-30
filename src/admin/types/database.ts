@@ -20,6 +20,8 @@ export type ProjectRow = {
   cms_platform: "wordpress" | "shopify" | null;
   cms_theme_name: string | null;
   cms_extensions: unknown;
+  /** JSON array of public image URLs for the project detail gallery */
+  screenshot_urls: unknown;
   created_at: string;
   updated_at: string;
 };

@@ -1,4 +1,5 @@
 import { BlogMarkdownBody } from "@/components/blog/BlogMarkdownBody";
+import { BLOG_COVER_PLACEHOLDER } from "@/constants/placeholders";
 import Header from "@/components/Header";
 import { PublicSeo } from "@/components/public/PublicSeo";
 import { usePublishedBlogPost } from "@/hooks/usePublishedBlogPost";
@@ -146,9 +147,10 @@ export const BlogPostPage = (): JSX.Element => {
           {post.excerpt && (
             <meta property="og:description" content={post.excerpt} />
           )}
-          {post.cover_image && (
-            <meta property="og:image" content={post.cover_image} />
-          )}
+          <meta
+            property="og:image"
+            content={post.cover_image || BLOG_COVER_PLACEHOLDER}
+          />
         </Helmet>
       )}
 
@@ -258,13 +260,11 @@ export const BlogPostPage = (): JSX.Element => {
               </header>
 
               {/* ── Cover image ── */}
-              {post.cover_image && (
-                <img
-                  src={post.cover_image}
-                  alt=""
-                  className=" aspect-auto object-contain mb-12 rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-black/40"
-                />
-              )}
+              <img
+                src={post.cover_image || BLOG_COVER_PLACEHOLDER}
+                alt=""
+                className=" aspect-auto object-contain mb-12 rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-black/40"
+              />
 
               {/* ── Body ── */}
               <div className="prose-wrapper">

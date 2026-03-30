@@ -148,13 +148,13 @@ const CountrySelect = ({
         <div className="border-b border-white/10 p-2">
           <div className="flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-2.5 py-1.5">
             <Search className="h-4 w-4 shrink-0 text-white/40" />
-            <input
+            <Input
               ref={searchRef}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search country..."
-              className="flex-1 min-w-0 bg-transparent text-sm text-white placeholder:text-white/40 outline-none"
+              className="flex-1 min-w-0 border-0 bg-transparent text-sm text-white shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-white/40"
               aria-label="Search country"
             />
           </div>

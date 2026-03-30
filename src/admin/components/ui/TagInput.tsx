@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { KeyboardEvent, useState } from "react";
 
@@ -52,7 +53,7 @@ export function TagInput({
           </button>
         </span>
       ))}
-      <input
+      <Input
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={onKeyDown}
@@ -60,7 +61,7 @@ export function TagInput({
           if (input.trim()) add(input);
         }}
         placeholder={value.length === 0 ? placeholder : ""}
-        className="min-w-[120px] flex-1 bg-transparent px-1 py-1 text-sm text-white outline-none placeholder:text-white/30"
+        className="min-w-[120px] flex-1 border-0 bg-transparent px-1 py-1 text-sm text-white shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-white/30 h-8"
       />
     </div>
   );

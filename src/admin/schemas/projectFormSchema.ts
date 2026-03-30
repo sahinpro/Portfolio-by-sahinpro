@@ -12,6 +12,7 @@ export const projectFormSchema = z
     description: z.string().min(1, "Short description is required"),
     long_description: z.string(),
     image_url: z.string(),
+    screenshot_urls: z.array(z.string().min(1)),
     technologies: z.array(z.string()),
     category: z.enum(PROJECT_CATEGORIES),
     live_url: z.string(),

@@ -18,6 +18,17 @@ export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
   return (data ?? []) as ProjectRow[];
 }
 
+export async function fetchPublishedProjectById(id: string): Promise<ProjectRow | null> {
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("id", id)
+    .eq("status", "published")
+    .maybeSingle();
+  if (error) throw error;
+  return (data as ProjectRow | null) ?? null;
+}
+
 export async function fetchPublishedTestimonials(): Promise<TestimonialRow[]> {
   const { data, error } = await supabase
     .from("testimonials")

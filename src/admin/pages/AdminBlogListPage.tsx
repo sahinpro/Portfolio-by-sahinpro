@@ -1,6 +1,8 @@
 import { StatusBadge } from "@/admin/components/ui/StatusBadge";
 import { useToast } from "@/admin/context/ToastContext";
+import { Input } from "@/components/ui/input";
 import type { BlogPostRow } from "@/admin/types/database";
+import { BLOG_COVER_PLACEHOLDER } from "@/constants/placeholders";
 import { supabase } from "@/utils/supabase";
 import {
   BookOpen,
@@ -265,14 +267,14 @@ export function AdminBlogListPage(): JSX.Element {
         {/* Search */}
         <div className="relative sm:ml-auto w-full sm:w-56">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
-          <input
+          <Input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search posts…"
-            className="w-full pl-8.5 pl-9 pr-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08]
-              text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/[0.18]
-              focus:bg-white/[0.06] transition-all"
+            className="w-full pl-9 pr-4 py-2 rounded-lg bg-white/[0.04] border-white/[0.08]
+              text-sm text-white placeholder:text-white/30 focus-visible:border-white/[0.18]
+              focus-visible:bg-white/[0.06] transition-all"
           />
         </div>
       </div>
@@ -355,20 +357,11 @@ export function AdminBlogListPage(): JSX.Element {
                 <div className="md:hidden px-4 py-3.5">
                   <div className="flex gap-3">
                     <div className="flex shrink-0 items-start">
-                      {row.cover_image ? (
-                        <img
-                          src={row.cover_image}
-                          alt=""
-                          className="h-14 w-14 rounded-lg object-cover border border-white/[0.08] bg-black/30"
-                        />
-                      ) : (
-                        <div
-                          className="h-14 w-14 rounded-lg border border-dashed border-white/[0.1] bg-white/[0.02]
-                          flex items-center justify-center"
-                        >
-                          <BookOpen className="w-5 h-5 text-white/15" />
-                        </div>
-                      )}
+                      <img
+                        src={row.cover_image?.trim() ? row.cover_image : BLOG_COVER_PLACEHOLDER}
+                        alt=""
+                        className="h-14 w-14 rounded-lg object-cover border border-white/[0.08] bg-black/30"
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
@@ -409,20 +402,11 @@ export function AdminBlogListPage(): JSX.Element {
                     lg:grid-cols-[88px_1fr_160px_80px_100px_44px]"
                 >
                   <div className="flex items-center">
-                    {row.cover_image ? (
-                      <img
-                        src={row.cover_image}
-                        alt=""
-                        className="h-14 w-14 lg:h-[4.5rem] lg:w-[4.5rem] rounded-lg object-cover border border-white/[0.08] bg-black/30"
-                      />
-                    ) : (
-                      <div
-                        className="h-14 w-14 lg:h-[4.5rem] lg:w-[4.5rem] rounded-lg border border-dashed border-white/[0.1] bg-white/[0.02]
-                        flex items-center justify-center"
-                      >
-                        <BookOpen className="w-5 h-5 text-white/15" />
-                      </div>
-                    )}
+                    <img
+                      src={row.cover_image?.trim() ? row.cover_image : BLOG_COVER_PLACEHOLDER}
+                      alt=""
+                      className="h-14 w-14 lg:h-[4.5rem] lg:w-[4.5rem] rounded-lg object-cover border border-white/[0.08] bg-black/30"
+                    />
                   </div>
                   <div className="min-w-0 pr-3 lg:pr-4">
                     <Link

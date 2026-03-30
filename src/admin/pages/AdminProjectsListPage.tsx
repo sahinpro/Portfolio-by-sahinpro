@@ -3,6 +3,8 @@ import { StatusBadge } from "@/admin/components/ui/StatusBadge";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { useToast } from "@/admin/context/ToastContext";
 import type { ProjectRow } from "@/admin/types/database";
+import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/utils/supabase";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -82,7 +84,7 @@ export function AdminProjectsListPage(): JSX.Element {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center mb-6">
-        <input
+        <Input
           type="search"
           placeholder="Search title…"
           value={q}
@@ -130,17 +132,20 @@ export function AdminProjectsListPage(): JSX.Element {
                     className="border-b border-white/[0.05] hover:bg-white/[0.02] transition-colors"
                   >
                     <td className="px-4 py-2">
-                      {r.image_url ? (
-                        <img
-                          src={r.image_url}
-                          alt=""
-                          className="h-10 w-14 rounded object-cover bg-white/5"
-                        />
-                      ) : (
-                        <div className="h-10 w-14 rounded bg-white/5" />
-                      )}
+                      <img
+                        src={r.image_url?.trim() ? r.image_url : PROJECT_IMAGE_PLACEHOLDER}
+                        alt=""
+                        className="h-10 w-14 rounded object-cover bg-white/5 border border-white/[0.06]"
+                      />
                     </td>
-                    <td className="px-4 py-2 font-medium text-white">{r.title}</td>
+                    <td className="px-4 py-2">
+                      <div className="font-medium text-white">{r.title}</div>
+                      {r.description?.trim() ? (
+                        <p className="text-xs text-white/45 mt-1 line-clamp-2 leading-relaxed max-w-md">
+                          {r.description.trim()}
+                        </p>
+                      ) : null}
+                    </td>
                     <td className="px-4 py-2 text-white/55">{r.category}</td>
                     <td className="px-4 py-2">
                       <StatusBadge status={r.status} />

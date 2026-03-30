@@ -82,7 +82,10 @@ export function AdminAnalyticsPage(): JSX.Element {
         <div>
           <h1 className="text-2xl font-semibold text-white">Analytics</h1>
           <p className="text-sm text-white/45 mt-1">
-            Page views from your ingest pipeline.
+            Charts read from your Supabase page view ingest. In production,{" "}
+            <span className="text-white/60">@vercel/analytics</span> also sends data to
+            your Vercel dashboard; Vercel does not expose that time series for this
+            chart, so the graph stays on first-party data.
           </p>
         </div>
         <button

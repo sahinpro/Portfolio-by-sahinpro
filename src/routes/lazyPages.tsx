@@ -9,6 +9,9 @@ export const AboutPage = lazy(() =>
 export const ProjectsPage = lazy(() =>
   import("@/pages/ProjectsPage").then((m) => ({ default: m.ProjectsPage })),
 );
+export const ProjectDetailPage = lazy(() =>
+  import("@/pages/ProjectDetailPage").then((m) => ({ default: m.ProjectDetailPage })),
+);
 export const ServicesPage = lazy(() =>
   import("@/pages/ServicesPage").then((m) => ({ default: m.ServicesPage })),
 );

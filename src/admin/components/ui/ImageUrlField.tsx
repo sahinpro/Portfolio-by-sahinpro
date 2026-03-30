@@ -1,10 +1,12 @@
 import { MediaLibraryPickerModal } from "@/admin/components/MediaLibraryPickerModal";
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
-import { uploadPublicFile } from "@/admin/lib/storageUpload";
+import { isLikelyImageFile } from "@/admin/lib/imageFileAccept";
+import { storageUploadErrorMessage, uploadPublicFile } from "@/admin/lib/storageUpload";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ImagePlus, Images } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 
 const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
@@ -35,6 +37,7 @@ export function ImageUrlField({
   variant = "default",
 }: ImageUrlFieldProps): JSX.Element {
   const { showToast } = useToast();
+  const fileInputId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -53,7 +56,7 @@ export function ImageUrlField({
         onChange(url);
         showToast("Image uploaded");
       } catch (err) {
-        showToast(withRlsHint(err instanceof Error ? err.message : "Upload failed"), "error");
+        showToast(withRlsHint(storageUploadErrorMessage(err)), "error");
       } finally {
         setUploading(false);
       }
@@ -72,7 +75,7 @@ export function ImageUrlField({
     e.preventDefault();
     setDragOver(false);
     const file = e.dataTransfer.files?.[0];
-    if (!file || !file.type.startsWith("image/")) {
+    if (!file || !isLikelyImageFile(file)) {
       showToast("Drop an image file", "error");
       return;
     }
@@ -83,28 +86,30 @@ export function ImageUrlField({
     return (
       <div className="flex items-center gap-1.5 min-w-0">
         <input
+          id={fileInputId}
           ref={fileRef}
           type="file"
-          accept="image/*"
-          className="hidden"
+          accept="image/*,.svg,.webp,.avif,.heic,.heif"
+          className="sr-only"
           onChange={onFileInput}
           disabled={uploading}
         />
-        <input
-          className={`${field} flex-1 min-w-[100px] text-xs py-1.5 px-2`}
+        <Input
+          className={`${field} flex-1 min-w-[100px] text-xs py-1.5 px-2 h-8`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Key or URL"
           title="Lucide icon name or image URL"
         />
-        <button
-          type="button"
-          disabled={uploading}
-          onClick={() => fileRef.current?.click()}
-          className="shrink-0 rounded border border-white/15 px-2 py-1 text-[10px] font-medium text-white/75 hover:bg-white/[0.06] disabled:opacity-50"
+        <label
+          htmlFor={fileInputId}
+          className={cn(
+            "shrink-0 rounded border border-white/15 px-2 py-1 text-[10px] font-medium text-white/75 hover:bg-white/[0.06] cursor-pointer",
+            uploading && "opacity-50 pointer-events-none",
+          )}
         >
           {uploading ? "…" : "Up"}
-        </button>
+        </label>
         {/^https?:\/\//i.test(value) ? (
           <img src={value} alt="" className="h-6 w-6 rounded object-cover border border-white/10 shrink-0" />
         ) : null}
@@ -117,18 +122,17 @@ export function ImageUrlField({
       {label ? <label className={labelCls}>{label}</label> : null}
 
       <input
+        id={fileInputId}
         ref={fileRef}
         type="file"
-        accept="image/*"
-        className="hidden"
+        accept="image/*,.svg,.webp,.avif,.heic,.heif"
+        className="sr-only"
         onChange={onFileInput}
         disabled={uploading}
       />
 
       <div className="space-y-3">
-        <button
-          type="button"
-          disabled={uploading}
+        <div
           onDragEnter={(e) => {
             e.preventDefault();
             setDragOver(true);
@@ -139,25 +143,32 @@ export function ImageUrlField({
           }}
           onDragLeave={() => setDragOver(false)}
           onDrop={onDrop}
-          onClick={() => fileRef.current?.click()}
           className={cn(
-            "flex w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-10 transition-colors",
+            "rounded-xl border border-dashed transition-colors",
             dragOver
               ? "border-white/35 bg-white/[0.08]"
               : "border-white/[0.14] bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04]",
             uploading && "pointer-events-none opacity-60",
           )}
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.06] text-white/55">
-            <ImagePlus className="h-5 w-5" />
-          </div>
-          <div className="text-center">
-            <p className="text-sm font-medium text-white/80">
-              {uploading ? "Uploading…" : "Drop an image here or click to upload"}
-            </p>
-            <p className="mt-1 text-xs text-white/35">PNG, JPG, WebP, SVG — full width drop zone</p>
-          </div>
-        </button>
+          <label
+            htmlFor={fileInputId}
+            className={cn(
+              "flex w-full cursor-pointer flex-col items-center justify-center gap-2 px-4 py-10",
+              uploading && "cursor-not-allowed",
+            )}
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.06] text-white/55">
+              <ImagePlus className="h-5 w-5" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium text-white/80">
+                {uploading ? "Uploading…" : "Drop an image here or click to upload"}
+              </p>
+              <p className="mt-1 text-xs text-white/35">PNG, JPG, WebP, SVG — full width drop zone</p>
+            </div>
+          </label>
+        </div>
 
         <div className="flex flex-wrap gap-2">
           <button
@@ -177,7 +188,7 @@ export function ImageUrlField({
             </div>
             <div className="min-w-0 flex-1 space-y-1.5">
               <label className="text-[10px] font-medium uppercase tracking-wide text-white/40">Public URL</label>
-              <input
+              <Input
                 className={field}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
@@ -190,7 +201,7 @@ export function ImageUrlField({
             <label className="text-[10px] font-medium uppercase tracking-wide text-white/40 mb-1.5 block">
               Public URL
             </label>
-            <input
+            <Input
               className={field}
               value={value}
               onChange={(e) => onChange(e.target.value)}

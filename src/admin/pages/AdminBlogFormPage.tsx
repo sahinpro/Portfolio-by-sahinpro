@@ -5,6 +5,15 @@ import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { useToast } from "@/admin/context/ToastContext";
 import { readingMinutesFromMarkdown, slugify } from "@/admin/lib/slug";
 import type { BlogPostRow } from "@/admin/types/database";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/utils/supabase";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -156,7 +165,7 @@ export function AdminBlogFormPage(): JSX.Element {
       <div className="space-y-6">
         <div>
           <label className={labelCls}>Title</label>
-          <input
+          <Input
             className={field}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -165,7 +174,7 @@ export function AdminBlogFormPage(): JSX.Element {
         </div>
         <div>
           <label className={labelCls}>Slug</label>
-          <input
+          <Input
             className={field}
             value={slug}
             onChange={(e) => {
@@ -176,7 +185,7 @@ export function AdminBlogFormPage(): JSX.Element {
         </div>
         <div>
           <label className={labelCls}>Excerpt</label>
-          <textarea className={`${field} min-h-[80px]`} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} />
+          <Textarea className={`${field} min-h-[80px]`} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} />
         </div>
         <ImageUrlField
           label="Cover image"
@@ -204,22 +213,23 @@ export function AdminBlogFormPage(): JSX.Element {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>Status</label>
-            <select
-              className={field}
-              value={status}
-              onChange={(e) => setStatus(e.target.value as "draft" | "published")}
-            >
-              <option value="draft" className="bg-[#111]">
-                Draft
-              </option>
-              <option value="published" className="bg-[#111]">
-                Published
-              </option>
-            </select>
+            <Select value={status} onValueChange={(v) => setStatus(v as "draft" | "published")}>
+              <SelectTrigger className={field}>
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent className="border-white/10 bg-[#111] text-white">
+                <SelectItem value="draft" className="focus:bg-white/10">
+                  Draft
+                </SelectItem>
+                <SelectItem value="published" className="focus:bg-white/10">
+                  Published
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label className={labelCls}>Published at (optional)</label>
-            <input
+            <Input
               type="datetime-local"
               className={field}
               value={publishedAt}

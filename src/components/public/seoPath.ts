@@ -4,5 +4,6 @@ export function normalizeSeoPagePath(pathname: string): string {
   const p = pathname.replace(/\/$/, "") || "/";
   if ((KNOWN_PAGES as readonly string[]).includes(p)) return p;
   if (p.startsWith("/blogs")) return "/blogs";
+  if (p.startsWith("/projects")) return "/projects";
   return "/";
 }

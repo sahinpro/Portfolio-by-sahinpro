@@ -9,10 +9,11 @@ import {
   listAllMediaInBucket,
   updateMediaItemMetadata,
 } from "@/admin/lib/listMediaFiles";
-import { uploadPublicFile } from "@/admin/lib/storageUpload";
+import { storageUploadErrorMessage, uploadPublicFile } from "@/admin/lib/storageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
   Copy,
@@ -163,27 +164,28 @@ export function AdminMediaLibraryPage(): JSX.Element {
   };
 
   const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const files = e.target.files;
     e.target.value = "";
-    if (!file) return;
+    if (!files?.length) return;
+    const list = Array.from(files);
     setUploading(true);
     try {
-      const safe = file.name.replace(/\s+/g, "-");
-      const path = `library/${crypto.randomUUID()}-${safe}`;
-      const baseTitle = file.name
-        .replace(/\.[^.]+$/, "")
-        .replace(/[-_]+/g, " ");
-      const url = await uploadPublicFile(bucket, path, file, {
-        title: baseTitle,
-      });
-      showToast("Uploaded");
+      let lastUrl = "";
+      for (const file of list) {
+        const safe = file.name.replace(/\s+/g, "-");
+        const path = `library/${crypto.randomUUID()}-${safe}`;
+        const baseTitle = file.name
+          .replace(/\.[^.]+$/, "")
+          .replace(/[-_]+/g, " ");
+        lastUrl = await uploadPublicFile(bucket, path, file, {
+          title: baseTitle,
+        });
+      }
+      showToast(list.length === 1 ? "Uploaded" : `${list.length} files uploaded`);
       await load();
-      void copyUrl(url);
+      if (lastUrl) void copyUrl(lastUrl);
     } catch (err) {
-      showToast(
-        withRlsHint(err instanceof Error ? err.message : "Upload failed"),
-        "error",
-      );
+      showToast(withRlsHint(storageUploadErrorMessage(err)), "error");
     } finally {
       setUploading(false);
     }
@@ -259,6 +261,7 @@ export function AdminMediaLibraryPage(): JSX.Element {
             type="file"
             className="hidden"
             accept="image/*,.svg,.webp,.avif"
+            multiple
             onChange={onUpload}
             disabled={uploading}
           />
@@ -268,6 +271,7 @@ export function AdminMediaLibraryPage(): JSX.Element {
             size="sm"
             disabled={uploading || loading}
             onClick={() => fileRef.current?.click()}
+            title="Select one or more files"
             className="h-9 border-white/12 bg-white/[0.04] text-white hover:bg-white/[0.08] hover:text-white
               shadow-none"
           >
@@ -642,12 +646,12 @@ export function AdminMediaLibraryPage(): JSX.Element {
                       >
                         Caption
                       </label>
-                      <textarea
+                      <Textarea
                         id="media-meta-caption"
                         value={metaCaption}
                         onChange={(e) => setMetaCaption(e.target.value)}
                         rows={4}
-                        className="mt-1.5 w-full resize-none rounded-md border border-white/10 bg-white/[0.05] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus-visible:ring-2 focus-visible:ring-white/15"
+                        className="mt-1.5 w-full resize-none border-white/10 bg-white/[0.05] text-sm text-white placeholder:text-white/25 focus-visible:ring-2 focus-visible:ring-white/15"
                         placeholder="Optional caption shown with the image"
                       />
                     </div>

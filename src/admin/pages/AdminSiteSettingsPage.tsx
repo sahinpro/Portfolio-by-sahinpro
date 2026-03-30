@@ -1,5 +1,7 @@
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { useToast } from "@/admin/context/ToastContext";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/utils/supabase";
 import { useCallback, useEffect, useState } from "react";
 
@@ -88,15 +90,15 @@ export function AdminSiteSettingsPage(): JSX.Element {
         </div>
         <div>
           <label className={labelCls}>Copyright year</label>
-          <input className={field} value={copyrightYear} onChange={(e) => setCopyrightYear(e.target.value)} />
+          <Input className={field} value={copyrightYear} onChange={(e) => setCopyrightYear(e.target.value)} />
         </div>
         <div>
           <label className={labelCls}>Hero title</label>
-          <input className={field} value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} />
+          <Input className={field} value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} />
         </div>
         <div>
           <label className={labelCls}>Hero description</label>
-          <textarea
+          <Textarea
             className={`${field} min-h-[80px]`}
             value={heroDescription}
             onChange={(e) => setHeroDescription(e.target.value)}
@@ -104,7 +106,7 @@ export function AdminSiteSettingsPage(): JSX.Element {
         </div>
         <div>
           <label className={labelCls}>Typewriter words (JSON array)</label>
-          <textarea
+          <Textarea
             className={`${field} min-h-[120px] font-mono text-xs`}
             value={typewriterJson}
             onChange={(e) => setTypewriterJson(e.target.value)}

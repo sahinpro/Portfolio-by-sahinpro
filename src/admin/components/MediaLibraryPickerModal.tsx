@@ -6,6 +6,8 @@ import {
   listAllMediaInBucket,
   updateMediaItemMetadata,
 } from "@/admin/lib/listMediaFiles";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Check, Loader2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -23,19 +25,30 @@ type MediaLibraryPickerModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   bucket: MediaBucketId;
+  /** Default: single image selection (existing behavior). */
+  mode?: "single" | "multiple";
   onPick: (publicUrl: string) => void;
+  /** When `mode` is `"multiple"`, called with all chosen public URLs (deduped). */
+  onPickMultiple?: (publicUrls: string[]) => void;
 };
+
+function itemKey(item: MediaLibraryItem): string {
+  return `${item.bucket}:${item.path}`;
+}
 
 export function MediaLibraryPickerModal({
   open,
   onOpenChange,
   bucket,
+  mode = "single",
   onPick,
+  onPickMultiple,
 }: MediaLibraryPickerModalProps): JSX.Element | null {
   const { showToast } = useToast();
   const [items, setItems] = useState<MediaLibraryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<MediaLibraryItem | null>(null);
+  const [multiSelected, setMultiSelected] = useState<Set<string>>(() => new Set());
   const [title, setTitle] = useState("");
   const [alt, setAlt] = useState("");
   const [caption, setCaption] = useState("");
@@ -58,6 +71,7 @@ export function MediaLibraryPickerModal({
     if (!open) return;
     void load();
     setSelected(null);
+    setMultiSelected(new Set());
     setTitle("");
     setAlt("");
     setCaption("");
@@ -119,7 +133,7 @@ export function MediaLibraryPickerModal({
       >
         <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-3">
           <h2 id="media-picker-title" className="text-sm font-semibold text-white">
-            Choose from library
+            {mode === "multiple" ? "Choose images (multi-select)" : "Choose from library"}
           </h2>
           <button
             type="button"
@@ -143,12 +157,31 @@ export function MediaLibraryPickerModal({
               <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {items.map((item) => {
                   const img = isProbablyImage(item);
-                  const isSel = selected?.path === item.path && selected?.bucket === item.bucket;
+                  const key = itemKey(item);
+                  const isSel =
+                    mode === "single"
+                      ? selected?.path === item.path && selected?.bucket === item.bucket
+                      : multiSelected.has(key);
                   return (
                     <li key={`${item.bucket}:${item.path}`}>
                       <button
                         type="button"
-                        onClick={() => setSelected(item)}
+                        onClick={() => {
+                          if (mode === "multiple") {
+                            if (!isProbablyImage(item)) {
+                              showToast("Only images can be added", "error");
+                              return;
+                            }
+                            setMultiSelected((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(key)) next.delete(key);
+                              else next.add(key);
+                              return next;
+                            });
+                            return;
+                          }
+                          setSelected(item);
+                        }}
                         className={cn(
                           "group relative w-full overflow-hidden rounded-xl border text-left transition-colors",
                           isSel
@@ -185,52 +218,88 @@ export function MediaLibraryPickerModal({
           </div>
 
           <div className="flex flex-col gap-3 p-4">
-            <p className="text-[11px] text-white/40">Select an image, edit details, then insert.</p>
-            {selected ? (
+            {mode === "multiple" ? (
               <>
-                <div>
-                  <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-white/40">
-                    Title
-                  </label>
-                  <input className={field} value={title} onChange={(e) => setTitle(e.target.value)} />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-white/40">
-                    Alt text
-                  </label>
-                  <input className={field} value={alt} onChange={(e) => setAlt(e.target.value)} />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-white/40">
-                    Caption
-                  </label>
-                  <textarea
-                    className={`${field} min-h-[72px] resize-none`}
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                  />
-                </div>
+                <p className="text-[11px] text-white/40">
+                  Click images to toggle. Non-image files are skipped when adding.
+                </p>
+                <p className="text-sm text-white/75">
+                  {multiSelected.size} selected
+                </p>
                 <button
                   type="button"
-                  disabled={savingMeta}
-                  onClick={() => void saveMeta()}
-                  className="rounded-lg border border-white/15 bg-white/[0.06] py-2 text-xs font-medium text-white/85 hover:bg-white/[0.1] disabled:opacity-50"
+                  onClick={() => setMultiSelected(new Set())}
+                  className="rounded-lg border border-white/12 py-2 text-xs font-medium text-white/60 hover:bg-white/[0.06] hover:text-white/90"
                 >
-                  {savingMeta ? "Saving…" : "Save details"}
+                  Clear selection
                 </button>
                 <button
                   type="button"
+                  disabled={multiSelected.size === 0}
                   onClick={() => {
-                    onPick(selected.publicUrl);
+                    const urls = items
+                      .filter((it) => multiSelected.has(itemKey(it)) && isProbablyImage(it))
+                      .map((it) => it.publicUrl);
+                    const uniq = [...new Set(urls)];
+                    if (onPickMultiple) onPickMultiple(uniq);
+                    else uniq.forEach((u) => onPick(u));
                     onOpenChange(false);
                   }}
-                  className="mt-auto rounded-lg bg-white py-2.5 text-xs font-semibold text-black hover:bg-white/90"
+                  className="mt-auto rounded-lg bg-white py-2.5 text-xs font-semibold text-black hover:bg-white/90 disabled:opacity-40"
                 >
-                  Use this image
+                  Add {multiSelected.size} image{multiSelected.size === 1 ? "" : "s"}
                 </button>
               </>
             ) : (
-              <p className="text-xs text-white/35">Click a thumbnail to edit details or insert.</p>
+              <>
+                <p className="text-[11px] text-white/40">Select an image, edit details, then insert.</p>
+                {selected ? (
+                  <>
+                    <div>
+                      <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-white/40">
+                        Title
+                      </label>
+                      <Input className={field} value={title} onChange={(e) => setTitle(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-white/40">
+                        Alt text
+                      </label>
+                      <Input className={field} value={alt} onChange={(e) => setAlt(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-white/40">
+                        Caption
+                      </label>
+                      <Textarea
+                        className={`${field} min-h-[72px] resize-none`}
+                        value={caption}
+                        onChange={(e) => setCaption(e.target.value)}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      disabled={savingMeta}
+                      onClick={() => void saveMeta()}
+                      className="rounded-lg border border-white/15 bg-white/[0.06] py-2 text-xs font-medium text-white/85 hover:bg-white/[0.1] disabled:opacity-50"
+                    >
+                      {savingMeta ? "Saving…" : "Save details"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onPick(selected.publicUrl);
+                        onOpenChange(false);
+                      }}
+                      className="mt-auto rounded-lg bg-white py-2.5 text-xs font-semibold text-black hover:bg-white/90"
+                    >
+                      Use this image
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-xs text-white/35">Click a thumbnail to edit details or insert.</p>
+                )}
+              </>
             )}
           </div>
         </div>

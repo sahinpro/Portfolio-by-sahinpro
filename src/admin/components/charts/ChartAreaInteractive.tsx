@@ -6,6 +6,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useId, useMemo, useState } from "react";
 import type { TooltipContentProps, TooltipProps } from "recharts";
@@ -176,21 +183,24 @@ export function ChartAreaInteractive({
               <label className="sr-only" htmlFor={`chart-range-${uid}`}>
                 Date range
               </label>
-              <select
-                id={`chart-range-${uid}`}
-                value={range}
-                onChange={(e) => setRange(e.target.value as RangeKey)}
-                className={cn(
-                  "h-9 w-full max-w-full rounded-md border border-white/[0.08] bg-white/[0.04] px-3 text-sm text-white",
-                  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/30",
-                )}
-              >
-                {RANGES.map((r) => (
-                  <option key={r.key} value={r.key} className="bg-[#111]">
-                    {r.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={range} onValueChange={(v) => setRange(v as RangeKey)}>
+                <SelectTrigger
+                  id={`chart-range-${uid}`}
+                  className={cn(
+                    "h-9 w-full max-w-full border-white/[0.08] bg-white/[0.04] text-sm text-white",
+                    "focus-visible:ring-2 focus-visible:ring-white/30",
+                  )}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="border-white/10 bg-[#111] text-white">
+                  {RANGES.map((r) => (
+                    <SelectItem key={r.key} value={r.key} className="focus:bg-white/10">
+                      {r.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
