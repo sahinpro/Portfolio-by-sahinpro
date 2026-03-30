@@ -90,7 +90,7 @@ export function ChartAreaInteractive({
           "relative flex flex-col gap-4 p-6 pb-2 sm:flex-row sm:items-start sm:justify-between sm:gap-6",
         )}
       >
-        <div className="absolute top-0 left-0 min-w-0 flex-1 space-y-1">
+        <div className="absolute top-4 left-4 min-w-0 flex-1 space-y-1">
           <CardTitle className="text-base text-white">Total visitors</CardTitle>
           <CardDescription className="text-white/45">
             <span className="hidden min-[540px]:block">{meta.description}</span>
