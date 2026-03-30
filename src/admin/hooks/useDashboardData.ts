@@ -1,7 +1,14 @@
 import { supabase } from "@/utils/supabase";
 import { useCallback, useEffect, useState } from "react";
 
-export type ViewsByDay = { date: string; label: string; count: number };
+export type ViewsByDay = {
+  date: string;
+  label: string;
+  count: number;
+  /** Inferred from `user_agent` when present. */
+  mobile: number;
+  desktop: number;
+};
 export type TopPage = { path: string; count: number };
 
 export type DashboardData = {
@@ -29,15 +36,22 @@ function formatDayLabel(isoDate: string): string {
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-function buildLast30DaysKeys(): string[] {
+function buildLastNDaysKeys(n: number): string[] {
   const keys: string[] = [];
   const now = new Date();
-  for (let i = 29; i >= 0; i--) {
+  for (let i = n - 1; i >= 0; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - i);
     keys.push(d.toISOString().slice(0, 10));
   }
   return keys;
+}
+
+function isMobileUserAgent(ua: string | null | undefined): boolean {
+  if (!ua) return false;
+  return /Mobile|Android|iPhone|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
+    ua,
+  );
 }
 
 export function useDashboardData(): {
@@ -56,7 +70,7 @@ export function useDashboardData(): {
 
     try {
       const since = new Date();
-      since.setDate(since.getDate() - 30);
+      since.setDate(since.getDate() - 90);
       const sinceIso = since.toISOString();
 
       const [
@@ -78,10 +92,10 @@ export function useDashboardData(): {
         supabase.from("blog_posts").select("*", { count: "exact", head: true }),
         supabase
           .from("page_views")
-          .select("path, visited_at")
+          .select("path, visited_at, user_agent")
           .gte("visited_at", sinceIso)
           .order("visited_at", { ascending: false })
-          .limit(5000),
+          .limit(15000),
       ]);
 
       const total = projectsTotal.count ?? 0;
@@ -89,28 +103,42 @@ export function useDashboardData(): {
       const unread = unreadRes.count ?? 0;
       const blogs = blogRes.count ?? 0;
 
-      const dayKeys = buildLast30DaysKeys();
-      const byDay = new Map<string, number>();
-      for (const k of dayKeys) byDay.set(k, 0);
+      const dayKeys = buildLastNDaysKeys(90);
+      const byDayMobile = new Map<string, number>();
+      const byDayDesktop = new Map<string, number>();
+      for (const k of dayKeys) {
+        byDayMobile.set(k, 0);
+        byDayDesktop.set(k, 0);
+      }
 
       const pathCounts = new Map<string, number>();
 
       if (!viewsRes.error && viewsRes.data) {
         for (const row of viewsRes.data) {
           const day = row.visited_at?.slice(0, 10);
-          if (day && byDay.has(day)) {
-            byDay.set(day, (byDay.get(day) ?? 0) + 1);
+          if (day && byDayMobile.has(day)) {
+            if (isMobileUserAgent(row.user_agent)) {
+              byDayMobile.set(day, (byDayMobile.get(day) ?? 0) + 1);
+            } else {
+              byDayDesktop.set(day, (byDayDesktop.get(day) ?? 0) + 1);
+            }
           }
           const p = row.path || "/";
           pathCounts.set(p, (pathCounts.get(p) ?? 0) + 1);
         }
       }
 
-      const viewsByDay: ViewsByDay[] = dayKeys.map((date) => ({
-        date,
-        label: formatDayLabel(date),
-        count: byDay.get(date) ?? 0,
-      }));
+      const viewsByDay: ViewsByDay[] = dayKeys.map((date) => {
+        const mobile = byDayMobile.get(date) ?? 0;
+        const desktop = byDayDesktop.get(date) ?? 0;
+        return {
+          date,
+          label: formatDayLabel(date),
+          mobile,
+          desktop,
+          count: mobile + desktop,
+        };
+      });
 
       const topPages: TopPage[] = [...pathCounts.entries()]
         .sort((a, b) => b[1] - a[1])

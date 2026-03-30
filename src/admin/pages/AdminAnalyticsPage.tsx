@@ -1,3 +1,4 @@
+import { ChartAreaInteractive } from "@/admin/components/charts/ChartAreaInteractive";
 import { DashboardTopPagesBarChart } from "@/admin/components/charts/DashboardTopPagesBarChart";
 import { DashboardViewsLineChart } from "@/admin/components/charts/DashboardViewsLineChart";
 import { useDashboardData } from "@/admin/hooks/useDashboardData";
@@ -29,7 +30,9 @@ export function AdminAnalyticsPage(): JSX.Element {
     void loadRecent();
   }, [loadRecent]);
 
-  const total30d = data.viewsByDay.reduce((a, b) => a + b.count, 0);
+  const total30d = data.viewsByDay
+    .slice(-30)
+    .reduce((a, b) => a + b.count, 0);
   const analyticsSecretMissing = !import.meta.env.VITE_ANALYTICS_INGEST_SECRET;
 
   return (
@@ -101,8 +104,12 @@ export function AdminAnalyticsPage(): JSX.Element {
         ))}
       </div>
 
+      <div className="mb-10">
+        <ChartAreaInteractive data={data.viewsByDay} loading={loading} />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-10">
-        <DashboardViewsLineChart data={data.viewsByDay} />
+        <DashboardViewsLineChart data={data.viewsByDay.slice(-30)} />
         <DashboardTopPagesBarChart data={data.topPages} />
       </div>
 

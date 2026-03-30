@@ -1,3 +1,4 @@
+import { ChartAreaInteractive } from "@/admin/components/charts/ChartAreaInteractive";
 import { DashboardTopPagesBarChart } from "@/admin/components/charts/DashboardTopPagesBarChart";
 import { DashboardViewsLineChart } from "@/admin/components/charts/DashboardViewsLineChart";
 import { StatCard } from "@/admin/components/ui/StatCard";
@@ -124,9 +125,10 @@ function SectionHeader({
 export function AdminDashboardPage(): JSX.Element {
   const { data, loading, error, refresh } = useDashboardData();
 
-  const total30d = data.viewsByDay.reduce((a, b) => a + b.count, 0);
-  const avgPerDay = data.viewsByDay.length
-    ? Math.round(total30d / data.viewsByDay.length)
+  const last30 = data.viewsByDay.slice(-30);
+  const total30d = last30.reduce((a, b) => a + b.count, 0);
+  const avgPerDay = last30.length
+    ? Math.round(total30d / last30.length)
     : 0;
 
   return (
@@ -227,8 +229,11 @@ export function AdminDashboardPage(): JSX.Element {
             </Link>
           }
         />
+        <div className="mb-4">
+          <ChartAreaInteractive data={data.viewsByDay} loading={loading} />
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4">
-          <DashboardViewsLineChart data={data.viewsByDay} />
+          <DashboardViewsLineChart data={last30} />
           <DashboardTopPagesBarChart data={data.topPages} />
         </div>
       </section>

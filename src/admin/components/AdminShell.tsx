@@ -1,27 +1,28 @@
 import { useUnreadInboxCount } from "@/admin/hooks/useUnreadInboxCount";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/utils/supabase";
 import type { User } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
 import {
   BarChart3,
   BookOpen,
   ExternalLink,
+  FileText,
+  FolderKanban,
   ImageIcon,
+  Inbox,
   LayoutDashboard,
   LogOut,
   MessageSquareQuote,
   Search,
   Settings2,
   Share2,
-  FileText,
-  Inbox,
-  FolderKanban,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import avatarUrl from "/sahin.png";
 
 const navLinkBase =
   "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium outline-none transition-colors " +
@@ -44,7 +45,8 @@ const subNavClass = ({ isActive }: { isActive: boolean }) =>
       : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300",
   );
 
-const sectionLabel = "px-2.5 pt-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500";
+const sectionLabel =
+  "px-2.5 pt-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500";
 
 function AdminSidebarProfile(): JSX.Element {
   const [user, setUser] = useState<User | null>(null);
@@ -66,18 +68,13 @@ function AdminSidebarProfile(): JSX.Element {
     (typeof user?.user_metadata?.full_name === "string"
       ? user.user_metadata.full_name.trim()
       : "") ||
-    (typeof user?.user_metadata?.name === "string" ? user.user_metadata.name.trim() : "") ||
+    (typeof user?.user_metadata?.name === "string"
+      ? user.user_metadata.name.trim()
+      : "") ||
     user?.email?.split("@")[0] ||
     "Admin";
 
   const email = user?.email ?? "";
-
-  const avatarUrl =
-    import.meta.env.VITE_ADMIN_AVATAR_URL?.trim() ||
-    (typeof user?.user_metadata?.avatar_url === "string"
-      ? user.user_metadata.avatar_url.trim()
-      : "") ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff&size=128`;
 
   return (
     <Card
@@ -98,14 +95,21 @@ function AdminSidebarProfile(): JSX.Element {
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-zinc-100 leading-tight truncate">{displayName}</p>
-            <p className="text-[11px] text-zinc-500 truncate mt-0.5" title={email}>
+            <p className="text-sm font-semibold text-zinc-100 leading-tight truncate">
+              {displayName}
+            </p>
+            <p
+              className="text-[11px] text-zinc-500 truncate mt-0.5"
+              title={email}
+            >
               {email || "—"}
             </p>
           </div>
         </div>
         <Separator className="my-3 bg-zinc-800" />
-        <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-600">Portfolio admin</p>
+        <p className="text-[15px] text-center font-medium tracking-widest text-zinc-600">
+          Sahin Alam
+        </p>
       </CardContent>
     </Card>
   );

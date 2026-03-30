@@ -22,11 +22,13 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve("./src"),
+      "@/admin": resolve("./src/admin"),
       "@/components": resolve("./src/components"),
       "@/pages": resolve("./src/pages"),
       "@/hooks": resolve("./src/hooks"),
       "@/lib": resolve("./src/lib"),
       "@/constants": resolve("./src/constants"),
+      "@/utils": resolve("./src/utils"),
     },
   },
   build: {

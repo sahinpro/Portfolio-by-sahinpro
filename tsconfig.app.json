@@ -24,11 +24,13 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "@/admin/*": ["./src/admin/*"],
       "@/components/*": ["./src/components/*"],
       "@/pages/*": ["./src/pages/*"],
       "@/hooks/*": ["./src/hooks/*"],
       "@/lib/*": ["./src/lib/*"],
-      "@/constants/*": ["./src/constants/*"]
+      "@/constants/*": ["./src/constants/*"],
+      "@/utils/*": ["./src/utils/*"]
     }
   },
   "include": [
