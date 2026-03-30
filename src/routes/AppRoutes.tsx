@@ -6,36 +6,39 @@ import { PageSpinner } from "@/routes/PageSpinner";
 
 export function AppRoutes(): JSX.Element {
   return (
-    <Suspense fallback={<PageSpinner />}>
+    <>
+      {/* Outside Suspense so views record while lazy route chunks load */}
       <PageViewTracker />
-      <Routes>
-        <Route path="/" element={<P.HomePage />} />
-        <Route path="/about" element={<P.AboutPage />} />
-        <Route path="/projects" element={<P.ProjectsPage />} />
-        <Route path="/services" element={<P.ServicesPage />} />
-        <Route path="/blogs" element={<P.BlogsPage />} />
-        <Route path="/blogs/:slug" element={<P.BlogPostPage />} />
-        <Route path="/contact" element={<P.ContactPage />} />
-        <Route path="/admin/login" element={<P.AdminLoginPage />} />
-        <Route path="/admin" element={<P.AdminProtectedLayout />}>
-          <Route index element={<P.AdminDashboardPage />} />
-          <Route path="projects" element={<P.AdminProjectsListPage />} />
-          <Route path="projects/new" element={<P.AdminProjectFormPage />} />
-          <Route path="projects/:id" element={<P.AdminProjectFormPage />} />
-          <Route path="testimonials" element={<P.AdminTestimonialsPage />} />
-          <Route path="blog" element={<P.AdminBlogListPage />} />
-          <Route path="blog/new" element={<P.AdminBlogFormPage />} />
-          <Route path="blog/:id" element={<P.AdminBlogFormPage />} />
-          <Route path="inbox" element={<P.AdminInboxPage />} />
-          <Route path="analytics" element={<P.AdminAnalyticsPage />} />
-          <Route path="media" element={<P.AdminMediaLibraryPage />} />
-          <Route path="settings" element={<P.AdminSiteSettingsPage />} />
-          <Route path="settings/social" element={<P.AdminSocialLinksPage />} />
-          <Route path="settings/seo" element={<P.AdminSEOPage />} />
-          <Route path="settings/resume" element={<P.AdminResumePage />} />
-        </Route>
-        <Route path="*" element={<P.NotFoundPage />} />
-      </Routes>
-    </Suspense>
+      <Suspense fallback={<PageSpinner />}>
+        <Routes>
+          <Route path="/" element={<P.HomePage />} />
+          <Route path="/about" element={<P.AboutPage />} />
+          <Route path="/projects" element={<P.ProjectsPage />} />
+          <Route path="/services" element={<P.ServicesPage />} />
+          <Route path="/blogs" element={<P.BlogsPage />} />
+          <Route path="/blogs/:slug" element={<P.BlogPostPage />} />
+          <Route path="/contact" element={<P.ContactPage />} />
+          <Route path="/admin/login" element={<P.AdminLoginPage />} />
+          <Route path="/admin" element={<P.AdminProtectedLayout />}>
+            <Route index element={<P.AdminDashboardPage />} />
+            <Route path="projects" element={<P.AdminProjectsListPage />} />
+            <Route path="projects/new" element={<P.AdminProjectFormPage />} />
+            <Route path="projects/:id" element={<P.AdminProjectFormPage />} />
+            <Route path="testimonials" element={<P.AdminTestimonialsPage />} />
+            <Route path="blog" element={<P.AdminBlogListPage />} />
+            <Route path="blog/new" element={<P.AdminBlogFormPage />} />
+            <Route path="blog/:id" element={<P.AdminBlogFormPage />} />
+            <Route path="inbox" element={<P.AdminInboxPage />} />
+            <Route path="analytics" element={<P.AdminAnalyticsPage />} />
+            <Route path="media" element={<P.AdminMediaLibraryPage />} />
+            <Route path="settings" element={<P.AdminSiteSettingsPage />} />
+            <Route path="settings/social" element={<P.AdminSocialLinksPage />} />
+            <Route path="settings/seo" element={<P.AdminSEOPage />} />
+            <Route path="settings/resume" element={<P.AdminResumePage />} />
+          </Route>
+          <Route path="*" element={<P.NotFoundPage />} />
+        </Routes>
+      </Suspense>
+    </>
   );
 }

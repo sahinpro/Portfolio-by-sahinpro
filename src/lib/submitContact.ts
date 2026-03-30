@@ -10,9 +10,13 @@ export type ContactPayload = {
   turnstileToken: string | null;
 };
 
+export type SubmitContactResult =
+  | { ok: true }
+  | { ok: false; status: number; message?: string };
+
 export async function submitContactToSupabase(
   payload: ContactPayload,
-): Promise<{ ok: true } | { ok: false; status: number }> {
+): Promise<SubmitContactResult> {
   const base = getSupabaseProjectUrl();
   const key = getSupabaseBrowserKey();
   if (!base || !key) return { ok: false, status: 0 };
@@ -38,7 +42,14 @@ export async function submitContactToSupabase(
       body: JSON.stringify(body),
     });
     if (res.ok) return { ok: true };
-    return { ok: false, status: res.status };
+    let message: string | undefined;
+    try {
+      const j = (await res.json()) as { error?: string };
+      if (typeof j?.error === "string" && j.error.trim()) message = j.error.trim();
+    } catch {
+      /* ignore */
+    }
+    return { ok: false, status: res.status, message };
   } catch {
     return { ok: false, status: 0 };
   }

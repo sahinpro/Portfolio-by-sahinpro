@@ -187,8 +187,11 @@ export function AdminBlogListPage(): JSX.Element {
     if (filter !== "all" && r.status !== filter) return false;
     if (search.trim()) {
       const q = search.trim().toLowerCase();
+      const excerpt = (r.excerpt ?? "").toLowerCase();
       return (
-        r.title.toLowerCase().includes(q) || r.slug.toLowerCase().includes(q)
+        r.title.toLowerCase().includes(q) ||
+        r.slug.toLowerCase().includes(q) ||
+        excerpt.includes(q)
       );
     }
     return true;
@@ -201,7 +204,7 @@ export function AdminBlogListPage(): JSX.Element {
   };
 
   return (
-    <div className="max-w-6xl space-y-6">
+    <div className="max-w-6xl xl:max-w-[90rem] space-y-6">
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -278,7 +281,14 @@ export function AdminBlogListPage(): JSX.Element {
       <div className="rounded-xl border border-white/[0.08] overflow-hidden">
         {/* Table header */}
         <div className="bg-white/[0.02] border-b border-white/[0.06]">
-          <div className="grid grid-cols-[1fr_160px_80px_100px_44px] gap-0 px-4 py-2.5">
+          <div
+            className="grid gap-0 px-4 py-2.5
+              grid-cols-[72px_1fr_140px_72px_100px_44px]
+              lg:grid-cols-[88px_1fr_160px_80px_100px_44px]"
+          >
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Cover
+            </span>
             <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">
               Title
             </span>
@@ -301,8 +311,11 @@ export function AdminBlogListPage(): JSX.Element {
             {Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
-                className="grid grid-cols-[1fr_160px_80px_100px_44px] gap-0 px-4 py-3.5 animate-pulse"
+                className="grid gap-0 px-4 py-3.5 animate-pulse
+                  grid-cols-[72px_1fr_140px_72px_100px_44px]
+                  lg:grid-cols-[88px_1fr_160px_80px_100px_44px]"
               >
+                <div className="h-14 w-14 rounded-lg bg-white/10" />
                 <div>
                   <div className="h-4 w-48 rounded bg-white/10 mb-1.5" />
                   <div className="h-3 w-32 rounded bg-white/[0.06]" />
@@ -321,21 +334,39 @@ export function AdminBlogListPage(): JSX.Element {
             {filtered.map((row) => (
               <div
                 key={row.id}
-                className="grid grid-cols-[1fr_160px_80px_100px_44px] gap-0 px-4 py-3.5
-                  hover:bg-white/[0.025] transition-colors group items-center"
+                className="grid gap-0 px-4 py-3.5 hover:bg-white/[0.025] transition-colors group items-center
+                  grid-cols-[72px_1fr_140px_72px_100px_44px]
+                  lg:grid-cols-[88px_1fr_160px_80px_100px_44px]"
               >
-                {/* Title + slug */}
-                <div className="min-w-0 pr-4">
+                <div className="flex items-center">
+                  {row.cover_image ? (
+                    <img
+                      src={row.cover_image}
+                      alt=""
+                      className="h-14 w-14 lg:h-[4.5rem] lg:w-[4.5rem] rounded-lg object-cover border border-white/[0.08] bg-black/30"
+                    />
+                  ) : (
+                    <div
+                      className="h-14 w-14 lg:h-[4.5rem] lg:w-[4.5rem] rounded-lg border border-dashed border-white/[0.1] bg-white/[0.02]
+                      flex items-center justify-center"
+                    >
+                      <BookOpen className="w-5 h-5 text-white/15" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 pr-3 lg:pr-4">
                   <Link
                     to={`/admin/blog/${row.id}`}
-                    className="text-sm font-medium text-white/85 hover:text-white line-clamp-1
-                      transition-colors block"
+                    className="text-sm font-medium text-white/85 hover:text-white line-clamp-1 transition-colors block"
                   >
                     {row.title}
                   </Link>
-                  <span className="text-xs text-white/30 font-mono">
-                    /{row.slug}
-                  </span>
+                  {row.excerpt?.trim() ? (
+                    <p className="text-xs text-white/40 line-clamp-2 mt-1 leading-relaxed">
+                      {row.excerpt.trim()}
+                    </p>
+                  ) : null}
+                  <span className="text-[11px] text-white/28 font-mono mt-1 block">/{row.slug}</span>
                 </div>
 
                 {/* Date */}

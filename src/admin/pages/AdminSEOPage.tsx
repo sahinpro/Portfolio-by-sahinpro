@@ -124,10 +124,24 @@ export function AdminSEOPage(): JSX.Element {
             <TagInput value={kw} onChange={setKw} />
           </div>
           <div className="rounded-lg border border-white/[0.06] bg-black/20 p-4 text-xs text-white/50">
-            <p className="font-medium text-white/70 mb-1">Preview</p>
-            <p className="text-blue-400 truncate">{metaTitle || "Title"}</p>
-            <p className="text-emerald-600/90 truncate text-[11px] mt-0.5">yoursite.com{tab}</p>
-            <p className="text-white/60 mt-2 line-clamp-2">{metaDesc || "Description preview…"}</p>
+            <p className="font-medium text-white/70 mb-2">Preview</p>
+            <div className="flex gap-3">
+              <img
+                src="/logo.svg"
+                alt=""
+                width={40}
+                height={40}
+                className="mt-0.5 h-10 w-10 shrink-0 rounded-lg object-cover border border-white/[0.08] bg-black/30"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="text-blue-400 truncate">{metaTitle || "Title"}</p>
+                <p className="text-emerald-600/90 truncate text-[11px] mt-0.5">
+                  {typeof window !== "undefined" ? window.location.host : "yoursite.com"}
+                  {tab}
+                </p>
+                <p className="text-white/60 mt-2 line-clamp-2">{metaDesc || "Description preview…"}</p>
+              </div>
+            </div>
           </div>
           <button
             type="button"

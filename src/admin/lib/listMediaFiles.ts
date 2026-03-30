@@ -11,6 +11,10 @@ export type MediaLibraryItem = {
   size: number | null;
   mimeType: string | null;
   publicUrl: string;
+  /** Custom storage metadata (title / alt / caption) when set via upload or library editor */
+  title: string | null;
+  alt: string | null;
+  caption: string | null;
 };
 
 export const MEDIA_BUCKETS: { id: MediaBucketId; label: string; hint: string }[] = [
@@ -39,15 +43,22 @@ async function walkBucket(
     if (item.id === null) {
       await walkBucket(bucket, path, out);
     } else {
-      const meta = item.metadata;
+      const meta = item.metadata as Record<string, unknown> | null;
+      const str = (k: string): string | null => {
+        const v = meta?.[k];
+        return typeof v === "string" && v.trim() ? v : null;
+      };
       out.push({
         bucket,
         path,
         name: item.name,
         updatedAt: item.updated_at,
-        size: meta?.size ?? null,
-        mimeType: meta?.mimetype ?? null,
+        size: (meta?.size as number | undefined) ?? null,
+        mimeType: (meta?.mimetype as string | undefined) ?? null,
         publicUrl: getMediaPublicUrl(bucket, path),
+        title: str("title"),
+        alt: str("alt"),
+        caption: str("caption"),
       });
     }
   }
@@ -62,4 +73,28 @@ export async function listAllMediaInBucket(bucket: MediaBucketId): Promise<Media
 export async function deleteMediaObject(bucket: MediaBucketId, path: string): Promise<void> {
   const { error } = await supabase.storage.from(bucket).remove([path]);
   if (error) throw error;
+}
+
+/** Re-uploads the same bytes so custom metadata (title, alt, caption) can be updated. */
+export async function updateMediaItemMetadata(
+  item: MediaLibraryItem,
+  fields: { title: string; alt: string; caption: string },
+): Promise<void> {
+  const { data: blob, error: dlErr } = await supabase.storage.from(item.bucket).download(item.path);
+  if (dlErr || !blob) throw dlErr ?? new Error("Could not read file");
+
+  const buf = await blob.arrayBuffer();
+  const contentType = item.mimeType || blob.type || "application/octet-stream";
+
+  const { error: upErr } = await supabase.storage.from(item.bucket).update(item.path, buf, {
+    upsert: true,
+    contentType,
+    cacheControl: "3600",
+    metadata: {
+      title: fields.title.trim() || "",
+      alt: fields.alt.trim() || "",
+      caption: fields.caption.trim() || "",
+    },
+  });
+  if (upErr) throw upErr;
 }

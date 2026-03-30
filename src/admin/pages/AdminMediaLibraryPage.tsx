@@ -7,6 +7,7 @@ import {
   MEDIA_BUCKETS,
   deleteMediaObject,
   listAllMediaInBucket,
+  updateMediaItemMetadata,
 } from "@/admin/lib/listMediaFiles";
 import { uploadPublicFile } from "@/admin/lib/storageUpload";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,32 @@ function isProbablyImage(item: MediaLibraryItem): boolean {
   return /\.(png|jpe?g|gif|webp|svg|avif|ico)$/i.test(item.name);
 }
 
+/** File extension badge + optional MIME snippet for the card footer */
+function getMediaFormat(item: MediaLibraryItem): { ext: string; mimeShort: string | null } {
+  const mime = item.mimeType?.toLowerCase().trim() ?? "";
+  const fromName = item.name.match(/\.([a-zA-Z0-9]+)$/)?.[1];
+  let ext = fromName?.toUpperCase() ?? "";
+  if (ext === "JPEG" || ext === "JPG") ext = "JPG";
+
+  if (!ext && mime) {
+    if (mime === "image/jpeg") ext = "JPG";
+    else if (mime === "image/svg+xml") ext = "SVG";
+    else if (mime.startsWith("image/")) {
+      const sub = mime.slice("image/".length);
+      ext = sub.replace("+xml", "").split("+")[0]?.toUpperCase().slice(0, 10) || "IMG";
+    } else {
+      const parts = mime.split("/");
+      ext = (parts[1] ?? parts[0] ?? "FILE").toUpperCase().slice(0, 10);
+    }
+  }
+  if (!ext) ext = "FILE";
+
+  const mimeShort =
+    mime.length === 0 ? null : mime.length > 42 ? `${mime.slice(0, 39)}…` : mime;
+
+  return { ext, mimeShort };
+}
+
 export function AdminMediaLibraryPage(): JSX.Element {
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
@@ -53,6 +80,11 @@ export function AdminMediaLibraryPage(): JSX.Element {
   const [query, setQuery] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [selected, setSelected] = useState<MediaLibraryItem | null>(null);
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaAlt, setMetaAlt] = useState("");
+  const [metaCaption, setMetaCaption] = useState("");
+  const [savingMeta, setSavingMeta] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -70,6 +102,18 @@ export function AdminMediaLibraryPage(): JSX.Element {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (!selected) {
+      setMetaTitle("");
+      setMetaAlt("");
+      setMetaCaption("");
+      return;
+    }
+    setMetaTitle(selected.title ?? "");
+    setMetaAlt(selected.alt ?? "");
+    setMetaCaption(selected.caption ?? "");
+  }, [selected]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -99,7 +143,8 @@ export function AdminMediaLibraryPage(): JSX.Element {
     try {
       const safe = file.name.replace(/\s+/g, "-");
       const path = `library/${crypto.randomUUID()}-${safe}`;
-      const url = await uploadPublicFile(bucket, path, file);
+      const baseTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+      const url = await uploadPublicFile(bucket, path, file, { title: baseTitle });
       showToast("Uploaded");
       await load();
       void copyUrl(url);
@@ -107,6 +152,27 @@ export function AdminMediaLibraryPage(): JSX.Element {
       showToast(withRlsHint(err instanceof Error ? err.message : "Upload failed"), "error");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const saveSelectedMeta = async () => {
+    if (!selected) return;
+    setSavingMeta(true);
+    try {
+      await updateMediaItemMetadata(selected, {
+        title: metaTitle,
+        alt: metaAlt,
+        caption: metaCaption,
+      });
+      showToast("Details saved");
+      const list = await listAllMediaInBucket(bucket);
+      setItems(list);
+      const next = list.find((x) => x.path === selected.path);
+      if (next) setSelected(next);
+    } catch (err) {
+      showToast(withRlsHint(err instanceof Error ? err.message : "Save failed"), "error");
+    } finally {
+      setSavingMeta(false);
     }
   };
 
@@ -122,6 +188,7 @@ export function AdminMediaLibraryPage(): JSX.Element {
       await deleteMediaObject(item.bucket, item.path);
       showToast("Deleted");
       setItems((prev) => prev.filter((x) => !(x.bucket === item.bucket && x.path === item.path)));
+      setSelected((s) => (s?.path === item.path && s.bucket === item.bucket ? null : s));
     } catch (err) {
       showToast(withRlsHint(err instanceof Error ? err.message : "Delete failed"), "error");
     }
@@ -227,91 +294,218 @@ export function AdminMediaLibraryPage(): JSX.Element {
             : "No files match your search."}
         </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((item) => {
-            const img = isProbablyImage(item);
-            return (
-              <li
-                key={`${item.bucket}:${item.path}`}
-                className="group rounded-xl border border-white/[0.08] bg-zinc-900/30 overflow-hidden
-                  shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-white/[0.12]
-                  transition-colors"
-              >
-                <div className="aspect-[4/3] bg-black/40 flex items-center justify-center relative">
-                  {img ? (
-                    <img
-                      src={item.publicUrl}
-                      alt=""
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <FileQuestion className="w-12 h-12 text-white/20" />
-                  )}
-                  <div
-                    className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent
-                      opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center
-                      gap-1.5 p-2"
+        <div
+          className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start"
+        >
+          <div
+            className="min-h-0 lg:max-h-[min(72vh,680px)] lg:overflow-y-auto lg:overscroll-contain lg:pr-1
+              [scrollbar-gutter:stable]"
+          >
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+              {filtered.map((item) => {
+                const img = isProbablyImage(item);
+                const isSel = selected?.path === item.path && selected?.bucket === item.bucket;
+                const { ext, mimeShort } = getMediaFormat(item);
+                return (
+                  <li
+                    key={`${item.bucket}:${item.path}`}
+                    className={cn(
+                      "group rounded-xl border bg-zinc-900/30 overflow-hidden cursor-pointer",
+                      "shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors",
+                      isSel
+                        ? "border-white/35 ring-2 ring-white/15"
+                        : "border-white/[0.08] hover:border-white/[0.12]",
+                    )}
+                    onClick={() => setSelected(item)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSelected(item);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                   >
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      className="h-8 text-xs bg-white/90 text-black hover:bg-white"
-                      onClick={() => void copyUrl(item.publicUrl)}
-                    >
-                      <Copy className="h-3.5 w-3.5" />
-                      Copy URL
-                    </Button>
-                  </div>
-                </div>
-                <div className="p-3 border-t border-white/[0.06]">
-                  <p className="text-xs font-medium text-white truncate" title={item.path}>
-                    {item.name}
-                  </p>
-                  <p className="text-[10px] text-white/35 truncate mt-0.5 font-mono" title={item.path}>
-                    {item.path}
-                  </p>
-                  <div className="flex items-center justify-between mt-2 gap-2">
-                    <span className="text-[10px] text-white/40 tabular-nums">
-                      {formatBytes(item.size)}
-                    </span>
-                    <div className="flex items-center gap-0.5">
-                      <button
-                        type="button"
-                        title="Copy URL"
-                        onClick={() => void copyUrl(item.publicUrl)}
-                        className="p-1.5 rounded-md text-white/45 hover:text-white hover:bg-white/[0.08]
-                          transition-colors"
+                    <div className="aspect-[4/3] bg-black/40 flex items-center justify-center relative">
+                      <span
+                        className="absolute left-2 top-2 z-[1] rounded-md border border-white/15 bg-black/70 px-1.5 py-0.5
+                          text-[10px] font-semibold uppercase tracking-wide text-white/90 backdrop-blur-sm"
+                        title={item.mimeType ?? ext}
                       >
-                        <Copy className="h-3.5 w-3.5" />
-                      </button>
-                      <a
-                        href={item.publicUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        title="Open"
-                        className="p-1.5 rounded-md text-white/45 hover:text-white hover:bg-white/[0.08]
-                          transition-colors"
+                        {ext}
+                      </span>
+                      {img ? (
+                        <img
+                          src={item.publicUrl}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1 text-center px-2">
+                          <FileQuestion className="w-12 h-12 text-white/20" />
+                          <span className="text-[10px] font-medium uppercase text-white/35">{ext}</span>
+                        </div>
+                      )}
+                      <div
+                        className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent
+                          opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center
+                          gap-1.5 p-2"
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
-                      <button
-                        type="button"
-                        title="Delete"
-                        onClick={() => void onDelete(item)}
-                        className="p-1.5 rounded-md text-red-400/70 hover:text-red-300 hover:bg-red-500/10
-                          transition-colors"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          className="h-8 text-xs bg-white/90 text-black hover:bg-white"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void copyUrl(item.publicUrl);
+                          }}
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                          Copy URL
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                    <div className="p-3 border-t border-white/[0.06]">
+                      <p className="text-xs font-medium text-white truncate" title={item.path}>
+                        {item.name}
+                      </p>
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <span className="inline-flex rounded border border-white/10 bg-white/[0.06] px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-white/55">
+                          {ext}
+                        </span>
+                        {mimeShort ? (
+                          <span
+                            className="text-[9px] text-white/30 truncate max-w-[140px]"
+                            title={item.mimeType ?? undefined}
+                          >
+                            {mimeShort}
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="text-[10px] text-white/35 truncate mt-1 font-mono" title={item.path}>
+                        {item.path}
+                      </p>
+                      <div className="flex items-center justify-between mt-2 gap-2">
+                        <span className="text-[10px] text-white/40 tabular-nums">
+                          {formatBytes(item.size)}
+                        </span>
+                        <div className="flex items-center gap-0.5">
+                          <button
+                            type="button"
+                            title="Copy URL"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void copyUrl(item.publicUrl);
+                            }}
+                            className="p-1.5 rounded-md text-white/45 hover:text-white hover:bg-white/[0.08]
+                              transition-colors"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                          </button>
+                          <a
+                            href={item.publicUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            title="Open"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 rounded-md text-white/45 hover:text-white hover:bg-white/[0.08]
+                              transition-colors"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                          <button
+                            type="button"
+                            title="Delete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void onDelete(item);
+                            }}
+                            className="p-1.5 rounded-md text-red-400/70 hover:text-red-300 hover:bg-red-500/10
+                              transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          <aside
+            className="rounded-xl border border-white/[0.08] bg-zinc-900/40 p-4 lg:sticky lg:top-4
+              lg:max-h-[min(72vh,680px)] lg:overflow-y-auto lg:overscroll-contain [scrollbar-gutter:stable]"
+          >
+            {selected ? (
+              <div className="space-y-3">
+                <p className="text-xs font-medium text-white">Attachment details</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex rounded-md border border-white/12 bg-white/[0.06] px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-white/80">
+                    {getMediaFormat(selected).ext}
+                  </span>
+                  {selected.mimeType ? (
+                    <span className="text-[10px] text-white/40 break-all" title={selected.mimeType}>
+                      {selected.mimeType}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-white/30">MIME unknown</span>
+                  )}
                 </div>
-              </li>
-            );
-          })}
-        </ul>
+                <p className="text-[10px] text-white/35 font-mono break-all">{selected.path}</p>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wide text-white/40">Title</label>
+                  <Input
+                    value={metaTitle}
+                    onChange={(e) => setMetaTitle(e.target.value)}
+                    className="mt-1 h-9 border-white/10 bg-white/[0.04] text-white text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wide text-white/40">Alt text</label>
+                  <Input
+                    value={metaAlt}
+                    onChange={(e) => setMetaAlt(e.target.value)}
+                    className="mt-1 h-9 border-white/10 bg-white/[0.04] text-white text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wide text-white/40">Caption</label>
+                  <textarea
+                    value={metaCaption}
+                    onChange={(e) => setMetaCaption(e.target.value)}
+                    rows={3}
+                    className="mt-1 w-full resize-none rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white outline-none focus-visible:ring-1 focus-visible:ring-white/20"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={savingMeta}
+                  onClick={() => void saveSelectedMeta()}
+                  className="w-full h-9 bg-white text-black hover:bg-white/90"
+                >
+                  {savingMeta ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save details"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full h-9 border-white/12 text-white"
+                  onClick={() => void copyUrl(selected.publicUrl)}
+                >
+                  <Copy className="h-3.5 w-3.5 mr-1" />
+                  Copy URL
+                </Button>
+              </div>
+            ) : (
+              <p className="text-sm text-white/40">Select a file to edit title, alt, and caption.</p>
+            )}
+          </aside>
+        </div>
       )}
 
       <p className="mt-10 text-xs text-white/30 flex items-start gap-2">

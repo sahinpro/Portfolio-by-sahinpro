@@ -156,7 +156,7 @@ export const BlogPostPage = (): JSX.Element => {
       <Header />
 
       <article className="w-full pt-28 sm:pt-36 lg:pt-40 pb-16 sm:pb-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back */}
           <Link
             to="/blogs"
@@ -259,13 +259,11 @@ export const BlogPostPage = (): JSX.Element => {
 
               {/* ── Cover image ── */}
               {post.cover_image && (
-                <div className="mb-12 rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-black/40">
-                  <img
-                    src={post.cover_image}
-                    alt=""
-                    className="w-full aspect-[21/9] object-cover"
-                  />
-                </div>
+                <img
+                  src={post.cover_image}
+                  alt=""
+                  className=" aspect-auto object-contain mb-12 rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-black/40"
+                />
               )}
 
               {/* ── Body ── */}

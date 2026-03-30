@@ -296,7 +296,6 @@ export const ContactPage = (): JSX.Element => {
       }
     };
 
-    let supabaseOk = false;
     if (isSupabaseBrowserConfigured()) {
       const r = await submitContactToSupabase({
         name: formData.name,
@@ -307,10 +306,22 @@ export const ContactPage = (): JSX.Element => {
         message: formData.message,
         turnstileToken,
       });
-      supabaseOk = r.ok;
-    }
-
-    if (supabaseOk) {
+      if (!r.ok) {
+        const detail =
+          r.message ??
+          (r.status === 400
+            ? "The server could not accept this submission (check required fields or verification)."
+            : r.status === 401 || r.status === 403
+              ? "Submission was rejected. Check Supabase function secrets (e.g. Turnstile)."
+              : null);
+        setSubmitError(
+          detail ??
+            "Message was not saved to your admin inbox. Redeploy the `submit-contact` Edge Function and confirm `SUPABASE_SERVICE_ROLE_KEY` is set for that function.",
+        );
+        setTurnstileToken(null);
+        setIsSubmitting(false);
+        return;
+      }
       applySuccess();
       if (formEndpoint) {
         void postFormspree();
@@ -326,15 +337,6 @@ export const ContactPage = (): JSX.Element => {
       }
       setSubmitError(
         "Message not sent. Please try again or email me directly.",
-      );
-      setTurnstileToken(null);
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (isSupabaseBrowserConfigured()) {
-      setSubmitError(
-        "Message not saved. Check Supabase Edge Function `submit-contact` and try again.",
       );
       setTurnstileToken(null);
       setIsSubmitting(false);

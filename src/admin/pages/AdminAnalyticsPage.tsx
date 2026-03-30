@@ -23,9 +23,25 @@ export function AdminAnalyticsPage(): JSX.Element {
   }, [loadRecent]);
 
   const total30d = data.viewsByDay.reduce((a, b) => a + b.count, 0);
+  const analyticsSecretMissing = !import.meta.env.VITE_ANALYTICS_INGEST_SECRET;
 
   return (
     <div className="max-w-6xl">
+      {analyticsSecretMissing ? (
+        <div
+          className="mb-6 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100/90"
+          role="status"
+        >
+          Page views are not being recorded: add{" "}
+          <code className="rounded bg-black/30 px-1 py-0.5 text-xs text-amber-50/95">
+            VITE_ANALYTICS_INGEST_SECRET
+          </code>{" "}
+          in Vercel (same string as Supabase secret{" "}
+          <code className="rounded bg-black/30 px-1 py-0.5 text-xs">ANALYTICS_INGEST_SECRET</code> on the{" "}
+          <code className="rounded bg-black/30 px-1 py-0.5 text-xs">record-page-view</code> function), then
+          redeploy so Vite embeds it at build time.
+        </div>
+      ) : null}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-semibold text-white">Analytics</h1>
