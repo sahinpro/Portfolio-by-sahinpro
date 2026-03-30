@@ -190,7 +190,13 @@ export function AdminBlogFormPage(): JSX.Element {
           <TagInput value={tags} onChange={setTags} />
         </div>
         <div data-color-mode="dark">
-          <label className={labelCls}>Content (Markdown)</label>
+          <label className={labelCls}>Content</label>
+          <p className="text-xs text-white/40 mb-2 max-w-2xl">
+            Click where you want text or an image. Use the toolbar:{" "}
+            <span className="text-white/55">Upload image</span> or{" "}
+            <span className="text-white/55">Media library</span> (next to the small image icon) inserts the picture at
+            your cursor. Drag the divider to resize editor vs preview.
+          </p>
           <div className="rounded-lg overflow-hidden border border-white/10 [&_.w-md-editor]:bg-[#1a1a1a] [&_.w-md-editor-text]:bg-[#1a1a1a] [&_.w-md-editor-text-pre]:text-white/90">
             <BlogMarkdownEditor value={content} onChange={setContent} height={420} />
           </div>

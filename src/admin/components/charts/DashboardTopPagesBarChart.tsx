@@ -63,7 +63,10 @@ export function DashboardTopPagesBarChart({
                   borderRadius: "8px",
                   fontSize: "12px",
                 }}
-                formatter={(value: number) => [value, "Views"]}
+                formatter={(value, name) => [
+                  typeof value === "number" ? value : 0,
+                  String(name ?? "Views"),
+                ]}
                 labelFormatter={(_, payload) =>
                   payload?.[0]?.payload?.fullPath ?? ""
                 }

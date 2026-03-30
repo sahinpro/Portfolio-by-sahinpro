@@ -15,13 +15,15 @@ import {
   Inbox,
   LayoutDashboard,
   LogOut,
+  Menu,
   MessageSquareQuote,
   Search,
   Settings2,
   Share2,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import avatarUrl from "/sahin.png";
 
 const navLinkBase =
@@ -47,6 +49,18 @@ const subNavClass = ({ isActive }: { isActive: boolean }) =>
 
 const sectionLabel =
   "px-2.5 pt-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500";
+
+function mobileAdminTitle(pathname: string): string {
+  if (pathname === "/admin" || pathname === "/admin/") return "Dashboard";
+  if (pathname.startsWith("/admin/projects")) return "Projects";
+  if (pathname.startsWith("/admin/testimonials")) return "Testimonials";
+  if (pathname.startsWith("/admin/blog")) return "Blog";
+  if (pathname.startsWith("/admin/media")) return "Media";
+  if (pathname.startsWith("/admin/inbox")) return "Inbox";
+  if (pathname.startsWith("/admin/analytics")) return "Analytics";
+  if (pathname.startsWith("/admin/settings")) return "Settings";
+  return "Admin";
+}
 
 function AdminSidebarProfile(): JSX.Element {
   const [user, setUser] = useState<User | null>(null);
@@ -117,7 +131,40 @@ function AdminSidebarProfile(): JSX.Element {
 
 export function AdminShell(): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
   const unread = useUnreadInboxCount();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => {
+      if (mq.matches) setMobileNavOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileNavOpen]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileNavOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileNavOpen]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -125,17 +172,66 @@ export function AdminShell(): JSX.Element {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col lg:flex-row">
+      <header
+        className="sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 border-b border-zinc-800/80 bg-zinc-950/95 px-3 backdrop-blur-md
+          lg:hidden"
+      >
+        <button
+          type="button"
+          onClick={() => setMobileNavOpen((o) => !o)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700/80 bg-zinc-900/80
+            text-zinc-200 outline-none transition-colors hover:bg-zinc-800 focus-visible:ring-2 focus-visible:ring-white/20"
+          aria-expanded={mobileNavOpen}
+          aria-controls="admin-sidebar-nav"
+          aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+        >
+          {mobileNavOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
+        </button>
+        <span className="min-w-0 truncate text-sm font-semibold tracking-tight text-zinc-100">
+          {mobileAdminTitle(location.pathname)}
+        </span>
+        <div className="flex-1" />
+        <a
+          href="/"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-zinc-400
+            hover:bg-white/[0.06] hover:text-zinc-200"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          Site
+        </a>
+      </header>
+
+      {mobileNavOpen ? (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          className="fixed inset-0 z-40 bg-black/55 backdrop-blur-[2px] lg:hidden"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      ) : null}
+
       <aside
-        className="flex h-screen w-[17.5rem] shrink-0 flex-col border-r border-zinc-800/80 bg-zinc-950
-          bg-[linear-gradient(180deg,rgb(24_24_27)_0%,rgb(9_9_11)_100%)]"
+        id="admin-sidebar-nav"
+        className={cn(
+          "flex w-[17.5rem] shrink-0 flex-col border-r border-zinc-800/80 bg-zinc-950",
+          "bg-[linear-gradient(180deg,rgb(24_24_27)_0%,rgb(9_9_11)_100%)]",
+          "fixed inset-y-0 left-0 z-50 h-[100dvh] transition-transform duration-200 ease-out",
+          "max-lg:shadow-[4px_0_24px_rgba(0,0,0,0.45)]",
+          mobileNavOpen ? "max-lg:translate-x-0" : "max-lg:-translate-x-full",
+          "lg:static lg:h-screen lg:translate-x-0 lg:shadow-none",
+        )}
       >
         <div className="shrink-0 px-2 pt-4 pb-2">
           <AdminSidebarProfile />
         </div>
 
         <ScrollArea className="flex-1 min-h-0 px-2">
-          <nav className="pr-2 pb-4">
+          <nav className="pr-6 pb-4">
             <p className={sectionLabel}>Main</p>
             <div className="flex flex-col gap-0.5">
               <NavLink to="/admin" end className={navClass}>
@@ -177,23 +273,38 @@ export function AdminShell(): JSX.Element {
             </div>
 
             <p className={cn(sectionLabel, "mt-4")}>Settings</p>
-            <div className="flex flex-col gap-0.5">
-              <NavLink to="/admin/settings" className={navClass}>
+            <div
+              className="group/site-settings flex flex-col gap-0.5"
+              role="group"
+              aria-label="Site settings and related pages"
+            >
+              <NavLink
+                to="/admin/settings"
+                className={({ isActive }) => cn(navClass({ isActive }), "min-w-0")}
+              >
                 <Settings2 className="h-4 w-4 shrink-0 opacity-80" />
-                Site settings
+                <span className="truncate">Site settings</span>
               </NavLink>
-              <NavLink to="/admin/settings/social" className={subNavClass}>
-                <Share2 className="h-3.5 w-3.5 opacity-70 shrink-0" />
-                Social links
-              </NavLink>
-              <NavLink to="/admin/settings/seo" className={subNavClass}>
-                <Search className="h-3.5 w-3.5 opacity-70 shrink-0" />
-                SEO
-              </NavLink>
-              <NavLink to="/admin/settings/resume" className={subNavClass}>
-                <FileText className="h-3.5 w-3.5 opacity-70 shrink-0" />
-                Resume
-              </NavLink>
+              {/* md+: show children on hover/focus-within; smaller screens: always visible (no hover) */}
+              <div
+                className={cn(
+                  "flex flex-col gap-0.5",
+                  "md:hidden md:group-hover/site-settings:flex md:group-focus-within/site-settings:flex",
+                )}
+              >
+                <NavLink to="/admin/settings/social" className={subNavClass}>
+                  <Share2 className="h-3.5 w-3.5 opacity-70 shrink-0" />
+                  Social links
+                </NavLink>
+                <NavLink to="/admin/settings/seo" className={subNavClass}>
+                  <Search className="h-3.5 w-3.5 opacity-70 shrink-0" />
+                  SEO
+                </NavLink>
+                <NavLink to="/admin/settings/resume" className={subNavClass}>
+                  <FileText className="h-3.5 w-3.5 opacity-70 shrink-0" />
+                  Resume
+                </NavLink>
+              </div>
             </div>
           </nav>
         </ScrollArea>
@@ -224,10 +335,10 @@ export function AdminShell(): JSX.Element {
       </aside>
 
       <main
-        className="flex-1 overflow-auto min-w-0 bg-zinc-950
+        className="flex-1 overflow-auto min-w-0 bg-zinc-950 min-h-0
           [background-image:radial-gradient(ellipse_85%_55%_at_50%_-18%,rgba(99,102,241,0.11),transparent_58%)]"
       >
-        <div className="max-w-7xl mx-auto px-6 py-8 lg:px-10 lg:py-10">
+        <div className="max-w-7xl mx-auto px-4 py-5 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
           <Outlet />
         </div>
       </main>

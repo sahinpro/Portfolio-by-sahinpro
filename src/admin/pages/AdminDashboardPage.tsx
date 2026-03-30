@@ -1,6 +1,4 @@
 import { ChartAreaInteractive } from "@/admin/components/charts/ChartAreaInteractive";
-import { DashboardTopPagesBarChart } from "@/admin/components/charts/DashboardTopPagesBarChart";
-import { DashboardViewsLineChart } from "@/admin/components/charts/DashboardViewsLineChart";
 import { StatCard } from "@/admin/components/ui/StatCard";
 import { useDashboardData } from "@/admin/hooks/useDashboardData";
 import {
@@ -108,14 +106,14 @@ function SectionHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-end justify-between gap-4 mb-4">
-      <div>
+    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+      <div className="min-w-0">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-white/30">
           {title}
         </h2>
         {subtitle && <p className="text-white/50 text-sm mt-0.5">{subtitle}</p>}
       </div>
-      {action}
+      {action ? <div className="shrink-0 sm:self-end">{action}</div> : null}
     </div>
   );
 }
@@ -134,16 +132,16 @@ export function AdminDashboardPage(): JSX.Element {
   return (
     <div className="max-w-7xl space-y-8">
       {/* ── Page header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
             Dashboard
           </h1>
           <p className="text-sm text-white/40 mt-0.5">
             Overview of your portfolio content and traffic.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
           <button
             type="button"
             onClick={() => void refresh()}
@@ -183,7 +181,7 @@ export function AdminDashboardPage(): JSX.Element {
       {/* ── KPI strip ── */}
       <section>
         <SectionHeader title="At a glance" />
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             label="Total projects"
             value={loading ? "—" : data.totalProjects}
@@ -231,10 +229,6 @@ export function AdminDashboardPage(): JSX.Element {
         />
         <div className="mb-4">
           <ChartAreaInteractive data={data.viewsByDay} loading={loading} />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4">
-          <DashboardViewsLineChart data={last30} />
-          <DashboardTopPagesBarChart data={data.topPages} />
         </div>
       </section>
 
@@ -298,8 +292,8 @@ export function AdminDashboardPage(): JSX.Element {
               No page view data yet.
             </div>
           ) : (
-            <div className="rounded-xl border border-white/[0.08] overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="rounded-xl border border-white/[0.08] overflow-x-auto">
+              <table className="w-full min-w-[280px] text-sm">
                 <thead>
                   <tr className="border-b border-white/[0.06] bg-white/[0.02]">
                     <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-white/30">

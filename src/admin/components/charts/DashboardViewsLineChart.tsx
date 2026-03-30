@@ -1,4 +1,5 @@
-import type { ViewsByDay } from "@/admin/hooks/useDashboardData";
+import type { ViewsByDay } from "../../hooks/useDashboardData";
+import type { ReactElement } from "react";
 import {
   CartesianGrid,
   Line,
@@ -17,7 +18,7 @@ type Props = {
 export function DashboardViewsLineChart({
   data,
   emptyHint = "No views recorded in the last 30 days.",
-}: Props): JSX.Element {
+}: Props): ReactElement {
   const hasViews = data.some((d) => d.count > 0);
   const chartData = data.map((d) => ({
     ...d,

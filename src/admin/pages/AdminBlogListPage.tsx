@@ -13,7 +13,7 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 /* ─────────────── helpers ─────────────── */
@@ -278,9 +278,9 @@ export function AdminBlogListPage(): JSX.Element {
       </div>
 
       {/* ── Table ── */}
-      <div className="rounded-xl border border-white/[0.08] overflow-hidden">
-        {/* Table header */}
-        <div className="bg-white/[0.02] border-b border-white/[0.06]">
+      <div className="rounded-xl border border-white/[0.08] overflow-hidden min-w-0">
+        {/* Table header (desktop) */}
+        <div className="hidden md:block bg-white/[0.02] border-b border-white/[0.06]">
           <div
             className="grid gap-0 px-4 py-2.5
               grid-cols-[72px_1fr_140px_72px_100px_44px]
@@ -307,93 +307,160 @@ export function AdminBlogListPage(): JSX.Element {
 
         {/* Rows */}
         {loading ? (
-          <div className="divide-y divide-white/[0.04]">
+          <div>
             {Array.from({ length: 5 }).map((_, i) => (
-              <div
-                key={i}
-                className="grid gap-0 px-4 py-3.5 animate-pulse
-                  grid-cols-[72px_1fr_140px_72px_100px_44px]
-                  lg:grid-cols-[88px_1fr_160px_80px_100px_44px]"
-              >
-                <div className="h-14 w-14 rounded-lg bg-white/10" />
-                <div>
-                  <div className="h-4 w-48 rounded bg-white/10 mb-1.5" />
-                  <div className="h-3 w-32 rounded bg-white/[0.06]" />
+              <Fragment key={i}>
+                <div className="md:hidden border-b border-white/[0.04] last:border-b-0 px-4 py-3.5 animate-pulse">
+                  <div className="flex gap-3">
+                    <div className="h-14 w-14 shrink-0 rounded-lg bg-white/10" />
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="h-4 w-3/4 max-w-[12rem] rounded bg-white/10" />
+                      <div className="h-3 w-1/2 max-w-[8rem] rounded bg-white/[0.06]" />
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <div className="h-3 w-20 rounded bg-white/[0.06]" />
+                        <div className="h-3 w-12 rounded bg-white/[0.06]" />
+                        <div className="h-5 w-14 rounded-md bg-white/[0.06]" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="h-4 w-24 rounded bg-white/[0.06] self-center" />
-                <div className="h-4 w-10 rounded bg-white/[0.06] self-center mx-auto" />
-                <div className="h-5 w-16 rounded-md bg-white/[0.06] self-center" />
-                <div />
-              </div>
+                <div
+                  className="hidden md:grid gap-0 px-4 py-3.5 animate-pulse border-b border-white/[0.04] last:border-b-0
+                    grid-cols-[72px_1fr_140px_72px_100px_44px]
+                    lg:grid-cols-[88px_1fr_160px_80px_100px_44px] items-center"
+                >
+                  <div className="h-14 w-14 rounded-lg bg-white/10" />
+                  <div>
+                    <div className="h-4 w-48 rounded bg-white/10 mb-1.5" />
+                    <div className="h-3 w-32 rounded bg-white/[0.06]" />
+                  </div>
+                  <div className="h-4 w-24 rounded bg-white/[0.06] self-center" />
+                  <div className="h-4 w-10 rounded bg-white/[0.06] self-center mx-auto" />
+                  <div className="h-5 w-16 rounded-md bg-white/[0.06] self-center" />
+                  <div />
+                </div>
+              </Fragment>
             ))}
           </div>
         ) : filtered.length === 0 ? (
           <EmptyState search={search} filter={filter} />
         ) : (
-          <div className="divide-y divide-white/[0.04]">
+          <div>
             {filtered.map((row) => (
               <div
                 key={row.id}
-                className="grid gap-0 px-4 py-3.5 hover:bg-white/[0.025] transition-colors group items-center
-                  grid-cols-[72px_1fr_140px_72px_100px_44px]
-                  lg:grid-cols-[88px_1fr_160px_80px_100px_44px]"
+                className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.025] transition-colors group"
               >
-                <div className="flex items-center">
-                  {row.cover_image ? (
-                    <img
-                      src={row.cover_image}
-                      alt=""
-                      className="h-14 w-14 lg:h-[4.5rem] lg:w-[4.5rem] rounded-lg object-cover border border-white/[0.08] bg-black/30"
-                    />
-                  ) : (
-                    <div
-                      className="h-14 w-14 lg:h-[4.5rem] lg:w-[4.5rem] rounded-lg border border-dashed border-white/[0.1] bg-white/[0.02]
-                      flex items-center justify-center"
-                    >
-                      <BookOpen className="w-5 h-5 text-white/15" />
+                {/* Mobile: stacked card */}
+                <div className="md:hidden px-4 py-3.5">
+                  <div className="flex gap-3">
+                    <div className="flex shrink-0 items-start">
+                      {row.cover_image ? (
+                        <img
+                          src={row.cover_image}
+                          alt=""
+                          className="h-14 w-14 rounded-lg object-cover border border-white/[0.08] bg-black/30"
+                        />
+                      ) : (
+                        <div
+                          className="h-14 w-14 rounded-lg border border-dashed border-white/[0.1] bg-white/[0.02]
+                          flex items-center justify-center"
+                        >
+                          <BookOpen className="w-5 h-5 text-white/15" />
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="min-w-0 pr-3 lg:pr-4">
-                  <Link
-                    to={`/admin/blog/${row.id}`}
-                    className="text-sm font-medium text-white/85 hover:text-white line-clamp-1 transition-colors block"
-                  >
-                    {row.title}
-                  </Link>
-                  {row.excerpt?.trim() ? (
-                    <p className="text-xs text-white/40 line-clamp-2 mt-1 leading-relaxed">
-                      {row.excerpt.trim()}
-                    </p>
-                  ) : null}
-                  <span className="text-[11px] text-white/28 font-mono mt-1 block">/{row.slug}</span>
-                </div>
-
-                {/* Date */}
-                <div className="text-xs text-white/40 tabular-nums">
-                  {formatDate(row.updated_at)}
-                </div>
-
-                {/* Reading time */}
-                <div className="text-xs text-white/40 text-center">
-                  {row.reading_time != null ? (
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {row.reading_time}m
-                    </span>
-                  ) : (
-                    "—"
-                  )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <Link
+                          to={`/admin/blog/${row.id}`}
+                          className="text-sm font-medium text-white/85 hover:text-white line-clamp-2 transition-colors"
+                        >
+                          {row.title}
+                        </Link>
+                        <RowActions row={row} onDelete={handleDelete} />
+                      </div>
+                      {row.excerpt?.trim() ? (
+                        <p className="text-xs text-white/40 line-clamp-2 mt-1 leading-relaxed">
+                          {row.excerpt.trim()}
+                        </p>
+                      ) : null}
+                      <span className="text-[11px] text-white/28 font-mono mt-1 block truncate">
+                        /{row.slug}
+                      </span>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-white/40">
+                        <span className="tabular-nums">{formatDate(row.updated_at)}</span>
+                        {row.reading_time != null ? (
+                          <span className="inline-flex items-center gap-1">
+                            <Clock className="w-3 h-3 shrink-0" />
+                            {row.reading_time}m
+                          </span>
+                        ) : null}
+                        <StatusBadge status={row.status} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Status */}
-                <div>
-                  <StatusBadge status={row.status} />
-                </div>
+                {/* Desktop: grid table row */}
+                <div
+                  className="hidden md:grid gap-0 px-4 py-3.5 items-center
+                    grid-cols-[72px_1fr_140px_72px_100px_44px]
+                    lg:grid-cols-[88px_1fr_160px_80px_100px_44px]"
+                >
+                  <div className="flex items-center">
+                    {row.cover_image ? (
+                      <img
+                        src={row.cover_image}
+                        alt=""
+                        className="h-14 w-14 lg:h-[4.5rem] lg:w-[4.5rem] rounded-lg object-cover border border-white/[0.08] bg-black/30"
+                      />
+                    ) : (
+                      <div
+                        className="h-14 w-14 lg:h-[4.5rem] lg:w-[4.5rem] rounded-lg border border-dashed border-white/[0.1] bg-white/[0.02]
+                        flex items-center justify-center"
+                      >
+                        <BookOpen className="w-5 h-5 text-white/15" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 pr-3 lg:pr-4">
+                    <Link
+                      to={`/admin/blog/${row.id}`}
+                      className="text-sm font-medium text-white/85 hover:text-white line-clamp-1 transition-colors block"
+                    >
+                      {row.title}
+                    </Link>
+                    {row.excerpt?.trim() ? (
+                      <p className="text-xs text-white/40 line-clamp-2 mt-1 leading-relaxed">
+                        {row.excerpt.trim()}
+                      </p>
+                    ) : null}
+                    <span className="text-[11px] text-white/28 font-mono mt-1 block">/{row.slug}</span>
+                  </div>
 
-                {/* Actions */}
-                <div className="flex justify-end">
-                  <RowActions row={row} onDelete={handleDelete} />
+                  <div className="text-xs text-white/40 tabular-nums">
+                    {formatDate(row.updated_at)}
+                  </div>
+
+                  <div className="text-xs text-white/40 text-center">
+                    {row.reading_time != null ? (
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {row.reading_time}m
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </div>
+
+                  <div>
+                    <StatusBadge status={row.status} />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <RowActions row={row} onDelete={handleDelete} />
+                  </div>
                 </div>
               </div>
             ))}

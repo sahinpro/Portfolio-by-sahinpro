@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useId, useMemo, useState } from "react";
+import type { TooltipContentProps, TooltipProps } from "recharts";
 import {
   Area,
   AreaChart,
@@ -17,6 +18,22 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+
+const tooltipValueFormatter: NonNullable<TooltipProps["formatter"]> = (
+  value,
+  name,
+) => {
+  const n =
+    typeof value === "number"
+      ? value
+      : value === undefined
+        ? 0
+        : Array.isArray(value)
+          ? Number(value[0])
+          : Number(value);
+  const display = Number.isFinite(n) ? n.toLocaleString() : String(value ?? "");
+  return [display, String(name ?? "")];
+};
 
 const SERIES_LABEL: Record<string, string> = {
   desktop: "Desktop",
@@ -90,7 +107,7 @@ export function ChartAreaInteractive({
           "relative flex flex-col gap-4 p-6 pb-2 sm:flex-row sm:items-start sm:justify-between sm:gap-6",
         )}
       >
-        <div className="absolute top-4 left-4 min-w-0 flex-1 space-y-1">
+        <div className="absolute lg:top-4 lg:left-4 top-2 right-4 min-w-0 flex-1 lg:space-y-1 space-y-0">
           <CardTitle className="text-base text-white">Total visitors</CardTitle>
           <CardDescription className="text-white/45">
             <span className="hidden min-[540px]:block">{meta.description}</span>
@@ -265,7 +282,9 @@ export function ChartAreaInteractive({
                   width={36}
                 />
                 <Tooltip
-                  content={({ active, payload, label }) => {
+                  formatter={tooltipValueFormatter}
+                  content={(props: TooltipContentProps) => {
+                    const { active, payload, label } = props;
                     if (!active || !payload?.length) return null;
                     const filtered = payload.filter((p) => {
                       const key = String(p.dataKey);
