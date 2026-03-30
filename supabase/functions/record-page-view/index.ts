@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-analytics-secret",
+    "authorization, x-client-info, apikey, content-type, x-analytics-secret, accept-profile",
 };
 
 Deno.serve(async (req) => {
