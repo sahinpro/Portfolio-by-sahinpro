@@ -1,4 +1,7 @@
-import { getSupabaseBrowserKey, getSupabaseProjectUrl } from "@/lib/supabaseFunctions";
+import {
+  getSupabaseEdgeFunctionInvokeKey,
+  getSupabaseProjectUrl,
+} from "@/lib/supabaseFunctions";
 
 export type ContactPayload = {
   name: string;
@@ -18,7 +21,8 @@ export async function submitContactToSupabase(
   payload: ContactPayload,
 ): Promise<SubmitContactResult> {
   const base = getSupabaseProjectUrl();
-  const key = getSupabaseBrowserKey();
+  /** Anon JWT — publishable-only keys can 401 Edge Functions (see recordPageView). */
+  const key = getSupabaseEdgeFunctionInvokeKey();
   if (!base || !key) return { ok: false, status: 0 };
 
   const body: Record<string, string | undefined> = {

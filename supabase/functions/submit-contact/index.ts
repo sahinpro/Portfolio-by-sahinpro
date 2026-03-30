@@ -13,8 +13,24 @@ Deno.serve(async (req) => {
 
   try {
     const turnstileSecret = Deno.env.get("TURNSTILE_SECRET_KEY");
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    // Hosted Edge Functions inject SUPABASE_SERVICE_ROLE_KEY; CLI cannot set SUPABASE_* secrets.
+    // For a manual secret use: npx supabase secrets set SERVICE_ROLE_KEY=<service_role from dashboard>
+    const serviceKey =
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+      Deno.env.get("SERVICE_ROLE_KEY");
+
+    if (!supabaseUrl || !serviceKey) {
+      console.error(
+        "submit-contact: missing SUPABASE_URL or service role key. " +
+          "On Supabase Cloud, SUPABASE_SERVICE_ROLE_KEY is injected automatically after deploy. " +
+          "Otherwise set: npx supabase secrets set SERVICE_ROLE_KEY=<Project Settings → API → service_role>",
+      );
+      return new Response(JSON.stringify({ error: "Save failed" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const body = await req.json();
     const {

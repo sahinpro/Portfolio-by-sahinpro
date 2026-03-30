@@ -21,11 +21,21 @@ Or use the **Supabase Dashboard → Edge Functions**: create/deploy `record-page
 
 ### Deploy `submit-contact` (contact form inbox)
 
-```bash
-npm run deploy:function:submit-contact
-```
+The function inserts into `contact_submissions` using the **service role** key.
 
-Set any required secrets (e.g. `TURNSTILE_SECRET_KEY`) in the dashboard or via `npx supabase secrets set`.
+On **Supabase-hosted** Edge Functions, **`SUPABASE_SERVICE_ROLE_KEY` is injected for you** — you do **not** set it with the CLI. The CLI **refuses** names starting with `SUPABASE_` (`Env name cannot start with SUPABASE_, skipping`) because those are reserved for the platform.
+
+1. Log in and link the project (same as above) if you have not already.
+2. Deploy:  
+   `npm run deploy:function:submit-contact`  
+   or: `npx supabase functions deploy submit-contact`
+3. Optional: if you use Turnstile on the contact form, set:  
+   `npx supabase secrets set TURNSTILE_SECRET_KEY=...`
+4. Only if the function still has no service role (e.g. some local/self-hosted setups): set a **non-reserved** name with the same value as **Project Settings → API → `service_role`**:  
+   `npx supabase secrets set SERVICE_ROLE_KEY=paste_service_role_jwt_here`  
+   The function reads `SUPABASE_SERVICE_ROLE_KEY` first, then `SERVICE_ROLE_KEY`.
+
+If submissions still fail, open **Edge Functions → submit-contact → Logs** and confirm the `contact_submissions` table exists (the service role bypasses RLS for inserts when the key is valid).
 
 ## Database
 
