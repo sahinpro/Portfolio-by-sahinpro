@@ -267,6 +267,9 @@ export function AdminProjectFormPage(): JSX.Element {
                     <SelectItem value="published" className="focus:bg-white/10">
                       Published
                     </SelectItem>
+                    <SelectItem value="trash" className="focus:bg-white/10">
+                      Trash
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               )}

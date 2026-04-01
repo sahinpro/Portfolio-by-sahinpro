@@ -9,7 +9,7 @@ export type ProjectRow = {
   live_url: string | null;
   github_url: string | null;
   featured: boolean;
-  status: "draft" | "published";
+  status: "draft" | "published" | "trash";
   year: string | null;
   sort_order: number;
   stats: unknown;
@@ -48,7 +48,7 @@ export type BlogPostRow = {
   content: string;
   cover_image: string | null;
   tags: string[];
-  status: "draft" | "published";
+  status: "draft" | "published" | "trash";
   featured: boolean;
   reading_time: number | null;
   published_at: string | null;

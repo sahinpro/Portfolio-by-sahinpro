@@ -11,7 +11,7 @@ Built with **React 18**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Frame
 - **Admin dashboard** (`/admin`): projects CRUD, testimonials, blog, contact inbox, page-view analytics, site settings, social links, SEO fields, resume/CV in storage.
 - **Security**: Row Level Security (RLS) on the database; admin allowlist; protected admin routes.
 - **SEO**: `react-helmet-async` for titles and meta tags driven from the database where available.
-- **Contact**: Formspree and/or Supabase Edge Function flow (see `ContactPage` and `supabase/README.md`); optional Cloudflare Turnstile.
+- **Contact**: Supabase Edge Function inbox flow with optional Resend email notifications and optional Cloudflare Turnstile.
 - **TypeScript** throughout, ESLint with zero-warning policy, path aliases under `@/`.
 
 ## Tech stack
@@ -49,7 +49,6 @@ Create a `.env` file in the project root (values are not committed).
 | `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY` or `VITE_SUPABASE_ANON_KEY` | For CMS / admin | Public/anon key for the browser client                                               |
 | `VITE_ADMIN_EMAIL`                                                  | Optional        | If set, only this email may use admin login UI (allowlist still required for writes) |
 | `VITE_TURNSTILE_SITE_KEY`                                           | Optional        | Cloudflare Turnstile on contact form                                                 |
-| `VITE_CONTACT_FORM_ID`                                              | Optional        | Formspree form id (`https://formspree.io/f/...`)                                     |
 
 The Supabase client lives in `src/utils/supabase.ts`.
 

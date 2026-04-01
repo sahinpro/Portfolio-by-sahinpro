@@ -197,9 +197,6 @@ export const ContactPage = (): JSX.Element => {
   const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as
     | string
     | undefined;
-  const formEndpoint = import.meta.env.VITE_CONTACT_FORM_ID
-    ? `https://formspree.io/f/${import.meta.env.VITE_CONTACT_FORM_ID}`
-    : null;
 
   const headerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -256,18 +253,6 @@ export const ContactPage = (): JSX.Element => {
 
     setIsSubmitting(true);
 
-    const formspreePayload: Record<string, string | undefined> = {
-      name: formData.name,
-      email: formData.email,
-      subject: formData.subject,
-      phone: formData.phone || undefined,
-      budget: formData.budget,
-      message: formData.message,
-    };
-    if (turnstileToken) {
-      formspreePayload["cf-turnstile-response"] = turnstileToken;
-    }
-
     const applySuccess = () => {
       setFormData({
         name: "",
@@ -281,20 +266,6 @@ export const ContactPage = (): JSX.Element => {
       setSubmittedJustNow(true);
       setIsSubmitted(true);
       setIsSubmitting(false);
-    };
-
-    const postFormspree = async (): Promise<boolean> => {
-      if (!formEndpoint) return false;
-      try {
-        const res = await fetch(formEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formspreePayload),
-        });
-        return res.ok;
-      } catch {
-        return false;
-      }
     };
 
     if (isSupabaseBrowserConfigured()) {
@@ -324,28 +295,14 @@ export const ContactPage = (): JSX.Element => {
         return;
       }
       applySuccess();
-      if (formEndpoint) {
-        void postFormspree();
-      }
       return;
     }
 
-    if (formEndpoint) {
-      const ok = await postFormspree();
-      if (ok) {
-        applySuccess();
-        return;
-      }
-      setSubmitError(
-        "Message not sent. Please try again or email me directly.",
-      );
-      setTurnstileToken(null);
-      setIsSubmitting(false);
-      return;
-    }
-
-    await new Promise((r) => setTimeout(r, 1200));
-    applySuccess();
+    setSubmitError(
+      "Contact form is not configured right now. Set the Supabase public URL and Edge Function key to enable submissions.",
+    );
+    setTurnstileToken(null);
+    setIsSubmitting(false);
   };
 
   const inputClass = `w-full px-4 py-3 sm:py-2.5 rounded-xl border border-white/10 bg-white/[0.04]

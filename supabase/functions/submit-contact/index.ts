@@ -1,10 +1,73 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { Resend } from "npm:resend";
 
 const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
+
+type ContactSubmission = {
+  name: string;
+  email: string;
+  subject: string | null;
+  phone: string | null;
+  budget: string;
+  message: string;
+};
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+async function sendResendNotification(
+  submission: ContactSubmission,
+): Promise<void> {
+  const resendApiKey = Deno.env.get("RESEND_API_KEY");
+  const toEmail = Deno.env.get("CONTACT_NOTIFICATION_TO_EMAIL");
+  const fromEmail =
+    Deno.env.get("CONTACT_NOTIFICATION_FROM_EMAIL") ?? "Portfolio Contact <onboarding@resend.dev>";
+
+  if (!resendApiKey || !toEmail) {
+    return;
+  }
+
+  const resend = new Resend(resendApiKey);
+
+  const subjectLine = submission.subject?.trim()
+    ? `New contact: ${submission.subject.trim()}`
+    : `New contact from ${submission.name}`;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
+      <h2>New portfolio contact submission</h2>
+      <p><strong>Name:</strong> ${escapeHtml(submission.name)}</p>
+      <p><strong>Email:</strong> ${escapeHtml(submission.email)}</p>
+      <p><strong>Phone:</strong> ${escapeHtml(submission.phone ?? "Not provided")}</p>
+      <p><strong>Budget:</strong> ${escapeHtml(submission.budget)}</p>
+      <p><strong>Subject:</strong> ${escapeHtml(submission.subject ?? "Not provided")}</p>
+      <p><strong>Message:</strong></p>
+      <pre style="white-space:pre-wrap;background:#f6f6f6;padding:12px;border-radius:8px;">${escapeHtml(submission.message)}</pre>
+    </div>
+  `;
+
+  const { error } = await resend.emails.send({
+    from: fromEmail,
+    to: [toEmail],
+    replyTo: submission.email,
+    subject: subjectLine,
+    html,
+  });
+
+  if (error) {
+    throw new Error(`Resend request failed: ${error.message}`);
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -81,13 +144,17 @@ Deno.serve(async (req) => {
       auth: { persistSession: false },
     });
 
-    const { error } = await admin.from("contact_submissions").insert({
+    const submission: ContactSubmission = {
       name: name.trim(),
       email: email.trim(),
       subject: subject?.trim() || null,
       phone: phone?.trim() || null,
       budget: budget.trim(),
       message: message.trim(),
+    };
+
+    const { error } = await admin.from("contact_submissions").insert({
+      ...submission,
       status: "unread",
     });
 
@@ -97,6 +164,12 @@ Deno.serve(async (req) => {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    try {
+      await sendResendNotification(submission);
+    } catch (emailError) {
+      console.error("submit-contact: resend notification failed", emailError);
     }
 
     return new Response(JSON.stringify({ ok: true }), {

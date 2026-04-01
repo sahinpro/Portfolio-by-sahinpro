@@ -18,7 +18,7 @@ export const projectFormSchema = z
     live_url: z.string(),
     github_url: z.string(),
     featured: z.boolean(),
-    status: z.enum(["draft", "published"]),
+    status: z.enum(["draft", "published", "trash"]),
     year: z.string(),
     sort_order: z.coerce.number().int(),
     stats: z.array(statSchema),

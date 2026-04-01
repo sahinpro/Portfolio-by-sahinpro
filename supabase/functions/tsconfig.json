@@ -11,6 +11,9 @@
     "paths": {
       "https://esm.sh/@supabase/supabase-js@2.49.1": [
         "../../node_modules/@supabase/supabase-js/dist/index.d.mts"
+      ],
+      "npm:resend": [
+        "../../node_modules/resend/dist/index.d.mts"
       ]
     }
   },

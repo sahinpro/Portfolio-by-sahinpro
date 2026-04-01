@@ -6,7 +6,6 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY?: string;
   /** Legacy JWT anon key — used if publishable key is unset */
   readonly VITE_SUPABASE_ANON_KEY?: string;
-  readonly VITE_CONTACT_FORM_ID?: string;
   readonly VITE_TURNSTILE_SITE_KEY?: string;
   readonly VITE_ADMIN_EMAIL?: string;
   /** Same value as Supabase secret `ANALYTICS_INGEST_SECRET` (client-visible ingest key). */

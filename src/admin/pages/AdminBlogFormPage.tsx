@@ -45,7 +45,7 @@ export function AdminBlogFormPage(): JSX.Element {
   const [coverImage, setCoverImage] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [featured, setFeatured] = useState(false);
-  const [status, setStatus] = useState<"draft" | "published">("draft");
+  const [status, setStatus] = useState<"draft" | "published" | "trash">("draft");
   const [publishedAt, setPublishedAt] = useState("");
 
   useEffect(() => {
@@ -213,7 +213,7 @@ export function AdminBlogFormPage(): JSX.Element {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>Status</label>
-            <Select value={status} onValueChange={(v) => setStatus(v as "draft" | "published")}>
+            <Select value={status} onValueChange={(v) => setStatus(v as "draft" | "published" | "trash")}>
               <SelectTrigger className={field}>
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -223,6 +223,9 @@ export function AdminBlogFormPage(): JSX.Element {
                 </SelectItem>
                 <SelectItem value="published" className="focus:bg-white/10">
                   Published
+                </SelectItem>
+                <SelectItem value="trash" className="focus:bg-white/10">
+                  Trash
                 </SelectItem>
               </SelectContent>
             </Select>
