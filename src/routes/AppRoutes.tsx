@@ -1,9 +1,9 @@
 import { PageViewTracker } from "@/components/PageViewTracker";
 import { VercelWebAnalytics } from "@/components/VercelWebAnalytics";
-import { Suspense } from "react";
-import { Route, Routes } from "react-router-dom";
 import * as P from "@/routes/lazyPages";
 import { PageSpinner } from "@/routes/PageSpinner";
+import { Suspense } from "react";
+import { Route, Routes } from "react-router-dom";
 
 export function AppRoutes(): JSX.Element {
   return (
@@ -13,14 +13,17 @@ export function AppRoutes(): JSX.Element {
       <VercelWebAnalytics />
       <Suspense fallback={<PageSpinner />}>
         <Routes>
-          <Route path="/" element={<P.HomePage />} />
-          <Route path="/about" element={<P.AboutPage />} />
-          <Route path="/projects/:id" element={<P.ProjectDetailPage />} />
-          <Route path="/projects" element={<P.ProjectsPage />} />
-          <Route path="/services" element={<P.ServicesPage />} />
-          <Route path="/blogs" element={<P.BlogsPage />} />
-          <Route path="/blogs/:slug" element={<P.BlogPostPage />} />
-          <Route path="/contact" element={<P.ContactPage />} />
+          <Route element={<P.PublicSiteGate />}>
+            <Route path="/" element={<P.HomePage />} />
+            <Route path="/about" element={<P.AboutPage />} />
+            <Route path="/projects/:id" element={<P.ProjectDetailPage />} />
+            <Route path="/projects" element={<P.ProjectsPage />} />
+            <Route path="/services" element={<P.ServicesPage />} />
+            <Route path="/blogs" element={<P.BlogsPage />} />
+            <Route path="/blogs/:slug" element={<P.BlogPostPage />} />
+            <Route path="/contact" element={<P.ContactPage />} />
+            <Route path="*" element={<P.NotFoundPage />} />
+          </Route>
           <Route path="/admin/login" element={<P.AdminLoginPage />} />
           <Route path="/admin" element={<P.AdminProtectedLayout />}>
             <Route index element={<P.AdminDashboardPage />} />
@@ -37,11 +40,13 @@ export function AppRoutes(): JSX.Element {
             <Route path="analytics" element={<P.AdminAnalyticsPage />} />
             <Route path="media" element={<P.AdminMediaLibraryPage />} />
             <Route path="settings" element={<P.AdminSiteSettingsPage />} />
-            <Route path="settings/social" element={<P.AdminSocialLinksPage />} />
+            <Route
+              path="settings/social"
+              element={<P.AdminSocialLinksPage />}
+            />
             <Route path="settings/seo" element={<P.AdminSEOPage />} />
             <Route path="settings/resume" element={<P.AdminResumePage />} />
           </Route>
-          <Route path="*" element={<P.NotFoundPage />} />
         </Routes>
       </Suspense>
     </>

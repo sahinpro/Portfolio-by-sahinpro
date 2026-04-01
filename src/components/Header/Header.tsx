@@ -19,6 +19,11 @@ const getMaxWidth = (): string => {
     : "800px";
 };
 
+const isMobileViewport = (): boolean => {
+  if (typeof window === "undefined") return false;
+  return window.innerWidth < MOBILE_BREAKPOINT;
+};
+
 const Header = () => {
   const isScrolled = useScrollPosition();
   const { isOpen, toggle, close } = useMobileMenu();
@@ -62,18 +67,24 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    if (containerRef.current) {
-      animate(
-        containerRef.current,
-        {
-          width: isScrolled ? getMaxWidth() : "100%",
-          borderRadius: "20px",
-          scale: isScrolled ? 1 : 0.98,
-          y: isScrolled ? 0 : -20,
-        },
-        { duration: HEADER_ANIMATION_DURATION, ease: "easeInOut" },
-      );
+    if (!containerRef.current) return;
+
+    if (isMobileViewport()) {
+      containerRef.current.style.width = "100%";
+      containerRef.current.style.borderRadius = "20px";
+      containerRef.current.style.transform = "none";
+      return;
     }
+
+    animate(
+      containerRef.current,
+      {
+        width: isScrolled ? getMaxWidth() : "100%",
+        borderRadius: "20px",
+        y: isScrolled ? 0 : -20,
+      },
+      { duration: HEADER_ANIMATION_DURATION, ease: "easeInOut" },
+    );
   }, [isScrolled]);
 
   return (

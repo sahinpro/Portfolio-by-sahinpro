@@ -1,15 +1,22 @@
+import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
+import { useToast } from "@/admin/context/ToastContext";
+import { getSiteSettingsMap, upsertSiteSettings } from "@/admin/lib/siteSettings";
 import { ChartAreaInteractive } from "@/admin/components/charts/ChartAreaInteractive";
 import { StatCard } from "@/admin/components/ui/StatCard";
 import { useDashboardData } from "@/admin/hooks/useDashboardData";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
+import { COMING_SOON_MODE_KEY } from "@/lib/siteMode";
 import {
   BarChart3,
   BookOpen,
   ExternalLink,
   FolderKanban,
+  MonitorSmartphone,
   Mail,
   Plus,
   RefreshCw,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 /* ─────────────── section header ─────────────── */
@@ -40,12 +47,59 @@ function SectionHeader({
 
 export function AdminDashboardPage(): JSX.Element {
   const { data, loading, error, refresh } = useDashboardData();
+  const { showToast } = useToast();
+  const [comingSoonMode, setComingSoonMode] = useState(false);
+  const [comingSoonLoading, setComingSoonLoading] = useState(true);
+  const [comingSoonSaving, setComingSoonSaving] = useState(false);
 
   const last30 = data.viewsByDay.slice(-30);
   const total30d = last30.reduce((a, b) => a + b.count, 0);
-  const avgPerDay = last30.length
-    ? Math.round(total30d / last30.length)
-    : 0;
+  const avgPerDay = last30.length ? Math.round(total30d / last30.length) : 0;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadSiteMode = async () => {
+      try {
+        const settings = await getSiteSettingsMap();
+        if (!cancelled) {
+          setComingSoonMode(settings[COMING_SOON_MODE_KEY] === "enabled");
+        }
+      } catch (error) {
+        if (!cancelled) {
+          showToast(error instanceof Error ? error.message : "Failed to load site mode", "error");
+        }
+      } finally {
+        if (!cancelled) {
+          setComingSoonLoading(false);
+        }
+      }
+    };
+
+    void loadSiteMode();
+    return () => {
+      cancelled = true;
+    };
+  }, [showToast]);
+
+  const handleToggleComingSoon = async (nextValue: boolean) => {
+    const previousValue = comingSoonMode;
+    setComingSoonMode(nextValue);
+    setComingSoonSaving(true);
+
+    try {
+      await upsertSiteSettings({
+        [COMING_SOON_MODE_KEY]: nextValue ? "enabled" : "disabled",
+      });
+      invalidatePublicDataCache();
+      showToast(nextValue ? "Coming soon mode is now active" : "Website is live again");
+    } catch (error) {
+      setComingSoonMode(previousValue);
+      showToast(error instanceof Error ? error.message : "Failed to update site mode", "error");
+    } finally {
+      setComingSoonSaving(false);
+    }
+  };
 
   return (
     <div className="max-w-7xl space-y-8">
@@ -95,6 +149,42 @@ export function AdminDashboardPage(): JSX.Element {
           .
         </div>
       )}
+
+      <section className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-4 shadow-[0_16px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]">
+              <MonitorSmartphone className="h-4.5 w-4.5 text-cyan-200" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">Coming soon status</p>
+              <p className="mt-1 text-sm leading-6 text-zinc-400">
+                {comingSoonMode
+                  ? "Public visitors currently see the coming soon page."
+                  : "Public visitors currently see the live website."}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <span
+              className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                comingSoonMode
+                  ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200"
+                  : "border-zinc-700 bg-zinc-800/70 text-zinc-300"
+              }`}
+            >
+              {comingSoonMode ? "Active" : "Live"}
+            </span>
+            <ToggleSwitch
+              checked={comingSoonMode}
+              onChange={(nextValue) => void handleToggleComingSoon(nextValue)}
+              disabled={comingSoonLoading || comingSoonSaving}
+              label={comingSoonMode ? "Coming soon enabled" : "Website live"}
+            />
+          </div>
+        </div>
+      </section>
 
       {/* ── KPI strip ── */}
       <section>
@@ -149,7 +239,6 @@ export function AdminDashboardPage(): JSX.Element {
           <ChartAreaInteractive data={data.viewsByDay} loading={loading} />
         </div>
       </section>
-
     </div>
   );
 }

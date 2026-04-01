@@ -31,7 +31,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
             el.style.height = "auto";
             el.style.overflow = "";
           },
-        }
+        },
       );
       isMountedRef.current = true;
     } else {
@@ -51,7 +51,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
             el.style.overflow = "";
             isMountedRef.current = false;
           },
-        }
+        },
       );
     }
   }, [isOpen]);
