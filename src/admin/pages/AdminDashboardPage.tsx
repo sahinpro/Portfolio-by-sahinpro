@@ -2,96 +2,15 @@ import { ChartAreaInteractive } from "@/admin/components/charts/ChartAreaInterac
 import { StatCard } from "@/admin/components/ui/StatCard";
 import { useDashboardData } from "@/admin/hooks/useDashboardData";
 import {
-  ArrowUpRight,
   BarChart3,
   BookOpen,
   ExternalLink,
   FolderKanban,
-  Inbox,
   Mail,
   Plus,
   RefreshCw,
-  TrendingUp,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
-/* ─────────────── types ─────────────── */
-
-type QuickLinkProps = {
-  to: string;
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  sublabel: string;
-  badge?: number | string;
-  accent?: "violet" | "emerald" | "amber" | "blue";
-};
-
-/* ─────────────── accent map ─────────────── */
-
-const accentCls = {
-  violet: {
-    dot: "bg-violet-400",
-    badge: "bg-violet-500/15 text-violet-300",
-    icon: "text-violet-400",
-  },
-  emerald: {
-    dot: "bg-emerald-400",
-    badge: "bg-emerald-500/15 text-emerald-300",
-    icon: "text-emerald-400",
-  },
-  amber: {
-    dot: "bg-amber-400",
-    badge: "bg-amber-500/15 text-amber-300",
-    icon: "text-amber-400",
-  },
-  blue: {
-    dot: "bg-blue-400",
-    badge: "bg-blue-500/15 text-blue-300",
-    icon: "text-blue-400",
-  },
-};
-
-/* ─────────────── quick-link row ─────────────── */
-
-function QuickLink({
-  to,
-  icon: Icon,
-  label,
-  sublabel,
-  badge,
-  accent = "violet",
-}: QuickLinkProps) {
-  const cls = accentCls[accent];
-  return (
-    <Link
-      to={to}
-      className="group flex items-center gap-3 px-4 py-3.5 rounded-xl border border-white/[0.06]
-        bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-200"
-    >
-      <div
-        className={`flex-shrink-0 w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center ${cls.icon}`}
-      >
-        <Icon className="w-4 h-4" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-white/90 leading-tight">
-          {label}
-        </p>
-        <p className="text-xs text-white/35 truncate mt-0.5">{sublabel}</p>
-      </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {badge !== undefined && (
-          <span
-            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${cls.badge}`}
-          >
-            {badge}
-          </span>
-        )}
-        <ArrowUpRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/60 transition-colors" />
-      </div>
-    </Link>
-  );
-}
 
 /* ─────────────── section header ─────────────── */
 
@@ -231,41 +150,6 @@ export function AdminDashboardPage(): JSX.Element {
         </div>
       </section>
 
-      {/* ── Quick actions ── */}
-      <section>
-        <SectionHeader title="Quick actions" />
-        <div className="space-y-2">
-          <QuickLink
-            to="/admin/projects/new"
-            icon={FolderKanban}
-            label="New project"
-            sublabel="Add a portfolio case study"
-            accent="violet"
-          />
-          <QuickLink
-            to="/admin/blog/new"
-            icon={BookOpen}
-            label="New blog post"
-            sublabel="Write and publish an article"
-            accent="blue"
-          />
-          <QuickLink
-            to="/admin/inbox"
-            icon={Inbox}
-            label="Contact inbox"
-            sublabel="Read and respond to messages"
-            badge={data.unreadMessages > 0 ? data.unreadMessages : undefined}
-            accent="amber"
-          />
-          <QuickLink
-            to="/admin/analytics"
-            icon={TrendingUp}
-            label="Analytics"
-            sublabel="Detailed page view breakdown"
-            accent="emerald"
-          />
-        </div>
-      </section>
     </div>
   );
 }

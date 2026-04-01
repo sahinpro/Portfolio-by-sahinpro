@@ -48,6 +48,19 @@ const SERIES_LABEL: Record<string, string> = {
   mobile: "Mobile",
 };
 
+const SERIES_STYLE = {
+  desktop: {
+    stroke: "#8ec5ff",
+    fill: "#8ec5ff",
+    activeDot: "#c8e2ff",
+  },
+  mobile: {
+    stroke: "#2563eb",
+    fill: "#3b82f6",
+    activeDot: "#60a5fa",
+  },
+} as const;
+
 type RangeKey = "90d" | "30d" | "7d";
 
 const RANGES: {
@@ -112,10 +125,10 @@ export function ChartAreaInteractive({
     >
       <CardHeader
         className={cn(
-          "relative flex flex-col gap-4 p-6 pb-2 sm:flex-row sm:items-start sm:justify-between sm:gap-6",
+          "relative flex flex-col gap-4 p-4 pb-2 lg:flex-row lg:items-start lg:justify-between lg:gap-6",
         )}
       >
-        <div className="absolute lg:top-4 lg:left-4 top-2 right-4 min-w-0 flex-1 lg:space-y-1 space-y-0">
+        <div className="lg:min-w-[160px] flex-1 lg:space-y-1 space-y-0 ">
           <CardTitle className="text-base text-white">Total visitors</CardTitle>
           <CardDescription className="text-white/45">
             <span className="hidden min-[540px]:block">{meta.description}</span>
@@ -243,24 +256,24 @@ export function ChartAreaInteractive({
                   >
                     <stop
                       offset="5%"
-                      stopColor="rgba(255,255,255,0.45)"
+                      stopColor={SERIES_STYLE.desktop.fill}
                       stopOpacity={1}
                     />
                     <stop
                       offset="95%"
-                      stopColor="rgba(255,255,255,0.45)"
+                      stopColor={SERIES_STYLE.desktop.fill}
                       stopOpacity={0.1}
                     />
                   </linearGradient>
                   <linearGradient id={fillMobileId} x1="0" y1="0" x2="0" y2="1">
                     <stop
                       offset="5%"
-                      stopColor="rgba(255,255,255,0.28)"
+                      stopColor={SERIES_STYLE.mobile.fill}
                       stopOpacity={0.85}
                     />
                     <stop
                       offset="95%"
-                      stopColor="rgba(255,255,255,0.28)"
+                      stopColor={SERIES_STYLE.mobile.fill}
                       stopOpacity={0.1}
                     />
                   </linearGradient>
@@ -315,7 +328,17 @@ export function ChartAreaInteractive({
                               key={String(p.dataKey)}
                               className="flex items-center justify-between gap-6 text-white"
                             >
-                              <span className="text-white/55">
+                              <span
+                                className="text-white/55"
+                                style={{
+                                  color:
+                                    SERIES_STYLE[
+                                      String(
+                                        p.dataKey,
+                                      ) as keyof typeof SERIES_STYLE
+                                    ]?.stroke ?? "rgba(255,255,255,0.55)",
+                                }}
+                              >
                                 {SERIES_LABEL[String(p.dataKey)] ?? p.name}:
                               </span>
                               <span className="font-medium tabular-nums">
@@ -336,11 +359,15 @@ export function ChartAreaInteractive({
                     dataKey="mobile"
                     name="mobile"
                     stackId={showDesktop && showMobile ? "visitors" : undefined}
-                    stroke="rgba(255,255,255,0.55)"
+                    stroke={SERIES_STYLE.mobile.stroke}
                     strokeWidth={1}
                     fill={`url(#${fillMobileId})`}
                     dot={false}
-                    activeDot={{ r: 3, fill: "#fff", strokeWidth: 0 }}
+                    activeDot={{
+                      r: 3,
+                      fill: SERIES_STYLE.mobile.activeDot,
+                      strokeWidth: 0,
+                    }}
                   />
                 ) : null}
                 {showDesktop ? (
@@ -349,11 +376,15 @@ export function ChartAreaInteractive({
                     dataKey="desktop"
                     name="desktop"
                     stackId={showDesktop && showMobile ? "visitors" : undefined}
-                    stroke="rgba(255,255,255,0.9)"
+                    stroke={SERIES_STYLE.desktop.stroke}
                     strokeWidth={1}
                     fill={`url(#${fillDesktopId})`}
                     dot={false}
-                    activeDot={{ r: 3, fill: "#fff", strokeWidth: 0 }}
+                    activeDot={{
+                      r: 3,
+                      fill: SERIES_STYLE.desktop.activeDot,
+                      strokeWidth: 0,
+                    }}
                   />
                 ) : null}
               </AreaChart>

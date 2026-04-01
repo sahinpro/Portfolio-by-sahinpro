@@ -178,14 +178,15 @@ export function AdminShell(): JSX.Element {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col lg:flex-row">
       <header
-        className="sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 border-b border-zinc-800/80 bg-zinc-950/95 px-3 backdrop-blur-md
-          lg:hidden"
+        className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-zinc-800/80 bg-zinc-950/95 px-3
+          backdrop-blur-md lg:hidden"
       >
         <button
           type="button"
           onClick={() => setMobileNavOpen((o) => !o)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700/80 bg-zinc-900/80
-            text-zinc-200 outline-none transition-colors hover:bg-zinc-800 focus-visible:ring-2 focus-visible:ring-white/20"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-700/80 bg-zinc-900/80
+            text-zinc-200 shadow-[0_10px_30px_rgba(0,0,0,0.2)] outline-none transition-colors hover:bg-zinc-800
+            focus-visible:ring-2 focus-visible:ring-white/20"
           aria-expanded={mobileNavOpen}
           aria-controls="admin-sidebar-nav"
           aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
@@ -196,17 +197,36 @@ export function AdminShell(): JSX.Element {
             <Menu className="h-5 w-5" />
           )}
         </button>
-        <span className="min-w-0 truncate text-sm font-semibold tracking-tight text-zinc-100">
-          {mobileAdminTitle(location.pathname)}
-        </span>
-        <div className="flex-1" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
+            Admin Panel
+          </p>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="truncate text-sm font-semibold tracking-tight text-zinc-100">
+              {mobileAdminTitle(location.pathname)}
+            </span>
+            {unread > 0 ? (
+              <span
+                className="shrink-0 rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px]
+                  font-semibold text-amber-200"
+              >
+                {unread > 99 ? "99+" : unread} new
+              </span>
+            ) : null}
+          </div>
+        </div>
         <a
           href="/"
-          className="inline-flex h-9 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-zinc-400
-            hover:bg-white/[0.06] hover:text-zinc-200"
+          className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3
+            text-xs font-medium text-zinc-300 transition-colors hover:bg-white/[0.06] hover:text-zinc-100"
         >
           <ExternalLink className="h-3.5 w-3.5" />
-          Site
+          <span className="hidden min-[380px]:inline">Site</span>
+          <img
+            src={avatarUrl}
+            alt=""
+            className="h-5 w-5 rounded-full border border-white/10 object-cover"
+          />
         </a>
       </header>
 
@@ -252,7 +272,7 @@ export function AdminShell(): JSX.Element {
               </NavLink>
               <NavLink to="/admin/blog" className={navClass}>
                 <BookOpen className="h-4 w-4 shrink-0 opacity-80" />
-                Blog
+                Blogs
               </NavLink>
               <NavLink to="/admin/media" className={navClass}>
                 <ImageIcon className="h-4 w-4 shrink-0 opacity-80" />
@@ -322,7 +342,10 @@ export function AdminShell(): JSX.Element {
                   aria-label="Site settings submenu"
                 >
                   <div className="flex flex-col gap-0.5">
-                    <NavLink to="/admin/settings/social" className={subNavClass}>
+                    <NavLink
+                      to="/admin/settings/social"
+                      className={subNavClass}
+                    >
                       <Share2 className="h-3.5 w-3.5 opacity-70 shrink-0" />
                       Social links
                     </NavLink>
@@ -330,7 +353,10 @@ export function AdminShell(): JSX.Element {
                       <Search className="h-3.5 w-3.5 opacity-70 shrink-0" />
                       SEO
                     </NavLink>
-                    <NavLink to="/admin/settings/resume" className={subNavClass}>
+                    <NavLink
+                      to="/admin/settings/resume"
+                      className={subNavClass}
+                    >
                       <FileText className="h-3.5 w-3.5 opacity-70 shrink-0" />
                       Resume
                     </NavLink>
