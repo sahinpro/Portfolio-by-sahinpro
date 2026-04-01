@@ -128,7 +128,7 @@ export function ChartAreaInteractive({
           "relative flex flex-col gap-4 p-4 pb-2 lg:flex-row lg:items-start lg:justify-between lg:gap-6",
         )}
       >
-        <div className="lg:min-w-[160px] flex-1 lg:space-y-1 space-y-0 ">
+        <div className="min-w-[160px] flex-1 lg:space-y-1 space-y-0 ">
           <CardTitle className="text-base text-white">Total visitors</CardTitle>
           <CardDescription className="text-white/45">
             <span className="hidden min-[540px]:block">{meta.description}</span>
