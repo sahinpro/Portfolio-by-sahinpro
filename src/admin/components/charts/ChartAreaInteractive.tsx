@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -122,33 +123,23 @@ export function ChartAreaInteractive({
           </CardDescription>
         </div>
 
-        <div className="flex w-full min-w-0 flex-col gap-3 sm:max-w-none sm:items-end">
+        <div className="flex w-full min-w-0 flex-col gap-3 z-10 sm:max-w-none sm:items-end">
           <fieldset
             className="flex flex-wrap items-center gap-x-4 gap-y-2 border-0 p-0 text-xs text-white/55"
             aria-label="Series to display"
           >
             <legend className="sr-only">Series to display</legend>
             <label className="flex cursor-pointer items-center gap-2 select-none">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={showDesktop}
-                onChange={(e) => setShowDesktop(e.target.checked)}
-                className={cn(
-                  "size-4 shrink-0 rounded border border-white/20 bg-white/[0.04]",
-                  "text-white accent-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40",
-                )}
+                onCheckedChange={(checked) => setShowDesktop(checked === true)}
               />
               <span className="text-white/75">{SERIES_LABEL.desktop}</span>
             </label>
             <label className="flex cursor-pointer items-center gap-2 select-none">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={showMobile}
-                onChange={(e) => setShowMobile(e.target.checked)}
-                className={cn(
-                  "size-4 shrink-0 rounded border border-white/20 bg-white/[0.04]",
-                  "text-white accent-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40",
-                )}
+                onCheckedChange={(checked) => setShowMobile(checked === true)}
               />
               <span className="text-white/75">{SERIES_LABEL.mobile}</span>
             </label>
@@ -183,7 +174,10 @@ export function ChartAreaInteractive({
               <label className="sr-only" htmlFor={`chart-range-${uid}`}>
                 Date range
               </label>
-              <Select value={range} onValueChange={(v) => setRange(v as RangeKey)}>
+              <Select
+                value={range}
+                onValueChange={(v) => setRange(v as RangeKey)}
+              >
                 <SelectTrigger
                   id={`chart-range-${uid}`}
                   className={cn(
@@ -195,7 +189,11 @@ export function ChartAreaInteractive({
                 </SelectTrigger>
                 <SelectContent className="border-white/10 bg-[#111] text-white">
                   {RANGES.map((r) => (
-                    <SelectItem key={r.key} value={r.key} className="focus:bg-white/10">
+                    <SelectItem
+                      key={r.key}
+                      value={r.key}
+                      className="focus:bg-white/10"
+                    >
                       {r.label}
                     </SelectItem>
                   ))}
@@ -229,11 +227,11 @@ export function ChartAreaInteractive({
             Select at least one series above.
           </div>
         ) : (
-          <div className="aspect-auto h-[250px] w-full min-w-0 pt-2 sm:h-[280px]">
+          <div className="aspect-auto h-[330px] w-full min-w-0 pt-2 sm:h-[330px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={chartData}
-                margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
+                margin={{ top: 4, right: 12, left: 0, bottom: 10 }}
               >
                 <defs>
                   <linearGradient

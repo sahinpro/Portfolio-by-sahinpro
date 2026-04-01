@@ -3,6 +3,7 @@ import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { useToast } from "@/admin/context/ToastContext";
 import type { ProjectRow } from "@/admin/types/database";
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,7 @@ import {
 import { supabase } from "@/utils/supabase";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 
 const inputSearch =
   "rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
@@ -59,6 +60,7 @@ export function AdminProjectsListPage(): JSX.Element {
   }, [filter, q]);
 
   const filtered = rows.filter((r) => {
+    if (filter === "all" && r.status === "trash") return false;
     if (filter === "published" && r.status !== "published") return false;
     if (filter === "draft" && r.status !== "draft") return false;
     if (filter === "trash" && r.status !== "trash") return false;
@@ -85,6 +87,7 @@ export function AdminProjectsListPage(): JSX.Element {
       showToast(error.message, "error");
       return;
     }
+    invalidatePublicDataCache();
     setRows((prev) => prev.map((row) => (selectedIds.includes(row.id) ? { ...row, status } : row)));
     showToast(`${selectedIds.length} project${selectedIds.length === 1 ? "" : "s"} updated`);
     setSelectedIds([]);
@@ -121,11 +124,13 @@ export function AdminProjectsListPage(): JSX.Element {
       return;
     }
     if (permanent) {
+      invalidatePublicDataCache();
       showToast("Project deleted permanently");
       setRows((prev) => prev.filter((row) => row.id !== id));
       setSelectedIds((prev) => prev.filter((value) => value !== id));
       return;
     }
+    invalidatePublicDataCache();
     setRows((prev) => prev.map((row) => (row.id === id ? { ...row, status: "trash" } : row)));
     setSelectedIds((prev) => prev.filter((value) => value !== id));
     showToast("Project moved to trash");
@@ -310,6 +315,7 @@ export function AdminProjectsListPage(): JSX.Element {
         onCancel={() => setDeleteDialog(null)}
         onConfirm={() => void confirmDelete()}
       />
+      <Outlet />
     </div>
   );
 }

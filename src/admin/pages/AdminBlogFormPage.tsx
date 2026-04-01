@@ -1,3 +1,4 @@
+import { AdminSidePanel } from "@/admin/components/ui/AdminSidePanel";
 import { BlogMarkdownEditor } from "@/admin/components/BlogMarkdownEditor";
 import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
 import { TagInput } from "@/admin/components/ui/TagInput";
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/utils/supabase";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -141,28 +142,26 @@ export function AdminBlogFormPage(): JSX.Element {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-20 text-white/50 text-sm">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        Loading…
-      </div>
+      <AdminSidePanel
+        title={isNew ? "New blog post" : "Edit post"}
+        description="Write, schedule, and publish blog content."
+        onClose={() => navigate("/admin/blog")}
+      >
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-white/50">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          Loading…
+        </div>
+      </AdminSidePanel>
     );
   }
 
   return (
-    <div className="max-w-4xl pb-20">
-      <Link
-        to="/admin/blog"
-        className="inline-flex items-center gap-2 text-sm text-white/45 hover:text-white/75 mb-6"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to blog
-      </Link>
-
-      <h1 className="text-2xl font-semibold text-white mb-8">
-        {isNew ? "New blog post" : "Edit post"}
-      </h1>
-
-      <div className="space-y-6">
+    <AdminSidePanel
+      title={isNew ? "New blog post" : "Edit post"}
+      description="Write, schedule, and publish blog content."
+      onClose={() => navigate("/admin/blog")}
+    >
+      <div className="mx-auto max-w-4xl space-y-6 pb-20">
         <div>
           <label className={labelCls}>Title</label>
           <Input
@@ -259,6 +258,6 @@ export function AdminBlogFormPage(): JSX.Element {
           </Link>
         </div>
       </div>
-    </div>
+    </AdminSidePanel>
   );
 }

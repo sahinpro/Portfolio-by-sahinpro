@@ -5,7 +5,6 @@ import {
   ArrowUpRight,
   BarChart3,
   BookOpen,
-  Circle,
   ExternalLink,
   FolderKanban,
   Inbox,
@@ -232,124 +231,41 @@ export function AdminDashboardPage(): JSX.Element {
         </div>
       </section>
 
-      {/* ── Bottom grid ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Quick actions */}
-        <section>
-          <SectionHeader title="Quick actions" />
-          <div className="space-y-2">
-            <QuickLink
-              to="/admin/projects/new"
-              icon={FolderKanban}
-              label="New project"
-              sublabel="Add a portfolio case study"
-              accent="violet"
-            />
-            <QuickLink
-              to="/admin/blog/new"
-              icon={BookOpen}
-              label="New blog post"
-              sublabel="Write and publish an article"
-              accent="blue"
-            />
-            <QuickLink
-              to="/admin/inbox"
-              icon={Inbox}
-              label="Contact inbox"
-              sublabel="Read and respond to messages"
-              badge={data.unreadMessages > 0 ? data.unreadMessages : undefined}
-              accent="amber"
-            />
-            <QuickLink
-              to="/admin/analytics"
-              icon={TrendingUp}
-              label="Analytics"
-              sublabel="Detailed page view breakdown"
-              accent="emerald"
-            />
-          </div>
-        </section>
-
-        {/* Top pages mini-table */}
-        <section>
-          <SectionHeader
-            title="Top pages (30d)"
-            action={
-              <Link
-                to="/admin/analytics"
-                className="text-xs text-white/35 hover:text-white/70 inline-flex items-center gap-1 transition-colors"
-              >
-                Full report <ArrowUpRight className="w-3 h-3" />
-              </Link>
-            }
+      {/* ── Quick actions ── */}
+      <section>
+        <SectionHeader title="Quick actions" />
+        <div className="space-y-2">
+          <QuickLink
+            to="/admin/projects/new"
+            icon={FolderKanban}
+            label="New project"
+            sublabel="Add a portfolio case study"
+            accent="violet"
           />
-
-          {data.topPages.length === 0 ? (
-            <div
-              className="rounded-xl border border-dashed border-white/[0.08] flex items-center
-              justify-center h-32 text-sm text-white/30"
-            >
-              No page view data yet.
-            </div>
-          ) : (
-            <div className="rounded-xl border border-white/[0.08] overflow-x-auto">
-              <table className="w-full min-w-[280px] text-sm">
-                <thead>
-                  <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-white/30">
-                      Path
-                    </th>
-                    <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-white/30">
-                      Views
-                    </th>
-                    <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-white/30">
-                      Share
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.topPages.map((p, i) => {
-                    const pct =
-                      total30d > 0 ? Math.round((p.count / total30d) * 100) : 0;
-                    return (
-                      <tr
-                        key={p.path}
-                        className={`border-b border-white/[0.04] hover:bg-white/[0.025] transition-colors
-                          ${i === data.topPages.length - 1 ? "border-0" : ""}`}
-                      >
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <Circle className="w-1.5 h-1.5 fill-violet-400 text-violet-400 shrink-0" />
-                            <span className="font-mono text-xs text-white/70 truncate max-w-[180px]">
-                              {p.path}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-right text-white/70 tabular-nums text-xs font-medium">
-                          {p.count.toLocaleString()}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <div className="w-14 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                              <div
-                                className="h-full rounded-full bg-violet-500/60"
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
-                            <span className="text-xs text-white/35 tabular-nums w-7 text-right">
-                              {pct}%
-                            </span>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-      </div>
+          <QuickLink
+            to="/admin/blog/new"
+            icon={BookOpen}
+            label="New blog post"
+            sublabel="Write and publish an article"
+            accent="blue"
+          />
+          <QuickLink
+            to="/admin/inbox"
+            icon={Inbox}
+            label="Contact inbox"
+            sublabel="Read and respond to messages"
+            badge={data.unreadMessages > 0 ? data.unreadMessages : undefined}
+            accent="amber"
+          />
+          <QuickLink
+            to="/admin/analytics"
+            icon={TrendingUp}
+            label="Analytics"
+            sublabel="Detailed page view breakdown"
+            accent="emerald"
+          />
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,9 +1,12 @@
+import { AdminSidePanel } from "@/admin/components/ui/AdminSidePanel";
 import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
-import { SlideOver } from "@/admin/components/ui/SlideOver";
 import { StatusBadge } from "@/admin/components/ui/StatusBadge";
 import { useToast } from "@/admin/context/ToastContext";
 import type { TestimonialRow } from "@/admin/types/database";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -129,14 +132,14 @@ export function AdminTestimonialsPage(): JSX.Element {
           <h1 className="text-2xl font-semibold text-white">Testimonials</h1>
           <p className="text-sm text-white/45 mt-1">Customer stories on the home page.</p>
         </div>
-        <button
+        <Button
           type="button"
           onClick={openNew}
-          className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black"
+          className="bg-white text-black hover:bg-white/90"
         >
           <Plus className="h-4 w-4" />
           Add testimonial
-        </button>
+        </Button>
       </div>
 
       {loading ? (
@@ -144,13 +147,21 @@ export function AdminTestimonialsPage(): JSX.Element {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {rows.map((r) => (
-            <button
+            <Card
               key={r.id}
-              type="button"
+              className="cursor-pointer border-white/[0.08] bg-[#111] text-left transition-colors hover:border-white/[0.14]"
               onClick={() => openEdit(r)}
-              className="text-left rounded-xl border border-white/[0.08] bg-[#111] p-4 hover:border-white/[0.14] transition-colors"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  openEdit(r);
+                }
+              }}
             >
-              <div className="flex items-center gap-3 mb-3">
+              <CardContent className="p-4">
+              <div className="mb-3 flex items-center gap-3">
                 {r.author_avatar ? (
                   <img
                     src={r.author_avatar}
@@ -172,40 +183,22 @@ export function AdminTestimonialsPage(): JSX.Element {
               <div className="mt-3">
                 <StatusBadge status={r.status} />
               </div>
-            </button>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
-      <SlideOver
-        open={open}
-        onClose={() => setOpen(false)}
-        title={editing ? "Edit testimonial" : "New testimonial"}
-        wide
-        footer={
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-lg border border-white/15 px-4 py-2 text-sm text-white/80"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => void save()}
-              className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black disabled:opacity-50"
-            >
-              {saving ? "Saving…" : "Save"}
-            </button>
-          </div>
-        }
-      >
-        <div className="space-y-4">
+      {open ? (
+        <AdminSidePanel
+          title={editing ? "Edit testimonial" : "New testimonial"}
+          description="Manage what appears in the public testimonials section."
+          onClose={() => setOpen(false)}
+        >
+        <div className="mx-auto max-w-3xl space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={labelCls}>Author name</label>
+              <Label className={labelCls}>Author name</Label>
               <Input
                 className={field}
                 value={form.author_name}
@@ -213,7 +206,7 @@ export function AdminTestimonialsPage(): JSX.Element {
               />
             </div>
             <div>
-              <label className={labelCls}>Sort order</label>
+              <Label className={labelCls}>Sort order</Label>
               <Input
                 type="number"
                 className={field}
@@ -226,7 +219,7 @@ export function AdminTestimonialsPage(): JSX.Element {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={labelCls}>Role</label>
+              <Label className={labelCls}>Role</Label>
               <Input
                 className={field}
                 value={form.author_role}
@@ -234,7 +227,7 @@ export function AdminTestimonialsPage(): JSX.Element {
               />
             </div>
             <div>
-              <label className={labelCls}>Company</label>
+              <Label className={labelCls}>Company</Label>
               <Input
                 className={field}
                 value={form.author_company}
@@ -250,7 +243,7 @@ export function AdminTestimonialsPage(): JSX.Element {
             pathPrefix="testimonials"
           />
           <div>
-            <label className={labelCls}>Quote</label>
+            <Label className={labelCls}>Quote</Label>
             <Textarea
               className={`${field} min-h-[100px]`}
               value={form.quote}
@@ -258,7 +251,7 @@ export function AdminTestimonialsPage(): JSX.Element {
             />
           </div>
           <div>
-            <label className={labelCls}>Highlighted quote (HTML)</label>
+            <Label className={labelCls}>Highlighted quote (HTML)</Label>
             <Textarea
               className={`${field} min-h-[100px] font-mono text-xs`}
               value={form.highlighted_quote}
@@ -266,7 +259,7 @@ export function AdminTestimonialsPage(): JSX.Element {
             />
           </div>
           <div>
-            <label className={labelCls}>Status</label>
+            <Label className={labelCls}>Status</Label>
             <Select
               value={form.status}
               onValueChange={(v) =>
@@ -289,8 +282,27 @@ export function AdminTestimonialsPage(): JSX.Element {
               </SelectContent>
             </Select>
           </div>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="border-white/15 bg-transparent text-white/80 hover:bg-white/[0.06] hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              disabled={saving}
+              onClick={() => void save()}
+              className="bg-white text-black hover:bg-white/90"
+            >
+              {saving ? "Saving…" : "Save"}
+            </Button>
+          </div>
         </div>
-      </SlideOver>
+        </AdminSidePanel>
+      ) : null}
     </div>
   );
 }

@@ -1,13 +1,13 @@
 import { useUnreadInboxCount } from "@/admin/hooks/useUnreadInboxCount";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/utils/supabase";
 import type { User } from "@supabase/supabase-js";
 import {
   BarChart3,
   BookOpen,
+  ChevronDown,
   ExternalLink,
   FileText,
   FolderKanban,
@@ -22,7 +22,7 @@ import {
   Share2,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import avatarUrl from "/sahin.png";
 
@@ -76,18 +76,6 @@ function AdminSidebarProfile(): JSX.Element {
     });
     return () => subscription.unsubscribe();
   }, []);
-
-  const displayName =
-    import.meta.env.VITE_ADMIN_DISPLAY_NAME?.trim() ||
-    (typeof user?.user_metadata?.full_name === "string"
-      ? user.user_metadata.full_name.trim()
-      : "") ||
-    (typeof user?.user_metadata?.name === "string"
-      ? user.user_metadata.name.trim()
-      : "") ||
-    user?.email?.split("@")[0] ||
-    "Admin";
-
   const email = user?.email ?? "";
 
   return (
@@ -96,34 +84,30 @@ function AdminSidebarProfile(): JSX.Element {
         ring-1 ring-inset ring-white/[0.04]"
     >
       <CardContent className="p-3">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col flex-nowrap text-center items-center gap-3">
           <div className="relative shrink-0">
             <img
               src={avatarUrl}
               alt=""
-              className="h-11 w-11 rounded-full object-cover border border-zinc-700/80 bg-zinc-800"
+              className="h-20 w-20 rounded-full object-cover border border-zinc-700/80 bg-zinc-800"
             />
             <span
-              className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-zinc-900"
+              className="absolute bottom-2 right-[5px] h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-zinc-900"
               title="Signed in"
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-zinc-100 leading-tight truncate">
-              {displayName}
-            </p>
+            <h3 className="text-xl font-semibold text-zinc-100 leading-tight truncate">
+              Sahin Alam
+            </h3>
             <p
-              className="text-[11px] text-zinc-500 truncate mt-0.5"
+              className="text-[14px] text-zinc-500 truncate mt-0.5"
               title={email}
             >
               {email || "—"}
             </p>
           </div>
         </div>
-        <Separator className="my-3 bg-zinc-800" />
-        <p className="text-[15px] text-center font-medium tracking-widest text-zinc-600">
-          Sahin Alam
-        </p>
       </CardContent>
     </Card>
   );
@@ -134,9 +118,13 @@ export function AdminShell(): JSX.Element {
   const location = useLocation();
   const unread = useUnreadInboxCount();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [siteSettingsMenuOpen, setSiteSettingsMenuOpen] = useState(false);
+  const isSettingsRoute = location.pathname.startsWith("/admin/settings");
+  const siteSettingsMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setMobileNavOpen(false);
+    setSiteSettingsMenuOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -165,6 +153,22 @@ export function AdminShell(): JSX.Element {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [mobileNavOpen]);
+
+  useEffect(() => {
+    if (!siteSettingsMenuOpen) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (
+        siteSettingsMenuRef.current &&
+        !siteSettingsMenuRef.current.contains(event.target as Node)
+      ) {
+        setSiteSettingsMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("mousedown", onPointerDown);
+    return () => window.removeEventListener("mousedown", onPointerDown);
+  }, [siteSettingsMenuOpen]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -274,37 +278,65 @@ export function AdminShell(): JSX.Element {
 
             <p className={cn(sectionLabel, "mt-4")}>Settings</p>
             <div
-              className="group/site-settings flex flex-col gap-0.5"
+              ref={siteSettingsMenuRef}
               role="group"
               aria-label="Site settings and related pages"
+              className="relative"
             >
-              <NavLink
-                to="/admin/settings"
-                className={({ isActive }) => cn(navClass({ isActive }), "min-w-0")}
-              >
-                <Settings2 className="h-4 w-4 shrink-0 opacity-80" />
-                <span className="truncate">Site settings</span>
-              </NavLink>
-              {/* md+: show children on hover/focus-within; smaller screens: always visible (no hover) */}
-              <div
-                className={cn(
-                  "flex flex-col gap-0.5",
-                  "md:hidden md:group-hover/site-settings:flex md:group-focus-within/site-settings:flex",
-                )}
-              >
-                <NavLink to="/admin/settings/social" className={subNavClass}>
-                  <Share2 className="h-3.5 w-3.5 opacity-70 shrink-0" />
-                  Social links
+              <div className="flex items-stretch gap-1">
+                <NavLink
+                  to="/admin/settings"
+                  className={({ isActive }) =>
+                    cn(navClass({ isActive }), "min-w-0 flex-1")
+                  }
+                >
+                  <Settings2 className="h-4 w-4 shrink-0 opacity-80" />
+                  <span className="truncate">Site settings</span>
                 </NavLink>
-                <NavLink to="/admin/settings/seo" className={subNavClass}>
-                  <Search className="h-3.5 w-3.5 opacity-70 shrink-0" />
-                  SEO
-                </NavLink>
-                <NavLink to="/admin/settings/resume" className={subNavClass}>
-                  <FileText className="h-3.5 w-3.5 opacity-70 shrink-0" />
-                  Resume
-                </NavLink>
+                <button
+                  type="button"
+                  onClick={() => setSiteSettingsMenuOpen((open) => !open)}
+                  className={cn(
+                    navLinkBase,
+                    "w-10 justify-center px-0",
+                    isSettingsRoute || siteSettingsMenuOpen
+                      ? "bg-white/[0.09] text-white shadow-sm border border-white/[0.08]"
+                      : "text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-100 border border-transparent",
+                  )}
+                  aria-label="Open site settings menu"
+                  aria-haspopup="menu"
+                  aria-expanded={siteSettingsMenuOpen}
+                >
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 transition-transform duration-200",
+                      siteSettingsMenuOpen && "rotate-180",
+                    )}
+                  />
+                </button>
               </div>
+              {siteSettingsMenuOpen ? (
+                <div
+                  className="mt-1 ml-2 rounded-lg border border-zinc-800/80 bg-zinc-900/95 p-1.5 text-zinc-100 shadow-2xl shadow-black/40 backdrop-blur-md"
+                  role="menu"
+                  aria-label="Site settings submenu"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <NavLink to="/admin/settings/social" className={subNavClass}>
+                      <Share2 className="h-3.5 w-3.5 opacity-70 shrink-0" />
+                      Social links
+                    </NavLink>
+                    <NavLink to="/admin/settings/seo" className={subNavClass}>
+                      <Search className="h-3.5 w-3.5 opacity-70 shrink-0" />
+                      SEO
+                    </NavLink>
+                    <NavLink to="/admin/settings/resume" className={subNavClass}>
+                      <FileText className="h-3.5 w-3.5 opacity-70 shrink-0" />
+                      Resume
+                    </NavLink>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </nav>
         </ScrollArea>

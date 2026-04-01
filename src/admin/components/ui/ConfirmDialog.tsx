@@ -22,6 +22,9 @@ export function ConfirmDialog({
   onCancel,
 }: Props): JSX.Element | null {
   if (!open) return null;
+  const confirmButtonClass = danger
+    ? "rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
+    : "rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-white/90";
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
       <button
@@ -33,6 +36,7 @@ export function ConfirmDialog({
       <div
         className="relative max-w-md rounded-xl border border-white/[0.1] bg-[#141414] p-6 shadow-2xl"
         role="alertdialog"
+        aria-modal="true"
       >
         <h3 className="text-lg font-semibold text-white">{title}</h3>
         <div className="mt-2 text-sm text-white/60">{message}</div>
@@ -48,9 +52,7 @@ export function ConfirmDialog({
           <button
             type="button"
             onClick={onConfirm}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold text-white ${
-              danger ? "bg-red-600 hover:bg-red-500" : "bg-white text-black hover:bg-white/90"
-            }`}
+            className={confirmButtonClass}
           >
             {confirmLabel}
           </button>

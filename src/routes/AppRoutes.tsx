@@ -24,13 +24,15 @@ export function AppRoutes(): JSX.Element {
           <Route path="/admin/login" element={<P.AdminLoginPage />} />
           <Route path="/admin" element={<P.AdminProtectedLayout />}>
             <Route index element={<P.AdminDashboardPage />} />
-            <Route path="projects" element={<P.AdminProjectsListPage />} />
-            <Route path="projects/new" element={<P.AdminProjectFormPage />} />
-            <Route path="projects/:id" element={<P.AdminProjectFormPage />} />
+            <Route path="projects" element={<P.AdminProjectsListPage />}>
+              <Route path="new" element={<P.AdminProjectFormPage />} />
+              <Route path=":id" element={<P.AdminProjectFormPage />} />
+            </Route>
             <Route path="testimonials" element={<P.AdminTestimonialsPage />} />
-            <Route path="blog" element={<P.AdminBlogListPage />} />
-            <Route path="blog/new" element={<P.AdminBlogFormPage />} />
-            <Route path="blog/:id" element={<P.AdminBlogFormPage />} />
+            <Route path="blog" element={<P.AdminBlogListPage />}>
+              <Route path="new" element={<P.AdminBlogFormPage />} />
+              <Route path=":id" element={<P.AdminBlogFormPage />} />
+            </Route>
             <Route path="inbox" element={<P.AdminInboxPage />} />
             <Route path="analytics" element={<P.AdminAnalyticsPage />} />
             <Route path="media" element={<P.AdminMediaLibraryPage />} />

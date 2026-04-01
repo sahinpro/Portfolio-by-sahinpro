@@ -1,6 +1,7 @@
 import { ConfirmDialog } from "@/admin/components/ui/ConfirmDialog";
 import { StatusBadge } from "@/admin/components/ui/StatusBadge";
 import { useToast } from "@/admin/context/ToastContext";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -184,6 +185,7 @@ export function AdminBlogListPage(): JSX.Element {
   }, [filter, search]);
 
   const filtered = rows.filter((row) => {
+    if (filter === "all" && row.status === "trash") return false;
     if (filter !== "all" && row.status !== filter) return false;
     if (!search.trim()) return true;
     const q = search.trim().toLowerCase();
@@ -210,6 +212,7 @@ export function AdminBlogListPage(): JSX.Element {
       showToast(error.message, "error");
       return;
     }
+    invalidatePublicDataCache();
     setRows((prev) => prev.map((row) => (selectedIds.includes(row.id) ? { ...row, status } : row)));
     showToast(`${selectedIds.length} post${selectedIds.length === 1 ? "" : "s"} updated`);
     setSelectedIds([]);
@@ -237,18 +240,20 @@ export function AdminBlogListPage(): JSX.Element {
       return;
     }
     if (permanent) {
+      invalidatePublicDataCache();
       showToast("Post deleted permanently");
       setRows((prev) => prev.filter((row) => row.id !== id));
       setSelectedIds((prev) => prev.filter((value) => value !== id));
       return;
     }
+    invalidatePublicDataCache();
     setRows((prev) => prev.map((row) => (row.id === id ? { ...row, status: "trash" } : row)));
     setSelectedIds((prev) => prev.filter((value) => value !== id));
     showToast("Post moved to trash");
   };
 
   const counts = {
-    all: rows.length,
+    all: rows.filter((row) => row.status !== "trash").length,
     published: rows.filter((row) => row.status === "published").length,
     draft: rows.filter((row) => row.status === "draft").length,
     trash: rows.filter((row) => row.status === "trash").length,
@@ -524,7 +529,7 @@ export function AdminBlogListPage(): JSX.Element {
         {!loading && filtered.length > 0 ? (
           <div className="border-t border-white/[0.06] bg-white/[0.01] px-4 py-3">
             <p className="text-xs tabular-nums text-white/25">
-              {filtered.length} of {rows.length} post{rows.length !== 1 ? "s" : ""}
+              {filtered.length} of {counts[filter]} post{counts[filter] !== 1 ? "s" : ""}
             </p>
           </div>
         ) : null}
@@ -543,6 +548,7 @@ export function AdminBlogListPage(): JSX.Element {
         onCancel={() => setDeleteDialog(null)}
         onConfirm={() => void confirmDelete()}
       />
+      <Outlet />
     </div>
   );
 }

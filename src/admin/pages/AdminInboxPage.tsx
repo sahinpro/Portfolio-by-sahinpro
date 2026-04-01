@@ -1,7 +1,8 @@
-import { SlideOver } from "@/admin/components/ui/SlideOver";
+import { AdminSidePanel } from "@/admin/components/ui/AdminSidePanel";
 import { StatusBadge } from "@/admin/components/ui/StatusBadge";
 import { useToast } from "@/admin/context/ToastContext";
 import type { ContactSubmissionRow } from "@/admin/types/database";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/utils/supabase";
 import { Mail } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -59,16 +60,20 @@ export function AdminInboxPage(): JSX.Element {
 
       <div className="flex flex-wrap gap-2 mb-6">
         {["all", "unread", "read", "replied", "archived"].map((f) => (
-          <button
+          <Button
             key={f}
             type="button"
             onClick={() => setFilter(f)}
-            className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize ${
-              filter === f ? "bg-white/15 text-white" : "text-white/45 hover:text-white/70"
+            variant={filter === f ? "secondary" : "ghost"}
+            size="sm"
+            className={`capitalize ${
+              filter === f
+                ? "bg-white/15 text-white hover:bg-white/20"
+                : "text-white/45 hover:bg-white/[0.04] hover:text-white/70"
             }`}
           >
             {f}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -111,51 +116,14 @@ export function AdminInboxPage(): JSX.Element {
         )}
       </div>
 
-      <SlideOver
-        open={Boolean(selected)}
-        onClose={() => setSelected(null)}
-        title={selected?.name ?? "Message"}
-        wide
-        footer={
-          selected ? (
-            <div className="flex flex-wrap gap-2 justify-between">
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => void updateStatus(selected.id, "read")}
-                  className="rounded-lg border border-white/15 px-3 py-2 text-xs font-medium text-white/80"
-                >
-                  Mark read
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void updateStatus(selected.id, "replied")}
-                  className="rounded-lg border border-white/15 px-3 py-2 text-xs font-medium text-white/80"
-                >
-                  Mark replied
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void updateStatus(selected.id, "archived")}
-                  className="rounded-lg border border-white/15 px-3 py-2 text-xs font-medium text-white/80"
-                >
-                  Archive
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={() => mailtoReply(selected)}
-                className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black"
-              >
-                <Mail className="h-3.5 w-3.5" />
-                Reply via email
-              </button>
-            </div>
-          ) : null
-        }
-      >
+      {selected ? (
+        <AdminSidePanel
+          title={selected.name}
+          description="View the message and update its inbox status."
+          onClose={() => setSelected(null)}
+        >
         {selected ? (
-          <div className="space-y-4 text-sm">
+          <div className="mx-auto max-w-3xl space-y-4 text-sm">
             <div>
               <p className="text-xs text-white/40 uppercase tracking-wider">Email</p>
               <p className="text-white">{selected.email}</p>
@@ -182,10 +150,51 @@ export function AdminInboxPage(): JSX.Element {
               <p className="text-xs text-white/40 uppercase tracking-wider mb-1">Message</p>
               <p className="text-white/85 whitespace-pre-wrap leading-relaxed">{selected.message}</p>
             </div>
+            <div className="flex flex-wrap justify-between gap-2 border-t border-white/[0.08] pt-4">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void updateStatus(selected.id, "read")}
+                  className="border-white/15 bg-transparent text-white/80 hover:bg-white/[0.06] hover:text-white"
+                >
+                  Mark read
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void updateStatus(selected.id, "replied")}
+                  className="border-white/15 bg-transparent text-white/80 hover:bg-white/[0.06] hover:text-white"
+                >
+                  Mark replied
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void updateStatus(selected.id, "archived")}
+                  className="border-white/15 bg-transparent text-white/80 hover:bg-white/[0.06] hover:text-white"
+                >
+                  Archive
+                </Button>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => mailtoReply(selected)}
+                className="bg-white text-black hover:bg-white/90"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                Reply via email
+              </Button>
+            </div>
             <p className="text-xs text-white/35">{new Date(selected.created_at).toLocaleString()}</p>
           </div>
         ) : null}
-      </SlideOver>
+        </AdminSidePanel>
+      ) : null}
     </div>
   );
 }

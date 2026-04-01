@@ -1,3 +1,4 @@
+import { AdminSidePanel } from "@/admin/components/ui/AdminSidePanel";
 import { FRAMEWORK_FIELD_CONFIG } from "@/admin/constants/frameworkFieldConfig";
 import { useToast } from "@/admin/context/ToastContext";
 import {
@@ -24,7 +25,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/utils/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -111,10 +112,16 @@ export function AdminProjectFormPage(): JSX.Element {
 
   if (loadingRow) {
     return (
-      <div className="flex items-center gap-2 text-white/50 text-sm py-20 justify-center">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        Loading…
-      </div>
+      <AdminSidePanel
+        title={isNew ? "New project" : "Edit project"}
+        description="Custom builds and CMS projects use different fields."
+        onClose={() => navigate("/admin/projects")}
+      >
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-white/50">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          Loading…
+        </div>
+      </AdminSidePanel>
     );
   }
 
@@ -126,24 +133,12 @@ export function AdminProjectFormPage(): JSX.Element {
       : [];
 
   return (
-    <div className="max-w-3xl pb-20">
-      <Link
-        to="/admin/projects"
-        className="inline-flex items-center gap-2 text-sm text-white/45 hover:text-white/75 mb-6"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to projects
-      </Link>
-
-      <h1 className="text-2xl font-semibold text-white mb-2">
-        {isNew ? "New project" : "Edit project"}
-      </h1>
-      <p className="text-sm text-white/45 mb-8">
-        Custom builds vs CMS (WordPress / Shopify) use different fields. Stats appear as metric
-        chips on the public page.
-      </p>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <AdminSidePanel
+      title={isNew ? "New project" : "Edit project"}
+      description="Custom builds vs CMS projects use different fields. Stats appear as chips on the public page."
+      onClose={() => navigate("/admin/projects")}
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-3xl space-y-8 pb-20">
         <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
           <h2 className="text-sm font-semibold text-white">Basics</h2>
           <div>
@@ -543,6 +538,6 @@ export function AdminProjectFormPage(): JSX.Element {
           </Link>
         </div>
       </form>
-    </div>
+    </AdminSidePanel>
   );
 }

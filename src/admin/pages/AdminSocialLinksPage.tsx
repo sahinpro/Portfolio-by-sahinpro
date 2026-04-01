@@ -2,9 +2,10 @@ import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { useToast } from "@/admin/context/ToastContext";
 import type { SocialLinkRow } from "@/admin/types/database";
+import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/utils/supabase";
-import { Plus, Save } from "lucide-react";
+import { Plus, Save, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 const field =
@@ -23,6 +24,7 @@ export function AdminSocialLinksPage(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [drafts, setDrafts] = useState<Record<string, Partial<SocialLinkRow>>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -94,6 +96,23 @@ export function AdminSocialLinksPage(): JSX.Element {
     void load();
   };
 
+  const deleteRow = async (r: SocialLinkRow) => {
+    setDeletingId(r.id);
+    const { error } = await supabase.from("social_links").delete().eq("id", r.id);
+    setDeletingId(null);
+    if (error) {
+      showToast(formatSocialLinkError(error), "error");
+      return;
+    }
+    showToast("Row deleted");
+    setDrafts((prev) => {
+      const next = { ...prev };
+      delete next[r.id];
+      return next;
+    });
+    void load();
+  };
+
   if (loading) {
     return <p className="text-white/45 text-sm">Loading…</p>;
   }
@@ -133,11 +152,16 @@ export function AdminSocialLinksPage(): JSX.Element {
               return (
                 <tr key={r.id} className="border-b border-white/[0.05]">
                   <td className="px-3 py-2">
-                    <Input
-                      className={field}
-                      value={m.platform}
-                      onChange={(e) => setD(r.id, { platform: e.target.value })}
-                    />
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-white/70">
+                        <SocialLinkGlyph link={m} className="h-4 w-4" />
+                      </div>
+                      <Input
+                        className={field}
+                        value={m.platform}
+                        onChange={(e) => setD(r.id, { platform: e.target.value })}
+                      />
+                    </div>
                   </td>
                   <td className="px-3 py-2">
                     <Input
@@ -172,15 +196,26 @@ export function AdminSocialLinksPage(): JSX.Element {
                     />
                   </td>
                   <td className="px-3 py-2">
-                    <button
-                      type="button"
-                      disabled={savingId === r.id}
-                      onClick={() => void saveRow(r)}
-                      className="p-2 rounded-lg text-white/60 hover:bg-white/[0.08] hover:text-white disabled:opacity-50"
-                      title="Save row"
-                    >
-                      <Save className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        disabled={savingId === r.id || deletingId === r.id}
+                        onClick={() => void saveRow(r)}
+                        className="p-2 rounded-lg text-white/60 hover:bg-white/[0.08] hover:text-white disabled:opacity-50"
+                        title="Save row"
+                      >
+                        <Save className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={savingId === r.id || deletingId === r.id}
+                        onClick={() => void deleteRow(r)}
+                        className="p-2 rounded-lg text-white/50 hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50"
+                        title="Delete row"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
