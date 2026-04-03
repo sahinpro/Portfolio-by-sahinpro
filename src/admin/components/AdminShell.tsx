@@ -247,7 +247,8 @@ export function AdminShell(): JSX.Element {
           "fixed inset-y-0 left-0 z-50 h-[100dvh] transition-transform duration-200 ease-out",
           "max-lg:shadow-[4px_0_24px_rgba(0,0,0,0.45)]",
           mobileNavOpen ? "max-lg:translate-x-0" : "max-lg:-translate-x-full",
-          "lg:static lg:h-screen lg:translate-x-0 lg:shadow-none",
+          // Keep the sidebar fixed even on desktop; the <main> is padded accordingly.
+          "lg:h-screen",
         )}
       >
         <div className="shrink-0 px-2 pt-4 pb-2">
@@ -394,6 +395,7 @@ export function AdminShell(): JSX.Element {
 
       <main
         className="flex-1 overflow-auto min-w-0 bg-zinc-950 min-h-0
+          lg:pl-[17.5rem]
           [background-image:radial-gradient(ellipse_85%_55%_at_50%_-18%,rgba(99,102,241,0.11),transparent_58%)]"
       >
         <div className="max-w-7xl mx-auto px-4 py-5 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
