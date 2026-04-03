@@ -240,11 +240,11 @@ export function ChartAreaInteractive({
             Select at least one series above.
           </div>
         ) : (
-          <div className="aspect-auto h-[330px] w-full min-w-0 pt-2 sm:h-[330px]">
+          <div className="aspect-auto h-[280px] w-full min-w-0 pt-3 pb-6 ">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={chartData}
-                margin={{ top: 4, right: 12, left: 0, bottom: 10 }}
+                margin={{ top: 5, right: 12, left: 0, bottom: 5 }}
               >
                 <defs>
                   <linearGradient
@@ -300,7 +300,7 @@ export function ChartAreaInteractive({
                   tickLine={false}
                   axisLine={false}
                   allowDecimals={false}
-                  width={36}
+                  width={30}
                 />
                 <Tooltip
                   formatter={tooltipValueFormatter}
