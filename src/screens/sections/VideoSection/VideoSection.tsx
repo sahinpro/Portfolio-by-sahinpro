@@ -1,4 +1,5 @@
-import { motion, useInView } from "framer-motion";
+import { scrollViewport, sectionEase } from "@/constants/scrollMotion";
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
 
@@ -6,17 +7,11 @@ export const VideoSection = (): JSX.Element => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef<HTMLDivElement>(null);
   const spinnerRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const playBtnRef = useRef<HTMLButtonElement>(null);
   const pauseBtnRef = useRef<HTMLButtonElement>(null);
-
-  const containerInView = useInView(containerRef, {
-    once: true,
-    margin: "-10%",
-  });
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -40,12 +35,12 @@ export const VideoSection = (): JSX.Element => {
   return (
     <section className="flex flex-col w-full items-center gap-12 px-4 sm:px-8 md:px-12 lg:px-[100px] pt-30 relative pt-0 lg:pt-20">
       <motion.div
-        ref={containerRef}
-        initial={{ opacity: 0, y: 30 }}
-        animate={containerInView ? { opacity: 1, y: 0 } : {}}
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={scrollViewport}
         transition={{
-          duration: 0.8,
-          ease: [0.37, 0.04, 0.29, 1.01],
+          duration: 0.72,
+          ease: sectionEase,
         }}
         className="relative max-w-[1000px] w-full rounded-[25px] lg:rounded-[32px] border border-white/10 backdrop-blur-xl bg-gradient-to-b from-white/30 to-white/50 lg:p-3 p-2"
       >

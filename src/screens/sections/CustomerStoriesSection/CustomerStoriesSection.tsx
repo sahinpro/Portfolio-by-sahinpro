@@ -1,4 +1,10 @@
 import type { TestimonialRow } from "@/admin/types/database";
+import {
+  fadeInUp,
+  scrollViewport,
+  sectionEase,
+  sectionReveal,
+} from "@/constants/scrollMotion";
 import { usePublishedTestimonials } from "@/hooks/usePublishedTestimonials";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -120,43 +126,27 @@ export const CustomerStoriesSection = (): JSX.Element => {
     [safeIndex, isTransitioning, testimonials.length],
   );
 
-  const headerVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] }
-    }
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] }
-    }
-  };
-
-  const avatarVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { 
-      opacity: 1, 
-      scale: 1,
-      transition: { 
-        duration: 0.4, 
-        ease: [0.37, 0.04, 0.29, 1.01],
-        staggerChildren: 0.08
-      }
-    }
+  const avatarRowVariants = {
+    hidden: { opacity: 0, y: 14 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.45,
+        staggerChildren: 0.07,
+        delayChildren: 0.04,
+        ease: sectionEase,
+      },
+    },
   };
 
   const avatarItemVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { 
-      opacity: 1, 
-      scale: 1 
-    }
+    hidden: { opacity: 0, scale: 0.78 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.34, ease: sectionEase },
+    },
   };
 
   if (loading && testimonials.length === 0) {
@@ -246,12 +236,17 @@ export const CustomerStoriesSection = (): JSX.Element => {
           />
         </div>
 
+        <motion.div
+          className="relative z-[1] w-full"
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+          variants={sectionReveal}
+        >
         {/* Header */}
         <motion.div
           className="section-header text-center mb-12 md:mb-16"
-          initial="hidden"
-          animate="visible"
-          variants={headerVariants}
+          variants={fadeInUp}
         >
           <h2 className="flex items-center justify-center self-stretch mt-[-1.00px] section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">
             Customer Stories
@@ -265,9 +260,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
         {/* Testimonial Card */}
         <motion.div
           className="testimonial-card relative max-w-[1100px] mx-auto mb-10 sm:mb-12 p-8 sm:p-12 md:p-14 lg:p-16 bg-gradient-to-br from-[rgba(15,15,15,0.6)] to-[rgba(10,10,10,0.6)] border border-white/[0.08] rounded-3xl backdrop-blur-xl overflow-hidden"
-          initial="hidden"
-          animate="visible"
-          variants={cardVariants}
+          variants={fadeInUp}
         >
           {/* Card Grid Pattern */}
           <div 
@@ -338,33 +331,30 @@ export const CustomerStoriesSection = (): JSX.Element => {
         </motion.div>
 
         {/* Avatars */}
-        <div className="relative z-20">
-          <motion.div
-            className="avatar-button flex justify-center items-center gap-3 sm:gap-4 md:gap-5 p-4 sm:p-5 md:p-0 bg-black/80 sm:bg-transparent border border-white/[0.08] sm:border-0 rounded-2xl backdrop-blur-xl sm:backdrop-blur-none max-w-fit mx-auto"
-            initial="hidden"
-            animate="visible"
-            variants={avatarVariants}
-          >
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={testimonial.id}
-                variants={avatarItemVariants}
-              >
-                <Avatar
-                  testimonial={testimonial}
-                  isActive={index === safeIndex}
-                  onClick={() => changeTestimonial(index)}
-                  disabled={isTransitioning}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
+        <motion.div
+          className="relative z-20 avatar-button flex justify-center items-center gap-3 sm:gap-4 md:gap-5 p-4 sm:p-5 md:p-0 bg-black/80 sm:bg-transparent border border-white/[0.08] sm:border-0 rounded-2xl backdrop-blur-xl sm:backdrop-blur-none max-w-fit mx-auto"
+          variants={avatarRowVariants}
+        >
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={testimonial.id}
+              variants={avatarItemVariants}
+            >
+              <Avatar
+                testimonial={testimonial}
+                isActive={index === safeIndex}
+                onClick={() => changeTestimonial(index)}
+                disabled={isTransitioning}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
 
         {/* Screen reader announcement */}
         <div className="sr-only" role="status" aria-live="polite">
           Showing testimonial {safeIndex + 1} of {testimonials.length}
         </div>
+        </motion.div>
       </section>
     </>
   );

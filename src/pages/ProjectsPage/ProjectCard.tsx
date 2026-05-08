@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { ExternalLink, Github } from "lucide-react";
-import { useRef } from "react";
 
 export interface Project {
   id: number;
@@ -25,23 +24,15 @@ export const ProjectCard = ({
   project,
   index,
 }: ProjectCardProps) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  
-  const cardInView = useInView(cardRef, { once: true, margin: "-20%" });
-
-
-
-
-
   return (
-    <motion.div 
-      ref={cardRef}
-      initial={{ opacity: 0, y: 30 }}
-      animate={cardInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ 
-        duration: 0.6, 
-        delay: index * 0.1, 
-        ease: [0.37, 0.04, 0.29, 1.01] /* power3.out equivalent */ 
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15, margin: "0px 0px -15% 0px" }}
+      transition={{
+        duration: 0.58,
+        delay: index * 0.08,
+        ease: [0.37, 0.04, 0.29, 1.01],
       }}
       whileHover={{ y: -5, transition: { duration: 0.3, ease: [0.42, 0, 0.58, 1] } /* power2.out equivalent */ }}
     >

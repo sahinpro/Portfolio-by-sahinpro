@@ -1,6 +1,6 @@
 import LightRays from "@/components/LightRays";
-import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
 import { getSocialBrand } from "@/components/public/socialBrands";
+import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
 import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
 import { motion } from "framer-motion";
 import { useRef } from "react";
@@ -8,7 +8,8 @@ import { HeroContent } from "./HeroContent";
 
 export const HeroSection = (): JSX.Element => {
   const socialLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
-  const { links: socialLinks, loading: socialLoading } = useVisibleSocialLinks();
+  const { links: socialLinks, loading: socialLoading } =
+    useVisibleSocialLinks();
 
   const containerVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -24,17 +25,7 @@ export const HeroSection = (): JSX.Element => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.7, delay: 0.2, ease: [0.37, 0.04, 0.29, 1.01] },
-    },
-  };
-
-  const badgeVariants = {
-    hidden: { opacity: 0, y: -20, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: { duration: 0.6, delay: 0.1, ease: [0.37, 0.04, 0.29, 1.01] },
+      transition: { duration: 0.65, delay: 0.15, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 
@@ -42,7 +33,10 @@ export const HeroSection = (): JSX.Element => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.5, delay: 0.6 },
+      transition: {
+        delayChildren: 0.5,
+        staggerChildren: 0.07,
+      },
     },
   };
 
@@ -52,6 +46,7 @@ export const HeroSection = (): JSX.Element => {
       opacity: 1,
       scale: 1,
       y: 0,
+      transition: { duration: 0.4, ease: [0.37, 0.04, 0.29, 1.01] },
     },
     hover: {
       scale: 1.15,
@@ -84,15 +79,6 @@ export const HeroSection = (): JSX.Element => {
       </div>
 
       <div className="pointer-events-none absolute left-0 bottom-0 w-full h-[200px] bg-gradient-to-t from-[#050505] via-[#05050580] to-transparent z-[1]" />
-
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={badgeVariants}
-        className="absolute top-0 left-0 w-full h-[400px] sm:h-[500px] z-[3] pointer-events-auto"
-      >
-        {" "}
-      </motion.div>
 
       <motion.div
         initial="hidden"

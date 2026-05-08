@@ -1,6 +1,8 @@
 import type { BentoCardProps } from "@/components/MagicBento";
 import MagicBento from "@/components/MagicBento";
+import { fadeInUp, scrollViewport, sectionReveal } from "@/constants/scrollMotion";
 import Glow from "@/components/ui/glow";
+import { motion } from "framer-motion";
 
 const skillsCards: BentoCardProps[] = [
   {
@@ -65,8 +67,17 @@ export const SkillsSection = (): JSX.Element => {
       className="flex flex-col w-full max-w-[1440px] mx-auto items-center gap-12 px-4 sm:px-8 md:px-12 lg:px-[100px] py-12 sm:py-16 md:py-20 lg:py-[100px] relative"
     >
       <Glow variant="top" className="-z-20 blur-xl" />
-      <div className="flex flex-col w-full max-w-[1240px] items-center gap-5">
-        <div className="flex flex-col items-center gap-4 py-0 w-full">
+      <motion.div
+        className="flex flex-col w-full max-w-[1240px] items-center gap-12"
+        initial="hidden"
+        whileInView="visible"
+        viewport={scrollViewport}
+        variants={sectionReveal}
+      >
+        <motion.div
+          variants={fadeInUp}
+          className="flex flex-col items-center gap-4 py-0 w-full"
+        >
           <h2 className="flex items-center justify-center self-stretch mt-[-1.00px] section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-3xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[50px]">
             Skills & Technologies
           </h2>
@@ -74,9 +85,8 @@ export const SkillsSection = (): JSX.Element => {
             Expertise in modern web development technologies and best practices
             for building scalable solutions.
           </p>
-        </div>
-      </div>
-      <div className="flex flex-col w-full items-center">
+        </motion.div>
+        <motion.div variants={fadeInUp} className="flex flex-col w-full items-center">
         <MagicBento
           textAutoHide={true}
           enableStars
@@ -91,7 +101,8 @@ export const SkillsSection = (): JSX.Element => {
           disableAnimations={false}
           cards={skillsCards}
         />
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 };

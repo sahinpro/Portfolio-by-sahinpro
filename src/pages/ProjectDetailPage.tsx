@@ -31,14 +31,25 @@ const categoryBadge: Record<string, string> = {
   CMS: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
 };
 
-const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 0, y: 20 },
+/** Parent orchestrates a single entrance timeline; children use `fadeChild` (no per-block delay). */
+const pageReveal = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.065,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const fadeChild = {
+  hidden: { opacity: 0, y: 22 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, delay, ease: [0.37, 0.04, 0.29, 1.01] },
+    transition: { duration: 0.48, ease: [0.37, 0.04, 0.29, 1.01] },
   },
-});
+};
 
 function frameworkLabel(fw: PublicProjectDetail["customFramework"], customLabel: string | null): string {
   if (fw === "other" && customLabel?.trim()) return customLabel.trim();
@@ -188,9 +199,14 @@ export function ProjectDetailPage(): JSX.Element {
               </Link>
             </motion.div>
           ) : (
-            <motion.div initial="hidden" animate="visible" className="max-w-6xl mx-auto">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={pageReveal}
+              className="max-w-6xl mx-auto"
+            >
               {/* Header */}
-              <motion.header variants={fadeUp(0)} className="mb-8 sm:mb-10">
+              <motion.header variants={fadeChild} className="mb-8 sm:mb-10">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
                   <span
                     className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-semibold border
@@ -221,7 +237,7 @@ export function ProjectDetailPage(): JSX.Element {
               </motion.header>
 
               {/* Hero image */}
-              <motion.div variants={fadeUp(0.06)} className="mb-10 sm:mb-12">
+              <motion.div variants={fadeChild} className="mb-10 sm:mb-12">
                 <div className="relative rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-black/50">
                   <div className="aspect-[21/9] min-h-[200px] max-h-[480px]">
                     <img
@@ -235,7 +251,7 @@ export function ProjectDetailPage(): JSX.Element {
               </motion.div>
 
               {project.screenshots.length > 0 ? (
-                <motion.section variants={fadeUp(0.08)} className="mb-10 sm:mb-12">
+                <motion.section variants={fadeChild} className="mb-10 sm:mb-12">
                   <div className="flex items-center gap-2 mb-5">
                     <Images className="w-4 h-4 text-white/35" />
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-white/40">Screenshots</h2>
@@ -263,7 +279,7 @@ export function ProjectDetailPage(): JSX.Element {
 
               <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-10 xl:gap-14">
                 {/* Main copy */}
-                <motion.div variants={fadeUp(0.1)} className="min-w-0">
+                <motion.div variants={fadeChild} className="min-w-0">
                   <div className="flex items-center gap-2 mb-6">
                     <Sparkles className="w-4 h-4 text-violet-400/80" />
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-white/40">Overview</h2>
@@ -298,7 +314,7 @@ export function ProjectDetailPage(): JSX.Element {
                 </motion.div>
 
                 {/* Sidebar */}
-                <motion.aside variants={fadeUp(0.12)} className="space-y-6 xl:sticky xl:top-28 self-start">
+                <motion.aside variants={fadeChild} className="space-y-6 xl:sticky xl:top-28 self-start">
                   {/* Primary actions */}
                   <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.05] to-transparent p-5 sm:p-6">
                     <p className="text-xs uppercase tracking-widest text-white/35 font-semibold mb-4">Links</p>
@@ -409,7 +425,7 @@ export function ProjectDetailPage(): JSX.Element {
 
               {/* Related */}
               {related.length > 0 && (
-                <motion.section variants={fadeUp(0.16)} className="mt-16 sm:mt-20 pt-12 border-t border-white/[0.07]">
+                <motion.section variants={fadeChild} className="mt-16 sm:mt-20 pt-12 border-t border-white/[0.07]">
                   <h2 className="text-lg font-bold text-white mb-6">More projects</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {related.map((p) => (
@@ -419,7 +435,7 @@ export function ProjectDetailPage(): JSX.Element {
                 </motion.section>
               )}
 
-              <motion.div variants={fadeUp(0.18)} className="mt-14">
+              <motion.div variants={fadeChild} className="mt-14">
                 <div
                   className="rounded-2xl border border-white/[0.07] bg-gradient-to-br from-violet-500/[0.07] to-transparent p-6 sm:p-8 text-center"
                 >

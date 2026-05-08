@@ -6,12 +6,12 @@ import { PublicSeo } from "@/components/public/PublicSeo";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
 import { submitContactToSupabase } from "@/lib/submitContact";
 import { isSupabaseBrowserConfigured } from "@/lib/supabaseFunctions";
 import { FooterSection } from "@/screens/sections/FooterSection";
@@ -109,16 +109,32 @@ function markSubmittedToday(): void {
 
 const faqs = [
   {
-    q: "How quickly do you respond?",
-    a: "I aim to reply to all inquiries within 24 hours on weekdays.",
+    q: "How quickly will I hear back after I reach out?",
+    a: "I read every message personally. You can usually expect a first reply within 24 hours on business days (often much sooner), with a short call or written plan of next steps.",
   },
   {
-    q: "Do you work with international clients?",
-    a: "Absolutely — I work fully remote with clients worldwide across time zones.",
+    q: "How do you price projects — fixed fee or hourly?",
+    a: "Most work is quoted as a fixed scope and milestone-based fee so you know the cost up front. For ongoing or evolving work, we can use a retainer or hourly model — I’ll recommend what fits your project after we clarify goals and deliverables.",
   },
   {
-    q: "What's your typical project timeline?",
-    a: "Depends on scope: landing pages ~1 week, full sites 3–6 weeks, complex apps 2–4 months.",
+    q: "What’s your process after we say go?",
+    a: "Typical flow: discovery and requirements → proposal and timeline → build in agreed phases with regular check-ins → review and revisions within scope → launch, handoff, and (if needed) a short handover for your team or hosting.",
+  },
+  {
+    q: "Do you work with clients outside my time zone?",
+    a: "Yes. I work fully remote with clients worldwide. We align on overlapping hours for calls and use async updates so progress doesn’t stall.",
+  },
+  {
+    q: "How long does a project usually take?",
+    a: "It depends on scope and feedback speed. As a rough guide: focused landing pages often sit in the 1–2 week range, marketing or portfolio sites often 3–6 weeks, and larger product or app work commonly runs from a couple of months upward. I’ll give you a realistic range once I’ve seen the brief.",
+  },
+  {
+    q: "What do I actually get when the project is done?",
+    a: "You get the agreed source assets, documentation for handoff, and help pointing your domain and hosting the right way. You own the deliverables in line with our contract; I don’t hold your code or content hostage after payment is settled.",
+  },
+  {
+    q: "What about revisions, scope changes, and after launch?",
+    a: "Revisions are built into each phase so we can refine before sign-off. Bigger scope changes are scoped and priced separately so there are no surprises. After launch, I can offer a support window or ongoing maintenance — we’ll align on what you need before we ship.",
   },
 ];
 
@@ -203,10 +219,11 @@ export const ContactPage = (): JSX.Element => {
   const infoRef = useRef<HTMLDivElement>(null);
   const faqRef = useRef<HTMLDivElement>(null);
 
-  const headerInV = useInView(headerRef, { once: true, margin: "-10%" });
-  const formInV = useInView(formRef, { once: true, margin: "-10%" });
-  const infoInV = useInView(infoRef, { once: true, margin: "-10%" });
-  const faqInV = useInView(faqRef, { once: true, margin: "-10%" });
+  const inViewBlock = { once: true, amount: 0.2 as const, margin: "0px 0px -10% 0px" as const };
+  const headerInV = useInView(headerRef, inViewBlock);
+  const formInV = useInView(formRef, inViewBlock);
+  const infoInV = useInView(infoRef, inViewBlock);
+  const faqInV = useInView(faqRef, inViewBlock);
 
   useEffect(() => {
     if (hasAlreadySubmittedToday()) {
@@ -309,6 +326,46 @@ export const ContactPage = (): JSX.Element => {
     text-white text-base sm:text-sm placeholder-white/25 focus:outline-none focus:border-white/25
     focus:bg-white/[0.06] transition-all duration-200 h-auto min-h-[44px]`;
 
+  const renderFaqItem = (faq: (typeof faqs)[number], i: number) => (
+    <motion.div
+      key={faq.q}
+      initial="hidden"
+      animate={faqInV ? "visible" : "hidden"}
+      variants={fadeUp(i * 0.08)}
+      className="rounded-xl border border-white/[0.07] bg-white/[0.02] overflow-hidden"
+    >
+      <button
+        type="button"
+        onClick={() => setOpenFaq(openFaq === i ? null : i)}
+        className="w-full flex items-center justify-between p-5 text-left
+          hover:bg-white/[0.02] transition-colors duration-200"
+      >
+        <span className="font-medium text-white/80 text-sm pr-4">{faq.q}</span>
+        <motion.span
+          animate={{ rotate: openFaq === i ? 45 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="text-white/30 flex-shrink-0 text-lg leading-none"
+        >
+          +
+        </motion.span>
+      </button>
+
+      <motion.div
+        animate={{
+          height: openFaq === i ? "auto" : 0,
+          opacity: openFaq === i ? 1 : 0,
+        }}
+        initial={{ height: 0, opacity: 0 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="overflow-hidden"
+      >
+        <p className="px-5 pb-5 text-sm text-white/40 leading-relaxed">
+          {faq.a}
+        </p>
+      </motion.div>
+    </motion.div>
+  );
+
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <PublicSeo />
@@ -377,7 +434,7 @@ export const ContactPage = (): JSX.Element => {
       </section>
 
       <section className="container mx-auto px-3 lg:px-4 pb-16 sm:pb-24">
-        <div className=" lg:px-8 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-10 max-w-full">
+        <div className=" grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-10 max-w-full">
           {/* Form */}
           <motion.div
             id="contact-form"
@@ -748,10 +805,7 @@ export const ContactPage = (): JSX.Element => {
       </section>
 
       <section className="w-full pb-28">
-        <div
-          ref={faqRef}
-          className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl"
-        >
+        <div ref={faqRef} className="container mx-auto px-3 lg:px-4">
           <motion.div
             initial="hidden"
             animate={faqInV ? "visible" : "hidden"}
@@ -763,46 +817,17 @@ export const ContactPage = (): JSX.Element => {
             </h2>
           </motion.div>
 
-          <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <motion.div
-                key={faq.q}
-                initial="hidden"
-                animate={faqInV ? "visible" : "hidden"}
-                variants={fadeUp(i * 0.08)}
-                className="rounded-xl border border-white/[0.07] bg-white/[0.02] overflow-hidden"
-              >
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between p-5 text-left
-                    hover:bg-white/[0.02] transition-colors duration-200"
-                >
-                  <span className="font-medium text-white/80 text-sm pr-4">
-                    {faq.q}
-                  </span>
-                  <motion.span
-                    animate={{ rotate: openFaq === i ? 45 : 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-white/30 flex-shrink-0 text-lg leading-none"
-                  >
-                    +
-                  </motion.span>
-                </button>
+          <div className="space-y-3 md:hidden">
+            {faqs.map((faq, i) => renderFaqItem(faq, i))}
+          </div>
 
-                <motion.div
-                  animate={{
-                    height: openFaq === i ? "auto" : 0,
-                    opacity: openFaq === i ? 1 : 0,
-                  }}
-                  initial={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="overflow-hidden"
-                >
-                  <p className="px-5 pb-5 text-sm text-white/40 leading-relaxed">
-                    {faq.a}
-                  </p>
-                </motion.div>
-              </motion.div>
+          <div className="hidden md:flex md:flex-row md:gap-3 md:items-start">
+            {[0, 1].map((col) => (
+              <div key={col} className="flex min-w-0 flex-1 flex-col gap-3">
+                {faqs.map((faq, i) =>
+                  i % 2 === col ? renderFaqItem(faq, i) : null,
+                )}
+              </div>
             ))}
           </div>
         </div>

@@ -156,6 +156,28 @@ const scaleIn = (delay = 0) => ({
   },
 });
 
+const scrollReveal = {
+  once: true,
+  amount: 0.2 as const,
+  margin: "0px 0px -10% 0px" as const,
+};
+
+const heroStagger = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.055, delayChildren: 0.04 },
+  },
+};
+
+const fadeStep = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: [0.37, 0.04, 0.29, 1.01] },
+  },
+};
+
 const SectionLabel = ({ children }: { children: string }) => (
   <span
     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-widest uppercase
@@ -174,7 +196,7 @@ const StatCard = ({
 }) => {
   const Icon = stat.icon;
   const ref = useRef<HTMLDivElement>(null);
-  const inV = useInView(ref, { once: true, margin: "-10%" });
+  const inV = useInView(ref, scrollReveal);
   return (
     <motion.div
       ref={ref}
@@ -241,11 +263,11 @@ export const AboutPage = (): JSX.Element => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
 
-  const heroInV = useInView(heroRef, { once: true, margin: "-10%" });
-  const highlightInV = useInView(highlightRef, { once: true, margin: "-10%" });
-  const skillsInV = useInView(skillsRef, { once: true, margin: "-10%" });
-  const timelineInV = useInView(timelineRef, { once: true, margin: "-10%" });
-  const ctaInV = useInView(ctaRef, { once: true, margin: "-10%" });
+  const heroInV = useInView(heroRef, scrollReveal);
+  const highlightInV = useInView(highlightRef, scrollReveal);
+  const skillsInV = useInView(skillsRef, scrollReveal);
+  const timelineInV = useInView(timelineRef, scrollReveal);
+  const ctaInV = useInView(ctaRef, scrollReveal);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(email).then(() => {
@@ -274,14 +296,15 @@ export const AboutPage = (): JSX.Element => {
           ref={heroRef}
           initial="hidden"
           animate={heroInV ? "visible" : "hidden"}
+          variants={heroStagger}
           className="container mx-auto px-4 sm:px-6 lg:px-8"
         >
-          <motion.div variants={fadeUp(0)}>
+          <motion.div variants={fadeStep}>
             <SectionLabel>About Me</SectionLabel>
           </motion.div>
 
           <motion.h1
-            variants={fadeUp(0.05)}
+            variants={fadeStep}
             className="text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.05] mb-6 max-w-4xl"
           >
             Crafting digital{" "}
@@ -295,7 +318,7 @@ export const AboutPage = (): JSX.Element => {
           </motion.h1>
 
           <motion.p
-            variants={fadeUp(0.1)}
+            variants={fadeStep}
             className="max-w-2xl text-lg text-white/60 leading-relaxed"
           >
             Since 2023 I've been a{" "}
@@ -316,7 +339,7 @@ export const AboutPage = (): JSX.Element => {
             business impact.
           </motion.p>
 
-          <motion.div variants={fadeUp(0.15)}>
+          <motion.div variants={fadeStep}>
             <SocialLinksRow size="hero" />
           </motion.div>
         </motion.div>
