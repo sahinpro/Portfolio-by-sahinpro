@@ -28,6 +28,11 @@ function resolveContentType(file: File): string | undefined {
 }
 
 async function sha256Hex(buf: ArrayBuffer): Promise<string> {
+  if (!globalThis.crypto?.subtle) {
+    throw new Error(
+      "Uploads need a secure context (HTTPS or localhost). Open the site with HTTPS and try again.",
+    );
+  }
   const digest = await crypto.subtle.digest("SHA-256", buf);
   return Array.from(new Uint8Array(digest))
     .map((b) => b.toString(16).padStart(2, "0"))

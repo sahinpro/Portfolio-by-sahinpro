@@ -1,12 +1,16 @@
 import { ConfirmDialog } from "@/admin/components/ui/ConfirmDialog";
+import { StatusBadge } from "@/admin/components/ui/StatusBadge";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { useToast } from "@/admin/context/ToastContext";
 import type { ProjectRow } from "@/admin/types/database";
-import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
-import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -14,17 +18,171 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ExternalLink,
+  FolderKanban,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2,
+  Undo2,
+} from "lucide-react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-
-const inputSearch =
-  "rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
 
 type Filter = "all" | "published" | "draft" | "trash";
 type DeleteDialogState = { id: string; permanent: boolean } | null;
 type BulkAction = "none" | "draft" | "published" | "trash";
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function ProjectRowActions({
+  row,
+  onMoveToTrash,
+  onRestoreDraft,
+  onPermanentDelete,
+}: {
+  row: ProjectRow;
+  onMoveToTrash: (id: string) => void;
+  onRestoreDraft: (id: string) => void;
+  onPermanentDelete: (id: string) => void;
+}): JSX.Element {
+  const [open, setOpen] = useState(false);
+  const isTrash = row.status === "trash";
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="rounded-md p-1.5 text-white/35 transition-colors hover:bg-white/[0.07] hover:text-white"
+          aria-label={`More actions for ${row.title}`}
+          aria-expanded={open}
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        side="bottom"
+        sideOffset={6}
+        collisionPadding={12}
+        className="w-48 p-0 rounded-xl border border-white/[0.1] bg-zinc-950 text-white shadow-2xl shadow-black/60 z-[100]"
+      >
+        <div className="py-1">
+          <Link
+            to={`/admin/projects/${row.id}`}
+            className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.05] hover:text-white"
+            onClick={() => setOpen(false)}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            {isTrash ? "View / edit" : "Edit project"}
+          </Link>
+          {row.status === "published" ? (
+            <a
+              href={`/projects/${row.id}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.05] hover:text-white"
+              onClick={() => setOpen(false)}
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              View on site
+            </a>
+          ) : null}
+          <div className="mx-2 my-1 h-px bg-white/[0.06]" />
+          {isTrash ? (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  onRestoreDraft(row.id);
+                  setOpen(false);
+                }}
+                className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm text-emerald-300/90 transition-colors hover:bg-emerald-500/10"
+              >
+                <Undo2 className="h-3.5 w-3.5" />
+                Restore to draft
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onPermanentDelete(row.id);
+                  setOpen(false);
+                }}
+                className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm text-red-400 transition-colors hover:bg-red-500/10"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Delete permanently
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                onMoveToTrash(row.id);
+                setOpen(false);
+              }}
+              className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm text-red-400 transition-colors hover:bg-red-500/10"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Move to trash
+            </button>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function EmptyState({ search, filter }: { search: string; filter: Filter }) {
+  const message =
+    search || filter !== "all" ? "No projects match your search." : "No projects yet.";
+  const hint =
+    search || filter !== "all" ? "Try adjusting your filters." : "Create a project to add it to your portfolio.";
+
+  return (
+    <div className="flex flex-col items-center gap-3 py-16 px-4">
+      <div
+        className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.07]
+        bg-white/[0.04] text-white/20"
+      >
+        <FolderKanban className="h-5 w-5" />
+      </div>
+      <div className="text-center">
+        <p className="text-sm font-medium text-white/60">{message}</p>
+        <p className="mt-0.5 text-xs text-white/30">{hint}</p>
+      </div>
+      {filter === "trash" ? (
+        <p className="text-xs text-white/25">Deleted projects appear here until removed permanently.</p>
+      ) : null}
+      {!(search || filter !== "all") ? (
+        <Link
+          to="/admin/projects/new"
+          className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-white/90"
+        >
+          <Plus className="h-4 w-4" />
+          New project
+        </Link>
+      ) : null}
+    </div>
+  );
+}
+
+/** Checkbox, cover, title, category, status, updated, featured, actions */
+const projectsGridCols =
+  "md:grid-cols-[40px_72px_1fr_108px_88px_112px_72px_44px] lg:grid-cols-[40px_88px_1fr_128px_96px_128px_80px_44px]";
 
 export function AdminProjectsListPage(): JSX.Element {
   const location = useLocation();
@@ -33,7 +191,7 @@ export function AdminProjectsListPage(): JSX.Element {
   const [rows, setRows] = useState<ProjectRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
-  const [q, setQ] = useState("");
+  const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteDialog, setDeleteDialog] = useState<DeleteDialogState>(null);
   const [bulkAction, setBulkAction] = useState<BulkAction>("none");
@@ -56,15 +214,10 @@ export function AdminProjectsListPage(): JSX.Element {
     void load();
   }, [load]);
 
-  // Nested routes (`/new`, `/:id`) keep this page mounted; refetch when returning to the list index.
   useEffect(() => {
     const prev = prevPathRef.current;
     prevPathRef.current = location.pathname;
-    if (
-      prev !== null &&
-      prev !== "/admin/projects" &&
-      location.pathname === "/admin/projects"
-    ) {
+    if (prev !== null && prev !== "/admin/projects" && location.pathname === "/admin/projects") {
       void load();
     }
   }, [location.pathname, load]);
@@ -72,15 +225,16 @@ export function AdminProjectsListPage(): JSX.Element {
   useEffect(() => {
     setSelectedIds([]);
     setBulkAction("none");
-  }, [filter, q]);
+  }, [filter, search]);
 
   const filtered = rows.filter((r) => {
     if (filter === "all" && r.status === "trash") return false;
-    if (filter === "published" && r.status !== "published") return false;
-    if (filter === "draft" && r.status !== "draft") return false;
-    if (filter === "trash" && r.status !== "trash") return false;
-    if (q.trim() && !r.title.toLowerCase().includes(q.trim().toLowerCase())) return false;
-    return true;
+    if (filter !== "all" && r.status !== filter) return false;
+    if (!search.trim()) return true;
+    const q = search.trim().toLowerCase();
+    const desc = (r.description ?? "").toLowerCase();
+    const cat = (r.category ?? "").toLowerCase();
+    return r.title.toLowerCase().includes(q) || desc.includes(q) || cat.includes(q);
   });
 
   const filteredIds = filtered.map((row) => row.id);
@@ -127,6 +281,18 @@ export function AdminProjectsListPage(): JSX.Element {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, featured } : r)));
   };
 
+  const restoreDraft = async (id: string) => {
+    const { error } = await supabase.from("projects").update({ status: "draft" }).eq("id", id);
+    if (error) {
+      showToast(error.message, "error");
+      return;
+    }
+    invalidatePublicDataCache();
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status: "draft" } : r)));
+    setSelectedIds((prev) => prev.filter((value) => value !== id));
+    showToast("Project restored to draft");
+  };
+
   const confirmDelete = async () => {
     if (!deleteDialog) return;
     const { id, permanent } = deleteDialog;
@@ -139,60 +305,54 @@ export function AdminProjectsListPage(): JSX.Element {
       showToast(error.message, "error");
       return;
     }
+    invalidatePublicDataCache();
     if (permanent) {
-      invalidatePublicDataCache();
       showToast("Project deleted permanently");
       setRows((prev) => prev.filter((row) => row.id !== id));
-      setSelectedIds((prev) => prev.filter((value) => value !== id));
-      return;
+    } else {
+      showToast("Project moved to trash");
+      setRows((prev) => prev.map((row) => (row.id === id ? { ...row, status: "trash" } : row)));
     }
-    invalidatePublicDataCache();
-    setRows((prev) => prev.map((row) => (row.id === id ? { ...row, status: "trash" } : row)));
     setSelectedIds((prev) => prev.filter((value) => value !== id));
-    showToast("Project moved to trash");
+  };
+
+  const counts = {
+    all: rows.filter((row) => row.status !== "trash").length,
+    published: rows.filter((row) => row.status === "published").length,
+    draft: rows.filter((row) => row.status === "draft").length,
+    trash: rows.filter((row) => row.status === "trash").length,
   };
 
   return (
-    <div className="max-w-6xl">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+    <div className="max-w-6xl space-y-6 xl:max-w-[90rem]">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Projects</h1>
-          <p className="text-sm text-white/45 mt-1">Manage portfolio case studies.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-white">Projects</h1>
+          <p className="mt-0.5 text-sm text-white/40">
+            Manage portfolio case studies. Published projects appear on the public site.
+          </p>
         </div>
-        <Link
-          to="/admin/projects/new"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black hover:bg-white/90"
-        >
-          <Plus className="h-4 w-4" />
-          New project
-        </Link>
-      </div>
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center mb-6">
-        <Input
-          type="search"
-          placeholder="Search title…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          className={`${inputSearch} flex-1 max-w-xs`}
-        />
-        <div className="flex rounded-lg border border-white/10 p-0.5 bg-white/[0.02]">
-          {(["all", "published", "draft", "trash"] as const).map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setFilter(f)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
-                filter === f ? "bg-white/15 text-white" : "text-white/45 hover:text-white/70"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void load()}
+            disabled={loading}
+            className="rounded-lg border border-white/[0.10] bg-white/[0.03] p-2 text-white/50 transition-all hover:bg-white/[0.06] hover:text-white disabled:opacity-40"
+            aria-label="Refresh list"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
+          <Link
+            to="/admin/projects/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-white/90"
+          >
+            <Plus className="h-4 w-4" />
+            New project
+          </Link>
         </div>
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Select value={bulkAction} onValueChange={(value) => setBulkAction(value as BulkAction)}>
             <SelectTrigger className="h-9 w-full border-white/10 bg-white/[0.04] text-white sm:w-[190px]">
@@ -222,100 +382,226 @@ export function AdminProjectsListPage(): JSX.Element {
           >
             Apply
           </Button>
+          <div className="flex rounded-lg border border-white/[0.08] bg-white/[0.02] p-0.5">
+            {(["all", "published", "draft", "trash"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setFilter(value)}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-all ${
+                  filter === value ? "bg-white/[0.12] text-white shadow-sm" : "text-white/40 hover:text-white/70"
+                }`}
+              >
+                {value}
+                <span className={`tabular-nums text-[11px] ${filter === value ? "text-white/60" : "text-white/25"}`}>
+                  {counts[value]}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
-        <p className="text-sm text-white/55">
-          {selectedIds.length > 0 ? `${selectedIds.length} selected` : "Select one or more projects"}
-        </p>
+
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+          <div className="relative w-full sm:w-56">
+            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/30" />
+            <Input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search projects..."
+              className="w-full rounded-lg border-white/[0.08] bg-white/[0.04] py-2 pl-9 pr-4 text-sm text-white placeholder:text-white/30 transition-all focus-visible:border-white/[0.18] focus-visible:bg-white/[0.06]"
+            />
+          </div>
+          <p className="text-sm text-white/55">
+            {selectedIds.length > 0 ? `${selectedIds.length} selected` : "Select one or more projects"}
+          </p>
+        </div>
       </div>
 
-      <div className="rounded-xl border border-white/[0.08] overflow-hidden bg-[#111]">
+      <div className="min-w-0 overflow-hidden rounded-xl border border-white/[0.08]">
+        <div className="hidden border-b border-white/[0.06] bg-white/[0.02] md:block">
+          <div className={`grid gap-0 px-4 py-2.5 md:grid ${projectsGridCols}`}>
+            <span className="flex items-center">
+              <Checkbox
+                checked={allFilteredSelected || (someFilteredSelected ? "indeterminate" : false)}
+                onCheckedChange={(checked) => toggleSelectAll(checked === true)}
+                aria-label="Select all projects"
+              />
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Cover</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Title</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Category</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Status</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Updated</span>
+            <span className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/30">Featured</span>
+            <span />
+          </div>
+        </div>
+
         {loading ? (
-          <p className="p-8 text-sm text-white/45 text-center">Loading…</p>
-        ) : filtered.length === 0 ? (
-          <p className="p-8 text-sm text-white/45 text-center">No projects match.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-white/[0.08] text-[11px] uppercase tracking-wider text-white/40">
-                  <th className="px-4 py-3 w-12">
-                    <Checkbox
-                      checked={allFilteredSelected || (someFilteredSelected ? "indeterminate" : false)}
-                      onCheckedChange={(checked) => toggleSelectAll(checked === true)}
-                      aria-label="Select all projects"
-                    />
-                  </th>
-                  <th className="px-4 py-3 w-14" />
-                  <th className="px-4 py-3">Title</th>
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">Featured</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((r) => (
-                  <tr
-                    key={r.id}
-                    className={`border-b border-white/[0.05] transition-colors ${
-                      selectedIds.includes(r.id) ? "bg-white/[0.045]" : "hover:bg-white/[0.02]"
-                    }`}
-                  >
-                    <td className="px-4 py-2">
-                      <Checkbox
-                        checked={selectedIds.includes(r.id)}
-                        onCheckedChange={(checked) => toggleSelect(r.id, checked === true)}
-                        aria-label={`Select ${r.title}`}
-                      />
-                    </td>
-                    <td className="px-4 py-2">
-                      <img
-                        src={r.image_url?.trim() ? r.image_url : PROJECT_IMAGE_PLACEHOLDER}
-                        alt=""
-                        className="h-10 w-14 rounded object-cover bg-white/5 border border-white/[0.06]"
-                      />
-                    </td>
-                    <td className="px-4 py-2">
-                      <div className="font-medium text-white">{r.title}</div>
-                      {r.description?.trim() ? (
-                        <p className="text-xs text-white/45 mt-1 line-clamp-2 leading-relaxed max-w-md">
-                          {r.description.trim()}
-                        </p>
-                      ) : null}
-                    </td>
-                    <td className="px-4 py-2 text-white/55">{r.category}</td>
-                    <td className="px-4 py-2">
-                      <ToggleSwitch
-                        checked={r.featured}
-                        onChange={(v) => void toggleFeatured(r.id, v)}
-                      />
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      <div className="flex justify-end gap-1">
-                        <Link
-                          to={`/admin/projects/${r.id}`}
-                          className="rounded-lg p-2 text-white/50 hover:bg-white/[0.08] hover:text-white"
-                          title="Edit"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setDeleteDialog({ id: r.id, permanent: r.status === "trash" })
-                          }
-                          className="rounded-lg p-2 text-red-400/70 hover:bg-red-500/10 hover:text-red-300"
-                          title={r.status === "trash" ? "Delete permanently" : "Move to trash"}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+          <div>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Fragment key={index}>
+                <div className="border-b border-white/[0.04] px-4 py-3.5 last:border-b-0 md:hidden">
+                  <div className="animate-pulse">
+                    <div className="flex gap-3">
+                      <div className="mt-1 h-4 w-4 rounded bg-white/[0.06]" />
+                      <div className="h-14 w-14 shrink-0 rounded-lg bg-white/10" />
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <div className="h-4 w-3/4 max-w-[12rem] rounded bg-white/10" />
+                        <div className="h-3 w-1/2 max-w-[8rem] rounded bg-white/[0.06]" />
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          <div className="h-3 w-20 rounded bg-white/[0.06]" />
+                          <div className="h-3 w-12 rounded bg-white/[0.06]" />
+                          <div className="h-5 w-14 rounded-md bg-white/[0.06]" />
+                        </div>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className={`hidden animate-pulse border-b border-white/[0.04] px-4 py-3.5 last:border-b-0 md:grid md:items-center ${projectsGridCols}`}
+                >
+                  <div className="h-4 w-4 self-center rounded bg-white/[0.06]" />
+                  <div className="h-14 w-14 rounded-lg bg-white/10" />
+                  <div>
+                    <div className="mb-1.5 h-4 w-48 rounded bg-white/10" />
+                    <div className="h-3 w-32 rounded bg-white/[0.06]" />
+                  </div>
+                  <div className="h-4 w-20 self-center rounded bg-white/[0.06]" />
+                  <div className="h-5 w-16 self-center rounded-md bg-white/[0.06]" />
+                  <div className="h-4 w-24 self-center rounded bg-white/[0.06]" />
+                  <div className="mx-auto h-4 w-10 self-center rounded bg-white/[0.06]" />
+                  <div />
+                </div>
+              </Fragment>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <EmptyState search={search} filter={filter} />
+        ) : (
+          <div>
+            {filtered.map((row) => (
+              <div
+                key={row.id}
+                className={`group border-b border-white/[0.04] last:border-b-0 transition-colors ${
+                  selectedIds.includes(row.id) ? "bg-white/[0.04]" : "hover:bg-white/[0.025]"
+                } ${row.status === "trash" ? "opacity-75" : ""}`}
+              >
+                <div className="px-4 py-3.5 md:hidden">
+                  <div className="flex gap-3">
+                    <div className="pt-1">
+                      <Checkbox
+                        checked={selectedIds.includes(row.id)}
+                        onCheckedChange={(checked) => toggleSelect(row.id, checked === true)}
+                        aria-label={`Select ${row.title}`}
+                      />
+                    </div>
+                    <div className="flex shrink-0 items-start">
+                      <img
+                        src={row.image_url?.trim() ? row.image_url : PROJECT_IMAGE_PLACEHOLDER}
+                        alt=""
+                        className="h-14 w-14 rounded-lg border border-white/[0.08] bg-black/30 object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <Link
+                          to={`/admin/projects/${row.id}`}
+                          className="line-clamp-2 text-sm font-medium text-white/85 transition-colors hover:text-white"
+                        >
+                          {row.title}
+                        </Link>
+                        <ProjectRowActions
+                          row={row}
+                          onMoveToTrash={(id) => setDeleteDialog({ id, permanent: false })}
+                          onRestoreDraft={(id) => void restoreDraft(id)}
+                          onPermanentDelete={(id) => setDeleteDialog({ id, permanent: true })}
+                        />
+                      </div>
+                      {row.description?.trim() ? (
+                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">{row.description.trim()}</p>
+                      ) : null}
+                      <span className="mt-1 block truncate text-[11px] text-white/28">{row.category}</span>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-white/40">
+                        <span className="tabular-nums">{formatDate(row.updated_at)}</span>
+                        <StatusBadge status={row.status} />
+                        <span className="inline-flex items-center gap-1.5 text-white/45">
+                          Featured
+                          <ToggleSwitch
+                            checked={row.featured}
+                            disabled={row.status === "trash"}
+                            onChange={(v) => void toggleFeatured(row.id, v)}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  className={`hidden items-center gap-0 px-4 py-3.5 md:grid md:items-center ${projectsGridCols}`}
+                >
+                  <div className="flex items-center">
+                    <Checkbox
+                      checked={selectedIds.includes(row.id)}
+                      onCheckedChange={(checked) => toggleSelect(row.id, checked === true)}
+                      aria-label={`Select ${row.title}`}
+                    />
+                  </div>
+                  <div className="flex items-center">
+                    <img
+                      src={row.image_url?.trim() ? row.image_url : PROJECT_IMAGE_PLACEHOLDER}
+                      alt=""
+                      className="h-14 w-14 rounded-lg border border-white/[0.08] bg-black/30 object-cover lg:h-[4.5rem] lg:w-[4.5rem]"
+                    />
+                  </div>
+                  <div className="min-w-0 pr-3 lg:pr-4">
+                    <Link
+                      to={`/admin/projects/${row.id}`}
+                      className="block line-clamp-1 text-sm font-medium text-white/85 transition-colors hover:text-white"
+                    >
+                      {row.title}
+                    </Link>
+                    {row.description?.trim() ? (
+                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">{row.description.trim()}</p>
+                    ) : null}
+                  </div>
+                  <div className="min-w-0 text-sm text-white/55" title={row.category || undefined}>
+                    <span className="line-clamp-2">{row.category?.trim() ? row.category : "—"}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <StatusBadge status={row.status} />
+                  </div>
+                  <div className="tabular-nums text-xs text-white/40">{formatDate(row.updated_at)}</div>
+                  <div className="flex justify-center">
+                    <ToggleSwitch
+                      checked={row.featured}
+                      disabled={row.status === "trash"}
+                      onChange={(v) => void toggleFeatured(row.id, v)}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <ProjectRowActions
+                      row={row}
+                      onMoveToTrash={(id) => setDeleteDialog({ id, permanent: false })}
+                      onRestoreDraft={(id) => void restoreDraft(id)}
+                      onPermanentDelete={(id) => setDeleteDialog({ id, permanent: true })}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
+
+        {!loading && filtered.length > 0 ? (
+          <div className="border-t border-white/[0.06] bg-white/[0.01] px-4 py-3">
+            <p className="text-xs tabular-nums text-white/25">
+              {filtered.length} of {counts[filter]} project{counts[filter] !== 1 ? "s" : ""}
+            </p>
+          </div>
+        ) : null}
       </div>
 
       <ConfirmDialog
@@ -323,8 +609,8 @@ export function AdminProjectsListPage(): JSX.Element {
         title={deleteDialog?.permanent ? "Delete project permanently?" : "Move project to trash?"}
         message={
           deleteDialog?.permanent
-            ? "This will permanently remove the project and cannot be undone."
-            : "The project will be moved to trash. You can restore it later by changing its status."
+            ? "This permanently removes the project from the database. This cannot be undone."
+            : "The project will be hidden from the public site and listed under Trash. You can restore it anytime."
         }
         danger={deleteDialog?.permanent}
         confirmLabel={deleteDialog?.permanent ? "Delete permanently" : "Move to trash"}

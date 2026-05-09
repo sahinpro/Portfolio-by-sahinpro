@@ -28,6 +28,8 @@ export const projectFormSchema = z
         path: ["image_url"],
       });
     }
+    if (data.status === "trash") return;
+
     if (data.build_kind === "custom") {
       if (!data.custom_framework) {
         ctx.addIssue({

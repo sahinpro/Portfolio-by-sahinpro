@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -16,7 +17,6 @@ type PromptState = {
   variant: "confirm" | "acknowledge";
   confirmLabel: string;
   cancelLabel: string;
-  resolve: (value: boolean) => void;
 };
 
 type OpenPromptArgs = {
@@ -37,25 +37,35 @@ const DuplicateUploadConfirmContext = createContext<DuplicateUploadConfirmContex
 
 export function DuplicateUploadConfirmProvider({ children }: { children: ReactNode }): JSX.Element {
   const [prompt, setPrompt] = useState<PromptState | null>(null);
+  const resolveRef = useRef<((value: boolean) => void) | null>(null);
 
   const openPrompt = useCallback((args: OpenPromptArgs) => {
     return new Promise<boolean>((resolve) => {
+      resolveRef.current = resolve;
       setPrompt({
         title: args.title,
         message: args.message,
         variant: args.variant,
         confirmLabel: args.confirmLabel ?? (args.variant === "acknowledge" ? "OK" : "Continue"),
         cancelLabel: args.cancelLabel ?? "Cancel",
-        resolve,
       });
     });
   }, []);
 
   const finish = useCallback((value: boolean) => {
-    setPrompt((p) => {
-      p?.resolve(value);
-      return null;
-    });
+    const r = resolveRef.current;
+    resolveRef.current = null;
+    setPrompt(null);
+    r?.(value);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (resolveRef.current) {
+        resolveRef.current(false);
+        resolveRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {

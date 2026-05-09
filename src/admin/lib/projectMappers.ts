@@ -192,3 +192,35 @@ export function defaultEmptyProjectForm(): ProjectFormValues {
     sort_order: 0,
   };
 }
+
+/** True when the new-project form differs from defaults (user entered something). */
+export function shouldPersistNewProjectDraft(values: ProjectFormValues): boolean {
+  const d = defaultEmptyProjectForm();
+  const t = (s: string) => s.trim();
+  if (t(values.title) !== t(d.title)) return true;
+  if (t(values.description) !== t(d.description)) return true;
+  if (t(values.image_url) !== t(d.image_url)) return true;
+  if (values.screenshot_urls.length !== d.screenshot_urls.length) return true;
+  if (values.screenshot_urls.some((u, i) => t(u) !== t(d.screenshot_urls[i] ?? ""))) return true;
+  if (values.category !== d.category) return true;
+  if (t(values.live_url) !== t(d.live_url)) return true;
+  if (values.build_kind !== d.build_kind) return true;
+  if (values.custom_framework !== d.custom_framework) return true;
+  if (t(values.github_url) !== t(d.github_url)) return true;
+  if (values.technologies.length !== d.technologies.length) return true;
+  if (values.technologies.some((x, i) => t(x) !== t(d.technologies[i] ?? ""))) return true;
+  if (values.cms_platform !== d.cms_platform) return true;
+  if (t(values.cms_theme_name) !== t(d.cms_theme_name)) return true;
+  if (values.cms_extensions.length !== d.cms_extensions.length) return true;
+  if (values.cms_extensions.some((x, i) => t(x) !== t(d.cms_extensions[i] ?? ""))) return true;
+  if (values.featured !== d.featured) return true;
+  if (values.status !== d.status) return true;
+  if (values.sort_order !== d.sort_order) return true;
+  return false;
+}
+
+/** Minimum validity for inserting a draft without full Zod validation (e.g. panel close). */
+export function canLenientDraftInsert(values: ProjectFormValues): boolean {
+  if (values.build_kind === "cms" && !values.cms_platform) return false;
+  return true;
+}

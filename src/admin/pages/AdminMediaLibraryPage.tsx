@@ -15,7 +15,7 @@ import {
   storageUploadErrorMessage,
   uploadPublicFileContentAddressed,
 } from "@/admin/lib/storageUpload";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,7 +32,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 function isProbablyImage(item: MediaLibraryItem): boolean {
   const m = item.mimeType?.toLowerCase() ?? "";
@@ -84,7 +84,6 @@ export function AdminMediaLibraryPage(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [uploading, setUploading] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<MediaLibraryItem | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [metaTitle, setMetaTitle] = useState("");
@@ -256,32 +255,35 @@ export function AdminMediaLibraryPage(): JSX.Element {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <input
-            ref={fileRef}
-            type="file"
-            className="hidden"
-            accept="image/*,.svg,.webp,.avif"
-            multiple
-            onChange={onUpload}
-            disabled={uploading}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={uploading || loading}
-            onClick={() => fileRef.current?.click()}
+          {/*
+            Use a real <label> + visually hidden file input. Browsers often block programmatic
+            .click() on inputs with display:none, which broke the old "Upload" button.
+          */}
+          <label
             title="Select one or more files"
-            className="h-9 border-white/12 bg-white/[0.04] text-white hover:bg-white/[0.08] hover:text-white
-              shadow-none"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              // outline button variant sets [&_svg]:pointer-events-none; on a <label> that lets clicks
+              // fall through the icon so the file dialog never opens unless you hit the text.
+              "[&_svg]:pointer-events-auto",
+              "h-9 cursor-pointer border-white/12 bg-white/[0.04] text-white hover:bg-white/[0.08] hover:text-white shadow-none",
+              (uploading || loading) && "pointer-events-none opacity-50",
+            )}
           >
+            <input
+              type="file"
+              className="sr-only"
+              accept="image/*,.svg,.webp,.avif,.heic,.heif"
+              multiple
+              onChange={onUpload}
+            />
             {uploading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Upload className="h-4 w-4" />
             )}
             Upload
-          </Button>
+          </label>
           <Button
             type="button"
             variant="outline"

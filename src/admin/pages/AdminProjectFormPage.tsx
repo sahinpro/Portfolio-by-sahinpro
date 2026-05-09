@@ -9,15 +9,13 @@ import {
   PROJECT_CATEGORIES,
 } from "@/admin/constants/frameworkFieldConfig";
 import { useToast } from "@/admin/context/ToastContext";
-import {
-  ensureNewProjectDraftId,
-  resetNewProjectDraftLock,
-} from "@/admin/lib/createProjectDraft";
 import { formatSupabaseUserMessage, withRlsHint } from "@/admin/lib/formatAdminError";
 import {
+  canLenientDraftInsert,
   defaultEmptyProjectForm,
   formValuesToProjectPayload,
   projectRowToFormValues,
+  shouldPersistNewProjectDraft,
 } from "@/admin/lib/projectMappers";
 import {
   projectFormSchema,
@@ -46,6 +44,12 @@ const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
 const labelCls = "block text-xs font-medium text-white/50 mb-1.5";
 
+/**
+ * Radix Select must stay controlled: never pass `undefined` for `value` when the
+ * form stores "". Use this sentinel so `value` is always a defined string.
+ */
+const SELECT_NONE = "__none__";
+
 function FieldError({ message }: { message?: string }): JSX.Element | null {
   if (!message) return null;
   return (
@@ -64,7 +68,6 @@ export function AdminProjectFormPage(): JSX.Element {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const isNewRoute = !routeId || routeId === "new";
-  const [creatingDraft, setCreatingDraft] = useState(isNewRoute);
   const [loadingRow, setLoadingRow] = useState(!isNewRoute);
   const persistedRowFields = useRef<{ stats: unknown; year: string | null }>({
     stats: [],
@@ -93,35 +96,10 @@ export function AdminProjectFormPage(): JSX.Element {
   const status = useWatch({ control, name: "status" });
 
   useEffect(() => {
-    if (routeId && routeId !== "new") {
-      resetNewProjectDraftLock();
-    }
-  }, [routeId]);
-
-  useEffect(() => {
     if (!isNewRoute) return;
-    let cancelled = false;
-    setCreatingDraft(true);
-    ensureNewProjectDraftId()
-      .then((newId) => {
-        if (cancelled) return;
-        navigate(`/admin/projects/${newId}`, { replace: true });
-      })
-      .catch((e: unknown) => {
-        if (cancelled) return;
-        showToast(
-          withRlsHint(formatSupabaseUserMessage(e, "Could not create draft")),
-          "error",
-        );
-        navigate("/admin/projects");
-      })
-      .finally(() => {
-        if (!cancelled) setCreatingDraft(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [isNewRoute, navigate, showToast]);
+    persistedRowFields.current = { stats: [], year: null };
+    reset(defaultEmptyProjectForm());
+  }, [isNewRoute, reset]);
 
   useEffect(() => {
     if (isNewRoute || !routeId) return;
@@ -153,14 +131,50 @@ export function AdminProjectFormPage(): JSX.Element {
   }, [isNewRoute, routeId, navigate, reset, showToast]);
 
   const closePanel = useCallback(() => {
-    if (isNewRoute || creatingDraft) {
+    if (loadingRow) {
       navigate("/admin/projects");
       return;
     }
-    if (loadingRow || !routeId) {
+
+    if (isNewRoute) {
+      const raw = getValues();
+      if (shouldPersistNewProjectDraft(raw)) {
+        if (!canLenientDraftInsert(raw)) {
+          showToast("Select a CMS platform to save this draft.", "warning");
+          navigate("/admin/projects");
+          return;
+        }
+        void (async () => {
+          try {
+            const payload = formValuesToProjectPayload(raw, {
+              stats: [],
+              year: null,
+            });
+            const { error } = await supabase.from("projects").insert(payload);
+            if (error) {
+              showToast(
+                withRlsHint(formatSupabaseUserMessage(error, "Could not save draft")),
+                "error",
+              );
+            } else {
+              invalidatePublicDataCache();
+              showToast("Draft saved", "success");
+            }
+          } finally {
+            navigate("/admin/projects");
+          }
+        })();
+        return;
+      }
       navigate("/admin/projects");
       return;
     }
+
+    if (!routeId) {
+      navigate("/admin/projects");
+      return;
+    }
+
     void (async () => {
       try {
         const values = getValues();
@@ -180,15 +194,7 @@ export function AdminProjectFormPage(): JSX.Element {
         navigate("/admin/projects");
       }
     })();
-  }, [
-    creatingDraft,
-    getValues,
-    isNewRoute,
-    loadingRow,
-    navigate,
-    routeId,
-    showToast,
-  ]);
+  }, [getValues, isNewRoute, loadingRow, navigate, routeId, showToast]);
 
   const onInvalid = useCallback(() => {
     showToast("Fix the highlighted fields below", "error");
@@ -200,8 +206,6 @@ export function AdminProjectFormPage(): JSX.Element {
   }, [showToast]);
 
   const onSubmit = async (values: ProjectFormValues) => {
-    if (!routeId || routeId === "new") return;
-
     if (values.status === "published" && !values.live_url?.trim()) {
       showToast(
         "Published without a live URL — add one when you can.",
@@ -210,9 +214,23 @@ export function AdminProjectFormPage(): JSX.Element {
     }
 
     const payload = formValuesToProjectPayload(values, {
-      stats: persistedRowFields.current.stats,
-      year: persistedRowFields.current.year,
+      stats: isNewRoute ? [] : persistedRowFields.current.stats,
+      year: isNewRoute ? null : persistedRowFields.current.year,
     });
+
+    if (isNewRoute) {
+      const { error } = await supabase.from("projects").insert(payload);
+      if (error) {
+        showToast(withRlsHint(formatSupabaseUserMessage(error)), "error");
+        return;
+      }
+      showToast("Project saved", "success");
+      invalidatePublicDataCache();
+      navigate("/admin/projects");
+      return;
+    }
+
+    if (!routeId) return;
 
     const { error } = await supabase
       .from("projects")
@@ -227,26 +245,11 @@ export function AdminProjectFormPage(): JSX.Element {
     navigate("/admin/projects");
   };
 
-  if (creatingDraft || isNewRoute) {
-    return (
-      <AdminSidePanel
-        title="New project"
-        description="Creating a draft you can finish later…"
-        onClose={closePanel}
-      >
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-white/50">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Starting draft…
-        </div>
-      </AdminSidePanel>
-    );
-  }
-
   if (loadingRow) {
     return (
       <AdminSidePanel
         title="Edit project"
-        description="Load project data."
+        description="Loading project…"
         onClose={closePanel}
       >
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-white/50">
@@ -259,8 +262,12 @@ export function AdminProjectFormPage(): JSX.Element {
 
   return (
     <AdminSidePanel
-      title="Edit project"
-      description="Drafts save to the database. Set status to Published when ready (featured image required)."
+      title={isNewRoute ? "New project" : "Edit project"}
+      description={
+        isNewRoute
+          ? "Nothing is saved until you add details and save, or close the panel after editing (draft is created only when there are changes)."
+          : "Save changes when ready. Featured image is required to publish."
+      }
       onClose={closePanel}
     >
       <form
@@ -268,6 +275,18 @@ export function AdminProjectFormPage(): JSX.Element {
         className="mx-auto max-w-3xl space-y-8 pb-20"
         noValidate
       >
+        {!isNewRoute && status === "trash" ? (
+          <div
+            className="rounded-xl border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-sm text-white/70"
+            role="status"
+          >
+            This project is in{" "}
+            <span className="font-medium text-white/90">trash</span> and is
+            hidden from the public site. Set status to Draft or Published to
+            restore it.
+          </div>
+        ) : null}
+
         <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
           <h2 className="text-sm font-semibold text-white">Project</h2>
           <div data-field="title">
@@ -321,7 +340,10 @@ export function AdminProjectFormPage(): JSX.Element {
               name="category"
               control={control}
               render={({ field: f }) => (
-                <Select value={f.value} onValueChange={f.onChange}>
+                <Select
+                  value={f.value}
+                  onValueChange={f.onChange}
+                >
                   <SelectTrigger
                     className={field}
                     aria-invalid={Boolean(errors.category)}
@@ -424,8 +446,10 @@ export function AdminProjectFormPage(): JSX.Element {
                   control={control}
                   render={({ field: f }) => (
                     <Select
-                      value={f.value || undefined}
-                      onValueChange={f.onChange}
+                      value={f.value ? f.value : SELECT_NONE}
+                      onValueChange={(v) =>
+                        f.onChange(v === SELECT_NONE ? "" : v)
+                      }
                     >
                       <SelectTrigger
                         className={field}
@@ -434,6 +458,12 @@ export function AdminProjectFormPage(): JSX.Element {
                         <SelectValue placeholder="Select…" />
                       </SelectTrigger>
                       <SelectContent className="border-white/10 bg-[#111] text-white">
+                        <SelectItem
+                          value={SELECT_NONE}
+                          className="focus:bg-white/10 text-white/45"
+                        >
+                          Select framework…
+                        </SelectItem>
                         {CUSTOM_FRAMEWORK_OPTIONS.map((o) => (
                           <SelectItem
                             key={o.value}
@@ -486,8 +516,10 @@ export function AdminProjectFormPage(): JSX.Element {
                   control={control}
                   render={({ field: f }) => (
                     <Select
-                      value={f.value || undefined}
-                      onValueChange={f.onChange}
+                      value={f.value ? f.value : SELECT_NONE}
+                      onValueChange={(v) =>
+                        f.onChange(v === SELECT_NONE ? "" : v)
+                      }
                     >
                       <SelectTrigger
                         className={field}
@@ -496,6 +528,12 @@ export function AdminProjectFormPage(): JSX.Element {
                         <SelectValue placeholder="Select…" />
                       </SelectTrigger>
                       <SelectContent className="border-white/10 bg-[#111] text-white">
+                        <SelectItem
+                          value={SELECT_NONE}
+                          className="focus:bg-white/10 text-white/45"
+                        >
+                          Select platform…
+                        </SelectItem>
                         {CMS_PLATFORM_OPTIONS.map((o) => (
                           <SelectItem
                             key={o.value}
@@ -593,7 +631,10 @@ export function AdminProjectFormPage(): JSX.Element {
               name="status"
               control={control}
               render={({ field: f }) => (
-                <Select value={f.value} onValueChange={f.onChange}>
+                <Select
+                  value={f.value ?? "draft"}
+                  onValueChange={f.onChange}
+                >
                   <SelectTrigger
                     className={field}
                     aria-invalid={Boolean(errors.status)}
@@ -608,7 +649,7 @@ export function AdminProjectFormPage(): JSX.Element {
                       Published
                     </SelectItem>
                     <SelectItem value="trash" className="focus:bg-white/10">
-                      Trash
+                      In trash
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -630,7 +671,7 @@ export function AdminProjectFormPage(): JSX.Element {
             disabled={isSubmitting}
             className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90 disabled:opacity-50"
           >
-            {isSubmitting ? "Saving…" : "Save changes"}
+            {isSubmitting ? "Saving…" : isNewRoute ? "Save project" : "Save changes"}
           </button>
           <button
             type="button"

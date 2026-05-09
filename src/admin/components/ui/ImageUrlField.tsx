@@ -65,15 +65,18 @@ export function ImageUrlField({
       setUploading(true);
       try {
         const prefix = pathPrefix.replace(/^\/+|\/+$/g, "");
-        const baseTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-        const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
-          bucket,
-          prefix,
-          file,
-          { title: baseTitle },
-        );
+        const baseTitle = file.name
+          .replace(/\.[^.]+$/, "")
+          .replace(/[-_]+/g, " ");
+        const { publicUrl, skippedUpload } =
+          await uploadPublicFileContentAddressed(bucket, prefix, file, {
+            title: baseTitle,
+          });
         if (skippedUpload) {
-          const useExisting = await promptSingleDuplicateFile(openPrompt, file.name);
+          const useExisting = await promptSingleDuplicateFile(
+            openPrompt,
+            file.name,
+          );
           if (!useExisting) return;
         }
         onChange(publicUrl);
@@ -98,7 +101,6 @@ export function ImageUrlField({
     setDragOver(false);
     fileRef.current?.click();
   };
-
 
   const onDrop = async (e: React.DragEvent) => {
     e.preventDefault();
@@ -142,7 +144,11 @@ export function ImageUrlField({
           {uploading ? "…" : "Up"}
         </button>
         {/^https?:\/\//i.test(value) ? (
-          <img src={value} alt="" className="h-6 w-6 rounded object-cover border border-white/10 shrink-0" />
+          <img
+            src={value}
+            alt=""
+            className="h-6 w-6 rounded object-cover border border-white/10 shrink-0"
+          />
         ) : null}
       </div>
     );
@@ -196,9 +202,13 @@ export function ImageUrlField({
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-white/80">
-                {uploading ? "Uploading…" : "Drop an image here or click to upload"}
+                {uploading
+                  ? "Uploading…"
+                  : "Drop an image here or click to upload"}
               </p>
-              <p className="mt-1 text-xs text-white/35">PNG, JPG, WebP, SVG — full width drop zone</p>
+              <p className="mt-1 text-xs text-white/35">
+                PNG, JPG, WebP, SVG — full width drop zone
+              </p>
             </div>
           </button>
         </div>
@@ -215,12 +225,18 @@ export function ImageUrlField({
         </div>
 
         {value ? (
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-            <div className="shrink-0 overflow-hidden rounded-xl border border-white/[0.1] bg-black/30">
-              <img src={value} alt="" className="max-h-40 w-full max-w-[280px] object-contain sm:h-36 sm:w-auto" />
+          <div className="flex flex-col gap-3">
+            <div className="shrink-0 self-start overflow-hidden rounded-xl border border-white/[0.1] bg-black/30">
+              <img
+                src={value}
+                alt=""
+                className="max-h-auto max-w-40 object-contain  sm:w-auto"
+              />
             </div>
             <div className="min-w-0 flex-1 space-y-1.5">
-              <label className="text-[10px] font-medium uppercase tracking-wide text-white/40">Public URL</label>
+              <label className="text-[10px] font-medium uppercase tracking-wide text-white/40">
+                Public URL
+              </label>
               <Input
                 className={field}
                 value={value}
