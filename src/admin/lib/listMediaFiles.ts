@@ -17,11 +17,6 @@ export type MediaLibraryItem = {
   caption: string | null;
 };
 
-export const MEDIA_BUCKETS: { id: MediaBucketId; label: string; hint: string }[] = [
-  { id: "portfolio-assets", label: "Portfolio", hint: "Projects, SEO, testimonials, social" },
-  { id: "blog-media", label: "Blog", hint: "Post covers and inline images" },
-];
-
 export function getMediaPublicUrl(bucket: MediaBucketId, path: string): string {
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
@@ -68,6 +63,21 @@ export async function listAllMediaInBucket(bucket: MediaBucketId): Promise<Media
   const out: MediaLibraryItem[] = [];
   await walkBucket(bucket, "", out);
   return out;
+}
+
+/** All public media buckets in one list, newest first. */
+export async function listAllMediaMerged(): Promise<MediaLibraryItem[]> {
+  const [portfolio, blog] = await Promise.all([
+    listAllMediaInBucket("portfolio-assets"),
+    listAllMediaInBucket("blog-media"),
+  ]);
+  const merged = [...portfolio, ...blog];
+  merged.sort((x, y) => {
+    const tx = x.updatedAt ? Date.parse(x.updatedAt) : 0;
+    const ty = y.updatedAt ? Date.parse(y.updatedAt) : 0;
+    return ty - tx;
+  });
+  return merged;
 }
 
 export async function deleteMediaObject(bucket: MediaBucketId, path: string): Promise<void> {

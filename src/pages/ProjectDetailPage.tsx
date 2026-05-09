@@ -26,6 +26,10 @@ import { Link, useParams } from "react-router-dom";
 const SITE = "Sahin Alam";
 
 const categoryBadge: Record<string, string> = {
+  "Web Development": "bg-violet-500/20 text-violet-300 border-violet-500/30",
+  "E-commerce": "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  "SaaS Platform": "bg-sky-500/20 text-sky-300 border-sky-500/30",
+  "Front-end Web Design": "bg-blue-500/20 text-blue-300 border-blue-500/30",
   "Full Stack": "bg-violet-500/20 text-violet-300 border-violet-500/30",
   Frontend: "bg-blue-500/20 text-blue-300 border-blue-500/30",
   CMS: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
@@ -53,8 +57,10 @@ const fadeChild = {
 
 function frameworkLabel(fw: PublicProjectDetail["customFramework"], customLabel: string | null): string {
   if (fw === "other" && customLabel?.trim()) return customLabel.trim();
-  if (fw === "react") return "React";
+  if (fw === "react_vanilla") return "React (Vanilla)";
+  if (fw === "vanilla_js") return "Vanilla JS";
   if (fw === "next") return "Next.js";
+  if (fw === "react") return "React";
   if (fw === "vue") return "Vue";
   if (fw === "other") return "Custom stack";
   return "";
@@ -63,6 +69,7 @@ function frameworkLabel(fw: PublicProjectDetail["customFramework"], customLabel:
 function cmsPlatformLabel(p: PublicProjectDetail["cmsPlatform"]): string {
   if (p === "wordpress") return "WordPress";
   if (p === "shopify") return "Shopify";
+  if (p === "wix") return "Wix";
   return "";
 }
 

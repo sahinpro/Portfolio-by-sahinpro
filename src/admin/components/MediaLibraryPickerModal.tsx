@@ -1,16 +1,26 @@
+import {
+  promptBatchDuplicateFiles,
+  promptSingleDuplicateFile,
+  useDuplicateUploadConfirm,
+} from "@/admin/context/DuplicateUploadConfirmContext";
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
+import { isLikelyImageFile } from "@/admin/lib/imageFileAccept";
 import {
   type MediaBucketId,
   type MediaLibraryItem,
-  listAllMediaInBucket,
+  listAllMediaMerged,
   updateMediaItemMetadata,
 } from "@/admin/lib/listMediaFiles";
+import {
+  storageUploadErrorMessage,
+  uploadPublicFileContentAddressed,
+} from "@/admin/lib/storageUpload";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Check, Loader2, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Check, Loader2, Upload, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 function isProbablyImage(item: MediaLibraryItem): boolean {
   const m = item.mimeType?.toLowerCase() ?? "";
@@ -24,7 +34,10 @@ const field =
 type MediaLibraryPickerModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  bucket: MediaBucketId;
+  /** Bucket for new uploads from this dialog (listing always shows all media). */
+  uploadBucket: MediaBucketId;
+  /** Storage path prefix for uploads (no leading/trailing slash), e.g. `blog`, `projects`. */
+  pathPrefix: string;
   /** Default: single image selection (existing behavior). */
   mode?: "single" | "multiple";
   onPick: (publicUrl: string) => void;
@@ -36,17 +49,25 @@ function itemKey(item: MediaLibraryItem): string {
   return `${item.bucket}:${item.path}`;
 }
 
+function normalizePathPrefix(prefix: string): string {
+  return prefix.replace(/^\/+|\/+$/g, "");
+}
+
 export function MediaLibraryPickerModal({
   open,
   onOpenChange,
-  bucket,
+  uploadBucket,
+  pathPrefix,
   mode = "single",
   onPick,
   onPickMultiple,
 }: MediaLibraryPickerModalProps): JSX.Element | null {
   const { showToast } = useToast();
+  const { openPrompt } = useDuplicateUploadConfirm();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [items, setItems] = useState<MediaLibraryItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [selected, setSelected] = useState<MediaLibraryItem | null>(null);
   const [multiSelected, setMultiSelected] = useState<Set<string>>(() => new Set());
   const [title, setTitle] = useState("");
@@ -57,7 +78,7 @@ export function MediaLibraryPickerModal({
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const list = await listAllMediaInBucket(bucket);
+      const list = await listAllMediaMerged();
       setItems(list);
     } catch (e) {
       showToast(withRlsHint(e instanceof Error ? e.message : "Could not load library"), "error");
@@ -65,7 +86,7 @@ export function MediaLibraryPickerModal({
     } finally {
       setLoading(false);
     }
-  }, [bucket, showToast]);
+  }, [showToast]);
 
   useEffect(() => {
     if (!open) return;
@@ -104,7 +125,7 @@ export function MediaLibraryPickerModal({
     try {
       await updateMediaItemMetadata(selected, { title, alt, caption });
       showToast("Details saved");
-      const list = await listAllMediaInBucket(bucket);
+      const list = await listAllMediaMerged();
       setItems(list);
       const next = list.find((x) => x.path === selected.path && x.bucket === selected.bucket);
       if (next) setSelected(next);
@@ -112,6 +133,97 @@ export function MediaLibraryPickerModal({
       showToast(withRlsHint(e instanceof Error ? e.message : "Save failed"), "error");
     } finally {
       setSavingMeta(false);
+    }
+  };
+
+  const onFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    e.target.value = "";
+    if (!files?.length) return;
+
+    const prefix = normalizePathPrefix(pathPrefix);
+    if (!prefix) {
+      showToast("Invalid upload path", "error");
+      return;
+    }
+
+    const list = Array.from(files);
+    if (mode === "single") {
+      const file = list[0];
+      if (!file || !isLikelyImageFile(file)) {
+        showToast("Choose an image file", "error");
+        return;
+      }
+      setUploading(true);
+      try {
+        const baseTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+        const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
+          uploadBucket,
+          prefix,
+          file,
+          { title: baseTitle },
+        );
+        if (skippedUpload) {
+          const useExisting = await promptSingleDuplicateFile(openPrompt, file.name);
+          if (!useExisting) return;
+        } else {
+          showToast("Uploaded");
+        }
+        await load();
+        onPick(publicUrl);
+        onOpenChange(false);
+      } catch (err) {
+        showToast(withRlsHint(storageUploadErrorMessage(err)), "error");
+      } finally {
+        setUploading(false);
+      }
+      return;
+    }
+
+    const images = list.filter((f) => isLikelyImageFile(f));
+    if (images.length === 0) {
+      showToast("Add image files only", "error");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const newUrls: string[] = [];
+      let skipped = 0;
+      for (const file of images) {
+        const baseTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+        const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
+          uploadBucket,
+          prefix,
+          file,
+          { title: baseTitle },
+        );
+        newUrls.push(publicUrl);
+        if (skippedUpload) skipped += 1;
+      }
+      const newCount = images.length - skipped;
+      if (skipped > 0) {
+        const proceed = await promptBatchDuplicateFiles(openPrompt, newCount, skipped);
+        if (!proceed) return;
+      }
+      if (skipped === 0) {
+        showToast(images.length === 1 ? "Uploaded" : `${images.length} images uploaded`);
+      } else {
+        showToast(
+          newCount > 0
+            ? `Added ${newCount} new image${newCount === 1 ? "" : "s"} (${skipped} existing reused)`
+            : `Using ${skipped} existing image${skipped === 1 ? "" : "s"}`,
+        );
+      }
+      await load();
+      const uniq = [...new Set(newUrls)];
+      if (onPickMultiple) onPickMultiple(uniq);
+      else uniq.forEach((u) => onPick(u));
+      onOpenChange(false);
+    } catch (err) {
+      showToast(withRlsHint(storageUploadErrorMessage(err)), "error");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -123,7 +235,8 @@ export function MediaLibraryPickerModal({
         type="button"
         className="absolute inset-0 bg-black/75 backdrop-blur-sm"
         aria-label="Close"
-        onClick={() => onOpenChange(false)}
+        onClick={() => !uploading && onOpenChange(false)}
+        disabled={uploading}
       />
       <div
         className="relative z-[101] flex max-h-[min(90vh,820px)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/[0.1] bg-zinc-950 shadow-2xl"
@@ -131,17 +244,42 @@ export function MediaLibraryPickerModal({
         aria-modal="true"
         aria-labelledby="media-picker-title"
       >
-        <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-3">
+        <div className="flex items-center justify-between gap-2 border-b border-white/[0.08] px-4 py-3">
           <h2 id="media-picker-title" className="text-sm font-semibold text-white">
-            {mode === "multiple" ? "Choose images (multi-select)" : "Choose from library"}
+            Media library
           </h2>
-          <button
-            type="button"
-            onClick={() => onOpenChange(false)}
-            className="rounded-lg p-2 text-white/45 hover:bg-white/[0.06] hover:text-white"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              className="sr-only"
+              accept="image/*,.svg,.webp,.avif,.heic,.heif"
+              multiple={mode === "multiple"}
+              onChange={(ev) => void onFileInput(ev)}
+              disabled={uploading || loading}
+            />
+            <button
+              type="button"
+              disabled={uploading || loading}
+              onClick={() => fileRef.current?.click()}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/12 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/85 hover:bg-white/[0.1] disabled:opacity-45"
+            >
+              {uploading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Upload className="h-3.5 w-3.5" />
+              )}
+              {mode === "multiple" ? "Upload" : "Upload"}
+            </button>
+            <button
+              type="button"
+              onClick={() => !uploading && onOpenChange(false)}
+              disabled={uploading}
+              className="rounded-lg p-2 text-white/45 hover:bg-white/[0.06] hover:text-white disabled:opacity-45"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[1fr_280px]">
@@ -152,7 +290,9 @@ export function MediaLibraryPickerModal({
                 Loading…
               </div>
             ) : items.length === 0 ? (
-              <p className="p-6 text-center text-sm text-white/40">No files in this bucket yet.</p>
+              <p className="p-6 text-center text-sm text-white/40">
+                No files yet. Upload with the button above or from the main media page.
+              </p>
             ) : (
               <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {items.map((item) => {
@@ -221,11 +361,10 @@ export function MediaLibraryPickerModal({
             {mode === "multiple" ? (
               <>
                 <p className="text-[11px] text-white/40">
-                  Click images to toggle. Non-image files are skipped when adding.
+                  Upload adds to this field&apos;s folder, or select existing images. Non-image files are skipped when
+                  adding.
                 </p>
-                <p className="text-sm text-white/75">
-                  {multiSelected.size} selected
-                </p>
+                <p className="text-sm text-white/75">{multiSelected.size} selected</p>
                 <button
                   type="button"
                   onClick={() => setMultiSelected(new Set())}
@@ -252,7 +391,9 @@ export function MediaLibraryPickerModal({
               </>
             ) : (
               <>
-                <p className="text-[11px] text-white/40">Select an image, edit details, then insert.</p>
+                <p className="text-[11px] text-white/40">
+                  Select an image below, or upload. New files use the same storage as this field.
+                </p>
                 {selected ? (
                   <>
                     <div>

@@ -1,12 +1,19 @@
 import { MediaLibraryPickerModal } from "@/admin/components/MediaLibraryPickerModal";
+import {
+  promptSingleDuplicateFile,
+  useDuplicateUploadConfirm,
+} from "@/admin/context/DuplicateUploadConfirmContext";
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
 import { isLikelyImageFile } from "@/admin/lib/imageFileAccept";
-import { storageUploadErrorMessage, uploadPublicFile } from "@/admin/lib/storageUpload";
+import {
+  storageUploadErrorMessage,
+  uploadPublicFileContentAddressed,
+} from "@/admin/lib/storageUpload";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ImagePlus, Images } from "lucide-react";
-import { useCallback, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
@@ -37,39 +44,61 @@ export function ImageUrlField({
   variant = "default",
 }: ImageUrlFieldProps): JSX.Element {
   const { showToast } = useToast();
+  const { openPrompt } = useDuplicateUploadConfirm();
   const fileInputId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
 
+  useEffect(() => {
+    const onWindowFocus = () => {
+      // Native file dialog cancel can leave visual hover/drag state stale in some browsers.
+      setDragOver(false);
+    };
+    window.addEventListener("focus", onWindowFocus);
+    return () => window.removeEventListener("focus", onWindowFocus);
+  }, []);
+
   const runUpload = useCallback(
     async (file: File) => {
       setUploading(true);
       try {
-        const safe = file.name.replace(/\s+/g, "-");
-        const path = `${pathPrefix.replace(/^\/+|\/+$/g, "")}/${crypto.randomUUID()}-${safe}`;
+        const prefix = pathPrefix.replace(/^\/+|\/+$/g, "");
         const baseTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-        const url = await uploadPublicFile(bucket, path, file, {
-          title: baseTitle,
-        });
-        onChange(url);
-        showToast("Image uploaded");
+        const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
+          bucket,
+          prefix,
+          file,
+          { title: baseTitle },
+        );
+        if (skippedUpload) {
+          const useExisting = await promptSingleDuplicateFile(openPrompt, file.name);
+          if (!useExisting) return;
+        }
+        onChange(publicUrl);
+        showToast(skippedUpload ? "Using existing image" : "Image uploaded");
       } catch (err) {
         showToast(withRlsHint(storageUploadErrorMessage(err)), "error");
       } finally {
         setUploading(false);
       }
     },
-    [bucket, onChange, pathPrefix, showToast],
+    [bucket, onChange, openPrompt, pathPrefix, showToast],
   );
 
   const onFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
+    setDragOver(false);
     if (!file) return;
     await runUpload(file);
   };
+  const openFileDialog = () => {
+    setDragOver(false);
+    fileRef.current?.click();
+  };
+
 
   const onDrop = async (e: React.DragEvent) => {
     e.preventDefault();
@@ -101,15 +130,17 @@ export function ImageUrlField({
           placeholder="Key or URL"
           title="Lucide icon name or image URL"
         />
-        <label
-          htmlFor={fileInputId}
+        <button
+          type="button"
+          onClick={openFileDialog}
           className={cn(
             "shrink-0 rounded border border-white/15 px-2 py-1 text-[10px] font-medium text-white/75 hover:bg-white/[0.06] cursor-pointer",
             uploading && "opacity-50 pointer-events-none",
           )}
+          disabled={uploading}
         >
           {uploading ? "…" : "Up"}
-        </label>
+        </button>
         {/^https?:\/\//i.test(value) ? (
           <img src={value} alt="" className="h-6 w-6 rounded object-cover border border-white/10 shrink-0" />
         ) : null}
@@ -151,12 +182,14 @@ export function ImageUrlField({
             uploading && "pointer-events-none opacity-60",
           )}
         >
-          <label
-            htmlFor={fileInputId}
+          <button
+            type="button"
+            onClick={openFileDialog}
             className={cn(
               "flex w-full cursor-pointer flex-col items-center justify-center gap-2 px-4 py-10",
               uploading && "cursor-not-allowed",
             )}
+            disabled={uploading}
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.06] text-white/55">
               <ImagePlus className="h-5 w-5" />
@@ -167,7 +200,7 @@ export function ImageUrlField({
               </p>
               <p className="mt-1 text-xs text-white/35">PNG, JPG, WebP, SVG — full width drop zone</p>
             </div>
-          </label>
+          </button>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -214,7 +247,8 @@ export function ImageUrlField({
       <MediaLibraryPickerModal
         open={pickerOpen}
         onOpenChange={setPickerOpen}
-        bucket={bucket}
+        uploadBucket={bucket}
+        pathPrefix={pathPrefix}
         onPick={onChange}
       />
     </div>

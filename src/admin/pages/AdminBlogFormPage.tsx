@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -137,6 +138,7 @@ export function AdminBlogFormPage(): JSX.Element {
       }
       showToast("Post saved");
     }
+    invalidatePublicDataCache();
     navigate("/admin/blog");
   };
 

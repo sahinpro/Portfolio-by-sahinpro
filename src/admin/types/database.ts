@@ -14,10 +14,18 @@ export type ProjectRow = {
   sort_order: number;
   stats: unknown;
   build_kind: "custom" | "cms";
-  custom_framework: "react" | "next" | "vue" | "other" | null;
+  /** Current slugs: react_vanilla, next, vanilla_js; legacy: react, vue, other */
+  custom_framework:
+    | "react_vanilla"
+    | "next"
+    | "vanilla_js"
+    | "react"
+    | "vue"
+    | "other"
+    | null;
   custom_framework_label: string | null;
   custom_stack_facets: Record<string, string | string[]> | null;
-  cms_platform: "wordpress" | "shopify" | null;
+  cms_platform: "wordpress" | "shopify" | "wix" | null;
   cms_theme_name: string | null;
   cms_extensions: unknown;
   /** JSON array of public image URLs for the project detail gallery */

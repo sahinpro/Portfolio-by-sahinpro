@@ -1,18 +1,29 @@
 import { AdminSidePanel } from "@/admin/components/ui/AdminSidePanel";
-import { FRAMEWORK_FIELD_CONFIG } from "@/admin/constants/frameworkFieldConfig";
+import { ImageGalleryField } from "@/admin/components/ui/ImageGalleryField";
+import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
+import { TagInput } from "@/admin/components/ui/TagInput";
+import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
+import {
+  CMS_PLATFORM_OPTIONS,
+  CUSTOM_FRAMEWORK_OPTIONS,
+  PROJECT_CATEGORIES,
+} from "@/admin/constants/frameworkFieldConfig";
 import { useToast } from "@/admin/context/ToastContext";
+import {
+  ensureNewProjectDraftId,
+  resetNewProjectDraftLock,
+} from "@/admin/lib/createProjectDraft";
+import { formatSupabaseUserMessage, withRlsHint } from "@/admin/lib/formatAdminError";
 import {
   defaultEmptyProjectForm,
   formValuesToProjectPayload,
   projectRowToFormValues,
 } from "@/admin/lib/projectMappers";
-import { ImageGalleryField } from "@/admin/components/ui/ImageGalleryField";
-import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
-import { projectFormSchema, type ProjectFormValues } from "@/admin/schemas/projectFormSchema";
+import {
+  projectFormSchema,
+  type ProjectFormValues,
+} from "@/admin/schemas/projectFormSchema";
 import type { ProjectRow } from "@/admin/types/database";
-import { TagInput } from "@/admin/components/ui/TagInput";
-import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
-import { PROJECT_CATEGORIES } from "@/admin/constants/frameworkFieldConfig";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -23,99 +34,220 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Loader2, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
 
 const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
 const labelCls = "block text-xs font-medium text-white/50 mb-1.5";
 
+function FieldError({ message }: { message?: string }): JSX.Element | null {
+  if (!message) return null;
+  return (
+    <p
+      className="mt-1 text-xs text-red-400"
+      data-form-field-error="true"
+      role="alert"
+    >
+      {message}
+    </p>
+  );
+}
+
 export function AdminProjectFormPage(): JSX.Element {
-  const { id } = useParams<{ id: string }>();
+  const { id: routeId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const isNew = id === "new" || !id;
-  const [loadingRow, setLoadingRow] = useState(!isNew);
+  const isNewRoute = !routeId || routeId === "new";
+  const [creatingDraft, setCreatingDraft] = useState(isNewRoute);
+  const [loadingRow, setLoadingRow] = useState(!isNewRoute);
+  const persistedRowFields = useRef<{ stats: unknown; year: string | null }>({
+    stats: [],
+    year: null,
+  });
+
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: defaultEmptyProjectForm(),
   });
 
-  const { register, control, handleSubmit, reset, setValue, watch, formState } = form;
-  const { errors } = formState;
-
-  const { fields: statFields, append: appendStat, remove: removeStat } = useFieldArray({
+  const {
+    register,
     control,
-    name: "stats",
-  });
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState,
+    getValues,
+  } = form;
+  const { errors, isSubmitting } = formState;
 
   const cmsExtensions = watch("cms_extensions");
-
   const buildKind = useWatch({ control, name: "build_kind" });
-  const customFramework = useWatch({ control, name: "custom_framework" });
-  const stackFacets = watch("custom_stack_facets");
+  const status = useWatch({ control, name: "status" });
 
   useEffect(() => {
-    if (isNew) {
-      reset(defaultEmptyProjectForm());
-      setLoadingRow(false);
-      return;
+    if (routeId && routeId !== "new") {
+      resetNewProjectDraftLock();
     }
+  }, [routeId]);
+
+  useEffect(() => {
+    if (!isNewRoute) return;
     let cancelled = false;
+    setCreatingDraft(true);
+    ensureNewProjectDraftId()
+      .then((newId) => {
+        if (cancelled) return;
+        navigate(`/admin/projects/${newId}`, { replace: true });
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        showToast(
+          withRlsHint(formatSupabaseUserMessage(e, "Could not create draft")),
+          "error",
+        );
+        navigate("/admin/projects");
+      })
+      .finally(() => {
+        if (!cancelled) setCreatingDraft(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isNewRoute, navigate, showToast]);
+
+  useEffect(() => {
+    if (isNewRoute || !routeId) return;
+    let cancelled = false;
+    setLoadingRow(true);
     (async () => {
       const { data, error } = await supabase
         .from("projects")
         .select("*")
-        .eq("id", id!)
+        .eq("id", routeId)
         .single();
       if (cancelled) return;
       setLoadingRow(false);
       if (error || !data) {
-        showToast(error?.message ?? "Not found", "error");
+        showToast(withRlsHint(error?.message ?? "Not found"), "error");
         navigate("/admin/projects");
         return;
       }
-      reset(projectRowToFormValues(data as ProjectRow));
+      const row = data as ProjectRow;
+      persistedRowFields.current = {
+        stats: row.stats ?? [],
+        year: row.year ?? null,
+      };
+      reset(projectRowToFormValues(row));
     })();
     return () => {
       cancelled = true;
     };
-  }, [id, isNew, navigate, reset, showToast]);
+  }, [isNewRoute, routeId, navigate, reset, showToast]);
 
-  const setFacet = (key: string, val: string | string[]) => {
-    setValue("custom_stack_facets", { ...stackFacets, [key]: val }, { shouldValidate: true });
-  };
+  const closePanel = useCallback(() => {
+    if (isNewRoute || creatingDraft) {
+      navigate("/admin/projects");
+      return;
+    }
+    if (loadingRow || !routeId) {
+      navigate("/admin/projects");
+      return;
+    }
+    void (async () => {
+      try {
+        const values = getValues();
+        const payload = formValuesToProjectPayload(values, {
+          stats: persistedRowFields.current.stats,
+          year: persistedRowFields.current.year,
+        });
+        const { error } = await supabase
+          .from("projects")
+          .update(payload)
+          .eq("id", routeId);
+        if (error) showToast(withRlsHint(error.message), "error");
+        else invalidatePublicDataCache();
+      } catch {
+        /* still leave the panel */
+      } finally {
+        navigate("/admin/projects");
+      }
+    })();
+  }, [
+    creatingDraft,
+    getValues,
+    isNewRoute,
+    loadingRow,
+    navigate,
+    routeId,
+    showToast,
+  ]);
+
+  const onInvalid = useCallback(() => {
+    showToast("Fix the highlighted fields below", "error");
+    requestAnimationFrame(() => {
+      document
+        .querySelector('[data-form-field-error="true"]')
+        ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
+  }, [showToast]);
 
   const onSubmit = async (values: ProjectFormValues) => {
-    const payload = formValuesToProjectPayload(values);
-    if (isNew) {
-      const { error } = await supabase.from("projects").insert(payload);
-      if (error) {
-        showToast(error.message, "error");
-        return;
-      }
-      showToast("Project created");
-    } else {
-      const { error } = await supabase.from("projects").update(payload).eq("id", id!);
-      if (error) {
-        showToast(error.message, "error");
-        return;
-      }
-      showToast("Project saved");
+    if (!routeId || routeId === "new") return;
+
+    if (values.status === "published" && !values.live_url?.trim()) {
+      showToast(
+        "Published without a live URL — add one when you can.",
+        "warning",
+      );
     }
+
+    const payload = formValuesToProjectPayload(values, {
+      stats: persistedRowFields.current.stats,
+      year: persistedRowFields.current.year,
+    });
+
+    const { error } = await supabase
+      .from("projects")
+      .update(payload)
+      .eq("id", routeId);
+    if (error) {
+      showToast(withRlsHint(error.message), "error");
+      return;
+    }
+    showToast("Project saved", "success");
+    invalidatePublicDataCache();
     navigate("/admin/projects");
   };
+
+  if (creatingDraft || isNewRoute) {
+    return (
+      <AdminSidePanel
+        title="New project"
+        description="Creating a draft you can finish later…"
+        onClose={closePanel}
+      >
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-white/50">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          Starting draft…
+        </div>
+      </AdminSidePanel>
+    );
+  }
 
   if (loadingRow) {
     return (
       <AdminSidePanel
-        title={isNew ? "New project" : "Edit project"}
-        description="Custom builds and CMS projects use different fields."
-        onClose={() => navigate("/admin/projects")}
+        title="Edit project"
+        description="Load project data."
+        onClose={closePanel}
       >
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-white/50">
           <Loader2 className="h-5 w-5 animate-spin" />
@@ -125,188 +257,121 @@ export function AdminProjectFormPage(): JSX.Element {
     );
   }
 
-  const facetConfig =
-    customFramework &&
-    customFramework !== "other" &&
-    (customFramework === "react" || customFramework === "next" || customFramework === "vue")
-      ? FRAMEWORK_FIELD_CONFIG[customFramework]
-      : [];
-
   return (
     <AdminSidePanel
-      title={isNew ? "New project" : "Edit project"}
-      description="Custom builds vs CMS projects use different fields. Stats appear as chips on the public page."
-      onClose={() => navigate("/admin/projects")}
+      title="Edit project"
+      description="Drafts save to the database. Set status to Published when ready (featured image required)."
+      onClose={closePanel}
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-3xl space-y-8 pb-20">
+      <form
+        onSubmit={handleSubmit(onSubmit, onInvalid)}
+        className="mx-auto max-w-3xl space-y-8 pb-20"
+        noValidate
+      >
         <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
-          <h2 className="text-sm font-semibold text-white">Basics</h2>
-          <div>
-            <label className={labelCls}>Title</label>
-            <Input className={field} {...register("title")} />
-            {errors.title ? (
-              <p className="mt-1 text-xs text-red-400">{errors.title.message}</p>
+          <h2 className="text-sm font-semibold text-white">Project</h2>
+          <div data-field="title">
+            <label className={labelCls} htmlFor="project-title">
+              Title
+            </label>
+            <Input
+              id="project-title"
+              className={field}
+              aria-invalid={Boolean(errors.title)}
+              {...register("title")}
+            />
+            <FieldError message={errors.title?.message} />
+          </div>
+          <div data-field="description">
+            <label className={labelCls} htmlFor="project-description">
+              Short description
+            </label>
+            <Textarea
+              id="project-description"
+              className={`${field} min-h-[80px]`}
+              aria-invalid={Boolean(errors.description)}
+              {...register("description")}
+            />
+            <FieldError message={errors.description?.message} />
+          </div>
+          <div data-field="image_url">
+            <Controller
+              name="image_url"
+              control={control}
+              render={({ field: f }) => (
+                <ImageUrlField
+                  label="Featured image"
+                  value={f.value}
+                  onChange={f.onChange}
+                  bucket="portfolio-assets"
+                  pathPrefix="projects"
+                />
+              )}
+            />
+            <FieldError message={errors.image_url?.message} />
+            {status === "published" ? (
+              <p className="mt-1 text-[11px] text-white/35">
+                Required for published projects.
+              </p>
             ) : null}
           </div>
           <div>
-            <label className={labelCls}>Short description</label>
-            <Textarea className={`${field} min-h-[80px]`} {...register("description")} />
-            {errors.description ? (
-              <p className="mt-1 text-xs text-red-400">{errors.description.message}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelCls}>Long description</label>
-            <Textarea className={`${field} min-h-[120px]`} {...register("long_description")} />
-          </div>
-          <Controller
-            name="image_url"
-            control={control}
-            render={({ field }) => (
-              <ImageUrlField
-                label="Image"
-                value={field.value}
-                onChange={field.onChange}
-                bucket="portfolio-assets"
-                pathPrefix="projects"
-              />
-            )}
-          />
-          <Controller
-            name="screenshot_urls"
-            control={control}
-            render={({ field }) => (
-              <ImageGalleryField
-                label="Screenshot gallery"
-                value={field.value}
-                onChange={field.onChange}
-                bucket="portfolio-assets"
-                pathPrefix="projects/screenshots"
-              />
-            )}
-          />
-          <div>
-            <label className={labelCls}>Technologies</label>
+            <label className={labelCls}>Category</label>
             <Controller
-              name="technologies"
-              control={control}
-              render={({ field: f }) => (
-                <TagInput value={f.value} onChange={f.onChange} placeholder="React, TypeScript…" />
-              )}
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Category</label>
-              <Controller
-                name="category"
-                control={control}
-                render={({ field: f }) => (
-                  <Select value={f.value} onValueChange={f.onChange}>
-                    <SelectTrigger className={field}>
-                      <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                    <SelectContent className="border-white/10 bg-[#111] text-white">
-                      {PROJECT_CATEGORIES.map((c) => (
-                        <SelectItem key={c} value={c} className="focus:bg-white/10">
-                          {c}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-            <div>
-              <label className={labelCls}>Year</label>
-              <Input className={field} {...register("year")} />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Live URL</label>
-              <Input className={field} {...register("live_url")} placeholder="https://" />
-            </div>
-            <div>
-              <label className={labelCls}>GitHub URL</label>
-              <Input className={field} {...register("github_url")} placeholder="https://" />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <div>
-              <label className={labelCls}>Sort order</label>
-              <Input type="number" className={field} {...register("sort_order")} />
-            </div>
-            <Controller
-              name="featured"
-              control={control}
-              render={({ field: f }) => (
-                <ToggleSwitch checked={f.value} onChange={f.onChange} label="Featured on site" />
-              )}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Status</label>
-            <Controller
-              name="status"
+              name="category"
               control={control}
               render={({ field: f }) => (
                 <Select value={f.value} onValueChange={f.onChange}>
-                  <SelectTrigger className={field}>
-                    <SelectValue placeholder="Status" />
+                  <SelectTrigger
+                    className={field}
+                    aria-invalid={Boolean(errors.category)}
+                  >
+                    <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent className="border-white/10 bg-[#111] text-white">
-                    <SelectItem value="draft" className="focus:bg-white/10">
-                      Draft
-                    </SelectItem>
-                    <SelectItem value="published" className="focus:bg-white/10">
-                      Published
-                    </SelectItem>
-                    <SelectItem value="trash" className="focus:bg-white/10">
-                      Trash
-                    </SelectItem>
+                    {PROJECT_CATEGORIES.map((c) => (
+                      <SelectItem
+                        key={c}
+                        value={c}
+                        className="focus:bg-white/10"
+                      >
+                        {c}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
             />
+            <FieldError message={errors.category?.message} />
           </div>
-        </section>
-
-        <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
-          <h2 className="text-sm font-semibold text-white">Stats (public page)</h2>
-          {statFields.map((sf, index) => (
-            <div key={sf.id} className="flex gap-2 items-start">
-              <div className="flex-1">
-                <Input
-                  className={field}
-                  placeholder="Label"
-                  {...register(`stats.${index}.label` as const)}
+          <div data-field="screenshot_urls">
+            <Controller
+              name="screenshot_urls"
+              control={control}
+              render={({ field: f }) => (
+                <ImageGalleryField
+                  label="Screenshot gallery (optional)"
+                  value={f.value}
+                  onChange={f.onChange}
+                  bucket="portfolio-assets"
+                  pathPrefix="projects/screenshots"
                 />
-              </div>
-              <div className="flex-1">
-                <Input
-                  className={field}
-                  placeholder="Value"
-                  {...register(`stats.${index}.value` as const)}
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => removeStat(index)}
-                className="mt-2 p-2 text-red-400/70 hover:bg-red-500/10 rounded-lg"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => appendStat({ label: "", value: "" })}
-            className="inline-flex items-center gap-1 text-xs font-medium text-violet-300 hover:text-violet-200"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add stat
-          </button>
+              )}
+            />
+            <FieldError message={errors.screenshot_urls?.message} />
+          </div>
+          <div>
+            <label className={labelCls} htmlFor="project-live-url">
+              Live URL
+            </label>
+            <Input
+              id="project-live-url"
+              className={field}
+              placeholder="https://"
+              {...register("live_url")}
+            />
+            <FieldError message={errors.live_url?.message} />
+          </div>
         </section>
 
         <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
@@ -317,16 +382,34 @@ export function AdminProjectFormPage(): JSX.Element {
             render={({ field: f }) => (
               <RadioGroup
                 value={f.value}
-                onValueChange={f.onChange}
+                onValueChange={(v) => {
+                  f.onChange(v);
+                  if (v === "cms") {
+                    setValue("github_url", "", { shouldValidate: true });
+                    setValue("technologies", [], { shouldValidate: true });
+                  } else {
+                    setValue("cms_platform", "", { shouldValidate: true });
+                    setValue("cms_theme_name", "", { shouldValidate: true });
+                    setValue("cms_extensions", [""], { shouldValidate: true });
+                  }
+                }}
                 className="flex flex-wrap gap-6"
               >
                 <label className="flex items-center gap-2 text-sm text-white/80 cursor-pointer">
-                  <RadioGroupItem value="custom" id="build-kind-custom" className="border-white/25 text-white" />
+                  <RadioGroupItem
+                    value="custom"
+                    id="build-kind-custom"
+                    className="border-white/25 text-white"
+                  />
                   Custom code
                 </label>
                 <label className="flex items-center gap-2 text-sm text-white/80 cursor-pointer">
-                  <RadioGroupItem value="cms" id="build-kind-cms" className="border-white/25 text-white" />
-                  CMS (WordPress / Shopify)
+                  <RadioGroupItem
+                    value="cms"
+                    id="build-kind-cms"
+                    className="border-white/25 text-white"
+                  />
+                  CMS
                 </label>
               </RadioGroup>
             )}
@@ -344,146 +427,103 @@ export function AdminProjectFormPage(): JSX.Element {
                       value={f.value || undefined}
                       onValueChange={f.onChange}
                     >
-                      <SelectTrigger className={field}>
+                      <SelectTrigger
+                        className={field}
+                        aria-invalid={Boolean(errors.custom_framework)}
+                      >
                         <SelectValue placeholder="Select…" />
                       </SelectTrigger>
                       <SelectContent className="border-white/10 bg-[#111] text-white">
-                        <SelectItem value="react" className="focus:bg-white/10">
-                          React
-                        </SelectItem>
-                        <SelectItem value="next" className="focus:bg-white/10">
-                          Next.js
-                        </SelectItem>
-                        <SelectItem value="vue" className="focus:bg-white/10">
-                          Vue
-                        </SelectItem>
-                        <SelectItem value="other" className="focus:bg-white/10">
-                          Other
-                        </SelectItem>
+                        {CUSTOM_FRAMEWORK_OPTIONS.map((o) => (
+                          <SelectItem
+                            key={o.value}
+                            value={o.value}
+                            className="focus:bg-white/10"
+                          >
+                            {o.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {errors.custom_framework ? (
-                  <p className="mt-1 text-xs text-red-400">{errors.custom_framework.message}</p>
-                ) : null}
+                <FieldError message={errors.custom_framework?.message} />
               </div>
-              {customFramework === "other" ? (
-                <div>
-                  <label className={labelCls}>Stack name</label>
-                  <Input className={field} {...register("custom_framework_label")} />
-                  {errors.custom_framework_label ? (
-                    <p className="mt-1 text-xs text-red-400">
-                      {errors.custom_framework_label.message}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-
-              {facetConfig.length > 0 ? (
-                <div className="space-y-4">
-                  <p className="text-xs text-white/40">Stack facets</p>
-                  {facetConfig.map((facet) => {
-                    const cur = stackFacets?.[facet.key];
-                    if (facet.type === "select") {
-                      const v = typeof cur === "string" ? cur : "";
-                      return (
-                        <div key={facet.key}>
-                          <label className={labelCls}>{facet.label}</label>
-                          <Select
-                            value={v || undefined}
-                            onValueChange={(val) => setFacet(facet.key, val)}
-                          >
-                            <SelectTrigger className={field}>
-                              <SelectValue placeholder="—" />
-                            </SelectTrigger>
-                            <SelectContent className="border-white/10 bg-[#111] text-white">
-                              {facet.options.map((o) => (
-                                <SelectItem
-                                  key={o.value}
-                                  value={o.value}
-                                  className="focus:bg-white/10"
-                                >
-                                  {o.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      );
-                    }
-                    const arr = Array.isArray(cur) ? cur : [];
-                    return (
-                      <div key={facet.key}>
-                        <label className={labelCls}>{facet.label}</label>
-                        <div className="flex flex-wrap gap-2">
-                          {facet.options.map((o) => {
-                            const on = arr.includes(o.value);
-                            return (
-                              <button
-                                key={o.value}
-                                type="button"
-                                onClick={() =>
-                                  setFacet(
-                                    facet.key,
-                                    on ? arr.filter((x) => x !== o.value) : [...arr, o.value],
-                                  )
-                                }
-                                className={`rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors ${
-                                  on
-                                    ? "border-violet-500/40 bg-violet-500/20 text-violet-200"
-                                    : "border-white/10 bg-white/[0.04] text-white/55 hover:border-white/20"
-                                }`}
-                              >
-                                {o.label}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : null}
+              <div>
+                <label className={labelCls}>Technologies</label>
+                <Controller
+                  name="technologies"
+                  control={control}
+                  render={({ field: f }) => (
+                    <TagInput
+                      value={f.value}
+                      onChange={f.onChange}
+                      placeholder="React, TypeScript…"
+                    />
+                  )}
+                />
+                <FieldError message={errors.technologies?.message} />
+              </div>
+              <div>
+                <label className={labelCls} htmlFor="project-github">
+                  GitHub URL
+                </label>
+                <Input
+                  id="project-github"
+                  className={field}
+                  placeholder="https://"
+                  {...register("github_url")}
+                />
+                <FieldError message={errors.github_url?.message} />
+              </div>
             </div>
           ) : (
             <div className="space-y-4 pt-2 border-t border-white/[0.06]">
               <div>
-                <label className={labelCls}>Platform</label>
+                <label className={labelCls}>CMS platform</label>
                 <Controller
                   name="cms_platform"
                   control={control}
                   render={({ field: f }) => (
-                    <Select value={f.value || undefined} onValueChange={f.onChange}>
-                      <SelectTrigger className={field}>
+                    <Select
+                      value={f.value || undefined}
+                      onValueChange={f.onChange}
+                    >
+                      <SelectTrigger
+                        className={field}
+                        aria-invalid={Boolean(errors.cms_platform)}
+                      >
                         <SelectValue placeholder="Select…" />
                       </SelectTrigger>
                       <SelectContent className="border-white/10 bg-[#111] text-white">
-                        <SelectItem value="wordpress" className="focus:bg-white/10">
-                          WordPress
-                        </SelectItem>
-                        <SelectItem value="shopify" className="focus:bg-white/10">
-                          Shopify
-                        </SelectItem>
+                        {CMS_PLATFORM_OPTIONS.map((o) => (
+                          <SelectItem
+                            key={o.value}
+                            value={o.value}
+                            className="focus:bg-white/10"
+                          >
+                            {o.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {errors.cms_platform ? (
-                  <p className="mt-1 text-xs text-red-400">{errors.cms_platform.message}</p>
-                ) : null}
+                <FieldError message={errors.cms_platform?.message} />
               </div>
               <div>
-                <label className={labelCls}>Theme name</label>
-                <Input className={field} {...register("cms_theme_name")} />
-                {errors.cms_theme_name ? (
-                  <p className="mt-1 text-xs text-red-400">{errors.cms_theme_name.message}</p>
-                ) : null}
-              </div>
-              <div>
-                <label className={labelCls}>
-                  {watch("cms_platform") === "shopify" ? "App names" : "Plugin names"}
+                <label className={labelCls} htmlFor="project-theme">
+                  Theme name (optional)
                 </label>
+                <Input
+                  id="project-theme"
+                  className={field}
+                  {...register("cms_theme_name")}
+                />
+                <FieldError message={errors.cms_theme_name?.message} />
+              </div>
+              <div>
+                <label className={labelCls}>Plugin names (optional)</label>
                 {cmsExtensions.map((_, index) => (
                   <div key={index} className="flex gap-2 mb-2">
                     <Input
@@ -493,12 +533,15 @@ export function AdminProjectFormPage(): JSX.Element {
                     <button
                       type="button"
                       onClick={() => {
-                        const next = cmsExtensions.filter((__, j) => j !== index);
+                        const next = cmsExtensions.filter(
+                          (__, j) => j !== index,
+                        );
                         setValue("cms_extensions", next.length ? next : [""], {
                           shouldValidate: true,
                         });
                       }}
                       className="p-2 text-red-400/70"
+                      aria-label="Remove plugin row"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -507,35 +550,95 @@ export function AdminProjectFormPage(): JSX.Element {
                 <button
                   type="button"
                   onClick={() =>
-                    setValue("cms_extensions", [...cmsExtensions, ""], { shouldValidate: true })
+                    setValue("cms_extensions", [...cmsExtensions, ""], {
+                      shouldValidate: true,
+                    })
                   }
                   className="text-xs font-medium text-violet-300"
                 >
-                  + Add name
+                  + Add plugin
                 </button>
               </div>
             </div>
           )}
         </section>
 
-        {errors.root ? (
-          <p className="text-sm text-red-400">{(errors.root as { message?: string }).message}</p>
+        <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
+          <h2 className="text-sm font-semibold text-white">Publishing</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <div>
+              <label className={labelCls}>Sort order</label>
+              <Input
+                type="number"
+                className={field}
+                {...register("sort_order")}
+              />
+              <FieldError message={errors.sort_order?.message} />
+            </div>
+            <Controller
+              name="featured"
+              control={control}
+              render={({ field: f }) => (
+                <ToggleSwitch
+                  checked={f.value}
+                  onChange={f.onChange}
+                  label="Featured on site"
+                />
+              )}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Status</label>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field: f }) => (
+                <Select value={f.value} onValueChange={f.onChange}>
+                  <SelectTrigger
+                    className={field}
+                    aria-invalid={Boolean(errors.status)}
+                  >
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent className="border-white/10 bg-[#111] text-white">
+                    <SelectItem value="draft" className="focus:bg-white/10">
+                      Draft
+                    </SelectItem>
+                    <SelectItem value="published" className="focus:bg-white/10">
+                      Published
+                    </SelectItem>
+                    <SelectItem value="trash" className="focus:bg-white/10">
+                      Trash
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            <FieldError message={errors.status?.message} />
+          </div>
+        </section>
+
+        {Object.keys(errors).length > 0 ? (
+          <p className="text-xs text-white/40">
+            {Object.keys(errors).length} field(s) need attention before saving.
+          </p>
         ) : null}
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button
             type="submit"
-            disabled={formState.isSubmitting}
+            disabled={isSubmitting}
             className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90 disabled:opacity-50"
           >
-            {formState.isSubmitting ? "Saving…" : isNew ? "Create project" : "Save changes"}
+            {isSubmitting ? "Saving…" : "Save changes"}
           </button>
-          <Link
-            to="/admin/projects"
+          <button
+            type="button"
+            onClick={closePanel}
             className="rounded-lg border border-white/15 px-5 py-2.5 text-sm font-medium text-white/80 hover:bg-white/[0.06]"
           >
             Cancel
-          </Link>
+          </button>
         </div>
       </form>
     </AdminSidePanel>

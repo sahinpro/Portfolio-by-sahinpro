@@ -3,6 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { AdminShell } from "@/admin/components/AdminShell";
+import { DuplicateUploadConfirmProvider } from "@/admin/context/DuplicateUploadConfirmContext";
 import { ToastProvider } from "@/admin/context/ToastContext";
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
 
@@ -60,7 +61,9 @@ export function AdminProtectedLayout(): JSX.Element {
 
   return (
     <ToastProvider>
-      <AdminShell />
+      <DuplicateUploadConfirmProvider>
+        <AdminShell />
+      </DuplicateUploadConfirmProvider>
     </ToastProvider>
   );
 }

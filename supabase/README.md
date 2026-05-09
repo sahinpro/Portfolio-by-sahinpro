@@ -50,3 +50,7 @@ If submissions still fail, open **Edge Functions → submit-contact → Logs** a
 ## Database
 
 Apply SQL migrations from `supabase/migrations/` with the SQL Editor or `supabase db push` when your project is linked.
+
+The `20260509000000_projects_refactor.sql` migration documents optional `CHECK` constraint updates and backfills categories/framework slugs after the admin project form refactor. Uncomment and adjust statements to match your actual `projects` table definitions before running.
+
+If the SQL editor reports **Success. No rows returned**, that is normal for `UPDATE` (no tabular output). **0 rows changed** means no rows matched — e.g. the table is empty or categories/frameworks were already updated. Use the commented `SELECT` snippets at the top of that file to inspect `category` / `custom_framework` values.

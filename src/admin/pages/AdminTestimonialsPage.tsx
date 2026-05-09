@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -120,6 +121,7 @@ export function AdminTestimonialsPage(): JSX.Element {
         return;
       }
     }
+    invalidatePublicDataCache();
     showToast("Saved");
     setOpen(false);
     void load();

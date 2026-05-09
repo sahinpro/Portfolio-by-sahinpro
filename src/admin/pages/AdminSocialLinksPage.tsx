@@ -4,6 +4,7 @@ import { useToast } from "@/admin/context/ToastContext";
 import type { SocialLinkRow } from "@/admin/types/database";
 import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
 import { Input } from "@/components/ui/input";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import { Plus, Save, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -71,6 +72,7 @@ export function AdminSocialLinksPage(): JSX.Element {
       showToast(formatSocialLinkError(error), "error");
       return;
     }
+    invalidatePublicDataCache();
     showToast("Saved");
     setDrafts((prev) => {
       const next = { ...prev };
@@ -92,6 +94,7 @@ export function AdminSocialLinksPage(): JSX.Element {
       showToast(formatSocialLinkError(error), "error");
       return;
     }
+    invalidatePublicDataCache();
     showToast("Row added");
     void load();
   };
@@ -104,6 +107,7 @@ export function AdminSocialLinksPage(): JSX.Element {
       showToast(formatSocialLinkError(error), "error");
       return;
     }
+    invalidatePublicDataCache();
     showToast("Row deleted");
     setDrafts((prev) => {
       const next = { ...prev };

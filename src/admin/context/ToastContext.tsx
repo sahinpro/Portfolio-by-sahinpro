@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle2 } from "lucide-react";
 import {
   createContext,
   useCallback,
@@ -9,10 +9,10 @@ import {
   type ReactNode,
 } from "react";
 
-type Toast = { id: number; message: string; variant: "success" | "error" };
+type Toast = { id: number; message: string; variant: "success" | "error" | "warning" };
 
 type ToastContextValue = {
-  showToast: (message: string, variant?: "success" | "error") => void;
+  showToast: (message: string, variant?: "success" | "error" | "warning") => void;
 };
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -27,6 +27,7 @@ const toastStyles = {
     text: "text-zinc-100",
     borderLeft: "border-l-[3px] border-l-emerald-500",
     Icon: CheckCircle2,
+    role: "status" as const,
   },
   error: {
     shell:
@@ -35,19 +36,32 @@ const toastStyles = {
     text: "text-zinc-100",
     borderLeft: "border-l-[3px] border-l-red-500",
     Icon: AlertCircle,
+    role: "alert" as const,
+  },
+  warning: {
+    shell:
+      "border-white/[0.08] bg-zinc-950/95 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.85)] backdrop-blur-md ring-1 ring-inset ring-amber-500/25",
+    accent: "bg-amber-500/12 text-amber-300 ring-1 ring-amber-400/30",
+    text: "text-zinc-100",
+    borderLeft: "border-l-[3px] border-l-amber-500",
+    Icon: AlertTriangle,
+    role: "status" as const,
   },
 } as const;
 
 export function ToastProvider({ children }: { children: ReactNode }): JSX.Element {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = useCallback((message: string, variant: "success" | "error" = "success") => {
-    const id = ++toastId;
-    setToasts((t) => [...t, { id, message, variant }]);
-    window.setTimeout(() => {
-      setToasts((t) => t.filter((x) => x.id !== id));
-    }, 4200);
-  }, []);
+  const showToast = useCallback(
+    (message: string, variant: "success" | "error" | "warning" = "success") => {
+      const id = ++toastId;
+      setToasts((t) => [...t, { id, message, variant }]);
+      window.setTimeout(() => {
+        setToasts((t) => t.filter((x) => x.id !== id));
+      }, 4200);
+    },
+    [],
+  );
 
   const value = useMemo(() => ({ showToast }), [showToast]);
 
@@ -64,7 +78,7 @@ export function ToastProvider({ children }: { children: ReactNode }): JSX.Elemen
           return (
             <div
               key={t.id}
-              role={t.variant === "error" ? "alert" : "status"}
+              role={s.role}
               className={cn(
                 "pointer-events-auto flex items-start gap-3 rounded-xl border py-3 pl-3.5 pr-4",
                 s.borderLeft,
@@ -83,7 +97,6 @@ export function ToastProvider({ children }: { children: ReactNode }): JSX.Elemen
               <p className={cn("min-w-0 flex-1 pt-0.5 text-sm font-medium leading-snug", s.text)}>
                 {t.message}
               </p>
-
             </div>
           );
         })}

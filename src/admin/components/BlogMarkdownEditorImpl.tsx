@@ -1,7 +1,11 @@
 import { MediaLibraryPickerModal } from "@/admin/components/MediaLibraryPickerModal";
+import {
+  promptSingleDuplicateFile,
+  useDuplicateUploadConfirm,
+} from "@/admin/context/DuplicateUploadConfirmContext";
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
-import { uploadPublicFile } from "@/admin/lib/storageUpload";
+import { uploadPublicFileContentAddressed } from "@/admin/lib/storageUpload";
 import MDEditor, {
   type ICommand,
   type TextAreaTextApi,
@@ -76,6 +80,7 @@ export function BlogMarkdownEditorImpl({
   height = 420,
 }: BlogMarkdownEditorImplProps): JSX.Element {
   const { showToast } = useToast();
+  const { openPrompt } = useDuplicateUploadConfirm();
   const fileRef = useRef<HTMLInputElement>(null);
   const pendingApiRef = useRef<TextAreaTextApi | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -93,19 +98,26 @@ export function BlogMarkdownEditorImpl({
       pendingApiRef.current = null;
       setUploading(true);
       try {
-        const safe = file.name.replace(/\s+/g, "-");
-        const path = `${PATH_PREFIX}/${crypto.randomUUID()}-${safe}`;
         const baseTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-        const url = await uploadPublicFile(BUCKET, path, file, { title: baseTitle });
-        insertImageMarkdown(api, url, baseTitle);
-        showToast("Image added to post");
+        const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
+          BUCKET,
+          PATH_PREFIX,
+          file,
+          { title: baseTitle },
+        );
+        if (skippedUpload) {
+          const useExisting = await promptSingleDuplicateFile(openPrompt, file.name);
+          if (!useExisting) return;
+        }
+        insertImageMarkdown(api, publicUrl, baseTitle);
+        showToast(skippedUpload ? "Existing image inserted" : "Image added to post");
       } catch (err) {
         showToast(withRlsHint(err instanceof Error ? err.message : "Upload failed"), "error");
       } finally {
         setUploading(false);
       }
     },
-    [insertImageMarkdown, showToast],
+    [insertImageMarkdown, openPrompt, showToast],
   );
 
   const onFileChange = useCallback(
@@ -180,7 +192,8 @@ export function BlogMarkdownEditorImpl({
           setLibraryOpen(open);
           if (!open) pendingApiRef.current = null;
         }}
-        bucket={BUCKET}
+        uploadBucket={BUCKET}
+        pathPrefix={PATH_PREFIX}
         onPick={onLibraryPick}
       />
     </>

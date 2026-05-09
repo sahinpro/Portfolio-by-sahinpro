@@ -27,7 +27,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -152,6 +152,8 @@ function EmptyState({ search, filter }: { search: string; filter: Filter }) {
 }
 
 export function AdminBlogListPage(): JSX.Element {
+  const location = useLocation();
+  const prevPathRef = useRef<string | null>(null);
   const { showToast } = useToast();
   const [rows, setRows] = useState<BlogPostRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -178,6 +180,14 @@ export function AdminBlogListPage(): JSX.Element {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    const prev = prevPathRef.current;
+    prevPathRef.current = location.pathname;
+    if (prev !== null && prev !== "/admin/blog" && location.pathname === "/admin/blog") {
+      void load();
+    }
+  }, [location.pathname, load]);
 
   useEffect(() => {
     setSelectedIds([]);

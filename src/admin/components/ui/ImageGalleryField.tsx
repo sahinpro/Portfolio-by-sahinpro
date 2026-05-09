@@ -1,12 +1,19 @@
 import { MediaLibraryPickerModal } from "@/admin/components/MediaLibraryPickerModal";
+import {
+  promptBatchDuplicateFiles,
+  useDuplicateUploadConfirm,
+} from "@/admin/context/DuplicateUploadConfirmContext";
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
 import { isLikelyImageFile } from "@/admin/lib/imageFileAccept";
-import { storageUploadErrorMessage, uploadPublicFile } from "@/admin/lib/storageUpload";
+import {
+  storageUploadErrorMessage,
+  uploadPublicFileContentAddressed,
+} from "@/admin/lib/storageUpload";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, GripVertical, ImagePlus, Images, Trash2 } from "lucide-react";
-import { useCallback, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
@@ -42,11 +49,21 @@ export function ImageGalleryField({
   pathPrefix,
 }: ImageGalleryFieldProps): JSX.Element {
   const { showToast } = useToast();
+  const { openPrompt } = useDuplicateUploadConfirm();
   const fileInputId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  useEffect(() => {
+    const onWindowFocus = () => {
+      // Native file dialog cancel can leave visual hover/drag state stale in some browsers.
+      setDragOver(false);
+    };
+    window.addEventListener("focus", onWindowFocus);
+    return () => window.removeEventListener("focus", onWindowFocus);
+  }, []);
 
   const runUploadFiles = useCallback(
     async (files: FileList | File[]) => {
@@ -57,30 +74,48 @@ export function ImageGalleryField({
       }
       setUploading(true);
       const newUrls: string[] = [];
+      let skipped = 0;
       try {
+        const prefix = pathPrefix.replace(/^\/+|\/+$/g, "");
         for (const file of list) {
-          const safe = file.name.replace(/\s+/g, "-");
-          const path = `${pathPrefix.replace(/^\/+|\/+$/g, "")}/${crypto.randomUUID()}-${safe}`;
           const baseTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-          const url = await uploadPublicFile(bucket, path, file, {
-            title: baseTitle,
-          });
-          newUrls.push(url);
+          const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
+            bucket,
+            prefix,
+            file,
+            { title: baseTitle },
+          );
+          newUrls.push(publicUrl);
+          if (skippedUpload) skipped += 1;
+        }
+        const newCount = list.length - skipped;
+        if (skipped > 0) {
+          const proceed = await promptBatchDuplicateFiles(openPrompt, newCount, skipped);
+          if (!proceed) return;
         }
         onChange(mergeUnique(value, newUrls));
-        showToast(list.length === 1 ? "Image uploaded" : `${list.length} images uploaded`);
+        if (skipped === 0) {
+          showToast(list.length === 1 ? "Image uploaded" : `${list.length} images uploaded`);
+        } else {
+          showToast(
+            newCount > 0
+              ? `Added ${newCount} new image${newCount === 1 ? "" : "s"} (${skipped} existing reused)`
+              : `Added ${skipped} image${skipped === 1 ? "" : "s"} from storage`,
+          );
+        }
       } catch (err) {
         showToast(withRlsHint(storageUploadErrorMessage(err)), "error");
       } finally {
         setUploading(false);
       }
     },
-    [bucket, onChange, pathPrefix, showToast, value],
+    [bucket, onChange, openPrompt, pathPrefix, showToast, value],
   );
 
   const onFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     e.target.value = "";
+    setDragOver(false);
     if (!files?.length) return;
     await runUploadFiles(files);
   };
@@ -95,6 +130,11 @@ export function ImageGalleryField({
 
   const removeAt = (index: number) => {
     onChange(value.filter((_, i) => i !== index));
+  };
+
+  const openFileDialog = () => {
+    setDragOver(false);
+    fileRef.current?.click();
   };
 
   const move = (index: number, dir: -1 | 1) => {
@@ -146,12 +186,14 @@ export function ImageGalleryField({
             uploading && "pointer-events-none opacity-60",
           )}
         >
-          <label
-            htmlFor={fileInputId}
+          <button
+            type="button"
+            onClick={openFileDialog}
             className={cn(
               "flex w-full cursor-pointer flex-col items-center justify-center gap-2 px-4 py-8",
               uploading && "cursor-not-allowed",
             )}
+            disabled={uploading}
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.06] text-white/55">
               <ImagePlus className="h-5 w-5" />
@@ -162,7 +204,7 @@ export function ImageGalleryField({
               </p>
               <p className="mt-1 text-xs text-white/35">PNG, JPG, WebP, SVG — multiple files allowed</p>
             </div>
-          </label>
+          </button>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -238,7 +280,8 @@ export function ImageGalleryField({
       <MediaLibraryPickerModal
         open={pickerOpen}
         onOpenChange={setPickerOpen}
-        bucket={bucket}
+        uploadBucket={bucket}
+        pathPrefix={pathPrefix}
         mode="multiple"
         onPick={() => {}}
         onPickMultiple={(urls) => onChange(mergeUnique(value, urls))}

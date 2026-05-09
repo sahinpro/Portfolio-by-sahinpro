@@ -1,67 +1,56 @@
-import { z } from "zod";
 import { PROJECT_CATEGORIES } from "@/admin/constants/frameworkFieldConfig";
-
-const statSchema = z.object({
-  label: z.string().min(1),
-  value: z.string().min(1),
-});
+import { z } from "zod";
 
 export const projectFormSchema = z
   .object({
     title: z.string().min(1, "Title is required"),
     description: z.string().min(1, "Short description is required"),
-    long_description: z.string(),
     image_url: z.string(),
-    screenshot_urls: z.array(z.string().min(1)),
-    technologies: z.array(z.string()),
+    screenshot_urls: z.array(z.string()),
     category: z.enum(PROJECT_CATEGORIES),
     live_url: z.string(),
-    github_url: z.string(),
-    featured: z.boolean(),
-    status: z.enum(["draft", "published", "trash"]),
-    year: z.string(),
-    sort_order: z.coerce.number().int(),
-    stats: z.array(statSchema),
     build_kind: z.enum(["custom", "cms"]),
-    custom_framework: z.enum(["react", "next", "vue", "other", ""]),
-    custom_framework_label: z.string(),
-    custom_stack_facets: z.record(z.string(), z.union([z.string(), z.array(z.string())])),
-    cms_platform: z.enum(["wordpress", "shopify", ""]),
+    custom_framework: z.enum(["react_vanilla", "next", "vanilla_js", ""]),
+    github_url: z.string(),
+    technologies: z.array(z.string()),
+    cms_platform: z.enum(["wordpress", "shopify", "wix", ""]),
     cms_theme_name: z.string(),
     cms_extensions: z.array(z.string()),
+    featured: z.boolean(),
+    status: z.enum(["draft", "published", "trash"]),
+    sort_order: z.coerce.number().int(),
   })
   .superRefine((data, ctx) => {
+    if (data.status === "published" && !data.image_url?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Featured image is required when publishing",
+        path: ["image_url"],
+      });
+    }
     if (data.build_kind === "custom") {
-      if (!data.custom_framework || data.custom_framework === "") {
+      if (!data.custom_framework) {
         ctx.addIssue({
           code: "custom",
           message: "Select a framework",
           path: ["custom_framework"],
         });
       }
-      if (data.custom_framework === "other" && !data.custom_framework_label.trim()) {
+      const tech = data.technologies.map((t) => t.trim()).filter(Boolean);
+      if (tech.length === 0) {
         ctx.addIssue({
           code: "custom",
-          message: "Name your stack",
-          path: ["custom_framework_label"],
+          message: "Add at least one technology",
+          path: ["technologies"],
         });
       }
     }
-    if (data.build_kind === "cms") {
-      if (!data.cms_platform) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Select WordPress or Shopify",
-          path: ["cms_platform"],
-        });
-      }
-      if (!data.cms_theme_name.trim()) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Theme name is required",
-          path: ["cms_theme_name"],
-        });
-      }
+    if (data.build_kind === "cms" && !data.cms_platform) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Select a CMS platform",
+        path: ["cms_platform"],
+      });
     }
   });
 

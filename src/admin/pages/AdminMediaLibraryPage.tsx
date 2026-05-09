@@ -1,15 +1,20 @@
+import {
+  acknowledgeDuplicateUploads,
+  useDuplicateUploadConfirm,
+} from "@/admin/context/DuplicateUploadConfirmContext";
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
 import { formatBytes } from "@/admin/lib/formatBytes";
 import {
-  type MediaBucketId,
   type MediaLibraryItem,
-  MEDIA_BUCKETS,
   deleteMediaObject,
-  listAllMediaInBucket,
+  listAllMediaMerged,
   updateMediaItemMetadata,
 } from "@/admin/lib/listMediaFiles";
-import { storageUploadErrorMessage, uploadPublicFile } from "@/admin/lib/storageUpload";
+import {
+  storageUploadErrorMessage,
+  uploadPublicFileContentAddressed,
+} from "@/admin/lib/storageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -28,7 +33,6 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 
 function isProbablyImage(item: MediaLibraryItem): boolean {
   const m = item.mimeType?.toLowerCase() ?? "";
@@ -71,24 +75,11 @@ function getMediaFormat(item: MediaLibraryItem): {
   return { ext, mimeShort };
 }
 
+const DEFAULT_UPLOAD_BUCKET = "portfolio-assets" as const;
+
 export function AdminMediaLibraryPage(): JSX.Element {
   const { showToast } = useToast();
-  const [searchParams] = useSearchParams();
-  const initialBucket = (searchParams.get("b") ||
-    searchParams.get("bucket")) as MediaBucketId | null;
-  const [bucket, setBucket] = useState<MediaBucketId>(
-    initialBucket === "blog-media" || initialBucket === "portfolio-assets"
-      ? initialBucket
-      : "portfolio-assets",
-  );
-
-  useEffect(() => {
-    const b = (searchParams.get("b") ||
-      searchParams.get("bucket")) as MediaBucketId | null;
-    if (b === "blog-media" || b === "portfolio-assets") {
-      setBucket(b);
-    }
-  }, [searchParams]);
+  const { openPrompt } = useDuplicateUploadConfirm();
   const [items, setItems] = useState<MediaLibraryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -104,7 +95,7 @@ export function AdminMediaLibraryPage(): JSX.Element {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const list = await listAllMediaInBucket(bucket);
+      const list = await listAllMediaMerged();
       setItems(list);
     } catch (e) {
       showToast(
@@ -115,7 +106,7 @@ export function AdminMediaLibraryPage(): JSX.Element {
     } finally {
       setLoading(false);
     }
-  }, [bucket, showToast]);
+  }, [showToast]);
 
   useEffect(() => {
     void load();
@@ -148,6 +139,7 @@ export function AdminMediaLibraryPage(): JSX.Element {
     if (!q) return items;
     return items.filter(
       (it) =>
+        it.bucket.toLowerCase().includes(q) ||
         it.name.toLowerCase().includes(q) ||
         it.path.toLowerCase().includes(q) ||
         it.publicUrl.toLowerCase().includes(q),
@@ -171,18 +163,28 @@ export function AdminMediaLibraryPage(): JSX.Element {
     setUploading(true);
     try {
       let lastUrl = "";
+      let newCount = 0;
+      let reusedCount = 0;
       for (const file of list) {
-        const safe = file.name.replace(/\s+/g, "-");
-        const path = `library/${crypto.randomUUID()}-${safe}`;
         const baseTitle = file.name
           .replace(/\.[^.]+$/, "")
           .replace(/[-_]+/g, " ");
-        lastUrl = await uploadPublicFile(bucket, path, file, {
-          title: baseTitle,
-        });
+        const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
+          DEFAULT_UPLOAD_BUCKET,
+          "library",
+          file,
+          { title: baseTitle },
+        );
+        lastUrl = publicUrl;
+        if (skippedUpload) reusedCount += 1;
+        else newCount += 1;
       }
-      showToast(list.length === 1 ? "Uploaded" : `${list.length} files uploaded`);
       await load();
+      if (reusedCount > 0) {
+        await acknowledgeDuplicateUploads(openPrompt, reusedCount, newCount);
+      } else if (newCount > 0) {
+        showToast(list.length === 1 ? "Uploaded" : `${list.length} files uploaded`);
+      }
       if (lastUrl) void copyUrl(lastUrl);
     } catch (err) {
       showToast(withRlsHint(storageUploadErrorMessage(err)), "error");
@@ -201,7 +203,7 @@ export function AdminMediaLibraryPage(): JSX.Element {
         caption: metaCaption,
       });
       showToast("Details saved");
-      const list = await listAllMediaInBucket(bucket);
+      const list = await listAllMediaMerged();
       setItems(list);
       const next = list.find((x) => x.path === selected.path);
       if (next) setSelected(next);
@@ -240,8 +242,6 @@ export function AdminMediaLibraryPage(): JSX.Element {
     }
   };
 
-  const bucketMeta = MEDIA_BUCKETS.find((b) => b.id === bucket);
-
   return (
     <div className="max-w-6xl">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8">
@@ -250,9 +250,9 @@ export function AdminMediaLibraryPage(): JSX.Element {
             Media library
           </h1>
           <p className="text-sm text-white/45 mt-2 max-w-xl leading-relaxed">
-            Upload once, copy public URLs anywhere in the admin (projects, blog,
-            SEO, testimonials). Files live in Supabase Storage — same buckets as
-            image fields.
+            One library for all site images: portfolio uploads, blog assets, and
+            anything you attach in forms. Files live in Supabase Storage (two
+            buckets shown together here).
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -297,28 +297,6 @@ export function AdminMediaLibraryPage(): JSX.Element {
         </div>
       </div>
 
-      <div className="rounded-lg border border-white/[0.08] bg-zinc-950/40 p-1 mb-6 inline-flex">
-        {MEDIA_BUCKETS.map((b) => (
-          <button
-            key={b.id}
-            type="button"
-            onClick={() => setBucket(b.id)}
-            className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-              bucket === b.id
-                ? "bg-white/10 text-white shadow-sm border border-white/[0.06]"
-                : "text-white/45 hover:text-white/75 hover:bg-white/[0.04]",
-            )}
-          >
-            {b.label}
-          </button>
-        ))}
-      </div>
-
-      {bucketMeta ? (
-        <p className="text-xs text-white/35 mb-6 -mt-2">{bucketMeta.hint}</p>
-      ) : null}
-
       <div className="relative mb-6 max-w-md">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
         <Input
@@ -341,7 +319,7 @@ export function AdminMediaLibraryPage(): JSX.Element {
           text-sm text-white/45"
         >
           {items.length === 0
-            ? "No files in this bucket yet. Upload an image to get started."
+            ? "No files yet. Upload an image to get started."
             : "No files match your search."}
         </div>
       ) : (
@@ -710,9 +688,12 @@ export function AdminMediaLibraryPage(): JSX.Element {
       <p className="mt-10 text-xs text-white/30 flex items-start gap-2">
         <FileImage className="h-4 w-4 shrink-0 mt-0.5 opacity-60" />
         <span>
-          Images from project/blog fields also appear here. New uploads use the{" "}
-          <code className="text-white/50">library/</code> folder so they are
-          easy to find.
+          Form uploads (projects, blog, etc.) appear here automatically. Uploads
+          from this page go to{" "}
+          <code className="text-white/50">portfolio-assets/library/</code> for a
+          predictable path; field uploads keep their own folders (
+          <code className="text-white/50">blog/</code>,{" "}
+          <code className="text-white/50">projects/</code>, …).
         </span>
       </p>
     </div>

@@ -12,6 +12,10 @@ import { Link } from "react-router-dom";
 export type { PublicProject as Project };
 
 const categoryBadge: Record<string, string> = {
+  "Web Development": "bg-violet-500/20 text-violet-300 border-violet-500/30",
+  "E-commerce": "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  "SaaS Platform": "bg-sky-500/20 text-sky-300 border-sky-500/30",
+  "Front-end Web Design": "bg-blue-500/20 text-blue-300 border-blue-500/30",
   "Full Stack": "bg-violet-500/20 text-violet-300 border-violet-500/30",
   Frontend: "bg-blue-500/20 text-blue-300 border-blue-500/30",
   CMS: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",

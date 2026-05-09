@@ -1,8 +1,10 @@
+import { useDuplicateUploadConfirm } from "@/admin/context/DuplicateUploadConfirmContext";
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
-import { uploadPublicFile } from "@/admin/lib/storageUpload";
+import { uploadPublicFileContentAddressed } from "@/admin/lib/storageUpload";
 import type { ResumeRow } from "@/admin/types/database";
 import { Input } from "@/components/ui/input";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import { Copy, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -12,6 +14,7 @@ const field =
 
 export function AdminResumePage(): JSX.Element {
   const { showToast } = useToast();
+  const { openPrompt } = useDuplicateUploadConfirm();
   const [rows, setRows] = useState<ResumeRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -43,8 +46,27 @@ export function AdminResumePage(): JSX.Element {
     if (!file) return;
     setUploading(true);
     try {
-      const path = `cv/${crypto.randomUUID()}-${file.name.replace(/\s+/g, "-")}`;
-      const url = await uploadPublicFile("documents", path, file);
+      const { publicUrl: url } = await uploadPublicFileContentAddressed(
+        "documents",
+        "cv",
+        file,
+      );
+      const { data: sameFile } = await supabase.from("resume").select("id").eq("file_url", url).maybeSingle();
+      if (sameFile) {
+        await openPrompt({
+          variant: "acknowledge",
+          title: "Resume already on file",
+          message: (
+            <>
+              This file is already in your resume list (same stored document). Open the list below to
+              activate it or remove older versions.
+            </>
+          ),
+          confirmLabel: "OK",
+        });
+        void load();
+        return;
+      }
       const { data: existing } = await supabase.from("resume").select("id");
       for (const ex of existing ?? []) {
         await supabase.from("resume").update({ is_active: false }).eq("id", ex.id);
@@ -55,6 +77,7 @@ export function AdminResumePage(): JSX.Element {
         is_active: true,
       });
       if (error) throw new Error(error.message);
+      invalidatePublicDataCache();
       showToast("Resume uploaded and set active");
       void load();
     } catch (err) {
@@ -80,6 +103,7 @@ export function AdminResumePage(): JSX.Element {
       showToast(withRlsHint(error.message), "error");
       return;
     }
+    invalidatePublicDataCache();
     showToast("Active resume updated");
     void load();
   };

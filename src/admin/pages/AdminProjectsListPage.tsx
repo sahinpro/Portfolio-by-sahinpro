@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/utils/supabase";
 import { Pencil, Plus, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 const inputSearch =
   "rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
@@ -27,6 +27,8 @@ type DeleteDialogState = { id: string; permanent: boolean } | null;
 type BulkAction = "none" | "draft" | "published" | "trash";
 
 export function AdminProjectsListPage(): JSX.Element {
+  const location = useLocation();
+  const prevPathRef = useRef<string | null>(null);
   const { showToast } = useToast();
   const [rows, setRows] = useState<ProjectRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +55,19 @@ export function AdminProjectsListPage(): JSX.Element {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Nested routes (`/new`, `/:id`) keep this page mounted; refetch when returning to the list index.
+  useEffect(() => {
+    const prev = prevPathRef.current;
+    prevPathRef.current = location.pathname;
+    if (
+      prev !== null &&
+      prev !== "/admin/projects" &&
+      location.pathname === "/admin/projects"
+    ) {
+      void load();
+    }
+  }, [location.pathname, load]);
 
   useEffect(() => {
     setSelectedIds([]);
@@ -108,6 +123,7 @@ export function AdminProjectsListPage(): JSX.Element {
       showToast(error.message, "error");
       return;
     }
+    invalidatePublicDataCache();
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, featured } : r)));
   };
 

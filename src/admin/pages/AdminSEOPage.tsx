@@ -5,6 +5,7 @@ import { useToast } from "@/admin/context/ToastContext";
 import type { SeoSettingsRow } from "@/admin/types/database";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import { useCallback, useEffect, useState } from "react";
 
@@ -67,6 +68,7 @@ export function AdminSEOPage(): JSX.Element {
       showToast(error.message, "error");
       return;
     }
+    invalidatePublicDataCache();
     showToast("SEO saved");
     void load(tab);
   };
