@@ -73,30 +73,31 @@ export function useDashboardData(): {
       since.setDate(since.getDate() - 90);
       const sinceIso = since.toISOString();
 
-      const [
-        projectsTotal,
-        projectsPublished,
-        unreadRes,
-        blogRes,
-        viewsRes,
-      ] = await Promise.all([
-        supabase.from("projects").select("*", { count: "exact", head: true }),
-        supabase
-          .from("projects")
-          .select("*", { count: "exact", head: true })
-          .eq("status", "published"),
-        supabase
-          .from("contact_submissions")
-          .select("*", { count: "exact", head: true })
-          .eq("status", "unread"),
-        supabase.from("blog_posts").select("*", { count: "exact", head: true }),
-        supabase
-          .from("page_views")
-          .select("path, visited_at, user_agent")
-          .gte("visited_at", sinceIso)
-          .order("visited_at", { ascending: false })
-          .limit(15000),
-      ]);
+      // Run the heavy page_views query once; run HEAD count queries sequentially so
+      // we do not open many HTTP/2 streams at once (avoids net::ERR_HTTP2_SERVER_REFUSED_STREAM
+      // against Supabase when auth recovery and the dashboard load overlap).
+      const viewsPromise = supabase
+        .from("page_views")
+        .select("path, visited_at, user_agent")
+        .gte("visited_at", sinceIso)
+        .order("visited_at", { ascending: false })
+        .limit(15000);
+
+      const projectsTotal = await supabase
+        .from("projects")
+        .select("*", { count: "exact", head: true });
+      const projectsPublished = await supabase
+        .from("projects")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "published");
+      const unreadRes = await supabase
+        .from("contact_submissions")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "unread");
+      const blogRes = await supabase
+        .from("blog_posts")
+        .select("*", { count: "exact", head: true });
+      const viewsRes = await viewsPromise;
 
       const total = projectsTotal.count ?? 0;
       const published = projectsPublished.count ?? 0;

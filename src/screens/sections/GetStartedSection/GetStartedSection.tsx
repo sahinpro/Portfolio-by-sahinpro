@@ -1,7 +1,11 @@
 import { CTAButton } from "@/components/CTAButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { navItems } from "@/constants/navigation";
-import { fadeInUp, scrollViewport, sectionReveal } from "@/constants/scrollMotion";
+import {
+  fadeInUp,
+  scrollViewport,
+  sectionReveal,
+} from "@/constants/scrollMotion";
 import { motion } from "framer-motion";
 
 const contactHref =
@@ -9,9 +13,9 @@ const contactHref =
 
 export const GetStartedSection = (): JSX.Element => {
   return (
-    <section className="flex flex-col w-full items-center gap-20 px-4 md:px-[100px] py-10 sm:px-8 lg:px-12 lg:py-14 relative container mx-auto">
+    <section className="flex flex-col container items-center gap-20 px-4 py-10 lg:py-14 relative mx-auto">
       <motion.div
-        className="relative z-10 w-full max-w-[1240px]"
+        className="relative z-10 w-full"
         initial="hidden"
         whileInView="visible"
         viewport={scrollViewport}
@@ -47,7 +51,11 @@ export const GetStartedSection = (): JSX.Element => {
                 View My Work
               </CTAButton>
 
-              <CTAButton href={contactHref} variant="secondary" showArrow={true}>
+              <CTAButton
+                href={contactHref}
+                variant="secondary"
+                showArrow={true}
+              >
                 Get In Touch
               </CTAButton>
             </motion.div>

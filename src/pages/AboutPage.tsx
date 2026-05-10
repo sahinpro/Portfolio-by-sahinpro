@@ -297,7 +297,7 @@ export const AboutPage = (): JSX.Element => {
           initial="hidden"
           animate={heroInV ? "visible" : "hidden"}
           variants={heroStagger}
-          className="container mx-auto px-4 sm:px-6 lg:px-8"
+          className="container mx-auto px-4"
         >
           <motion.div variants={fadeStep}>
             <SectionLabel>About Me</SectionLabel>
@@ -348,7 +348,7 @@ export const AboutPage = (): JSX.Element => {
       <section className="w-full pb-20">
         <div
           ref={statsRef}
-          className="container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 lg:grid-cols-4 gap-4"
+          className="container mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {stats.map((stat, i) => (
             <StatCard key={stat.label} stat={stat} index={i} />
@@ -357,10 +357,7 @@ export const AboutPage = (): JSX.Element => {
       </section>
 
       <section className="w-full pb-24">
-        <div
-          ref={highlightRef}
-          className="container mx-auto px-4 sm:px-6 lg:px-8"
-        >
+        <div ref={highlightRef} className="container mx-auto px-4">
           <motion.div
             initial="hidden"
             animate={highlightInV ? "visible" : "hidden"}
@@ -411,7 +408,7 @@ export const AboutPage = (): JSX.Element => {
       </section>
 
       <section className="w-full pb-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Skills */}
           <motion.div
             ref={skillsRef}
@@ -495,7 +492,7 @@ export const AboutPage = (): JSX.Element => {
           initial="hidden"
           animate={ctaInV ? "visible" : "hidden"}
           variants={fadeUp(0)}
-          className="container mx-auto px-4 sm:px-6 lg:px-8"
+          className="container mx-auto px-4"
         >
           <div
             className="relative rounded-3xl border border-white/[0.08] bg-gradient-to-br from-white/[0.04] to-white/[0.01]
@@ -562,7 +559,7 @@ export const AboutPage = (): JSX.Element => {
           initial="hidden"
           animate="visible"
           variants={fadeIn(0)}
-          className="container mx-auto px-4 sm:px-6 lg:px-8"
+          className="container mx-auto px-4"
         >
           <div className="flex flex-wrap gap-3 justify-center">
             {[

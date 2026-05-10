@@ -1,4 +1,4 @@
-import { parseScreenshotUrls, parseStats } from "@/admin/lib/projectMappers";
+import { parseScreenshotUrls } from "@/admin/lib/projectMappers";
 import type { ProjectRow } from "@/admin/types/database";
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
 
@@ -15,7 +15,6 @@ export type PublicProject = {
   githubUrl: string | null;
   featured: boolean;
   year?: string;
-  stats?: { label: string; value: string }[];
 };
 
 export type PublicFrameworkSlug = ProjectRow["custom_framework"];
@@ -38,7 +37,6 @@ function parseCmsExtensions(raw: unknown): string[] {
 }
 
 export function mapProjectRowToPublic(row: ProjectRow): PublicProject {
-  const stats = parseStats(row.stats);
   return {
     id: row.id,
     title: row.title,
@@ -51,7 +49,6 @@ export function mapProjectRowToPublic(row: ProjectRow): PublicProject {
     githubUrl: row.github_url,
     featured: row.featured,
     year: row.year ?? undefined,
-    stats: stats.length ? stats : undefined,
   };
 }
 

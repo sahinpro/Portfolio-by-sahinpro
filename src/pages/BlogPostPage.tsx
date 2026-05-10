@@ -1,7 +1,7 @@
 import { BlogMarkdownBody } from "@/components/blog/BlogMarkdownBody";
-import { BLOG_COVER_PLACEHOLDER } from "@/constants/placeholders";
 import Header from "@/components/Header";
 import { PublicSeo } from "@/components/public/PublicSeo";
+import { BLOG_COVER_PLACEHOLDER } from "@/constants/placeholders";
 import { usePublishedBlogPost } from "@/hooks/usePublishedBlogPost";
 import { usePublishedBlogPosts } from "@/hooks/usePublishedBlogPosts";
 import { FooterSection } from "@/screens/sections/FooterSection";
@@ -158,7 +158,7 @@ export const BlogPostPage = (): JSX.Element => {
       <Header />
 
       <article className="w-full pt-28 sm:pt-36 lg:pt-40 pb-16 sm:pb-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4">
           {/* Back */}
           <Link
             to="/blogs"

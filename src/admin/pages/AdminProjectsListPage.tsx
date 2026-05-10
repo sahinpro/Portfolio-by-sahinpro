@@ -258,7 +258,15 @@ export function AdminProjectsListPage(): JSX.Element {
     }
     invalidatePublicDataCache();
     setRows((prev) => prev.map((row) => (selectedIds.includes(row.id) ? { ...row, status } : row)));
-    showToast(`${selectedIds.length} project${selectedIds.length === 1 ? "" : "s"} updated`);
+    if (status === "trash") {
+      showToast(
+        `${selectedIds.length} project${selectedIds.length === 1 ? "" : "s"} moved to trash`,
+        "error",
+        "They are hidden from the public site until restored.",
+      );
+    } else {
+      showToast(`${selectedIds.length} project${selectedIds.length === 1 ? "" : "s"} updated`);
+    }
     setSelectedIds([]);
   };
 
@@ -307,10 +315,14 @@ export function AdminProjectsListPage(): JSX.Element {
     }
     invalidatePublicDataCache();
     if (permanent) {
-      showToast("Project deleted permanently");
+      showToast("Project deleted permanently", "error", "This cannot be undone.");
       setRows((prev) => prev.filter((row) => row.id !== id));
     } else {
-      showToast("Project moved to trash");
+      showToast(
+        "Project moved to trash",
+        "error",
+        "Hidden from the public site. Restore anytime from Trash.",
+      );
       setRows((prev) => prev.map((row) => (row.id === id ? { ...row, status: "trash" } : row)));
     }
     setSelectedIds((prev) => prev.filter((value) => value !== id));

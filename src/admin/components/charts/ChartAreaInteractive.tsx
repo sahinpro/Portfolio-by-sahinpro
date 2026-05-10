@@ -240,155 +240,167 @@ export function ChartAreaInteractive({
             Select at least one series above.
           </div>
         ) : (
-          <div className="aspect-auto h-[280px] w-full min-w-0 pt-3 pb-6 ">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={chartData}
-                margin={{ top: 5, right: 12, left: 0, bottom: 5 }}
-              >
-                <defs>
-                  <linearGradient
-                    id={fillDesktopId}
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="5%"
-                      stopColor={SERIES_STYLE.desktop.fill}
-                      stopOpacity={1}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor={SERIES_STYLE.desktop.fill}
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                  <linearGradient id={fillMobileId} x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="5%"
-                      stopColor={SERIES_STYLE.mobile.fill}
-                      stopOpacity={0.85}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor={SERIES_STYLE.mobile.fill}
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  stroke="rgba(255,255,255,0.06)"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
-                  tickLine={false}
-                  axisLine={{ stroke: "rgba(255,255,255,0.08)" }}
-                  interval="preserveStartEnd"
-                  minTickGap={range === "7d" ? 8 : 24}
-                  ticks={
-                    range === "7d" && chartData.length > 0
-                      ? chartData.map((d) => d.label)
-                      : undefined
-                  }
-                />
-                <YAxis
-                  tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
-                  tickLine={false}
-                  axisLine={false}
-                  allowDecimals={false}
-                  width={30}
-                />
-                <Tooltip
-                  formatter={tooltipValueFormatter}
-                  content={(props: TooltipContentProps) => {
-                    const { active, payload, label } = props;
-                    if (!active || !payload?.length) return null;
-                    const filtered = payload.filter((p) => {
-                      const key = String(p.dataKey);
-                      if (key === "desktop") return showDesktop;
-                      if (key === "mobile") return showMobile;
-                      return true;
-                    });
-                    if (!filtered.length) return null;
-                    return (
-                      <div
-                        className="rounded-lg border border-white/10 bg-[#1a1a1a] px-3 py-2 shadow-xl"
-                        style={{ fontSize: 12 }}
-                      >
-                        <p className="mb-1.5 font-medium text-white/80">
-                          {label}
-                        </p>
-                        <div className="grid gap-1">
-                          {filtered.map((p) => (
-                            <div
-                              key={String(p.dataKey)}
-                              className="flex items-center justify-between gap-6 text-white"
-                            >
-                              <span
-                                className="text-white/55"
-                                style={{
-                                  color:
-                                    SERIES_STYLE[
-                                      String(
-                                        p.dataKey,
-                                      ) as keyof typeof SERIES_STYLE
-                                    ]?.stroke ?? "rgba(255,255,255,0.55)",
-                                }}
+          <div className="w-full min-w-0 pt-3 pb-6">
+            <div className="h-[280px] w-full min-w-0">
+              <ResponsiveContainer width="100%" height={280} minWidth={0}>
+                <AreaChart
+                  data={chartData}
+                  margin={{ top: 5, right: 12, left: 0, bottom: 5 }}
+                >
+                  <defs>
+                    <linearGradient
+                      id={fillDesktopId}
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor={SERIES_STYLE.desktop.fill}
+                        stopOpacity={1}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor={SERIES_STYLE.desktop.fill}
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                    <linearGradient
+                      id={fillMobileId}
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor={SERIES_STYLE.mobile.fill}
+                        stopOpacity={0.85}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor={SERIES_STYLE.mobile.fill}
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    stroke="rgba(255,255,255,0.06)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
+                    tickLine={false}
+                    axisLine={{ stroke: "rgba(255,255,255,0.08)" }}
+                    interval="preserveStartEnd"
+                    minTickGap={range === "7d" ? 8 : 24}
+                    ticks={
+                      range === "7d" && chartData.length > 0
+                        ? chartData.map((d) => d.label)
+                        : undefined
+                    }
+                  />
+                  <YAxis
+                    tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                    width={30}
+                  />
+                  <Tooltip
+                    formatter={tooltipValueFormatter}
+                    content={(props: TooltipContentProps) => {
+                      const { active, payload, label } = props;
+                      if (!active || !payload?.length) return null;
+                      const filtered = payload.filter((p) => {
+                        const key = String(p.dataKey);
+                        if (key === "desktop") return showDesktop;
+                        if (key === "mobile") return showMobile;
+                        return true;
+                      });
+                      if (!filtered.length) return null;
+                      return (
+                        <div
+                          className="rounded-lg border border-white/10 bg-[#1a1a1a] px-3 py-2 shadow-xl"
+                          style={{ fontSize: 12 }}
+                        >
+                          <p className="mb-1.5 font-medium text-white/80">
+                            {label}
+                          </p>
+                          <div className="grid gap-1">
+                            {filtered.map((p) => (
+                              <div
+                                key={String(p.dataKey)}
+                                className="flex items-center justify-between gap-6 text-white"
                               >
-                                {SERIES_LABEL[String(p.dataKey)] ?? p.name}:
-                              </span>
-                              <span className="font-medium tabular-nums">
-                                {typeof p.value === "number"
-                                  ? p.value.toLocaleString()
-                                  : p.value}
-                              </span>
-                            </div>
-                          ))}
+                                <span
+                                  className="text-white/55"
+                                  style={{
+                                    color:
+                                      SERIES_STYLE[
+                                        String(
+                                          p.dataKey,
+                                        ) as keyof typeof SERIES_STYLE
+                                      ]?.stroke ?? "rgba(255,255,255,0.55)",
+                                  }}
+                                >
+                                  {SERIES_LABEL[String(p.dataKey)] ?? p.name}:
+                                </span>
+                                <span className="font-medium tabular-nums">
+                                  {typeof p.value === "number"
+                                    ? p.value.toLocaleString()
+                                    : p.value}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  }}
-                />
-                {showMobile ? (
-                  <Area
-                    type="natural"
-                    dataKey="mobile"
-                    name="mobile"
-                    stackId={showDesktop && showMobile ? "visitors" : undefined}
-                    stroke={SERIES_STYLE.mobile.stroke}
-                    strokeWidth={1}
-                    fill={`url(#${fillMobileId})`}
-                    dot={false}
-                    activeDot={{
-                      r: 3,
-                      fill: SERIES_STYLE.mobile.activeDot,
-                      strokeWidth: 0,
+                      );
                     }}
                   />
-                ) : null}
-                {showDesktop ? (
-                  <Area
-                    type="natural"
-                    dataKey="desktop"
-                    name="desktop"
-                    stackId={showDesktop && showMobile ? "visitors" : undefined}
-                    stroke={SERIES_STYLE.desktop.stroke}
-                    strokeWidth={1}
-                    fill={`url(#${fillDesktopId})`}
-                    dot={false}
-                    activeDot={{
-                      r: 3,
-                      fill: SERIES_STYLE.desktop.activeDot,
-                      strokeWidth: 0,
-                    }}
-                  />
-                ) : null}
-              </AreaChart>
-            </ResponsiveContainer>
+                  {showMobile ? (
+                    <Area
+                      type="natural"
+                      dataKey="mobile"
+                      name="mobile"
+                      stackId={
+                        showDesktop && showMobile ? "visitors" : undefined
+                      }
+                      stroke={SERIES_STYLE.mobile.stroke}
+                      strokeWidth={1}
+                      fill={`url(#${fillMobileId})`}
+                      dot={false}
+                      activeDot={{
+                        r: 3,
+                        fill: SERIES_STYLE.mobile.activeDot,
+                        strokeWidth: 0,
+                      }}
+                    />
+                  ) : null}
+                  {showDesktop ? (
+                    <Area
+                      type="natural"
+                      dataKey="desktop"
+                      name="desktop"
+                      stackId={
+                        showDesktop && showMobile ? "visitors" : undefined
+                      }
+                      stroke={SERIES_STYLE.desktop.stroke}
+                      strokeWidth={1}
+                      fill={`url(#${fillDesktopId})`}
+                      dot={false}
+                      activeDot={{
+                        r: 3,
+                        fill: SERIES_STYLE.desktop.activeDot,
+                        strokeWidth: 0,
+                      }}
+                    />
+                  ) : null}
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         )}
       </CardContent>

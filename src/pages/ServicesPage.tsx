@@ -1,6 +1,6 @@
-import { PublicSeo } from "@/components/public/PublicSeo";
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
+import { PublicSeo } from "@/components/public/PublicSeo";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
@@ -285,7 +285,7 @@ export const ServicesPage = (): JSX.Element => {
           bg-gradient-to-b from-violet-600/8 via-purple-600/4 to-transparent rounded-full blur-3xl"
         />
 
-        <div ref={headerRef} className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div ref={headerRef} className="container mx-auto px-4">
           <motion.div
             initial="hidden"
             animate={headerInV ? "visible" : "hidden"}
@@ -317,7 +317,7 @@ export const ServicesPage = (): JSX.Element => {
       </section>
 
       <section className="w-full pb-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {services.map((s, i) => (
               <ServiceCard key={s.title} service={s} index={i} />
@@ -332,10 +332,7 @@ export const ServicesPage = (): JSX.Element => {
           bg-gradient-to-b from-white/[0.01] via-white/[0.02] to-transparent"
         />
 
-        <div
-          ref={processRef}
-          className="container mx-auto px-4 sm:px-6 lg:px-8"
-        >
+        <div ref={processRef} className="container mx-auto px-4">
           <motion.div
             initial="hidden"
             animate={processInV ? "visible" : "hidden"}
@@ -397,7 +394,7 @@ export const ServicesPage = (): JSX.Element => {
           initial="hidden"
           animate={ctaInV ? "visible" : "hidden"}
           variants={fadeUp(0)}
-          className="container mx-auto px-4 sm:px-6 lg:px-8"
+          className="container mx-auto px-4"
         >
           <div
             className="relative flex flex-col lg:flex-row items-center justify-between gap-8

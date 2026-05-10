@@ -219,7 +219,11 @@ export const ContactPage = (): JSX.Element => {
   const infoRef = useRef<HTMLDivElement>(null);
   const faqRef = useRef<HTMLDivElement>(null);
 
-  const inViewBlock = { once: true, amount: 0.2 as const, margin: "0px 0px -10% 0px" as const };
+  const inViewBlock = {
+    once: true,
+    amount: 0.2 as const,
+    margin: "0px 0px -10% 0px" as const,
+  };
   const headerInV = useInView(headerRef, inViewBlock);
   const formInV = useInView(formRef, inViewBlock);
   const infoInV = useInView(infoRef, inViewBlock);
@@ -379,7 +383,7 @@ export const ContactPage = (): JSX.Element => {
 
         <div
           ref={headerRef}
-          className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-full"
+          className="container mx-auto px-4 text-center max-w-full"
         >
           <motion.div
             initial="hidden"
