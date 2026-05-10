@@ -9,6 +9,7 @@ import { isLikelyImageFile } from "@/admin/lib/imageFileAccept";
 import {
   type MediaBucketId,
   type MediaLibraryItem,
+  libraryItemFromUpload,
   listAllMediaMerged,
   updateMediaItemMetadata,
 } from "@/admin/lib/listMediaFiles";
@@ -25,7 +26,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 function isProbablyImage(item: MediaLibraryItem): boolean {
   const m = item.mimeType?.toLowerCase() ?? "";
   if (m.startsWith("image/")) return true;
-  return /\.(png|jpe?g|gif|webp|svg|avif|ico)$/i.test(item.name);
+  return /\.(png|jpe?g|gif|webp|svg|avif|heic|heif|ico)$/i.test(item.name);
 }
 
 const field =
@@ -75,14 +76,16 @@ export function MediaLibraryPickerModal({
   const [caption, setCaption] = useState("");
   const [savingMeta, setSavingMeta] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (): Promise<MediaLibraryItem[]> => {
     setLoading(true);
     try {
       const list = await listAllMediaMerged();
       setItems(list);
+      return list;
     } catch (e) {
       showToast(withRlsHint(e instanceof Error ? e.message : "Could not load library"), "error");
       setItems([]);
+      return [];
     } finally {
       setLoading(false);
     }
@@ -136,10 +139,36 @@ export function MediaLibraryPickerModal({
     }
   };
 
+  const mergeFreshIntoItems = (
+    serverList: MediaLibraryItem[],
+    uploads: { file: File; storagePath: string; publicUrl: string; title: string }[],
+  ): MediaLibraryItem[] => {
+    let merged = serverList;
+    for (const u of uploads) {
+      const exists = merged.some(
+        (x) => x.bucket === uploadBucket && x.path === u.storagePath,
+      );
+      if (!exists) {
+        merged = [
+          libraryItemFromUpload({
+            bucket: uploadBucket,
+            storagePath: u.storagePath,
+            file: u.file,
+            publicUrl: u.publicUrl,
+            title: u.title,
+          }),
+          ...merged,
+        ];
+      }
+    }
+    return merged;
+  };
+
   const onFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    e.target.value = "";
-    if (!files?.length) return;
+    const input = e.target;
+    const picked = Array.from(input.files ?? []);
+    input.value = "";
+    if (picked.length === 0) return;
 
     const prefix = normalizePathPrefix(pathPrefix);
     if (!prefix) {
@@ -147,7 +176,7 @@ export function MediaLibraryPickerModal({
       return;
     }
 
-    const list = Array.from(files);
+    const list = picked;
     if (mode === "single") {
       const file = list[0];
       if (!file || !isLikelyImageFile(file)) {
@@ -157,7 +186,7 @@ export function MediaLibraryPickerModal({
       setUploading(true);
       try {
         const baseTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-        const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
+        const { publicUrl, skippedUpload, storagePath } = await uploadPublicFileContentAddressed(
           uploadBucket,
           prefix,
           file,
@@ -169,7 +198,13 @@ export function MediaLibraryPickerModal({
         } else {
           showToast("Uploaded");
         }
-        await load();
+        const serverList = await load();
+        const merged = skippedUpload
+          ? serverList
+          : mergeFreshIntoItems(serverList, [
+              { file, storagePath, publicUrl, title: baseTitle },
+            ]);
+        setItems(merged);
         onPick(publicUrl);
         onOpenChange(false);
       } catch (err) {
@@ -190,9 +225,10 @@ export function MediaLibraryPickerModal({
     try {
       const newUrls: string[] = [];
       let skipped = 0;
+      const fresh: { file: File; storagePath: string; publicUrl: string; title: string }[] = [];
       for (const file of images) {
         const baseTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-        const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
+        const { publicUrl, skippedUpload, storagePath } = await uploadPublicFileContentAddressed(
           uploadBucket,
           prefix,
           file,
@@ -200,6 +236,7 @@ export function MediaLibraryPickerModal({
         );
         newUrls.push(publicUrl);
         if (skippedUpload) skipped += 1;
+        else fresh.push({ file, storagePath, publicUrl, title: baseTitle });
       }
       const newCount = images.length - skipped;
       if (skipped > 0) {
@@ -215,7 +252,9 @@ export function MediaLibraryPickerModal({
             : `Using ${skipped} existing image${skipped === 1 ? "" : "s"}`,
         );
       }
-      await load();
+      const serverList = await load();
+      const merged = mergeFreshIntoItems(serverList, fresh);
+      setItems(merged);
       const uniq = [...new Set(newUrls)];
       if (onPickMultiple) onPickMultiple(uniq);
       else uniq.forEach((u) => onPick(u));

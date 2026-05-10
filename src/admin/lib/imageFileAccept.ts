@@ -1,7 +1,8 @@
 /** Some OS/browsers leave `File.type` empty; still treat as image by extension. */
 export function isLikelyImageFile(file: File): boolean {
-  if (file.type.startsWith("image/")) return true;
-  return /\.(png|jpe?g|gif|webp|svg|avif|ico|bmp|heic|heif)$/i.test(file.name);
+  const t = file.type?.trim().toLowerCase() ?? "";
+  if (t.startsWith("image/")) return true;
+  return /\.(png|jpe?g|gif|webp|svg|avif|heic|heif|ico|bmp)$/i.test(file.name);
 }
 
 /** Supabase buckets may restrict MIME types — set contentType when the browser omits it. */

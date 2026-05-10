@@ -113,10 +113,11 @@ export function ImageGalleryField({
   );
 
   const onFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    e.target.value = "";
+    const input = e.target;
+    const files = Array.from(input.files ?? []);
+    input.value = "";
     setDragOver(false);
-    if (!files?.length) return;
+    if (files.length === 0) return;
     await runUploadFiles(files);
   };
 

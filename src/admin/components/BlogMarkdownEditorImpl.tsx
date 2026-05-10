@@ -5,6 +5,7 @@ import {
 } from "@/admin/context/DuplicateUploadConfirmContext";
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
+import { isLikelyImageFile } from "@/admin/lib/imageFileAccept";
 import { uploadPublicFileContentAddressed } from "@/admin/lib/storageUpload";
 import MDEditor, {
   type ICommand,
@@ -122,13 +123,15 @@ export function BlogMarkdownEditorImpl({
 
   const onFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      e.target.value = "";
+      const input = e.target;
+      const files = Array.from(input.files ?? []);
+      input.value = "";
+      const file = files[0];
       if (!file) {
         pendingApiRef.current = null;
         return;
       }
-      if (!file.type.startsWith("image/")) {
+      if (!isLikelyImageFile(file)) {
         showToast("Choose an image file", "error");
         pendingApiRef.current = null;
         return;

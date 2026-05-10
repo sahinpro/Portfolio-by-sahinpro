@@ -41,8 +41,10 @@ export function AdminResumePage(): JSX.Element {
   const active = rows.find((r) => r.is_active);
 
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
+    const input = e.target;
+    const files = Array.from(input.files ?? []);
+    input.value = "";
+    const file = files[0];
     if (!file) return;
     setUploading(true);
     try {

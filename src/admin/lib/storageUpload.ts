@@ -53,6 +53,8 @@ async function storageObjectExists(bucket: string, storagePath: string): Promise
 
 export type ContentAddressedUploadResult = {
   publicUrl: string;
+  /** Storage object path (no bucket), e.g. `library/abc…`. */
+  storagePath: string;
   /** True when bytes were already stored at this path (no new upload). */
   skippedUpload: boolean;
 };
@@ -81,7 +83,7 @@ export async function uploadPublicFileContentAddressed(
 
   const exists = await storageObjectExists(bucket, path);
   if (exists) {
-    return { publicUrl, skippedUpload: true };
+    return { publicUrl, storagePath: path, skippedUpload: true };
   }
 
   const blob = new Blob([buf], { type: contentType });
@@ -92,7 +94,7 @@ export async function uploadPublicFileContentAddressed(
     ...(metadata && Object.keys(metadata).length ? { metadata } : {}),
   });
   if (error) throw error;
-  return { publicUrl, skippedUpload: false };
+  return { publicUrl, storagePath: path, skippedUpload: false };
 }
 
 /** Low-level upload when you must control the full path (no deduplication). */

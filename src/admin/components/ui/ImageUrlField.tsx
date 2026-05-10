@@ -91,9 +91,11 @@ export function ImageUrlField({
   );
 
   const onFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
+    const input = e.target;
+    const files = Array.from(input.files ?? []);
+    input.value = "";
     setDragOver(false);
+    const file = files[0];
     if (!file) return;
     await runUpload(file);
   };

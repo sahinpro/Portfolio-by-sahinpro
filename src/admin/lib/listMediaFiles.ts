@@ -1,3 +1,4 @@
+import { guessImageMimeFromName } from "@/admin/lib/imageFileAccept";
 import { supabase } from "@/utils/supabase";
 import type { FileObject } from "@supabase/storage-js";
 
@@ -83,6 +84,38 @@ export async function listAllMediaMerged(): Promise<MediaLibraryItem[]> {
 export async function deleteMediaObject(bucket: MediaBucketId, path: string): Promise<void> {
   const { error } = await supabase.storage.from(bucket).remove([path]);
   if (error) throw error;
+}
+
+/**
+ * Build a library row when listing may briefly omit a file we just uploaded (storage list lag).
+ * Uses the same shape as {@link walkBucket} results.
+ */
+export function libraryItemFromUpload(args: {
+  bucket: MediaBucketId;
+  storagePath: string;
+  file: File;
+  publicUrl: string;
+  title?: string | null;
+}): MediaLibraryItem {
+  const mime =
+    args.file.type?.split(";")[0]?.trim() ||
+    guessImageMimeFromName(args.file.name) ||
+    null;
+  const objectName = args.storagePath.includes("/")
+    ? args.storagePath.slice(args.storagePath.lastIndexOf("/") + 1)
+    : args.storagePath;
+  return {
+    bucket: args.bucket,
+    path: args.storagePath,
+    name: objectName,
+    updatedAt: new Date().toISOString(),
+    size: args.file.size,
+    mimeType: mime,
+    publicUrl: args.publicUrl,
+    title: args.title?.trim() ? args.title.trim() : null,
+    alt: null,
+    caption: null,
+  };
 }
 
 /** Re-uploads the same bytes so custom metadata (title, alt, caption) can be updated. */

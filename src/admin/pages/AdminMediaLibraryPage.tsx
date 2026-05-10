@@ -5,9 +5,11 @@ import {
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
 import { formatBytes } from "@/admin/lib/formatBytes";
+import { isLikelyImageFile } from "@/admin/lib/imageFileAccept";
 import {
   type MediaLibraryItem,
   deleteMediaObject,
+  libraryItemFromUpload,
   listAllMediaMerged,
   updateMediaItemMetadata,
 } from "@/admin/lib/listMediaFiles";
@@ -37,7 +39,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 function isProbablyImage(item: MediaLibraryItem): boolean {
   const m = item.mimeType?.toLowerCase() ?? "";
   if (m.startsWith("image/")) return true;
-  return /\.(png|jpe?g|gif|webp|svg|avif|ico)$/i.test(item.name);
+  return /\.(png|jpe?g|gif|webp|svg|avif|heic|heif|ico)$/i.test(item.name);
 }
 
 /** File extension badge + optional MIME snippet for the card footer */
@@ -91,17 +93,19 @@ export function AdminMediaLibraryPage(): JSX.Element {
   const [metaCaption, setMetaCaption] = useState("");
   const [savingMeta, setSavingMeta] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (): Promise<MediaLibraryItem[]> => {
     setLoading(true);
     try {
       const list = await listAllMediaMerged();
       setItems(list);
+      return list;
     } catch (e) {
       showToast(
         withRlsHint(e instanceof Error ? e.message : "Could not load files"),
         "error",
       );
       setItems([]);
+      return [];
     } finally {
       setLoading(false);
     }
@@ -155,30 +159,59 @@ export function AdminMediaLibraryPage(): JSX.Element {
   };
 
   const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    e.target.value = "";
-    if (!files?.length) return;
-    const list = Array.from(files);
+    const input = e.target;
+    const picked = Array.from(input.files ?? []);
+    input.value = "";
+    if (picked.length === 0) return;
+
+    const list = picked.filter((f) => isLikelyImageFile(f));
+    if (list.length === 0) {
+      showToast("Add image files only", "error");
+      return;
+    }
+
     setUploading(true);
     try {
       let lastUrl = "";
       let newCount = 0;
       let reusedCount = 0;
+      const fresh: { file: File; storagePath: string; publicUrl: string; title: string }[] = [];
       for (const file of list) {
         const baseTitle = file.name
           .replace(/\.[^.]+$/, "")
           .replace(/[-_]+/g, " ");
-        const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
-          DEFAULT_UPLOAD_BUCKET,
-          "library",
-          file,
-          { title: baseTitle },
-        );
+        const { publicUrl, skippedUpload, storagePath } =
+          await uploadPublicFileContentAddressed(DEFAULT_UPLOAD_BUCKET, "library", file, {
+            title: baseTitle,
+          });
         lastUrl = publicUrl;
         if (skippedUpload) reusedCount += 1;
-        else newCount += 1;
+        else {
+          newCount += 1;
+          fresh.push({ file, storagePath, publicUrl, title: baseTitle });
+        }
       }
-      await load();
+
+      let merged = await load();
+      for (const u of fresh) {
+        const exists = merged.some(
+          (x) => x.bucket === DEFAULT_UPLOAD_BUCKET && x.path === u.storagePath,
+        );
+        if (!exists) {
+          merged = [
+            libraryItemFromUpload({
+              bucket: DEFAULT_UPLOAD_BUCKET,
+              storagePath: u.storagePath,
+              file: u.file,
+              publicUrl: u.publicUrl,
+              title: u.title,
+            }),
+            ...merged,
+          ];
+        }
+      }
+      setItems(merged);
+
       if (reusedCount > 0) {
         await acknowledgeDuplicateUploads(openPrompt, reusedCount, newCount);
       } else if (newCount > 0) {
