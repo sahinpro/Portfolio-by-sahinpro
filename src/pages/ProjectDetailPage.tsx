@@ -279,7 +279,7 @@ export function ProjectDetailPage(): JSX.Element {
                     <img
                       src={project.image}
                       alt={project.title}
-                      className="w-full h-full object-cover min-h-[200px] max-h-[500px]"
+                      className="w-full h-auto object-cover min-h-[650px]"
                     />
                   </div>
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#050505]/90 to-transparent" />

@@ -172,19 +172,27 @@ export function AdminMediaLibraryPage(): JSX.Element {
 
     setUploading(true);
     try {
-      let lastUrl = "";
       let newCount = 0;
       let reusedCount = 0;
-      const fresh: { file: File; storagePath: string; publicUrl: string; title: string }[] = [];
+      const fresh: {
+        file: File;
+        storagePath: string;
+        publicUrl: string;
+        title: string;
+      }[] = [];
       for (const file of list) {
         const baseTitle = file.name
           .replace(/\.[^.]+$/, "")
           .replace(/[-_]+/g, " ");
         const { publicUrl, skippedUpload, storagePath } =
-          await uploadPublicFileContentAddressed(DEFAULT_UPLOAD_BUCKET, "library", file, {
-            title: baseTitle,
-          });
-        lastUrl = publicUrl;
+          await uploadPublicFileContentAddressed(
+            DEFAULT_UPLOAD_BUCKET,
+            "library",
+            file,
+            {
+              title: baseTitle,
+            },
+          );
         if (skippedUpload) reusedCount += 1;
         else {
           newCount += 1;
@@ -215,9 +223,10 @@ export function AdminMediaLibraryPage(): JSX.Element {
       if (reusedCount > 0) {
         await acknowledgeDuplicateUploads(openPrompt, reusedCount, newCount);
       } else if (newCount > 0) {
-        showToast(list.length === 1 ? "Uploaded" : `${list.length} files uploaded`);
+        showToast(
+          list.length === 1 ? "Uploaded" : `${list.length} files uploaded`,
+        );
       }
-      if (lastUrl) void copyUrl(lastUrl);
     } catch (err) {
       showToast(withRlsHint(storageUploadErrorMessage(err)), "error");
     } finally {

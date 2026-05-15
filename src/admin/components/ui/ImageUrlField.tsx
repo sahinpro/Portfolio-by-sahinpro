@@ -32,6 +32,8 @@ type ImageUrlFieldProps = {
   placeholder?: string;
   /** Narrow layout for table cells (no label). */
   variant?: "default" | "compact";
+  /** Shows validation error styling on the upload zone. */
+  invalid?: boolean;
 };
 
 export function ImageUrlField({
@@ -42,6 +44,7 @@ export function ImageUrlField({
   pathPrefix,
   placeholder = "Or paste image URL",
   variant = "default",
+  invalid = false,
 }: ImageUrlFieldProps): JSX.Element {
   const { showToast } = useToast();
   const { openPrompt } = useDuplicateUploadConfirm();
@@ -184,9 +187,11 @@ export function ImageUrlField({
           onDrop={onDrop}
           className={cn(
             "rounded-xl border border-dashed transition-colors",
+            invalid && !dragOver && "border-red-500/50 bg-red-500/[0.06]",
             dragOver
               ? "border-white/35 bg-white/[0.08]"
-              : "border-white/[0.14] bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04]",
+              : !invalid &&
+                  "border-white/[0.14] bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04]",
             uploading && "pointer-events-none opacity-60",
           )}
         >

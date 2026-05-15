@@ -1,3 +1,26 @@
+import type {
+  CmsPlatformSlug,
+  CustomFrameworkSlug,
+  ProjectCategory,
+} from "@/admin/constants/frameworkFieldConfig";
+
+/** `projects.build_kind` */
+export type ProjectBuildKind = "custom" | "cms";
+
+/** `projects.status` */
+export type ProjectStatus = "draft" | "published" | "trash";
+
+/**
+ * Values stored in `projects.custom_framework` (DB / legacy CHECK constraints).
+ * Form uses {@link CustomFrameworkSlug}; see `formCustomFrameworkToDbStorage` in projectMappers.
+ */
+export type ProjectCustomFrameworkDbSlug =
+  | CustomFrameworkSlug
+  | "react"
+  | "vue"
+  | "other"
+  | null;
+
 export type ProjectRow = {
   id: string;
   title: string;
@@ -5,27 +28,20 @@ export type ProjectRow = {
   long_description: string | null;
   image_url: string | null;
   technologies: string[];
-  category: string;
+  /** Display label; legacy rows may still use old bucket names until migrated. */
+  category: ProjectCategory | string;
   live_url: string | null;
   github_url: string | null;
   featured: boolean;
-  status: "draft" | "published" | "trash";
+  status: ProjectStatus;
   year: string | null;
   sort_order: number;
   stats: unknown;
-  build_kind: "custom" | "cms";
-  /** Current slugs: react_vanilla, next, vanilla_js; legacy: react, vue, other */
-  custom_framework:
-    | "react_vanilla"
-    | "next"
-    | "vanilla_js"
-    | "react"
-    | "vue"
-    | "other"
-    | null;
+  build_kind: ProjectBuildKind;
+  custom_framework: ProjectCustomFrameworkDbSlug;
   custom_framework_label: string | null;
   custom_stack_facets: Record<string, string | string[]> | null;
-  cms_platform: "wordpress" | "shopify" | "wix" | null;
+  cms_platform: CmsPlatformSlug | null;
   cms_theme_name: string | null;
   cms_extensions: unknown;
   /** JSON array of public image URLs for the project detail gallery */

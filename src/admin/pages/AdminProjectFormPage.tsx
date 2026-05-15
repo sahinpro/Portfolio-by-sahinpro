@@ -10,6 +10,7 @@ import {
 } from "@/admin/constants/frameworkFieldConfig";
 import { useToast } from "@/admin/context/ToastContext";
 import { formatSupabaseUserMessage, withRlsHint } from "@/admin/lib/formatAdminError";
+import { listFormErrors, PROJECT_FIELD_LABELS } from "@/admin/lib/formErrors";
 import {
   canLenientDraftInsert,
   defaultEmptyProjectForm,
@@ -32,12 +33,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Controller, type FieldErrors, useForm, useWatch } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 
 const field =
@@ -88,8 +90,10 @@ export function AdminProjectFormPage(): JSX.Element {
     watch,
     formState,
     getValues,
+    trigger,
   } = form;
   const { errors, isSubmitting } = formState;
+  const validationIssues = listFormErrors(errors);
 
   const cmsExtensions = watch("cms_extensions");
   const buildKind = useWatch({ control, name: "build_kind" });
@@ -196,14 +200,39 @@ export function AdminProjectFormPage(): JSX.Element {
     })();
   }, [getValues, isNewRoute, loadingRow, navigate, routeId, showToast]);
 
-  const onInvalid = useCallback(() => {
-    showToast("Fix the highlighted fields below", "error");
+  const scrollToFirstFieldError = useCallback((fieldKeys: string[]) => {
     requestAnimationFrame(() => {
+      for (const key of fieldKeys) {
+        const el = document.querySelector(`[data-field="${key}"]`);
+        if (el) {
+          el.scrollIntoView({ block: "center", behavior: "smooth" });
+          return;
+        }
+      }
       document
         .querySelector('[data-form-field-error="true"]')
-        ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        ?.scrollIntoView({ block: "center", behavior: "smooth" });
     });
-  }, [showToast]);
+  }, []);
+
+  const onInvalid = useCallback(
+    (fieldErrors: FieldErrors<ProjectFormValues>) => {
+      const issues = listFormErrors(fieldErrors);
+      if (issues.length === 0) {
+        showToast("Fix the highlighted fields below", "error");
+        return;
+      }
+      const summary = issues
+        .map(
+          (issue) =>
+            `${PROJECT_FIELD_LABELS[issue.field] ?? issue.field}: ${issue.message}`,
+        )
+        .join(" · ");
+      showToast(summary, "error");
+      scrollToFirstFieldError(issues.map((i) => i.field));
+    },
+    [scrollToFirstFieldError, showToast],
+  );
 
   const onSubmit = async (values: ProjectFormValues) => {
     if (values.status === "published" && !values.live_url?.trim()) {
@@ -313,7 +342,13 @@ export function AdminProjectFormPage(): JSX.Element {
             />
             <FieldError message={errors.description?.message} />
           </div>
-          <div data-field="image_url">
+          <div
+            data-field="image_url"
+            className={cn(
+              errors.image_url &&
+                "rounded-xl ring-1 ring-red-500/40 ring-offset-2 ring-offset-[#111]",
+            )}
+          >
             <Controller
               name="image_url"
               control={control}
@@ -324,6 +359,7 @@ export function AdminProjectFormPage(): JSX.Element {
                   onChange={f.onChange}
                   bucket="portfolio-assets"
                   pathPrefix="projects"
+                  invalid={Boolean(errors.image_url)}
                 />
               )}
             />
@@ -407,6 +443,7 @@ export function AdminProjectFormPage(): JSX.Element {
                 onValueChange={(v) => {
                   f.onChange(v);
                   if (v === "cms") {
+                    setValue("custom_framework", "", { shouldValidate: true });
                     setValue("github_url", "", { shouldValidate: true });
                     setValue("technologies", [], { shouldValidate: true });
                   } else {
@@ -414,6 +451,12 @@ export function AdminProjectFormPage(): JSX.Element {
                     setValue("cms_theme_name", "", { shouldValidate: true });
                     setValue("cms_extensions", [""], { shouldValidate: true });
                   }
+                  void trigger([
+                    "custom_framework",
+                    "technologies",
+                    "cms_platform",
+                    "image_url",
+                  ]);
                 }}
                 className="flex flex-wrap gap-6"
               >
@@ -439,7 +482,7 @@ export function AdminProjectFormPage(): JSX.Element {
 
           {buildKind === "custom" ? (
             <div className="space-y-4 pt-2 border-t border-white/[0.06]">
-              <div>
+              <div data-field="custom_framework">
                 <label className={labelCls}>Framework</label>
                 <Controller
                   name="custom_framework"
@@ -479,7 +522,7 @@ export function AdminProjectFormPage(): JSX.Element {
                 />
                 <FieldError message={errors.custom_framework?.message} />
               </div>
-              <div>
+              <div data-field="technologies">
                 <label className={labelCls}>Technologies</label>
                 <Controller
                   name="technologies"
@@ -509,7 +552,7 @@ export function AdminProjectFormPage(): JSX.Element {
             </div>
           ) : (
             <div className="space-y-4 pt-2 border-t border-white/[0.06]">
-              <div>
+              <div data-field="cms_platform">
                 <label className={labelCls}>CMS platform</label>
                 <Controller
                   name="cms_platform"
@@ -633,7 +676,15 @@ export function AdminProjectFormPage(): JSX.Element {
               render={({ field: f }) => (
                 <Select
                   value={f.value ?? "draft"}
-                  onValueChange={f.onChange}
+                  onValueChange={(v) => {
+                    f.onChange(v);
+                    void trigger([
+                      "image_url",
+                      "technologies",
+                      "custom_framework",
+                      "cms_platform",
+                    ]);
+                  }}
                 >
                   <SelectTrigger
                     className={field}
@@ -659,10 +710,25 @@ export function AdminProjectFormPage(): JSX.Element {
           </div>
         </section>
 
-        {Object.keys(errors).length > 0 ? (
-          <p className="text-xs text-white/40">
-            {Object.keys(errors).length} field(s) need attention before saving.
-          </p>
+        {validationIssues.length > 0 ? (
+          <div
+            className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3"
+            role="alert"
+          >
+            <p className="text-sm font-medium text-red-200">
+              Fix before saving:
+            </p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-red-200/90">
+              {validationIssues.map((issue) => (
+                <li key={`${issue.field}-${issue.message}`}>
+                  <span className="font-medium text-red-100">
+                    {PROJECT_FIELD_LABELS[issue.field] ?? issue.field}
+                  </span>
+                  : {issue.message}
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : null}
 
         <div className="flex flex-wrap gap-3">
