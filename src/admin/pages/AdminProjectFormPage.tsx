@@ -9,7 +9,10 @@ import {
   PROJECT_CATEGORIES,
 } from "@/admin/constants/frameworkFieldConfig";
 import { useToast } from "@/admin/context/ToastContext";
-import { formatSupabaseUserMessage, withRlsHint } from "@/admin/lib/formatAdminError";
+import {
+  formatSupabaseUserMessage,
+  withRlsHint,
+} from "@/admin/lib/formatAdminError";
 import { listFormErrors, PROJECT_FIELD_LABELS } from "@/admin/lib/formErrors";
 import {
   canLenientDraftInsert,
@@ -33,13 +36,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import { invalidatePublicDataCache } from "@/lib/publicDataCache";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/utils/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Controller, type FieldErrors, useForm, useWatch } from "react-hook-form";
+import {
+  Controller,
+  type FieldErrors,
+  useForm,
+  useWatch,
+} from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 
 const field =
@@ -77,7 +85,7 @@ export function AdminProjectFormPage(): JSX.Element {
   });
 
   const form = useForm<ProjectFormValues>({
-    resolver: zodResolver(projectFormSchema),
+    resolver: zodResolver(projectFormSchema) as any,
     defaultValues: defaultEmptyProjectForm(),
   });
 
@@ -157,7 +165,9 @@ export function AdminProjectFormPage(): JSX.Element {
             const { error } = await supabase.from("projects").insert(payload);
             if (error) {
               showToast(
-                withRlsHint(formatSupabaseUserMessage(error, "Could not save draft")),
+                withRlsHint(
+                  formatSupabaseUserMessage(error, "Could not save draft"),
+                ),
                 "error",
               );
             } else {
@@ -376,10 +386,7 @@ export function AdminProjectFormPage(): JSX.Element {
               name="category"
               control={control}
               render={({ field: f }) => (
-                <Select
-                  value={f.value}
-                  onValueChange={f.onChange}
-                >
+                <Select value={f.value} onValueChange={f.onChange}>
                   <SelectTrigger
                     className={field}
                     aria-invalid={Boolean(errors.category)}
@@ -737,7 +744,11 @@ export function AdminProjectFormPage(): JSX.Element {
             disabled={isSubmitting}
             className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90 disabled:opacity-50"
           >
-            {isSubmitting ? "Saving…" : isNewRoute ? "Save project" : "Save changes"}
+            {isSubmitting
+              ? "Saving…"
+              : isNewRoute
+                ? "Save project"
+                : "Save changes"}
           </button>
           <button
             type="button"
