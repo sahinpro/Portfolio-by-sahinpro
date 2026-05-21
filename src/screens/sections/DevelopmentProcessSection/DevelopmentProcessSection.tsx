@@ -40,10 +40,10 @@ export const DevelopmentProcessSection = (): JSX.Element => {
   return (
     <section
       id="process"
-      className="container mx-auto flex w-full max-w-full flex-col items-center gap-12 px-4 sm:px-6 lg:px-8 pb-10 relative"
+      className="container mx-auto flex w-full max-w-full flex-col items-center gap-12 px-4  py-10 relative"
     >
       <motion.div
-        className="flex flex-col container mx-auto w-full items-center gap-12 relative z-10"
+        className="flex flex-col container mx-auto w-full px-0 lg:px-4 items-center gap-12 relative z-10"
         initial="hidden"
         whileInView="visible"
         viewport={scrollViewport}

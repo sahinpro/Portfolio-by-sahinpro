@@ -1,7 +1,11 @@
 import type { BentoCardProps } from "@/components/MagicBento";
 import MagicBento from "@/components/MagicBento";
-import { fadeInUp, scrollViewport, sectionReveal } from "@/constants/scrollMotion";
 import Glow from "@/components/ui/glow";
+import {
+  fadeInUp,
+  scrollViewport,
+  sectionReveal,
+} from "@/constants/scrollMotion";
 import { motion } from "framer-motion";
 
 const skillsCards: BentoCardProps[] = [
@@ -64,11 +68,11 @@ export const SkillsSection = (): JSX.Element => {
   return (
     <section
       id="services"
-      className="flex flex-col w-full max-w-[1440px] mx-auto items-center gap-12 px-4 sm:px-8 md:px-12 lg:px-[100px] py-12 sm:py-16 md:py-20 lg:py-[100px] relative"
+      className="flex flex-col container mx-auto items-center gap-12 px-4 py-10"
     >
       <Glow variant="top" className="-z-20 blur-xl" />
       <motion.div
-        className="flex flex-col w-full max-w-[1240px] items-center gap-12"
+        className="flex flex-col w-full max-w-full items-center gap-12"
         initial="hidden"
         whileInView="visible"
         viewport={scrollViewport}
@@ -86,21 +90,24 @@ export const SkillsSection = (): JSX.Element => {
             for building scalable solutions.
           </p>
         </motion.div>
-        <motion.div variants={fadeInUp} className="flex flex-col w-full items-center">
-        <MagicBento
-          textAutoHide={true}
-          enableStars
-          enableSpotlight
-          enableBorderGlow={true}
-          enableTilt={false}
-          enableMagnetism={false}
-          clickEffect
-          spotlightRadius={200}
-          particleCount={12}
-          glowColor="0, 0, 255"
-          disableAnimations={false}
-          cards={skillsCards}
-        />
+        <motion.div
+          variants={fadeInUp}
+          className="flex flex-col w-full max-w-full items-stretch"
+        >
+          <MagicBento
+            textAutoHide={true}
+            enableStars
+            enableSpotlight
+            enableBorderGlow={true}
+            enableTilt={false}
+            enableMagnetism={false}
+            clickEffect
+            spotlightRadius={200}
+            particleCount={12}
+            glowColor="0, 0, 255"
+            disableAnimations={false}
+            cards={skillsCards}
+          />
         </motion.div>
       </motion.div>
     </section>

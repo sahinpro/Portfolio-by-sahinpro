@@ -1,11 +1,13 @@
 import { PublicSeo } from "@/components/public/PublicSeo";
 import Header from "@/components/Header";
+import { CareerJourneySection } from "@/screens/sections/CareerJourneySection";
 import { CustomerStoriesSection } from "@/screens/sections/CustomerStoriesSection";
 import { DevelopmentProcessSection } from "@/screens/sections/DevelopmentProcessSection";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { GetStartedSection } from "@/screens/sections/GetStartedSection";
 import { HeroSection } from "@/screens/sections/HeroSection";
 import { SkillsSection } from "@/screens/sections/SkillsSection";
+import { StatsSection } from "@/screens/sections/StatsSection";
 import { WhyChooseUsSection } from "@/screens/sections/WhyChooseUsSection";
 
 export const HomePage = (): JSX.Element => {
@@ -14,7 +16,9 @@ export const HomePage = (): JSX.Element => {
       <PublicSeo />
       <Header />
       <HeroSection />
+      <StatsSection />
       <SkillsSection />
+      <CareerJourneySection />
       <DevelopmentProcessSection />
       <CustomerStoriesSection />
       <WhyChooseUsSection />
