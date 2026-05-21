@@ -1,7 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
-/** Matches hero subtitle / title gradients */
 const BRAND_COLORS = {
   blue: "#789cff",
   purple: "#9500ff",
@@ -9,15 +7,8 @@ const BRAND_COLORS = {
   accent: "#ee2a7b",
 } as const;
 
-const hexToVec3 = (hex: string): THREE.Vector3 => {
-  const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!match) return new THREE.Vector3(1, 1, 1);
-  return new THREE.Vector3(
-    parseInt(match[1], 16) / 255,
-    parseInt(match[2], 16) / 255,
-    parseInt(match[3], 16) / 255,
-  );
-};
+const AURORA_LAYERS = 24;
+const INIT_IDLE_TIMEOUT_MS = 2800;
 
 const VERTEX_SHADER = `
 void main() {
@@ -33,7 +24,8 @@ uniform vec3 uBrandPurple;
 uniform vec3 uBrandViolet;
 uniform vec3 uBrandAccent;
 
-#define NUM_OCTAVES 3
+#define NUM_OCTAVES 2
+#define LAYER_COUNT ${AURORA_LAYERS}.0
 
 float rand(vec2 n) {
   return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
@@ -43,13 +35,11 @@ float noise(vec2 p) {
   vec2 ip = floor(p);
   vec2 u = fract(p);
   u = u * u * (3.0 - 2.0 * u);
-
-  float res = mix(
+  return mix(
     mix(rand(ip), rand(ip + vec2(1.0, 0.0)), u.x),
     mix(rand(ip + vec2(0.0, 1.0)), rand(ip + vec2(1.0, 1.0)), u.x),
     u.y
   );
-  return res * res;
 }
 
 float fbm(vec2 x) {
@@ -67,55 +57,78 @@ float fbm(vec2 x) {
 
 void main() {
   vec2 shake = vec2(sin(iTime * 1.2) * 0.005, cos(iTime * 2.1) * 0.005);
-
   vec2 p = ((gl_FragCoord.xy + shake * iResolution.xy) - iResolution.xy * 0.5)
     / iResolution.y
     * mat2(6.0, -4.0, 4.0, 6.0);
-  vec2 v;
   vec4 o = vec4(0.0);
-
   float f = 2.0 + fbm(p + vec2(iTime * 5.0, 0.0)) * 0.5;
 
-  for (float i = 0.0; i < 35.0; i++) {
-    v = p
+  for (float i = 0.0; i < LAYER_COUNT; i++) {
+    vec2 v = p
       + cos(i * i + (iTime + p.x * 0.08) * 0.025 + i * vec2(13.0, 11.0)) * 3.5
       + vec2(sin(iTime * 3.0 + i) * 0.003, cos(iTime * 3.5 - i) * 0.003);
 
-    float tailNoise = fbm(v + vec2(iTime * 0.5, i)) * 0.3 * (1.0 - (i / 35.0));
-
+    float tailNoise = fbm(v + vec2(iTime * 0.5, i)) * 0.28 * (1.0 - i / LAYER_COUNT);
     float hueShift = 0.5 + 0.5 * sin(i * 0.18 + iTime * 0.35);
     vec3 bandColor = mix(
       mix(uBrandBlue, uBrandPurple, hueShift),
       mix(uBrandPurple, uBrandViolet, hueShift),
       0.4 + 0.3 * cos(i * 0.11 + iTime * 0.42)
     );
-    float accentMix = smoothstep(
-      0.55,
-      0.92,
-      sin(i * 0.28 + iTime * 0.48) * 0.5 + 0.5
-    );
+    float accentMix = smoothstep(0.55, 0.92, sin(i * 0.28 + iTime * 0.48) * 0.5 + 0.5);
     bandColor = mix(bandColor, uBrandAccent, accentMix * 0.14);
-    float intensity = 0.48 + 0.32 * sin(i * 0.2 + iTime * 0.38);
-    vec4 auroraColors = vec4(bandColor * intensity, 1.0);
-
-    vec4 currentContribution =
-      auroraColors
+    vec4 auroraColors = vec4(bandColor * (0.48 + 0.32 * sin(i * 0.2 + iTime * 0.38)), 1.0);
+    vec4 contribution = auroraColors
       * exp(sin(i * i + iTime * 0.8))
       / length(max(v, vec2(v.x * f * 0.015, v.y * 1.5)));
-
-    float thinnessFactor = smoothstep(0.0, 1.0, i / 35.0) * 0.6;
-    o += currentContribution * (1.0 + tailNoise * 0.8) * thinnessFactor;
+    o += contribution * (1.0 + tailNoise * 0.8) * smoothstep(0.0, 1.0, i / LAYER_COUNT) * 0.6;
   }
 
   o = tanh(pow(o / 110.0, vec4(1.55)));
-
   vec2 uv = gl_FragCoord.xy / iResolution.xy;
   float vignette = 1.0 - smoothstep(0.25, 0.95, length(uv - 0.5) * 1.15);
-  o.rgb *= mix(0.72, 1.0, vignette);
-
-  gl_FragColor = vec4(o.rgb * 1.35, o.a);
+  gl_FragColor = vec4(o.rgb * mix(0.72, 1.0, vignette) * 1.35, o.a);
 }
 `;
+
+const FALLBACK_STYLE: CSSProperties = {
+  background: `
+    radial-gradient(ellipse 85% 55% at 50% -15%, rgba(149, 0, 255, 0.22), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 85% 45%, rgba(120, 156, 255, 0.14), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 15% 55%, rgba(195, 122, 255, 0.12), transparent 52%),
+    radial-gradient(ellipse 40% 30% at 50% 80%, rgba(238, 42, 123, 0.06), transparent 50%)
+  `,
+};
+
+const hexToRgb = (hex: string): [number, number, number] => {
+  const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!match) return [1, 1, 1];
+  return [
+    parseInt(match[1], 16) / 255,
+    parseInt(match[2], 16) / 255,
+    parseInt(match[3], 16) / 255,
+  ];
+};
+
+const prefersReducedMotion = (): boolean =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const scheduleDeferredInit = (callback: () => void): (() => void) => {
+  if (typeof window.requestIdleCallback === "function") {
+    const id = window.requestIdleCallback(callback, {
+      timeout: INIT_IDLE_TIMEOUT_MS,
+    });
+    return () => window.cancelIdleCallback(id);
+  }
+  const id = window.setTimeout(callback, INIT_IDLE_TIMEOUT_MS);
+  return () => window.clearTimeout(id);
+};
+
+const getPixelRatio = (): number => {
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  return Math.min(window.devicePixelRatio, isMobile ? 1 : 1.5);
+};
 
 interface AuroraBackgroundProps {
   className?: string;
@@ -127,117 +140,138 @@ export function AuroraBackground({
   opacity = 1,
 }: AuroraBackgroundProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  const [shouldInit, setShouldInit] = useState(false);
+  const [webglReady, setWebglReady] = useState(false);
   const cleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || prefersReducedMotion()) return;
 
-    observerRef.current = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.1 },
+    let cancelIdle: (() => void) | undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          cancelIdle?.();
+          cancelIdle = undefined;
+          setShouldInit(false);
+          return;
+        }
+        cancelIdle?.();
+        cancelIdle = scheduleDeferredInit(() => setShouldInit(true));
+      },
+      { rootMargin: "80px 0px", threshold: 0.01 },
     );
-    observerRef.current.observe(container);
 
+    observer.observe(container);
     return () => {
-      observerRef.current?.disconnect();
-      observerRef.current = null;
+      cancelIdle?.();
+      observer.disconnect();
     };
   }, []);
 
   useEffect(() => {
-    if (!isVisible || !containerRef.current) return;
+    if (!shouldInit || !containerRef.current) return;
 
-    cleanupRef.current?.();
-    cleanupRef.current = null;
-
-    const container = containerRef.current;
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: false,
-      powerPreference: "high-performance",
-    });
-
-    const dpr = Math.min(window.devicePixelRatio, 2);
-    renderer.setPixelRatio(dpr);
-
-    const canvas = renderer.domElement;
-    canvas.style.position = "absolute";
-    canvas.style.inset = "0";
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    canvas.style.pointerEvents = "none";
-
-    while (container.firstChild) {
-      container.removeChild(container.firstChild);
-    }
-    container.appendChild(canvas);
-
-    const material = new THREE.ShaderMaterial({
-      uniforms: {
-        iTime: { value: 0 },
-        iResolution: { value: new THREE.Vector2(1, 1) },
-        uBrandBlue: { value: hexToVec3(BRAND_COLORS.blue) },
-        uBrandPurple: { value: hexToVec3(BRAND_COLORS.purple) },
-        uBrandViolet: { value: hexToVec3(BRAND_COLORS.violet) },
-        uBrandAccent: { value: hexToVec3(BRAND_COLORS.accent) },
-      },
-      vertexShader: VERTEX_SHADER,
-      fragmentShader: FRAGMENT_SHADER,
-    });
-
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
-    scene.add(mesh);
-
-    const updateSize = () => {
-      if (!containerRef.current) return;
-      const { clientWidth, clientHeight } = containerRef.current;
-      if (clientWidth === 0 || clientHeight === 0) return;
-
-      renderer.setSize(clientWidth, clientHeight, false);
-      material.uniforms.iResolution.value.set(
-        clientWidth * dpr,
-        clientHeight * dpr,
-      );
-    };
-
+    let cancelled = false;
     let animationId = 0;
-    const animate = () => {
-      material.uniforms.iTime.value += 0.016;
-      renderer.render(scene, camera);
+
+    const run = async () => {
+      const THREE = await import("three");
+      if (cancelled || !containerRef.current) return;
+
+      const container = containerRef.current;
+      const scene = new THREE.Scene();
+      const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      const renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: false,
+        powerPreference: "high-performance",
+      });
+
+      const dpr = getPixelRatio();
+      renderer.setPixelRatio(dpr);
+
+      const canvas = renderer.domElement;
+      canvas.style.cssText =
+        "position:absolute;inset:0;width:100%;height:100%;pointer-events:none";
+
+      container.appendChild(canvas);
+      setWebglReady(true);
+
+      const material = new THREE.ShaderMaterial({
+        uniforms: {
+          iTime: { value: 0 },
+          iResolution: { value: new THREE.Vector2(1, 1) },
+          uBrandBlue: { value: new THREE.Vector3(...hexToRgb(BRAND_COLORS.blue)) },
+          uBrandPurple: {
+            value: new THREE.Vector3(...hexToRgb(BRAND_COLORS.purple)),
+          },
+          uBrandViolet: {
+            value: new THREE.Vector3(...hexToRgb(BRAND_COLORS.violet)),
+          },
+          uBrandAccent: {
+            value: new THREE.Vector3(...hexToRgb(BRAND_COLORS.accent)),
+          },
+        },
+        vertexShader: VERTEX_SHADER,
+        fragmentShader: FRAGMENT_SHADER,
+      });
+
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+      scene.add(mesh);
+
+      const updateSize = () => {
+        if (!containerRef.current) return;
+        const { clientWidth, clientHeight } = containerRef.current;
+        if (clientWidth === 0 || clientHeight === 0) return;
+        renderer.setSize(clientWidth, clientHeight, false);
+        material.uniforms.iResolution.value.set(
+          clientWidth * dpr,
+          clientHeight * dpr,
+        );
+      };
+
+      let lastFrame = 0;
+      const animate = (time: number) => {
+        if (cancelled) return;
+        if (document.visibilityState === "visible") {
+          const delta = lastFrame ? (time - lastFrame) / 1000 : 0.016;
+          lastFrame = time;
+          material.uniforms.iTime.value += Math.min(delta, 0.05);
+          renderer.render(scene, camera);
+        }
+        animationId = requestAnimationFrame(animate);
+      };
+
+      const resizeObserver = new ResizeObserver(updateSize);
+      resizeObserver.observe(container);
+      updateSize();
       animationId = requestAnimationFrame(animate);
+
+      cleanupRef.current = () => {
+        cancelAnimationFrame(animationId);
+        resizeObserver.disconnect();
+        material.dispose();
+        mesh.geometry.dispose();
+        renderer.dispose();
+        renderer
+          .getContext()
+          .getExtension("WEBGL_lose_context")
+          ?.loseContext();
+        canvas.remove();
+        setWebglReady(false);
+      };
     };
 
-    const resizeObserver = new ResizeObserver(updateSize);
-    resizeObserver.observe(container);
-    updateSize();
-    animate();
-
-    cleanupRef.current = () => {
-      cancelAnimationFrame(animationId);
-      resizeObserver.disconnect();
-
-      material.dispose();
-      mesh.geometry.dispose();
-      renderer.dispose();
-
-      const loseContext = renderer.getContext().getExtension("WEBGL_lose_context");
-      loseContext?.loseContext();
-
-      if (canvas.parentNode) {
-        canvas.parentNode.removeChild(canvas);
-      }
-    };
+    void run();
 
     return () => {
+      cancelled = true;
       cleanupRef.current?.();
       cleanupRef.current = null;
     };
-  }, [isVisible]);
+  }, [shouldInit]);
 
   return (
     <div
@@ -245,6 +279,14 @@ export function AuroraBackground({
       className={`absolute inset-0 w-full h-full overflow-hidden pointer-events-none ${className}`.trim()}
       style={{ opacity }}
       aria-hidden
-    />
+    >
+      <div
+        className="absolute inset-0 transition-opacity duration-700"
+        style={{
+          ...FALLBACK_STYLE,
+          opacity: webglReady ? 0 : 1,
+        }}
+      />
+    </div>
   );
 }

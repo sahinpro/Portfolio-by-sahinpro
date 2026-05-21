@@ -61,6 +61,7 @@ export default defineConfig({
           icons: ["lucide-react", "react-icons"],
           supabase: ["@supabase/supabase-js"],
           lottie: ["lottie-react", "lottie-web"],
+          three: ["three"],
         },
       },
     },
