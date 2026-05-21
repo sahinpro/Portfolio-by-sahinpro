@@ -16,7 +16,7 @@ export function AppRoutes(): JSX.Element {
           <Route element={<P.PublicSiteGate />}>
             <Route path="/" element={<P.HomePage />} />
             <Route path="/about" element={<P.AboutPage />} />
-            <Route path="/projects/:id" element={<P.ProjectDetailPage />} />
+            <Route path="/projects/:slug" element={<P.ProjectDetailPage />} />
             <Route path="/projects" element={<P.ProjectsPage />} />
             <Route path="/services" element={<P.ServicesPage />} />
             <Route path="/blogs" element={<P.BlogsPage />} />

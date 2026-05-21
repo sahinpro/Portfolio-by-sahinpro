@@ -1,10 +1,12 @@
 import { parseScreenshotUrls } from "@/admin/lib/projectMappers";
 import type { ProjectRow } from "@/admin/types/database";
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
+import { projectSlugFromTitle } from "@/lib/projectPaths";
 
 /** Shape used by `ProjectsPage` cards (public site). */
 export type PublicProject = {
   id: string;
+  slug: string;
   title: string;
   description: string;
   longDescription?: string;
@@ -39,6 +41,7 @@ function parseCmsExtensions(raw: unknown): string[] {
 export function mapProjectRowToPublic(row: ProjectRow): PublicProject {
   return {
     id: row.id,
+    slug: projectSlugFromTitle(row.title),
     title: row.title,
     description: row.description ?? "",
     longDescription: row.long_description ?? undefined,

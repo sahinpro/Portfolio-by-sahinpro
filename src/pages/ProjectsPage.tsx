@@ -3,6 +3,7 @@ import { PublicSeo } from "@/components/public/PublicSeo";
 import { Input } from "@/components/ui/input";
 import type { PublicProject } from "@/data/projectUiMapper";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
+import { projectDetailPath } from "@/lib/projectPaths";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion } from "framer-motion";
 import {
@@ -72,7 +73,7 @@ const FeaturedCard = ({
         hover:border-white/[0.14] transition-all duration-500"
       >
         <Link
-          to={`/projects/${project.id}`}
+          to={projectDetailPath(project)}
           className={`relative overflow-hidden aspect-auto h-[480px] block ${even ? "lg:order-1" : "lg:order-2"}`}
         >
           <img
@@ -112,12 +113,12 @@ const FeaturedCard = ({
             )}
           </div>
 
-          <Link to={`/projects/${project.id}`} className="group/title block">
+          <Link to={projectDetailPath(project)} className="group/title block">
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 tracking-tight group-hover/title:text-violet-200/95 transition-colors">
               {project.title}
             </h3>
           </Link>
-          <Link to={`/projects/${project.id}`} className="block mb-6">
+          <Link to={projectDetailPath(project)} className="block mb-6">
             <p className="text-white/50 leading-relaxed line-clamp-4 hover:text-white/60 transition-colors">
               {project.longDescription || project.description}
             </p>
@@ -139,7 +140,7 @@ const FeaturedCard = ({
           {/* Links */}
           <div className="flex flex-wrap gap-3">
             <Link
-              to={`/projects/${project.id}`}
+              to={projectDetailPath(project)}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/15 border border-violet-500/30
                 text-sm font-semibold text-violet-200 hover:bg-violet-500/25 transition-all duration-200"
             >
@@ -202,7 +203,7 @@ const ProjectCard = ({
         transition-[border-color] duration-300 hover:border-white/[0.12]"
       >
         <Link
-          to={`/projects/${project.id}`}
+          to={projectDetailPath(project)}
           className="absolute inset-0 z-0 block"
         >
           <img
@@ -232,7 +233,7 @@ const ProjectCard = ({
 
         <div className="absolute inset-x-0 bottom-0 z-[3] px-5 pb-5">
           <Link
-            to={`/projects/${project.id}`}
+            to={projectDetailPath(project)}
             className="group/cardtitle block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00BB7D]/50 rounded-sm"
           >
             <h3 className="text-[1.45rem] font-bold leading-tight text-white transition-colors group-hover/cardtitle:text-white/95">
@@ -246,7 +247,7 @@ const ProjectCard = ({
           </p>
 
           <Link
-            to={`/projects/${project.id}`}
+            to={projectDetailPath(project)}
             className="mt-2.5 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00BB7D]/50 rounded-sm"
           >
             <p className="text-[13px] leading-relaxed text-white/55 line-clamp-2 transition-colors hover:text-white/65">
@@ -265,7 +266,7 @@ const ProjectCard = ({
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
-              to={`/projects/${project.id}`}
+              to={projectDetailPath(project)}
               className="flex-1 min-w-[6.5rem] inline-flex items-center justify-center gap-1.5 py-2 rounded-xl
                 bg-amber-600/30 border border-amber-400/20 text-xs font-semibold text-amber-300/90
                 hover:bg-amber-800/40 hover:border-amber-400/30 transition-all duration-200"

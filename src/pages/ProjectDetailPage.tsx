@@ -3,6 +3,7 @@ import { PublicSeo } from "@/components/public/PublicSeo";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { usePublishedProject } from "@/hooks/usePublishedProject";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
+import { isLegacyProjectIdParam, projectDetailPath } from "@/lib/projectPaths";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { GetStartedSection } from "@/screens/sections/GetStartedSection";
 import { motion } from "framer-motion";
@@ -22,7 +23,7 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 
 const SITE = "Sahin Alam";
 
@@ -108,11 +109,11 @@ function DetailSkeleton() {
 function RelatedCard({
   project,
 }: {
-  project: { id: string; title: string; image: string; category: string };
+  project: { slug: string; title: string; image: string; category: string };
 }) {
   return (
     <Link
-      to={`/projects/${project.id}`}
+      to={projectDetailPath(project)}
       className="group flex flex-col rounded-2xl border border-white/[0.08] overflow-hidden bg-gradient-to-b from-white/[0.04] to-transparent
         hover:border-white/[0.14] transition-all duration-300"
     >
@@ -143,8 +144,8 @@ function RelatedCard({
 }
 
 export function ProjectDetailPage(): JSX.Element {
-  const { id } = useParams<{ id: string }>();
-  const { project, loading, error } = usePublishedProject(id);
+  const { slug } = useParams<{ slug: string }>();
+  const { project, loading, error } = usePublishedProject(slug);
   const { projects: allProjects } = usePublishedProjects();
 
   const related = useMemo(() => {
@@ -159,12 +160,16 @@ export function ProjectDetailPage(): JSX.Element {
     ? project.longDescription?.trim() || project.description || undefined
     : undefined;
 
-  if (!id) {
+  if (!slug) {
     return (
       <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center px-4">
         <p className="text-white/50 text-sm">Invalid link.</p>
       </div>
     );
+  }
+
+  if (!loading && project && isLegacyProjectIdParam(slug)) {
+    return <Navigate to={projectDetailPath(project)} replace />;
   }
 
   return (
@@ -294,21 +299,20 @@ export function ProjectDetailPage(): JSX.Element {
                       Screenshots
                     </h2>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-wrap gap-3">
                     {project.screenshots.map((src, i) => (
                       <a
                         key={`${src}-${i}`}
                         href={src}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group relative overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02] shadow-lg shadow-black/20"
+                        className="group inline-flex rounded-xl border border-white/[0.08] bg-white/[0.02] p-1.5 shadow-lg shadow-black/20 transition-colors hover:border-white/[0.14]"
                       >
                         <img
                           src={src}
                           alt={`${project.title} — screenshot ${i + 1}`}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                          className="block max-h-36 max-w-[320px] w-auto h-auto  transition-transform duration-500 group-hover:scale-[1.02]"
                         />
-                        <span className="pointer-events-none absolute inset-0 ring-0 ring-white/0 group-hover:ring-white/10 transition-[box-shadow]" />
                       </a>
                     ))}
                   </div>
