@@ -1,4 +1,4 @@
-import LightRays from "@/components/LightRays";
+import { AuroraBackground } from "@/components/AuroraBackground";
 import { getSocialBrand } from "@/components/public/socialBrands";
 import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
 import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
@@ -74,22 +74,9 @@ export const HeroSection = (): JSX.Element => {
   };
 
   return (
-    <section className="relative w-full overflow-hidden min-h-[calc(100vh-200px)] flex items-center pt-24 sm:pt-28 pb-10">
+    <section className="relative w-full overflow-hidden min-h-[calc(100vh-100px)] flex items-center pt-24 sm:pt-28 pb-10">
       <div className="absolute inset-0 w-full h-full z-0">
-        <LightRays
-          raysOrigin="top-center"
-          raysColor="#d400ff"
-          raysSpeed={1}
-          lightSpread={3.4}
-          rayLength={3}
-          pulsating={false}
-          fadeDistance={0.5}
-          saturation={1}
-          followMouse
-          mouseInfluence={0.1}
-          noiseAmount={0}
-          distortion={0}
-        />
+        <AuroraBackground />
       </div>
 
       <div className="pointer-events-none absolute left-0 bottom-0 w-full h-[200px] bg-gradient-to-t from-[#050505] via-[#05050580] to-transparent z-[1]" />

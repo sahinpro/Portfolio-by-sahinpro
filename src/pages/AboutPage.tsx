@@ -208,20 +208,15 @@ export const AboutPage = (): JSX.Element => {
 
       <section className="w-full pb-20">
         <motion.div
-          className="container mx-auto px-4 max-w-6xl"
+          className="container mx-auto px-4 max-w-6xl grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
           initial="hidden"
           whileInView="visible"
           viewport={scrollViewport}
           variants={sectionReveal}
         >
-          <motion.div
-            variants={fadeInUp}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
-          >
-            {portfolioStats.map((stat) => (
-              <PortfolioStatCard key={stat.label} stat={stat} />
-            ))}
-          </motion.div>
+          {portfolioStats.map((stat) => (
+            <PortfolioStatCard key={stat.label} stat={stat} />
+          ))}
         </motion.div>
       </section>
 
