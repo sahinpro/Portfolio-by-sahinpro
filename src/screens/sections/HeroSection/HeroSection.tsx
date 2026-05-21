@@ -2,6 +2,7 @@ import LightRays from "@/components/LightRays";
 import { getSocialBrand } from "@/components/public/socialBrands";
 import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
 import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
+import { AboutCodeWindow } from "@/screens/sections/AboutCodeSection/AboutCodeWindow";
 import { motion } from "framer-motion";
 import { useRef } from "react";
 import { HeroContent } from "./HeroContent";
@@ -21,11 +22,24 @@ export const HeroSection = (): JSX.Element => {
   };
 
   const contentVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, x: -24 },
     visible: {
       opacity: 1,
-      y: 0,
-      transition: { duration: 0.65, delay: 0.15, ease: [0.37, 0.04, 0.29, 1.01] },
+      x: 0,
+      transition: {
+        duration: 0.65,
+        delay: 0.1,
+        ease: [0.37, 0.04, 0.29, 1.01],
+      },
+    },
+  };
+
+  const editorVariants = {
+    hidden: { opacity: 0, x: 24 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.7, delay: 0.2, ease: [0.37, 0.04, 0.29, 1.01] },
     },
   };
 
@@ -34,7 +48,7 @@ export const HeroSection = (): JSX.Element => {
     visible: {
       opacity: 1,
       transition: {
-        delayChildren: 0.5,
+        delayChildren: 0.45,
         staggerChildren: 0.07,
       },
     },
@@ -60,7 +74,7 @@ export const HeroSection = (): JSX.Element => {
   };
 
   return (
-    <section className="relative w-full overflow-hidden py-12 min-h-screen flex items-center justify-center">
+    <section className="relative w-full overflow-hidden min-h-screen flex items-center pt-24 sm:pt-28 pb-12 lg:pb-16">
       <div className="absolute inset-0 w-full h-full z-0">
         <LightRays
           raysOrigin="top-center"
@@ -84,49 +98,53 @@ export const HeroSection = (): JSX.Element => {
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="relative flex flex-col items-center justify-center py-8 z-[2] w-full"
+        className="relative z-[2] container mx-auto px-4 "
       >
-        <motion.div variants={contentVariants}>
-          <HeroContent />
-        </motion.div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 xl:gap-16 items-center">
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+            <motion.div variants={contentVariants} className="w-full">
+              <HeroContent />
+            </motion.div>
 
-        <motion.div
-          ref={(el) => {
-            if (el) el.style.transform = "translateZ(0)";
-          }}
-          variants={socialVariants}
-          className="flex items-center gap-2 mt-8 min-h-[32px]"
-        >
-          {!socialLoading || socialLinks.length > 0
-            ? socialLinks.map((link, index) => {
-                const { brandColor, bg } = getSocialBrand(link);
-                return (
-                  <motion.a
-                    key={link.id}
-                    ref={(el) => {
-                      socialLinksRef.current[index] = el;
-                    }}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={link.platform}
-                    aria-label={link.platform}
-                    variants={iconVariants}
-                    whileHover="hover"
-                    whileTap="tap"
-                    className={`group w-8 h-8 rounded-xl bg-white/5 border border-white/10
+            <motion.div
+              variants={socialVariants}
+              className="flex items-center justify-center lg:justify-start gap-2 mt-8 min-h-[32px] w-full"
+            >
+              {!socialLoading || socialLinks.length > 0
+                ? socialLinks.map((link, index) => {
+                    const { brandColor, bg } = getSocialBrand(link);
+                    return (
+                      <motion.a
+                        key={link.id}
+                        ref={(el) => {
+                          socialLinksRef.current[index] = el;
+                        }}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={link.platform}
+                        aria-label={link.platform}
+                        variants={iconVariants}
+                        whileTap="tap"
+                        className={`group w-8 h-8 rounded-xl bg-white/5 border border-white/10
                   flex items-center justify-center ${bg}
                   transition-all duration-200`}
-                    style={{ ["--brand-color" as string]: brandColor }}
-                  >
-                    <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
-                      <SocialLinkGlyph link={link} />
-                    </span>
-                  </motion.a>
-                );
-              })
-            : null}
-        </motion.div>
+                        style={{ ["--brand-color" as string]: brandColor }}
+                      >
+                        <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
+                          <SocialLinkGlyph link={link} />
+                        </span>
+                      </motion.a>
+                    );
+                  })
+                : null}
+            </motion.div>
+          </div>
+
+          <motion.div variants={editorVariants} className="w-full min-w-0">
+            <AboutCodeWindow startOnMount />
+          </motion.div>
+        </div>
       </motion.div>
     </section>
   );

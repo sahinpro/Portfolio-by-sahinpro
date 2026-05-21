@@ -12,6 +12,7 @@ interface CTAButtonProps {
   accentClassName?: string;
   showArrow?: boolean;
   leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
 }
@@ -25,6 +26,7 @@ export const CTAButton = ({
   accentClassName,
   showArrow = true,
   leftIcon,
+  rightIcon,
   type = "button",
   disabled = false,
 }: CTAButtonProps) => {
@@ -42,13 +44,15 @@ export const CTAButton = ({
     useAccent && accentClassName,
   );
 
-  const arrowIcon = showArrow ? (
-    variant === "secondary" ? (
-      <ArrowUpRight className="w-5 h-5 text-white" />
-    ) : (
-      <ArrowUpRight className="w-5 h-5" />
-    )
-  ) : null;
+  const trailingIcon =
+    rightIcon ??
+    (showArrow ? (
+      variant === "secondary" ? (
+        <ArrowUpRight className="w-5 h-5 text-white" />
+      ) : (
+        <ArrowUpRight className="w-5 h-5" />
+      )
+    ) : null);
 
   const renderContent = () => {
     if (variant === "secondary") {
@@ -64,7 +68,11 @@ export const CTAButton = ({
               {children}
             </span>
           </span>
-          {arrowIcon}
+          {trailingIcon ? (
+            <span className="inline-flex shrink-0 items-center text-white" aria-hidden>
+              {trailingIcon}
+            </span>
+          ) : null}
           <div className="absolute top-0 left-[calc(50.00%_-_48px)] w-[97px] h-px bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,1)_42%,rgba(255,255,255,0)_100%)]" />
           <div className="absolute top-0 left-[calc(50.00%_-_48px)] w-[97px] h-px blur-[2px] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,1)_42%,rgba(255,255,255,0)_100%)]" />
         </>
@@ -74,7 +82,7 @@ export const CTAButton = ({
     return (
       <>
         {children}
-        {arrowIcon}
+        {trailingIcon}
       </>
     );
   };

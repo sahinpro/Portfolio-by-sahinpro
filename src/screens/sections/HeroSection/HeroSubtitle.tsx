@@ -1,32 +1,17 @@
-import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
-import { useMemo } from "react";
-import { TypingTextEffect } from "./TypingTextEffect";
+const HERO_SUBTITLE = "Full Stack Web Developer & AI Engineer.";
 
-const TYPEWRITER_FALLBACK = [
-  "Front-End Web Developer",
-  "Writing clean, efficient and impactful code",
-  "Always learning, building and innovating",
-  "WordPress to Full-Stack Development",
-  "Crafting fast and user-friendly web experience",
-];
+const subtitleStyle = {
+  backgroundImage:
+    "linear-gradient(169deg,rgba(120, 156, 255, 1) 0%, rgba(149, 0, 255, 1) 35%, rgba(195, 122, 255, 1) 100%)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  backgroundClip: "text",
+} as const;
 
 export const HeroSubtitle = () => {
-  const { settings } = useSiteSettingsMap();
-  const words = useMemo(() => {
-    try {
-      const raw = settings.hero_typewriter_words?.trim();
-      if (!raw) return TYPEWRITER_FALLBACK;
-      const j = JSON.parse(raw) as unknown;
-      if (!Array.isArray(j) || !j.every((x) => typeof x === "string")) return TYPEWRITER_FALLBACK;
-      return j.length ? j : TYPEWRITER_FALLBACK;
-    } catch {
-      return TYPEWRITER_FALLBACK;
-    }
-  }, [settings.hero_typewriter_words]);
-
   return (
-    <div className="relative flex items-center justify-center font-normal text-xl lg:text-5xl  text-center tracking-[-0.2px] min-h-[24px] px-4">
-      <TypingTextEffect words={words} />
-    </div>
+    <p className="section-hero-subtitle font-normal leading-relaxed text-2xl lg:text-5xl text-center lg:text-left tracking-[-0.2px] w-full">
+      <span style={subtitleStyle}>{HERO_SUBTITLE}</span>
+    </p>
   );
 };

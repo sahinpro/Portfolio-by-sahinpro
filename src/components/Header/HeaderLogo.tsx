@@ -1,16 +1,20 @@
+import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
 import { Link } from "react-router-dom";
 
 export const HeaderLogo = () => {
+  const { settings } = useSiteSettingsMap();
+  const name = settings.hero_title?.trim() || "Sahin Alam";
+
   return (
     <Link
       to="/"
-      className="flex items-center space-x-2 group cursor-pointer z-10"
+      className="flex items-center gap-2.5 group cursor-pointer z-10"
       aria-label="Home"
     >
       <img
-        src="/logo.svg"
-        alt="Sahin Alam"
-        className="w-8 h-8 sm:w-10 sm:h-10"
+        src="/sahin.png"
+        alt={name}
+        className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white/20 shadow-md ring-1 ring-white/10 transition-transform duration-200 group-hover:scale-105"
       />
     </Link>
   );

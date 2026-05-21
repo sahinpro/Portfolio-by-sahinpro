@@ -6,16 +6,14 @@ import { FooterSection } from "@/screens/sections/FooterSection";
 import { GetStartedSection } from "@/screens/sections/GetStartedSection";
 import { HeroSection } from "@/screens/sections/HeroSection";
 import { SkillsSection } from "@/screens/sections/SkillsSection";
-import { VideoSection } from "@/screens/sections/VideoSection";
 import { WhyChooseUsSection } from "@/screens/sections/WhyChooseUsSection";
 
 export const HomePage = (): JSX.Element => {
   return (
     <div className="flex flex-col items-start relative bg-[#050505] min-h-screen w-full overflow-x-hidden">
       <PublicSeo />
-      <Header /> 
+      <Header />
       <HeroSection />
-      <VideoSection />
       <SkillsSection />
       <DevelopmentProcessSection />
       <CustomerStoriesSection />

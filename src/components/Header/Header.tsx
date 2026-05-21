@@ -102,7 +102,7 @@ const Header = () => {
       >
         <div className="absolute bottom-0 left-0 right-0 h-px [background:radial-gradient(50%_50%_at_50%_50%,rgba(224,224,224,.2)_0%,rgba(225,225,225,0)_100%)] transition-all duration-[400ms]" />
 
-        <div className="px-0 lg:px-3 rounded-xl w-full relative z-10 ">
+        <div className="px-0 lg:px-1 rounded-xl w-full relative z-10 ">
           <div className="flex items-center justify-between h-16 w-full">
             <div ref={logoRef}>
               <HeaderLogo />
@@ -120,7 +120,7 @@ const Header = () => {
                 <CTAButton
                   variant="primary"
                   href="/contact"
-                  className="hidden lg:inline-flex self-end text-md font-medium"
+                  className="hidden lg:inline-flex self-end text-md font-medium rounded-[10px]"
                 >
                   Get In Touch
                 </CTAButton>

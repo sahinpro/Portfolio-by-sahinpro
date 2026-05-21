@@ -7,7 +7,7 @@ export const HeroDescription = () => {
   const { settings } = useSiteSettingsMap();
   const text = settings.hero_description?.trim() || FALLBACK;
   return (
-    <p className="text-white text-center text-lg max-w-2xl">
+    <p className="text-white text-center lg:text-left text-lg max-w-2xl">
       {text}
     </p>
   );

@@ -1,27 +1,25 @@
 import { CTAButton } from "@/components/CTAButton";
 import { useActiveResume } from "@/hooks/useActiveResume";
 import { triggerResumeDownload } from "@/lib/resumeDownload";
+import { DownloadIcon } from "lucide-react";
 import { HeroDescription } from "./HeroDescription";
 import { HeroSubtitle } from "./HeroSubtitle";
 import { HeroTitle } from "./HeroTitle";
-import { ProfileImage } from "./ProfileImage";
 
 export const HeroContent = (): JSX.Element => {
   const { data: resume, loading } = useActiveResume();
 
   return (
-    <div className="flex flex-col pt-10 items-center gap-4 max-w-3.5xl w-full px-4">
-      <ProfileImage />
-
-      <div className="flex flex-col items-center gap-2 w-full">
+    <div className="flex flex-col items-center lg:items-start gap-4 w-full max-w-xl lg:max-w-none">
+      <div className="flex flex-col items-center lg:items-start gap-2 w-full">
         <HeroTitle />
         <HeroSubtitle />
       </div>
       <HeroDescription />
 
-      <div className="inline-flex items-start gap-3 relative flex-wrap justify-center">
+      <div className="inline-flex items-center gap-3 flex-wrap justify-center lg:justify-start">
         <CTAButton
-          className="text-md font-medium "
+          className="text-md font-medium"
           href="/projects"
           variant="primary"
         >
@@ -30,9 +28,10 @@ export const HeroContent = (): JSX.Element => {
 
         {!loading && resume ? (
           <CTAButton
-            className="text-md font-semibold "
+            className="text-md font-semibold gap-2"
             variant="secondary"
             showArrow={false}
+            rightIcon={<DownloadIcon className="w-4 h-4" />}
             onClick={() => void triggerResumeDownload(resume)}
           >
             Download resume

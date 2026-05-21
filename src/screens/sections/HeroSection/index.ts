@@ -1,4 +1,3 @@
-export { TypingTextEffect } from "./TypingTextEffect";
 export { ProfileImage } from "./ProfileImage";
 export { HeroTitle } from "./HeroTitle";
 export { HeroSubtitle } from "./HeroSubtitle";
