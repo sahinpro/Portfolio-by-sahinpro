@@ -1,11 +1,8 @@
-import {
-  scrollViewport,
-  sectionEase,
-} from "@/constants/scrollMotion";
+import { PROFILE } from "@/constants/profile";
+import { scrollViewport, sectionEase } from "@/constants/scrollMotion";
 import type { TimelineEntry } from "@/screens/sections/CareerJourneySection/careerJourneyData";
 import { motion } from "framer-motion";
 import { CareerTimelineList } from "./CareerTimelineList";
-import { SectionLabel } from "./SectionLabel";
 
 const PROFILE_IMAGE = "/sahin.png";
 
@@ -15,8 +12,7 @@ const timelineCardClass =
 export const CareerJourneyPanel = ({
   entries,
   showImage = true,
-  showMilestonesLabel = true,
-  imageCaption = "Building the web one project at a time — WordPress to full stack.",
+  imageCaption = PROFILE.imageCaption,
 }: {
   entries: TimelineEntry[];
   showImage?: boolean;
@@ -26,12 +22,12 @@ export const CareerJourneyPanel = ({
   <div
     className={
       showImage
-        ? "w-full grid grid-cols-1 lg:grid-cols-[minmax(260px,340px)_1fr] gap-10 lg:gap-14 items-start"
+        ? "w-full flex flex-col lg:flex-row gap-10 lg:gap-14 items-center"
         : "w-full"
     }
   >
     {showImage ? (
-      <div className="flex flex-col items-center lg:items-start lg:sticky lg:top-28">
+      <div className="lg:w-1/3 w-full flex flex-col items-center justify-center ">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -43,35 +39,27 @@ export const CareerJourneyPanel = ({
             className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-violet-600/20 via-purple-600/10 to-blue-600/15 blur-2xl"
             aria-hidden
           />
-          <div className="relative p-1 rounded-2xl bg-gradient-to-br from-violet-500/30 via-white/10 to-purple-600/20">
+          <div className="w-full h-full relative p-1 rounded-full bg-gradient-to-br from-violet-500/30 via-white/10 to-purple-600/20">
             <img
               src={PROFILE_IMAGE}
               alt="Sahin Alam"
-              className="relative w-full max-w-[280px] sm:max-w-[320px] lg:max-w-none mx-auto lg:mx-0 aspect-[4/5] object-cover rounded-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+              className="relative w-full h-full object-cover rounded-full border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
             />
           </div>
         </motion.div>
-        <p className="mt-5 text-center lg:text-left text-sm text-white/40 max-w-[280px] leading-relaxed">
+        <p className="mt-5 text-center text-sm text-white/40 max-w-[480px] leading-relaxed">
           {imageCaption}
         </p>
       </div>
     ) : null}
 
-    <div className="min-w-0">
+    <div className="flex-1">
       <div className={timelineCardClass}>
         <div
           className="pointer-events-none absolute inset-0 bg-gradient-to-br from-violet-600/[0.04] via-transparent to-purple-600/[0.03]"
           aria-hidden
         />
         <div className="relative">
-          {showMilestonesLabel ? (
-            <>
-              <SectionLabel>Milestones</SectionLabel>
-              <h3 className="mt-4 mb-6 text-xl sm:text-2xl font-bold text-white tracking-tight">
-                Career path
-              </h3>
-            </>
-          ) : null}
           <CareerTimelineList entries={entries} />
         </div>
       </div>

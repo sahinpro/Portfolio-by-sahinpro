@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "type": "module",
   "name": "portfolio",
-  "description": "Professional portfolio website for Sahin Alam - Full Stack Web Developer",
+  "description": "Professional portfolio website for Sahin Alam - Full Stack Developer (React, Next.js, WordPress)",
   "author": "Sahin Alam",
   "license": "MIT",
   "scripts": {

@@ -1,11 +1,12 @@
+import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
+import { LandscapePageCtaSection } from "@/components/section";
 import { PublicSeo } from "@/components/public/PublicSeo";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { usePublishedProject } from "@/hooks/usePublishedProject";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import { isLegacyProjectIdParam, projectDetailPath } from "@/lib/projectPaths";
 import { FooterSection } from "@/screens/sections/FooterSection";
-import { GetStartedSection } from "@/screens/sections/GetStartedSection";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -505,8 +506,24 @@ export function ProjectDetailPage(): JSX.Element {
           )}
         </div>
 
-        {!loading && !error && project ? <GetStartedSection /> : null}
       </article>
+
+      {!loading && !error && project ? (
+        <LandscapePageCtaSection
+          title="Let's work together"
+          description="Have an exciting project in mind? Let's discuss how I can help bring your vision to life."
+          actions={
+            <>
+              <CTAButton href="/projects" variant="primary">
+                View my work
+              </CTAButton>
+              <CTAButton href="/contact" variant="secondary" showArrow>
+                Get in touch
+              </CTAButton>
+            </>
+          }
+        />
+      ) : null}
 
       <FooterSection />
     </div>

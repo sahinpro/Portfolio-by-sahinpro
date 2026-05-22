@@ -1,18 +1,17 @@
+import { PROFILE, resolveHeroDescription } from "@/constants/profile";
 import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
 import { useMemo } from "react";
 import {
   type AboutCodeProfile,
   buildAboutCode,
   buildTerminalLines,
+  defaultPlatforms,
   defaultStack,
-  parseTypewriterWords,
   type TerminalLine,
 } from "./aboutCodeContent";
 
-const FALLBACK_NAME = "Sahin Alam";
-const FALLBACK_ROLE = "Full Stack Web Developer";
-const FALLBACK_BIO =
-  "Web Designer & Developer specializing in WordPress, now diving into Full Stack Web Development.";
+const FALLBACK_NAME = PROFILE.name;
+const FALLBACK_ROLE = PROFILE.role;
 
 export function useAboutCodeProfile(): {
   profile: AboutCodeProfile;
@@ -23,15 +22,12 @@ export function useAboutCodeProfile(): {
   const { settings, loading: settingsLoading } = useSiteSettingsMap();
 
   const profile = useMemo<AboutCodeProfile>(() => {
-    const typewriterWords = parseTypewriterWords(settings.hero_typewriter_words);
-    const role =
-      typewriterWords[0]?.replace(/\.$/, "") || FALLBACK_ROLE;
-
     return {
       name: settings.hero_title?.trim() || FALLBACK_NAME,
-      role,
-      bio: settings.hero_description?.trim() || FALLBACK_BIO,
+      role: FALLBACK_ROLE,
+      bio: resolveHeroDescription(settings.hero_description),
       stack: defaultStack(),
+      platforms: defaultPlatforms(),
       available: settings.availability_status !== "unavailable",
     };
   }, [settings]);

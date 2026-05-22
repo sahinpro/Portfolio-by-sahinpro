@@ -11,7 +11,7 @@ const faqItems = [
   {
     question: "What technologies do you specialize in?",
     answer:
-      "I specialize in modern web technologies including React, Next.js, Node.js, WordPress, Tailwind CSS, MongoDB, and more. I stay updated with the latest trends and best practices in web development.",
+      "I specialize in JavaScript, React, Next.js, TypeScript, WordPress, WooCommerce, Shopify, headless WordPress, Tailwind CSS, MongoDB, Figma-to-web builds, and on-page SEO — with 3+ years and 200+ delivered client projects.",
   },
   {
     question: "How long does a typical project take?",

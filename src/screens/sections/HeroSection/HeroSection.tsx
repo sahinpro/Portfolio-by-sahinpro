@@ -87,7 +87,7 @@ export const HeroSection = (): JSX.Element => {
         variants={containerVariants}
         className="relative z-[2] container mx-auto px-4 "
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 xl:gap-16 items-center">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 xl:gap-16 justify-between items-center">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
             <motion.div variants={contentVariants} className="w-full">
               <HeroContent />
@@ -128,7 +128,10 @@ export const HeroSection = (): JSX.Element => {
             </motion.div>
           </div>
 
-          <motion.div variants={editorVariants} className="w-full min-w-0">
+          <motion.div
+            variants={editorVariants}
+            className="w-full min-w-0 lg:w-1/2 aspect-video"
+          >
             <AboutCodeWindow startOnMount />
           </motion.div>
         </div>

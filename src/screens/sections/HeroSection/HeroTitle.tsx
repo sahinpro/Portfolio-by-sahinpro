@@ -1,9 +1,10 @@
 import { TextEffect } from "@/components/MotionPrimitives/TextEffect";
+import { PROFILE } from "@/constants/profile";
 import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
 
 export const HeroTitle = () => {
   const { settings } = useSiteSettingsMap();
-  const title = settings.hero_title?.trim() || "Sahin Alam";
+  const title = settings.hero_title?.trim() || PROFILE.name;
   return (
     <TextEffect
       per="char"

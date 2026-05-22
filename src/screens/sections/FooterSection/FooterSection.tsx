@@ -1,11 +1,12 @@
 import { HeaderLogo } from "@/components/Header";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import { TextEffect } from "@/components/MotionPrimitives/TextEffect";
+import { PROFILE } from "@/constants/profile";
 import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
 
 export const FooterSection = (): JSX.Element => {
   const { settings } = useSiteSettingsMap();
-  const displayName = settings.hero_title?.trim() || "Sahin Alam";
+  const displayName = settings.hero_title?.trim() || PROFILE.name;
   const year = settings.copyright_year?.trim() || String(new Date().getFullYear());
 
   return (

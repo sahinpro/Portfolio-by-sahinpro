@@ -12,8 +12,8 @@ export type PortfolioStat = {
 export const portfolioStats: PortfolioStat[] = [
   {
     icon: Code2,
-    value: "300+",
-    label: "Completed Projects",
+    value: "200+",
+    label: "Websites Delivered",
     color: "from-blue-500/20 to-cyan-500/10",
     border: "border-blue-500/20",
   },

@@ -11,19 +11,19 @@ import { motion } from "framer-motion";
 const skillsCards: BentoCardProps[] = [
   {
     color: "#0d0d0d",
-    title: "Frontend Development",
+    title: "Full Stack Development",
     description:
-      "Expert in crafting beautiful, responsive user interfaces with modern technologies. Specialized in React, Next.js, Tailwind CSS, and creating amazing user experiences.",
-    label: "Frontend",
+      "Expert in crafting responsive interfaces with React, Next.js, and TypeScript — plus 200+ Figma and PSD conversions into production-ready pages.",
+    label: "Full Stack",
     image:
       "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200&q=90&fm=png",
   },
   {
     color: "#0d0d0d",
-    title: "Full Stack Solutions",
+    title: "Backend & APIs",
     description:
-      "End-to-end web application development from database design to frontend implementation. Building scalable solutions with Node.js, Express, MongoDB, and more.",
-    label: "Full Stack",
+      "End-to-end web application development from database design to deployment. Building scalable solutions with Node.js, Express, MongoDB, and more.",
+    label: "Backend",
     image:
       "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&q=90&fm=png",
   },
@@ -31,7 +31,7 @@ const skillsCards: BentoCardProps[] = [
     color: "#0d0d0d",
     title: "WordPress & CMS Development",
     description:
-      "Professional WordPress website development with custom themes, plugins, and optimization for performance and SEO.",
+      "Professional WordPress and Shopify development — custom themes, store setup, plugins, and optimization for performance and SEO.",
     label: "CMS",
     image:
       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=90&fm=png",

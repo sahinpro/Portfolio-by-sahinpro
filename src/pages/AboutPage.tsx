@@ -4,6 +4,7 @@ import { PublicSeo } from "@/components/public/PublicSeo";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import {
   CareerJourneyPanel,
+  LandscapePageCtaSection,
   PortfolioStatCard,
   SectionHeader,
   SectionLabel,
@@ -15,7 +16,11 @@ import {
 } from "@/constants/scrollMotion";
 import { useActiveResume } from "@/hooks/useActiveResume";
 import { triggerResumeDownload } from "@/lib/resumeDownload";
-import { careerTimeline } from "@/screens/sections/CareerJourneySection/careerJourneyData";
+import { PROFILE } from "@/constants/profile";
+import {
+  careerTimeline,
+  JOURNEY_DESCRIPTION,
+} from "@/screens/sections/CareerJourneySection/careerJourneyData";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { portfolioStats } from "@/screens/sections/StatsSection/statsData";
 import { motion, useInView } from "framer-motion";
@@ -34,9 +39,6 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 
-const JOURNEY_DESCRIPTION =
-  "From self-taught beginnings to agency work — building real products and growing with every project.";
-
 const highlights: {
   icon: LucideIcon;
   title: string;
@@ -47,37 +49,37 @@ const highlights: {
 }[] = [
   {
     icon: Paintbrush,
-    title: "WordPress Expert",
+    title: "WordPress, Shopify & WooCommerce",
     description:
-      "Custom plugin development and theme customization with 200+ successful projects.",
+      "200+ delivered sites and stores — WordPress themes, WooCommerce and Shopify builds, Elementor, and on-page SEO for international clients.",
     tag: "CMS",
     color: "from-orange-500/10 to-amber-500/5",
     border: "border-orange-500/20",
   },
   {
     icon: Zap,
-    title: "Full Stack Dev",
+    title: "React & Next.js",
     description:
-      "Building modern web applications with React, Next.js, Express.js, and MongoDB.",
+      "Modern full stack apps and platforms — including payment gateways with Next.js, TypeScript, and MongoDB.",
     tag: "Full Stack",
     color: "from-yellow-500/10 to-lime-500/5",
     border: "border-yellow-500/20",
   },
   {
     icon: Rocket,
-    title: "Problem Solver",
+    title: "Design to Web",
     description:
-      "Transforming complex requirements into elegant, scalable solutions.",
-    tag: "Strategy",
+      "200+ Figma and PSD conversions into pixel-perfect, responsive pages across browsers and devices.",
+    tag: "UI",
     color: "from-sky-500/10 to-indigo-500/5",
     border: "border-sky-500/20",
   },
   {
     icon: BookOpen,
-    title: "Continuous Learner",
+    title: "Performance & SEO",
     description:
-      "Always exploring new technologies and best practices to stay ahead.",
-    tag: "Growth",
+      "Core Web Vitals optimization, lazy loading, and asset tuning — often improving load speed 40%+ on client projects.",
+    tag: "Speed",
     color: "from-violet-500/10 to-purple-500/5",
     border: "border-violet-500/20",
   },
@@ -119,16 +121,13 @@ const fadeStep = {
 
 export const AboutPage = (): JSX.Element => {
   const [copied, setCopied] = useState(false);
-  const email = "sahinhub@gmail.com";
+  const email = PROFILE.email;
   const { data: activeResume, loading: resumeLoading } = useActiveResume();
 
   const heroRef = useRef<HTMLDivElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
-
   const heroInV = useInView(heroRef, scrollReveal);
   const highlightInV = useInView(highlightRef, scrollReveal);
-  const ctaInV = useInView(ctaRef, scrollReveal);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(email).then(() => {
@@ -182,22 +181,7 @@ export const AboutPage = (): JSX.Element => {
             variants={fadeStep}
             className="max-w-2xl text-lg text-white/60 leading-relaxed"
           >
-            Since 2023 I've been a{" "}
-            <span className="text-white font-semibold">
-              Junior Web Developer
-            </span>{" "}
-            at{" "}
-            <a
-              href="https://wenextcoder.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-violet-400 hover:text-violet-300 underline underline-offset-2 transition-colors"
-            >
-              We Next Coder Agency
-            </a>
-            . My journey started with WordPress and has grown into Full Stack
-            Development — always pushing for clean code, great UX, and real
-            business impact.
+            {PROFILE.aboutIntro}
           </motion.p>
 
           <motion.div variants={fadeStep}>
@@ -294,73 +278,47 @@ export const AboutPage = (): JSX.Element => {
         </motion.div>
       </section>
 
-      <section className="w-full pb-28">
-        <motion.div
-          ref={ctaRef}
-          initial="hidden"
-          animate={ctaInV ? "visible" : "hidden"}
-          variants={fadeUp(0)}
-          className="container mx-auto px-4"
-        >
-          <div
-            className="relative rounded-3xl border border-white/[0.08] bg-gradient-to-br from-white/[0.04] to-white/[0.01]
-            backdrop-blur-sm p-10 md:p-14 overflow-hidden flex flex-col md:flex-row
-            items-center justify-between gap-8"
-          >
-            {/* glow */}
-            <div
-              className="pointer-events-none absolute -top-20 left-1/3 w-64 h-64
-              bg-violet-600/10 rounded-full blur-3xl"
-            />
-
-            <div>
-              <h3 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
-                Let's work together
-              </h3>
-              <p className="text-white/50 max-w-md leading-relaxed">
-                Open to new opportunities, freelance projects, and interesting
-                collaborations. Reach out and let's make something great.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3 flex-shrink-0">
-              {!resumeLoading && activeResume ? (
-                <CTAButton
-                  onClick={handleResumeClick}
-                  variant="primary"
-                  showArrow={false}
-                >
-                  <Download className="w-4 h-4 mr-1.5" />
-                  Resume
-                </CTAButton>
-              ) : null}
+      <LandscapePageCtaSection
+        title="Let's work together"
+        description="Available for freelance, full-time, and remote collaboration — startups, redesigns, or joining your team. Let's build something great."
+        actions={
+          <>
+            {!resumeLoading && activeResume ? (
               <CTAButton
-                className="text-md font-medium"
-                onClick={handleCopy}
-                variant="secondary"
+                onClick={handleResumeClick}
+                variant="primary"
                 showArrow={false}
-                leftIcon={
-                  copied ? (
-                    <ClipboardCheck className="w-5 h-5" />
-                  ) : (
-                    <Copy className="w-5 h-5" />
-                  )
-                }
               >
-                {copied ? "Copied!" : "Copy Email"}
+                <Download className="w-4 h-4 mr-1.5" />
+                Resume
               </CTAButton>
-              <CTAButton
-                className="text-md font-medium"
-                href="/contact"
-                variant="secondary"
-                showArrow={true}
-              >
-                Schedule Call
-              </CTAButton>
-            </div>
-          </div>
-        </motion.div>
-      </section>
+            ) : null}
+            <CTAButton
+              className="text-md font-medium"
+              onClick={handleCopy}
+              variant="secondary"
+              showArrow={false}
+              leftIcon={
+                copied ? (
+                  <ClipboardCheck className="w-5 h-5" />
+                ) : (
+                  <Copy className="w-5 h-5" />
+                )
+              }
+            >
+              {copied ? "Copied!" : "Copy Email"}
+            </CTAButton>
+            <CTAButton
+              className="text-md font-medium"
+              href="/contact"
+              variant="secondary"
+              showArrow={true}
+            >
+              Schedule Call
+            </CTAButton>
+          </>
+        }
+      />
 
       <section className="w-full pb-28">
         <motion.div

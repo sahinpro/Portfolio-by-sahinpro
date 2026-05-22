@@ -9,10 +9,7 @@ import {
   sectionReveal,
 } from "@/constants/scrollMotion";
 import { motion } from "framer-motion";
-import { careerTimeline } from "./careerJourneyData";
-
-const JOURNEY_DESCRIPTION =
-  "From self-taught beginnings to agency work — building real products and growing with every project.";
+import { careerTimeline, JOURNEY_DESCRIPTION } from "./careerJourneyData";
 
 export const CareerJourneySection = (): JSX.Element => {
   return (

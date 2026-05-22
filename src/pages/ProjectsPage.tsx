@@ -419,7 +419,7 @@ export const ProjectsPage = (): JSX.Element => {
               className="text-lg text-white/50 max-w-xl mb-10"
             >
               A curated selection of work — from full-stack applications to
-              WordPress builds and everything in between.
+              WordPress, Shopify, and WooCommerce builds.
             </motion.p>
 
             {/* Controls */}

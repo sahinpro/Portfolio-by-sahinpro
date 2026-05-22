@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { PROFILE } from "@/constants/profile";
 import { submitContactToSupabase } from "@/lib/submitContact";
 import { isSupabaseBrowserConfigured } from "@/lib/supabaseFunctions";
 import { FooterSection } from "@/screens/sections/FooterSection";
@@ -48,8 +49,8 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email",
-    value: "sahinhub@gmail.com",
-    href: "mailto:sahinhub@gmail.com",
+    value: PROFILE.email,
+    href: `mailto:${PROFILE.email}`,
     color: "text-violet-400",
     bg: "bg-violet-500/10",
     border: "border-violet-500/20",
@@ -57,9 +58,9 @@ const contactInfo = [
   {
     icon: BsWhatsapp,
     title: "Chat on WhatsApp",
-    value: "+8801791992313",
+    value: PROFILE.phone,
     desc: "WhatsApp is the best way to get in touch with me.",
-    href: "tel:+8801791992313",
+    href: PROFILE.whatsappUrl,
     color: "text-green-400",
     bg: "bg-blue-500/10",
     border: "border-blue-500/20",
@@ -67,7 +68,7 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Location",
-    value: "Sunamganj, Sylhet, Bangladesh",
+    value: PROFILE.location,
     href: "#",
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",

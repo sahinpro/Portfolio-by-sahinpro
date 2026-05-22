@@ -1,6 +1,19 @@
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
 import { PublicSeo } from "@/components/public/PublicSeo";
+import {
+  LandscapePageCtaSection,
+  SectionHeader,
+  SectionLabel,
+  WorkProcessPanel,
+  type WorkProcessStep,
+} from "@/components/section";
+import Glow from "@/components/ui/glow";
+import {
+  fadeInUp,
+  scrollViewport,
+  sectionReveal,
+} from "@/constants/scrollMotion";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
@@ -134,30 +147,38 @@ const services: Service[] = [
   },
 ];
 
-const process = [
+const processSteps: WorkProcessStep[] = [
   {
     step: "01",
     title: "Discovery",
-    desc: "We align on goals, audience, and technical requirements.",
+    description: "We align on goals, audience, and technical requirements.",
     icon: Search,
+    accent: "from-blue-500/10 to-cyan-500/5",
+    border: "border-blue-500/20",
   },
   {
     step: "02",
     title: "Design",
-    desc: "Wireframes and mockups — approved before a line is coded.",
+    description: "Wireframes and mockups — approved before a line is coded.",
     icon: Paintbrush,
+    accent: "from-pink-500/10 to-rose-500/5",
+    border: "border-pink-500/20",
   },
   {
     step: "03",
     title: "Build",
-    desc: "Clean, tested code delivered in transparent milestones.",
+    description: "Clean, tested code delivered in transparent milestones.",
     icon: Code,
+    accent: "from-yellow-500/10 to-amber-500/5",
+    border: "border-yellow-500/20",
   },
   {
     step: "04",
     title: "Launch",
-    desc: "Deployed, optimised, and handed over with full docs.",
+    description: "Deployed, optimised, and handed over with full docs.",
     icon: Rocket,
+    accent: "from-emerald-500/10 to-teal-500/5",
+    border: "border-emerald-500/20",
   },
 ];
 
@@ -175,15 +196,6 @@ const scrollReveal = {
   amount: 0.2 as const,
   margin: "0px 0px -10% 0px" as const,
 };
-
-const SectionLabel = ({ children }: { children: string }) => (
-  <span
-    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-widest
-    uppercase bg-white/5 border border-white/10 text-white/50 mb-4"
-  >
-    {children}
-  </span>
-);
 
 const ServiceCard = ({
   service,
@@ -267,12 +279,7 @@ const ServiceCard = ({
 
 export const ServicesPage = (): JSX.Element => {
   const headerRef = useRef<HTMLDivElement>(null);
-  const processRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
-
   const headerInV = useInView(headerRef, scrollReveal);
-  const processInV = useInView(processRef, scrollReveal);
-  const ctaInV = useInView(ctaRef, scrollReveal);
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
@@ -291,7 +298,7 @@ export const ServicesPage = (): JSX.Element => {
             animate={headerInV ? "visible" : "hidden"}
             variants={fadeUp(0)}
           >
-            <SectionLabel>Services</SectionLabel>
+            <SectionLabel className="mb-4">Services</SectionLabel>
           </motion.div>
           <motion.h1
             initial="hidden"
@@ -327,111 +334,58 @@ export const ServicesPage = (): JSX.Element => {
       </section>
 
       <section className="w-full pb-24 relative overflow-hidden">
+        <Glow variant="center" className="-z-10 blur-3xl opacity-50" />
         <div
           className="pointer-events-none absolute inset-0
-          bg-gradient-to-b from-white/[0.01] via-white/[0.02] to-transparent"
+          bg-gradient-to-b from-violet-600/[0.03] via-transparent to-transparent"
+          aria-hidden
         />
 
-        <div ref={processRef} className="container mx-auto px-4">
+        <motion.div
+          className="container mx-auto px-4 max-w-6xl flex flex-col gap-12 relative z-10"
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+          variants={sectionReveal}
+        >
           <motion.div
-            initial="hidden"
-            animate={processInV ? "visible" : "hidden"}
-            variants={fadeUp(0)}
-            className="text-center mb-12"
+            variants={fadeInUp}
+            className="w-full py-10 max-w-3xl mx-auto"
           >
-            <SectionLabel>Process</SectionLabel>
-            <h2 className="text-4xl font-bold text-white tracking-tight">
-              How I work
-            </h2>
+            <SectionHeader
+              label="Process"
+              title="How I work"
+              description="A clear, collaborative workflow from first conversation to launch — with milestones you can track at every stage."
+            />
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {process.map((step, i) => (
-              <motion.div
-                key={step.step}
-                initial="hidden"
-                animate={processInV ? "visible" : "hidden"}
-                variants={fadeUp(i * 0.1)}
-                className="relative"
-              >
-                {/* connector line */}
-                {i < process.length - 1 && (
-                  <div
-                    className="hidden lg:block absolute top-9 left-[calc(50%+24px)] w-[calc(100%+20px-48px)]
-                    h-px bg-gradient-to-r from-white/10 to-transparent pointer-events-none"
-                  />
-                )}
-
-                <div
-                  className="flex flex-col items-center text-center gap-4 p-7 rounded-2xl
-                  border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04]
-                  hover:border-white/[0.12] transition-all duration-300"
-                >
-                  <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
-                    <step.icon className="size-5 text-white/70" />
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-bold tracking-widest text-white/20 uppercase">
-                      {step.step}
-                    </span>
-                    <h3 className="text-lg font-bold text-white mt-0.5 mb-2">
-                      {step.title}
-                    </h3>
-                    <p className="text-sm text-white/40 leading-relaxed">
-                      {step.desc}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="w-full pb-28">
-        <motion.div
-          ref={ctaRef}
-          initial="hidden"
-          animate={ctaInV ? "visible" : "hidden"}
-          variants={fadeUp(0)}
-          className="container mx-auto px-4"
-        >
-          <div
-            className="relative flex flex-col lg:flex-row items-center justify-between gap-8
-            rounded-3xl border border-white/[0.08] p-10 md:p-14 overflow-hidden
-            bg-gradient-to-br from-white/[0.03] to-transparent"
-          >
-            <div
-              className="pointer-events-none absolute -top-20 left-1/4 w-80 h-80
-              bg-violet-600/8 rounded-full blur-3xl"
-            />
-
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 mb-4 text-sm text-violet-400">
-                <Sparkles className="w-4 h-4" />
-                <span>Not sure what you need?</span>
-              </div>
-              <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">
-                Let's figure it out together
-              </h3>
-              <p className="text-white/50 max-w-md">
-                Book a free 30-minute discovery call. No pitch, just a real
-                conversation about your project and goals.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3 flex-shrink-0 justify-center">
-              <CTAButton href="/contact" variant="primary">
-                <Zap className="w-4 h-4 mr-1.5" />
-                Free consultation
-              </CTAButton>
-              <CTAButton href="/projects" variant="secondary">
-                View work
-              </CTAButton>
-            </div>
-          </div>
+          <motion.div variants={fadeInUp} className="w-full">
+            <WorkProcessPanel steps={processSteps} />
+          </motion.div>
         </motion.div>
       </section>
+
+      <LandscapePageCtaSection
+        eyebrow={
+          <div className="inline-flex items-center gap-2 text-sm text-violet-400">
+            <Sparkles className="w-4 h-4" />
+            <span>Not sure what you need?</span>
+          </div>
+        }
+        title="Let's figure it out together"
+        description="Book a free 30-minute discovery call. No pitch, just a real conversation about your project and goals."
+        actions={
+          <>
+            <CTAButton href="/contact" variant="primary">
+              <Zap className="w-4 h-4 mr-1.5" />
+              Free consultation
+            </CTAButton>
+            <CTAButton href="/projects" variant="secondary">
+              View work
+            </CTAButton>
+          </>
+        }
+      />
 
       <FooterSection />
     </div>

@@ -1,5 +1,7 @@
 import { BlogMarkdownBody } from "@/components/blog/BlogMarkdownBody";
+import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
+import { LandscapePageCtaSection } from "@/components/section";
 import { PublicSeo } from "@/components/public/PublicSeo";
 import { BLOG_COVER_PLACEHOLDER } from "@/constants/placeholders";
 import { usePublishedBlogPost } from "@/hooks/usePublishedBlogPost";
@@ -299,27 +301,27 @@ export const BlogPostPage = (): JSX.Element => {
                 </div>
               )}
 
-              {/* ── CTA ── */}
-              <div
-                className="mt-12 p-6 rounded-2xl border border-white/[0.07] bg-gradient-to-br
-                from-violet-500/[0.06] to-transparent text-center"
-              >
-                <p className="text-sm text-white/60 mb-3">
-                  Enjoyed this article?
-                </p>
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black
-                    text-sm font-semibold hover:bg-white/90 transition-colors"
-                >
-                  Get in touch
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
             </motion.div>
           )}
         </div>
       </article>
+
+      {!loading && !error && post ? (
+        <LandscapePageCtaSection
+          title="Enjoyed this article?"
+          description="Have a project in mind or want to collaborate? I'd love to hear from you."
+          actions={
+            <>
+              <CTAButton href="/blogs" variant="secondary">
+                More posts
+              </CTAButton>
+              <CTAButton href="/contact" variant="primary" showArrow>
+                Get in touch
+              </CTAButton>
+            </>
+          }
+        />
+      ) : null}
 
       <FooterSection />
     </div>

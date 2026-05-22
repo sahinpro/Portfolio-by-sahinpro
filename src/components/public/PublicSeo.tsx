@@ -4,7 +4,9 @@ import { useSeoForPage } from "@/hooks/useSeoForPage";
 import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
 
-const SITE_NAME = "Sahin Alam";
+import { PROFILE } from "@/constants/profile";
+
+const SITE_NAME = PROFILE.name;
 
 function buildKeywords(row: SeoSettingsRow | null): string | undefined {
   const k = row?.keywords?.trim();
