@@ -33,7 +33,7 @@ export const PortfolioStatCard = ({
       variants={statCardVariants}
       className={`relative flex flex-col items-center gap-3 p-5 sm:p-6 rounded-2xl border bg-gradient-to-br ${stat.color} ${stat.border}
       backdrop-blur-sm transition-shadow duration-300 group overflow-hidden
-      hover:shadow-[0_12px_40px_-12px_rgba(255,255,255,0.12)]`}
+      `}
     >
       <motion.div
         className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center"
