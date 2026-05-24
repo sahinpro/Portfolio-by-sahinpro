@@ -6,8 +6,7 @@ import { CareerTimelineList } from "./CareerTimelineList";
 
 const PROFILE_IMAGE = "/sahin.png";
 
-const timelineCardClass =
-  "rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#0d0d0d] to-[#080808] p-6 sm:p-8 overflow-hidden relative h-full";
+const timelineCardClass = "  p-6 sm:p-8 overflow-hidden relative h-full";
 
 export const CareerJourneyPanel = ({
   entries,
