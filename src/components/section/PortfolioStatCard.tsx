@@ -18,7 +18,9 @@ type PortfolioStatCardProps = {
   stat: PortfolioStat;
 };
 
-export const PortfolioStatCard = ({ stat }: PortfolioStatCardProps): JSX.Element => {
+export const PortfolioStatCard = ({
+  stat,
+}: PortfolioStatCardProps): JSX.Element => {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.45 });
   const reduceMotion = useReducedMotion();
@@ -29,15 +31,6 @@ export const PortfolioStatCard = ({ stat }: PortfolioStatCardProps): JSX.Element
     <motion.div
       ref={ref}
       variants={statCardVariants}
-      whileHover={
-        reduceMotion
-          ? undefined
-          : {
-              y: -6,
-              scale: 1.04,
-              transition: { duration: 0.25, ease: sectionEase },
-            }
-      }
       className={`relative flex flex-col items-center gap-3 p-5 sm:p-6 rounded-2xl border bg-gradient-to-br ${stat.color} ${stat.border}
       backdrop-blur-sm transition-shadow duration-300 group overflow-hidden
       hover:shadow-[0_12px_40px_-12px_rgba(255,255,255,0.12)]`}
@@ -45,9 +38,10 @@ export const PortfolioStatCard = ({ stat }: PortfolioStatCardProps): JSX.Element
       <motion.div
         className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center"
         initial={reduceMotion ? false : { scale: 0.85, opacity: 0 }}
-        animate={inView ? { scale: 1, opacity: 1 } : { scale: 0.85, opacity: 0 }}
+        animate={
+          inView ? { scale: 1, opacity: 1 } : { scale: 0.85, opacity: 0 }
+        }
         transition={{ duration: 0.4, delay: 0.15, ease: sectionEase }}
-        whileHover={reduceMotion ? undefined : { scale: 1.12, rotate: 4 }}
       >
         <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white/80" />
       </motion.div>

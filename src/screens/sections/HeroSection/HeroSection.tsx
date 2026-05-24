@@ -74,7 +74,7 @@ export const HeroSection = (): JSX.Element => {
   };
 
   return (
-    <section className="relative w-full overflow-hidden min-h-[calc(100vh-100px)] flex items-center pt-24 sm:pt-28 pb-10">
+    <section className="relative w-full overflow-hidden min-h-screen flex items-center pt-24 sm:pt-28 pb-10">
       <div className="absolute inset-0 w-full h-full z-0">
         <AuroraBackground />
       </div>
