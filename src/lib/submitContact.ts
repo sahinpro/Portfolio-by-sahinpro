@@ -10,7 +10,14 @@ export type ContactPayload = {
 
 export type SubmitContactResult =
   | { ok: true }
-  | { ok: false; status: number; message?: string };
+  | { ok: false; status: number; message?: string; retryAfter?: number };
+
+function parseRetryAfter(response: Response): number | undefined {
+  const header = response.headers.get("retry-after");
+  if (!header) return undefined;
+  const seconds = Number.parseInt(header, 10);
+  return Number.isFinite(seconds) && seconds > 0 ? seconds : undefined;
+}
 
 export async function submitContactForm(
   payload: ContactPayload,
@@ -31,7 +38,9 @@ export async function submitContactForm(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+
     if (res.ok) return { ok: true };
+
     let message: string | undefined;
     try {
       const j = (await res.json()) as { error?: string };
@@ -39,7 +48,13 @@ export async function submitContactForm(
     } catch {
       /* ignore */
     }
-    return { ok: false, status: res.status, message };
+
+    return {
+      ok: false,
+      status: res.status,
+      message,
+      retryAfter: parseRetryAfter(res),
+    };
   } catch {
     return { ok: false, status: 0 };
   }

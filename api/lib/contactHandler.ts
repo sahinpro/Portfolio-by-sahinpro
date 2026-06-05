@@ -1,75 +1,107 @@
 import { sendContactEmail } from "./contactEmail";
+import { checkContactRateLimit } from "./rateLimit";
+import { verifyTurnstile } from "./turnstile";
+import type {
+  ContactHandlerResult,
+  ContactRequestBody,
+  ContactRequestMeta,
+} from "./types";
+import { ResendApiError } from "./types";
+import {
+  createSubmissionIdempotencyKey,
+  parseContactBody,
+} from "./validation";
 
-export type ContactRequestBody = Record<string, string | undefined>;
+function mapResendError(error: ResendApiError): ContactHandlerResult {
+  if (error.status === 429) {
+    return {
+      ok: false,
+      status: 429,
+      error:
+        "Email service is busy due to high demand. Please wait a moment and try again.",
+      retryAfter: error.retryAfter ?? 60,
+    };
+  }
 
-export type ContactHandlerResult =
-  | { ok: true }
-  | { ok: false; status: number; error: string };
+  if (error.status === 401 || error.status === 403) {
+    return {
+      ok: false,
+      status: 500,
+      error: "Email delivery is not configured correctly",
+    };
+  }
 
-async function verifyTurnstile(
-  secret: string,
-  token: string,
-): Promise<boolean> {
-  const verify = await fetch(
-    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        secret,
-        response: token,
-      }),
-    },
-  );
-  const outcome = (await verify.json()) as { success?: boolean };
-  return Boolean(outcome.success);
+  if (error.status >= 500) {
+    return {
+      ok: false,
+      status: 503,
+      error: "Email service is temporarily unavailable. Please try again soon.",
+      retryAfter: error.retryAfter ?? 30,
+    };
+  }
+
+  return {
+    ok: false,
+    status: 400,
+    error: error.message,
+  };
 }
 
 export async function handleContactSubmission(
   body: ContactRequestBody,
+  meta: ContactRequestMeta,
 ): Promise<ContactHandlerResult> {
-  const {
-    name,
-    email,
-    subject,
-    phone,
-    budget,
-    message,
-    turnstileToken,
-  } = body;
+  const rate = checkContactRateLimit(meta.clientIp);
+  if (!rate.ok) {
+    return {
+      ok: false,
+      status: 429,
+      error: "Too many contact requests. Please try again later.",
+      retryAfter: rate.retryAfter ?? 60,
+    };
+  }
 
-  if (!name?.trim() || !email?.trim() || !budget?.trim() || !message?.trim()) {
-    return { ok: false, status: 400, error: "Missing required fields" };
+  const parsed = parseContactBody(body);
+  if (!parsed.ok) {
+    return { ok: false, status: 400, error: parsed.error };
   }
 
   const turnstileSecret = process.env.TURNSTILE_SECRET_KEY?.trim();
   if (turnstileSecret) {
-    if (!turnstileToken) {
+    const token = body.turnstileToken?.trim();
+    if (!token) {
       return { ok: false, status: 400, error: "Verification required" };
     }
-    const verified = await verifyTurnstile(turnstileSecret, turnstileToken);
+    const verified = await verifyTurnstile(
+      turnstileSecret,
+      token,
+      meta.clientIp,
+    );
     if (!verified) {
       return { ok: false, status: 400, error: "Verification failed" };
     }
   }
 
   try {
-    await sendContactEmail({
-      name: name.trim(),
-      email: email.trim(),
-      subject: subject?.trim() || null,
-      phone: phone?.trim() || null,
-      budget: budget.trim(),
-      message: message.trim(),
-    });
+    const idempotencyKey =
+      meta.idempotencyKey ||
+      (await createSubmissionIdempotencyKey(parsed.submission));
+
+    await sendContactEmail(parsed.submission, idempotencyKey);
     return { ok: true };
-  } catch (e) {
-    const errMessage =
-      e instanceof Error && e.message.includes("RESEND_API_KEY")
-        ? "Email delivery is not configured"
-        : e instanceof Error
-          ? e.message
-          : "Send failed";
-    return { ok: false, status: 500, error: errMessage };
+  } catch (error) {
+    if (error instanceof ResendApiError) {
+      return mapResendError(error);
+    }
+
+    if (error instanceof Error && error.message.includes("RESEND_API_KEY")) {
+      return {
+        ok: false,
+        status: 500,
+        error: "Email delivery is not configured",
+      };
+    }
+
+    return { ok: false, status: 500, error: "Send failed" };
   }
 }

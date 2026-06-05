@@ -80,9 +80,15 @@ function contactApiDevPlugin(env: Record<string, string>): Plugin {
                 | { ok: false; status: number; error: string }
               >;
             };
-            const result = await mod.handleContactSubmission(body);
+            const result = await mod.handleContactSubmission(body, {
+              clientIp: req.socket.remoteAddress ?? "127.0.0.1",
+              idempotencyKey: "",
+            });
             res.setHeader("Content-Type", "application/json");
             res.statusCode = result.ok ? 200 : result.status;
+            if (!result.ok && result.retryAfter) {
+              res.setHeader("Retry-After", String(result.retryAfter));
+            }
             res.end(
               JSON.stringify(result.ok ? { ok: true } : { error: result.error }),
             );

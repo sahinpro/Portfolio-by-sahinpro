@@ -299,10 +299,18 @@ export const ContactPage = (): JSX.Element => {
       turnstileToken,
     });
     if (!r.ok) {
+      const retryHint =
+        r.retryAfter && r.retryAfter > 0
+          ? ` Please try again in about ${r.retryAfter} seconds.`
+          : "";
       const detail =
         r.message ??
         (r.status === 400
           ? "The server could not accept this submission (check required fields or verification)."
+          : r.status === 429
+            ? `Too many requests right now.${retryHint}`
+          : r.status === 503
+            ? `The email service is temporarily unavailable.${retryHint}`
           : r.status === 0
             ? "Could not reach the contact API. Run `npm run dev` locally or deploy to Vercel."
             : null);
