@@ -308,7 +308,9 @@ export const ContactPage = (): JSX.Element => {
             : null);
       setSubmitError(
         detail ??
-          "Message could not be sent. Add `RESEND_API_KEY` to your `.env` file (and the same vars in Vercel for production).",
+          (r.status === 500
+            ? "The contact service failed on the server. Redeploy after updating Vercel env vars."
+            : "Message could not be sent. Please try again later."),
       );
       setTurnstileToken(null);
       setIsSubmitting(false);

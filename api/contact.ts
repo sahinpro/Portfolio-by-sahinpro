@@ -1,21 +1,25 @@
-import { handleContactSubmission } from "../src/server/contactHandler";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { handleContactSubmission } from "./lib/contactHandler";
 
-type ApiRequest = {
-  method?: string;
-  body?: unknown;
-};
-
-type ApiResponse = {
-  setHeader: (name: string, value: string) => void;
-  status: (code: number) => {
-    json: (body: unknown) => void;
-    end: () => void;
-  };
-};
+function parseBody(
+  body: VercelRequest["body"],
+): Record<string, string | undefined> {
+  if (body && typeof body === "object" && !Array.isArray(body)) {
+    return body as Record<string, string | undefined>;
+  }
+  if (typeof body === "string") {
+    try {
+      return JSON.parse(body) as Record<string, string | undefined>;
+    } catch {
+      return {};
+    }
+  }
+  return {};
+}
 
 export default async function handler(
-  req: ApiRequest,
-  res: ApiResponse,
+  req: VercelRequest,
+  res: VercelResponse,
 ): Promise<void> {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -32,9 +36,7 @@ export default async function handler(
   }
 
   try {
-    const result = await handleContactSubmission(
-      (req.body ?? {}) as Record<string, string | undefined>,
-    );
+    const result = await handleContactSubmission(parseBody(req.body));
 
     if (result.ok) {
       res.status(200).json({ ok: true });
@@ -42,7 +44,8 @@ export default async function handler(
     }
 
     res.status(result.status).json({ error: result.error });
-  } catch {
-    res.status(500).json({ error: "Server error" });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Server error";
+    res.status(500).json({ error: message });
   }
 }

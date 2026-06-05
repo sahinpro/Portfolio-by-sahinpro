@@ -71,7 +71,7 @@ function contactApiDevPlugin(env: Record<string, string>): Plugin {
           try {
             const body = await readJsonBody(req);
             const mod = (await server.ssrLoadModule(
-              "/src/server/contactHandler.ts",
+              "/api/lib/contactHandler.ts",
             )) as {
               handleContactSubmission: (
                 input: Record<string, string | undefined>,
