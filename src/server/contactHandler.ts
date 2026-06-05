@@ -1,4 +1,4 @@
-import { sendContactEmail } from "@/server/contactEmail";
+import { sendContactEmail } from "./contactEmail";
 
 export type ContactRequestBody = Record<string, string | undefined>;
 

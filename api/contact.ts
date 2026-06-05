@@ -31,14 +31,18 @@ export default async function handler(
     return;
   }
 
-  const result = await handleContactSubmission(
-    (req.body ?? {}) as Record<string, string | undefined>,
-  );
+  try {
+    const result = await handleContactSubmission(
+      (req.body ?? {}) as Record<string, string | undefined>,
+    );
 
-  if (result.ok) {
-    res.status(200).json({ ok: true });
-    return;
+    if (result.ok) {
+      res.status(200).json({ ok: true });
+      return;
+    }
+
+    res.status(result.status).json({ error: result.error });
+  } catch {
+    res.status(500).json({ error: "Server error" });
   }
-
-  res.status(result.status).json({ error: result.error });
 }
