@@ -1,51 +1,52 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { handleContactSubmission } from "./lib/contactHandler";
 
+export const config = {
+  runtime: "edge",
+};
+
 function parseBody(
-  body: VercelRequest["body"],
+  raw: string | null,
 ): Record<string, string | undefined> {
-  if (body && typeof body === "object" && !Array.isArray(body)) {
-    return body as Record<string, string | undefined>;
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw) as Record<string, string | undefined>;
+  } catch {
+    return {};
   }
-  if (typeof body === "string") {
-    try {
-      return JSON.parse(body) as Record<string, string | undefined>;
-    } catch {
-      return {};
-    }
-  }
-  return {};
 }
 
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse,
-): Promise<void> {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
 
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
+export default async function handler(request: Request): Promise<Response> {
+  if (request.method === "OPTIONS") {
+    return jsonResponse({ ok: true });
   }
 
-  if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed" });
-    return;
+  if (request.method !== "POST") {
+    return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
   try {
-    const result = await handleContactSubmission(parseBody(req.body));
+    const body = parseBody(await request.text());
+    const result = await handleContactSubmission(body);
 
     if (result.ok) {
-      res.status(200).json({ ok: true });
-      return;
+      return jsonResponse({ ok: true });
     }
 
-    res.status(result.status).json({ error: result.error });
+    return jsonResponse({ error: result.error }, result.status);
   } catch (e) {
     const message = e instanceof Error ? e.message : "Server error";
-    res.status(500).json({ error: message });
+    return jsonResponse({ error: message }, 500);
   }
 }

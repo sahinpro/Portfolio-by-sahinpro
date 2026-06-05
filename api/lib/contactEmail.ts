@@ -1,5 +1,3 @@
-import { Resend } from "resend";
-
 const DEFAULT_TO_EMAIL = "sahinweb@proton.me";
 const DEFAULT_FROM_EMAIL = "Sahin Alam <contact@sahin.pro.bd>";
 
@@ -37,8 +35,6 @@ export async function sendContactEmail(
   if (!resendApiKey) {
     throw new Error("RESEND_API_KEY is not configured");
   }
-
-  const resend = new Resend(resendApiKey);
 
   const subjectLine = submission.subject?.trim()
     ? `New contact: ${submission.subject.trim()}`
@@ -160,15 +156,29 @@ export async function sendContactEmail(
     </html>
   `;
 
-  const { error } = await resend.emails.send({
-    from: fromEmail,
-    to: [toEmail],
-    replyTo: submission.email,
-    subject: subjectLine,
-    html,
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: fromEmail,
+      to: [toEmail],
+      reply_to: submission.email,
+      subject: subjectLine,
+      html,
+    }),
   });
 
-  if (error) {
-    throw new Error(`Resend request failed: ${error.message}`);
+  if (!response.ok) {
+    let detail = response.statusText;
+    try {
+      const payload = (await response.json()) as { message?: string };
+      if (payload.message) detail = payload.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(`Resend request failed: ${detail}`);
   }
 }
