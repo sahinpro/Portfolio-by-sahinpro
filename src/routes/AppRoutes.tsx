@@ -36,7 +36,6 @@ export function AppRoutes(): JSX.Element {
               <Route path="new" element={<P.AdminBlogFormPage />} />
               <Route path=":id" element={<P.AdminBlogFormPage />} />
             </Route>
-            <Route path="inbox" element={<P.AdminInboxPage />} />
             <Route path="analytics" element={<P.AdminAnalyticsPage />} />
             <Route path="media" element={<P.AdminMediaLibraryPage />} />
             <Route path="settings" element={<P.AdminSiteSettingsPage />} />

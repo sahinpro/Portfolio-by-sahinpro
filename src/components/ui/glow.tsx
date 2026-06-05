@@ -35,7 +35,8 @@ function Glow({
           variant === "center" && "-translate-y-1/2",
         )}
         style={{
-          background: 'radial-gradient(ellipse 60% 100% at 50% 0%, rgba(205, 205, 205, 1), transparent 60%)',
+          background:
+            "radial-gradient(ellipse 60% 100% at 50% 0%, rgba(205, 205, 205, 1), transparent 60%)",
         }}
       />
       <div
@@ -44,7 +45,8 @@ function Glow({
           variant === "center" && "-translate-y-1/2",
         )}
         style={{
-          background: 'radial-gradient(ellipse 40% 100% at 50% 0%, rgba(105, 105, 105, 1), transparent 80%)',
+          background:
+            "radial-gradient(ellipse 40% 100% at 50% 0%, rgba(105, 105, 105, 1), transparent 80%)",
         }}
       />
     </div>

@@ -591,7 +591,7 @@ const MagicBento: React.FC<BentoProps> = ({
             .card-responsive {
               grid-template-columns: repeat(4, 1fr);
               gap: 0.5rem;
-              padding: 0.75rem;
+              padding: 0;
             }
 
             .card-responsive .card:nth-child(3) {
@@ -694,13 +694,17 @@ const MagicBento: React.FC<BentoProps> = ({
       <BentoCardGrid gridRef={gridRef}>
         <div className="card-responsive p-0 lg:p-4 grid gap-2">
           {cards.map((card, index) => {
-            const baseClassName = `card flex flex-col justify-between relative aspect-[4/3] min-h-[200px] w-full max-w-full lg:p-5 p-3 rounded-[20px] border border-solid font-light overflow-hidden transition-colors duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] ${
-              enableBorderGlow ? "card--border-glow" : ""
+            const baseClassName = `card flex flex-col justify-between relative aspect-[4/3] min-h-[200px] w-full max-w-full lg:p-5 p-3 rounded-[20px] border border-solid font-light overflow-hidden transition-colors duration-300 ease-in-out ${
+              enableBorderGlow
+                ? "card--border-glow hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)]"
+                : "border-white/[0.08] hover:border-white/[0.12]"
             }`;
 
             const cardStyle = {
               backgroundColor: card.color || "var(--background-dark)",
-              borderColor: "var(--border-color)",
+              ...(enableBorderGlow
+                ? { borderColor: "var(--border-color)" }
+                : {}),
               color: "var(--white)",
               "--glow-x": "50%",
               "--glow-y": "50%",
@@ -731,9 +735,11 @@ const MagicBento: React.FC<BentoProps> = ({
                     </>
                   )}
                   <div className="card__header flex justify-between gap-3 relative text-white z-10">
-                    <span className="card__label inline-flex items-center rounded-md border border-white/20 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 text-xs font-semibold text-white/90">
-                      {card.label}
-                    </span>
+                    {card.label ? (
+                      <span className="card__label inline-flex items-center rounded-md border border-white/20 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 text-xs font-semibold text-white/90">
+                        {card.label}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="card__content flex flex-col relative text-white z-10">
                     <h3
@@ -861,9 +867,11 @@ const MagicBento: React.FC<BentoProps> = ({
                   </>
                 )}
                 <div className="card__header flex justify-between gap-3 relative text-white z-10">
-                  <span className="card__label inline-flex items-center rounded-md border border-white/20 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 text-xs font-semibold text-white/90">
-                    {card.label}
-                  </span>
+                  {card.label ? (
+                    <span className="card__label inline-flex items-center rounded-md border border-white/20 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 text-xs font-semibold text-white/90">
+                      {card.label}
+                    </span>
+                  ) : null}
                 </div>
                 <div className="card__content flex flex-col relative text-white z-10">
                   <h3

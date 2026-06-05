@@ -1,4 +1,4 @@
-import { PROFILE, resolveHeroDescription } from "@/constants/profile";
+import { PROFILE } from "@/constants/profile";
 import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
 import { useMemo } from "react";
 import {
@@ -25,7 +25,7 @@ export function useAboutCodeProfile(): {
     return {
       name: settings.hero_title?.trim() || FALLBACK_NAME,
       role: FALLBACK_ROLE,
-      bio: resolveHeroDescription(settings.hero_description),
+      highlights: [...PROFILE.codeHighlights],
       stack: defaultStack(),
       platforms: defaultPlatforms(),
       available: settings.availability_status !== "unavailable",

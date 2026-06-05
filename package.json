@@ -14,7 +14,6 @@
     "type-check": "tsc --noEmit",
     "type-check:functions": "tsc -p supabase/functions/tsconfig.json --noEmit",
     "deploy:function:record-page-view": "npx supabase functions deploy record-page-view",
-    "deploy:function:submit-contact": "npx supabase functions deploy submit-contact",
     "clean": "rm -rf dist node_modules/.vite",
     "analyze": "vite-bundle-visualizer"
   },

@@ -203,7 +203,9 @@ export function AuroraBackground({
         uniforms: {
           iTime: { value: 0 },
           iResolution: { value: new THREE.Vector2(1, 1) },
-          uBrandBlue: { value: new THREE.Vector3(...hexToRgb(BRAND_COLORS.blue)) },
+          uBrandBlue: {
+            value: new THREE.Vector3(...hexToRgb(BRAND_COLORS.blue)),
+          },
           uBrandPurple: {
             value: new THREE.Vector3(...hexToRgb(BRAND_COLORS.purple)),
           },
@@ -255,10 +257,7 @@ export function AuroraBackground({
         material.dispose();
         mesh.geometry.dispose();
         renderer.dispose();
-        renderer
-          .getContext()
-          .getExtension("WEBGL_lose_context")
-          ?.loseContext();
+        renderer.getContext().getExtension("WEBGL_lose_context")?.loseContext();
         canvas.remove();
         setWebglReady(false);
       };

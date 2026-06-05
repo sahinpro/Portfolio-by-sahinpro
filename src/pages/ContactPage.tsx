@@ -13,8 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { PROFILE } from "@/constants/profile";
-import { submitContactToSupabase } from "@/lib/submitContact";
-import { isSupabaseBrowserConfigured } from "@/lib/supabaseFunctions";
+import { submitContactForm } from "@/lib/submitContact";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
@@ -290,41 +289,32 @@ export const ContactPage = (): JSX.Element => {
       setIsSubmitting(false);
     };
 
-    if (isSupabaseBrowserConfigured()) {
-      const r = await submitContactToSupabase({
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        phone: formData.phone,
-        budget: formData.budget,
-        message: formData.message,
-        turnstileToken,
-      });
-      if (!r.ok) {
-        const detail =
-          r.message ??
-          (r.status === 400
-            ? "The server could not accept this submission (check required fields or verification)."
-            : r.status === 401 || r.status === 403
-              ? "Submission was rejected. Check Supabase function secrets (e.g. Turnstile)."
-              : null);
-        setSubmitError(
-          detail ??
-            "Message was not saved to your admin inbox. Redeploy the `submit-contact` Edge Function and confirm `SUPABASE_SERVICE_ROLE_KEY` is set for that function.",
-        );
-        setTurnstileToken(null);
-        setIsSubmitting(false);
-        return;
-      }
-      applySuccess();
+    const r = await submitContactForm({
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject,
+      phone: formData.phone,
+      budget: formData.budget,
+      message: formData.message,
+      turnstileToken,
+    });
+    if (!r.ok) {
+      const detail =
+        r.message ??
+        (r.status === 400
+          ? "The server could not accept this submission (check required fields or verification)."
+          : r.status === 0
+            ? "Could not reach the contact API. Run `npm run dev` locally or deploy to Vercel."
+            : null);
+      setSubmitError(
+        detail ??
+          "Message could not be sent. Add `RESEND_API_KEY` to your `.env` file (and the same vars in Vercel for production).",
+      );
+      setTurnstileToken(null);
+      setIsSubmitting(false);
       return;
     }
-
-    setSubmitError(
-      "Contact form is not configured right now. Set the Supabase public URL and Edge Function key to enable submissions.",
-    );
-    setTurnstileToken(null);
-    setIsSubmitting(false);
+    applySuccess();
   };
 
   const inputClass = `w-full px-4 py-3 sm:py-2.5 rounded-xl border border-white/10 bg-white/[0.04]
@@ -407,9 +397,7 @@ export const ContactPage = (): JSX.Element => {
             className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mb-3 sm:mb-4"
           >
             Let's build something{" "}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-800 bg-clip-text text-transparent">
-              amazing
-            </span>
+            <span className="text-violet-400">amazing</span>
           </motion.h1>
 
           <motion.p
@@ -477,7 +465,7 @@ export const ContactPage = (): JSX.Element => {
                 </motion.div>
               ) : (
                 <>
-                  <h2 className="flex lg:py-5 py-2 self-stretch mt-[-1.00px] section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-3xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[50px]">
+                  <h2 className="flex lg:py-5 py-2 self-stretch mt-[-1.00px] section-heading [font-family:'Inter_Display-Medium',Helvetica] font-medium text-3xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[50px]">
                     Send a message
                   </h2>
                   <p className="text-sm text-white/40 mb-6 sm:mb-8">
@@ -513,7 +501,7 @@ export const ContactPage = (): JSX.Element => {
                           required
                           value={formData.email}
                           onChange={handleInputChange}
-                          placeholder="sahinhub@gmail.com"
+                          placeholder="you@example.com"
                           className={inputClass}
                         />
                       </div>

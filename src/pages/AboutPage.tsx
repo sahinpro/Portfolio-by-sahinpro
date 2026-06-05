@@ -9,6 +9,7 @@ import {
   SectionHeader,
   SectionLabel,
 } from "@/components/section";
+import { PROFILE } from "@/constants/profile";
 import {
   fadeInUp,
   scrollViewport,
@@ -16,7 +17,6 @@ import {
 } from "@/constants/scrollMotion";
 import { useActiveResume } from "@/hooks/useActiveResume";
 import { triggerResumeDownload } from "@/lib/resumeDownload";
-import { PROFILE } from "@/constants/profile";
 import {
   careerTimeline,
   JOURNEY_DESCRIPTION,
@@ -168,12 +168,7 @@ export const AboutPage = (): JSX.Element => {
             className="text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.05] mb-6 max-w-4xl"
           >
             Crafting digital{" "}
-            <span
-              className="bg-gradient-to-r from-blue-500 to-purple-800
-              bg-clip-text text-transparent"
-            >
-              experiences
-            </span>{" "}
+            <span className="text-violet-400">experiences</span>{" "}
             that matter
           </motion.h1>
 

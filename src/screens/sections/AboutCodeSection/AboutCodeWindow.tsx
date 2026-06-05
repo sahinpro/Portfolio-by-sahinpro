@@ -62,7 +62,7 @@ export const AboutCodeWindow = ({
         </div>
       </div>
       <p className="sr-only" aria-live="polite">
-        {profile.name}, {profile.role}. {profile.bio}
+        {profile.name}, {profile.role}. {profile.highlights.join(". ")}
       </p>
     </div>
   );

@@ -69,7 +69,10 @@ export const CTAButton = ({
             </span>
           </span>
           {trailingIcon ? (
-            <span className="inline-flex shrink-0 items-center text-white" aria-hidden>
+            <span
+              className="inline-flex shrink-0 items-center text-white"
+              aria-hidden
+            >
               {trailingIcon}
             </span>
           ) : null}

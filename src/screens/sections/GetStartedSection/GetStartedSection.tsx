@@ -33,7 +33,7 @@ export const GetStartedSection = (): JSX.Element => {
               variants={fadeInUp}
               className="flex flex-col items-center gap-3 relative w-full"
             >
-              <h2 className="section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] text-3xl md:text-5xl text-center tracking-[-1.00px] leading-tight md:leading-[56.0px] font-medium">
+              <h2 className="section-heading [font-family:'Inter_Display-Medium',Helvetica] text-3xl md:text-5xl text-center tracking-[-1.00px] leading-tight md:leading-[56.0px] font-medium">
                 Let's Work Together
               </h2>
 

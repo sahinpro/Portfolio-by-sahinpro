@@ -1,4 +1,3 @@
-import { useUnreadInboxCount } from "@/admin/hooks/useUnreadInboxCount";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -12,7 +11,6 @@ import {
   FileText,
   FolderKanban,
   ImageIcon,
-  Inbox,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -56,7 +54,6 @@ function mobileAdminTitle(pathname: string): string {
   if (pathname.startsWith("/admin/testimonials")) return "Testimonials";
   if (pathname.startsWith("/admin/blog")) return "Blog";
   if (pathname.startsWith("/admin/media")) return "Media";
-  if (pathname.startsWith("/admin/inbox")) return "Inbox";
   if (pathname.startsWith("/admin/analytics")) return "Analytics";
   if (pathname.startsWith("/admin/settings")) return "Settings";
   return "Admin";
@@ -116,7 +113,6 @@ function AdminSidebarProfile(): JSX.Element {
 export function AdminShell(): JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
-  const unread = useUnreadInboxCount();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [siteSettingsMenuOpen, setSiteSettingsMenuOpen] = useState(false);
   const isSettingsRoute = location.pathname.startsWith("/admin/settings");
@@ -205,14 +201,6 @@ export function AdminShell(): JSX.Element {
             <span className="truncate text-sm font-semibold tracking-tight text-zinc-100">
               {mobileAdminTitle(location.pathname)}
             </span>
-            {unread > 0 ? (
-              <span
-                className="shrink-0 rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px]
-                  font-semibold text-amber-200"
-              >
-                {unread > 99 ? "99+" : unread} new
-              </span>
-            ) : null}
           </div>
         </div>
         <a
@@ -278,18 +266,6 @@ export function AdminShell(): JSX.Element {
               <NavLink to="/admin/media" className={navClass}>
                 <ImageIcon className="h-4 w-4 shrink-0 opacity-80" />
                 Media library
-              </NavLink>
-              <NavLink to="/admin/inbox" className={navClass}>
-                <Inbox className="h-4 w-4 shrink-0 opacity-80" />
-                <span className="flex-1 text-left">Inbox</span>
-                {unread > 0 ? (
-                  <span
-                    className="min-w-[1.25rem] rounded-full bg-red-500/90 px-1.5 py-0.5 text-center text-[10px]
-                      font-bold text-white tabular-nums"
-                  >
-                    {unread > 99 ? "99+" : unread}
-                  </span>
-                ) : null}
               </NavLink>
               <NavLink to="/admin/analytics" className={navClass}>
                 <BarChart3 className="h-4 w-4 shrink-0 opacity-80" />

@@ -73,11 +73,6 @@ export const AdminBlogFormPage = lazy(() =>
     default: m.AdminBlogFormPage,
   })),
 );
-export const AdminInboxPage = lazy(() =>
-  import("@/admin/pages/AdminInboxPage").then((m) => ({
-    default: m.AdminInboxPage,
-  })),
-);
 export const AdminAnalyticsPage = lazy(() =>
   import("@/admin/pages/AdminAnalyticsPage").then((m) => ({
     default: m.AdminAnalyticsPage,

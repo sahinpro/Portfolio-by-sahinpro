@@ -1,18 +1,25 @@
 import type { SocialLinkRow } from "@/admin/types/database";
 import { getSocialLinkIconKey } from "@/components/public/socialBrands";
-import { Github, Instagram, Link2, Linkedin, Mail, Youtube } from "lucide-react";
-import type { ComponentType } from "react";
-import { BsBehance, BsDribbble } from "react-icons/bs";
+import { Github, Link2, Linkedin, Mail, type LucideIcon } from "lucide-react";
+import type { IconType } from "react-icons";
+import { BsBehance, BsDribbble, BsTelegram } from "react-icons/bs";
 
-const ICONS: Record<string, ComponentType<{ className?: string }>> = {
-  github: Github,
-  linkedin: Linkedin,
-  behance: BsBehance,
-  dribbble: BsDribbble,
-  youtube: Youtube,
-  instagram: Instagram,
-  mail: Mail,
-  email: Mail,
+type SocialGlyph = (props: { className?: string }) => JSX.Element;
+
+const asGlyph = (Icon: LucideIcon | IconType): SocialGlyph =>
+  function SocialGlyphIcon({ className }) {
+    const Glyph = Icon as LucideIcon;
+    return <Glyph className={className} />;
+  };
+
+const ICONS: Record<string, SocialGlyph> = {
+  github: asGlyph(Github),
+  linkedin: asGlyph(Linkedin),
+  behance: asGlyph(BsBehance),
+  dribbble: asGlyph(BsDribbble),
+  telegram: asGlyph(BsTelegram),
+  mail: asGlyph(Mail),
+  email: asGlyph(Mail),
 };
 
 export function SocialLinkGlyph({
@@ -22,13 +29,23 @@ export function SocialLinkGlyph({
   link: SocialLinkRow;
   className?: string;
 }): JSX.Element {
+  const k = getSocialLinkIconKey(link);
+  const Icon = ICONS[k];
+  if (Icon) {
+    return <Icon className={className} />;
+  }
+
   const raw = (link.icon ?? "").trim();
   if (/^https?:\/\//i.test(raw)) {
     return (
-      <img src={raw} alt="" className={`${className} object-contain rounded-sm`} loading="lazy" />
+      <img
+        src={raw}
+        alt=""
+        className={`${className} object-contain rounded-sm`}
+        loading="lazy"
+      />
     );
   }
-  const k = getSocialLinkIconKey(link);
-  const Icon = ICONS[k] ?? Link2;
-  return <Icon className={className} />;
+
+  return <Link2 className={className} />;
 }

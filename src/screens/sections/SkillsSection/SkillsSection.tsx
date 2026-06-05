@@ -1,6 +1,11 @@
 import type { BentoCardProps } from "@/components/MagicBento";
 import MagicBento from "@/components/MagicBento";
-import Glow from "@/components/ui/glow";
+import { SectionHeader, SectionShell } from "@/components/section";
+import {
+  sectionContentClass,
+  sectionHeaderWrapClass,
+  sectionMotionClass,
+} from "@/constants/layout";
 import {
   fadeInUp,
   scrollViewport,
@@ -13,103 +18,83 @@ const skillsCards: BentoCardProps[] = [
     color: "#0d0d0d",
     title: "Full Stack Development",
     description:
-      "Expert in crafting responsive interfaces with React, Next.js, and TypeScript — plus 200+ Figma and PSD conversions into production-ready pages.",
-    label: "Full Stack",
+      "Responsive interfaces and production-ready pages from design handoff — React, Next.js, and TypeScript.",
     image:
-      "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200&q=90&fm=png",
+      "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=75&fm=webp",
   },
   {
     color: "#0d0d0d",
     title: "Backend & APIs",
     description:
       "End-to-end web application development from database design to deployment. Building scalable solutions with Node.js, Express, MongoDB, and more.",
-    label: "Backend",
     image:
-      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&q=90&fm=png",
+      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=75&fm=webp",
   },
   {
     color: "#0d0d0d",
     title: "WordPress & CMS Development",
     description:
       "Professional WordPress and Shopify development — custom themes, store setup, plugins, and optimization for performance and SEO.",
-    label: "CMS",
     image:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=90&fm=png",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=75&fm=webp",
   },
   {
     color: "#0d0d0d",
     title: "E-Commerce Solutions",
     description:
       "Complete e-commerce implementation with WooCommerce, Shopify, and custom shopping experiences with payment integration.",
-    label: "E-Commerce",
     image:
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=90&fm=png",
+      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=75&fm=webp",
   },
   {
     color: "#0d0d0d",
     title: "Performance & SEO",
     description:
       "Fast-loading, SEO-optimized websites that rank well in search engines and provide excellent user experience.",
-    label: "SEO",
     image:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=90&fm=png",
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=75&fm=webp",
   },
   {
     color: "#0d0d0d",
     title: "Clean Code",
     description: "Well-structured, maintainable code following best practices.",
-    label: "Quality",
     image:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=90&fm=png",
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=75&fm=webp",
   },
 ];
 
 export const SkillsSection = (): JSX.Element => {
   return (
-    <section
-      id="services"
-      className="flex flex-col container mx-auto items-center gap-12 px-4 py-10"
-    >
-      <Glow variant="top" className="-z-20 blur-xl" />
+    <SectionShell id="expertise">
       <motion.div
-        className="flex flex-col w-full max-w-full items-center gap-12"
+        className={sectionMotionClass}
         initial="hidden"
         whileInView="visible"
         viewport={scrollViewport}
         variants={sectionReveal}
       >
-        <motion.div
-          variants={fadeInUp}
-          className="flex flex-col items-center gap-4 py-0 w-full"
-        >
-          <h2 className="flex items-center justify-center self-stretch mt-[-1.00px] section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-3xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[50px]">
-            Skills & Technologies
-          </h2>
-          <p className="flex items-center justify-center w-full [font-family:'Inter_Display-Regular',Helvetica] font-normal text-[#b3b3b3] text-base sm:text-lg md:text-xl text-center tracking-[-0.20px] leading-6 sm:leading-7 md:leading-[32.0px]">
-            Expertise in modern web development technologies and best practices
-            for building scalable solutions.
-          </p>
+        <motion.div variants={fadeInUp} className={sectionHeaderWrapClass}>
+          <SectionHeader
+            title="Skills & technologies"
+            description="Modern web development capabilities — from frontend interfaces to CMS and e-commerce builds."
+          />
         </motion.div>
-        <motion.div
-          variants={fadeInUp}
-          className="flex flex-col w-full max-w-full items-stretch"
-        >
+        <motion.div variants={fadeInUp} className={sectionContentClass}>
           <MagicBento
             textAutoHide={true}
-            enableStars
-            enableSpotlight
-            enableBorderGlow={true}
+            enableStars={false}
+            enableSpotlight={false}
+            enableBorderGlow={false}
             enableTilt={false}
             enableMagnetism={false}
-            clickEffect
+            clickEffect={false}
             spotlightRadius={200}
-            particleCount={12}
-            glowColor="0, 0, 255"
+            particleCount={0}
             disableAnimations={false}
             cards={skillsCards}
           />
         </motion.div>
       </motion.div>
-    </section>
+    </SectionShell>
   );
 };

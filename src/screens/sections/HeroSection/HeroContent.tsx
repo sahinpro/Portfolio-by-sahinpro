@@ -10,8 +10,8 @@ export const HeroContent = (): JSX.Element => {
   const { data: resume, loading } = useActiveResume();
 
   return (
-    <div className="flex flex-col items-center lg:items-start gap-4 w-full max-w-xl lg:max-w-none">
-      <div className="flex flex-col items-center lg:items-start gap-2 w-full">
+    <div className="flex flex-col items-center lg:items-start gap-7 w-full max-w-xl lg:max-w-2xl">
+      <div className="flex flex-col items-center lg:items-start gap-5 w-full">
         <HeroTitle />
         <HeroSubtitle />
       </div>

@@ -311,7 +311,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
         aria-label="Customer testimonials"
       >
         <div className="max-w-[656px] mx-auto text-center space-y-4">
-          <h2 className="section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl text-white">
+          <h2 className="section-heading [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl text-white">
             Customer Stories
           </h2>
           <p className="text-base sm:text-lg text-neutral-400 leading-relaxed">
@@ -375,7 +375,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
             className="section-header text-center mb-12 md:mb-16"
             variants={fadeInUp}
           >
-            <h2 className="flex items-center justify-center self-stretch mt-[-1.00px] section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">
+            <h2 className="flex items-center justify-center self-stretch mt-[-1.00px] section-heading [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">
               Customer Stories
             </h2>
             <p className="text-base sm:text-lg md:text-xl leading-relaxed text-neutral-400 max-w-[656px] mx-auto">

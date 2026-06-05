@@ -1,8 +1,3 @@
-import {
-  getSupabaseEdgeFunctionInvokeKey,
-  getSupabaseProjectUrl,
-} from "@/lib/supabaseFunctions";
-
 export type ContactPayload = {
   name: string;
   email: string;
@@ -17,14 +12,9 @@ export type SubmitContactResult =
   | { ok: true }
   | { ok: false; status: number; message?: string };
 
-export async function submitContactToSupabase(
+export async function submitContactForm(
   payload: ContactPayload,
 ): Promise<SubmitContactResult> {
-  const base = getSupabaseProjectUrl();
-  /** Anon JWT — publishable-only keys can 401 Edge Functions (see recordPageView). */
-  const key = getSupabaseEdgeFunctionInvokeKey();
-  if (!base || !key) return { ok: false, status: 0 };
-
   const body: Record<string, string | undefined> = {
     name: payload.name.trim(),
     email: payload.email.trim(),
@@ -36,13 +26,9 @@ export async function submitContactToSupabase(
   };
 
   try {
-    const res = await fetch(`${base}/functions/v1/submit-contact`, {
+    const res = await fetch("/api/contact", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
-        apikey: key,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
     if (res.ok) return { ok: true };

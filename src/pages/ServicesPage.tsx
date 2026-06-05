@@ -14,6 +14,7 @@ import {
   scrollViewport,
   sectionReveal,
 } from "@/constants/scrollMotion";
+import { SERVICE_DEFINITIONS } from "@/constants/expertise";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
@@ -33,119 +34,21 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 
-interface Service {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  features: string[];
-  tag?: string;
-  accent: string;
-  border: string;
-  buttonAccent: string;
-}
+const SERVICE_ICONS: Record<string, LucideIcon> = {
+  "ui-ux": Palette,
+  "full-stack": Zap,
+  wordpress: LayoutTemplate,
+  ecommerce: ShoppingCart,
+  performance: TrendingUp,
+  maintenance: Wrench,
+};
 
-const services: Service[] = [
-  {
-    icon: Palette,
-    title: "UI/UX Design",
-    description:
-      "Beautiful, user-friendly interfaces that align with your brand, optimised for conversion and delight.",
-    features: [
-      "Figma Prototyping",
-      "Design Systems",
-      "Responsive Design",
-      "Accessibility (WCAG)",
-    ],
-    tag: "Design",
-    accent: "from-pink-500/10 to-rose-500/5",
-    border: "border-pink-500/20",
-    buttonAccent: "bg-pink-500/20 border-pink-500/30 hover:bg-pink-500/30",
-  },
-  {
-    icon: Zap,
-    title: "Full Stack Development",
-    description:
-      "End-to-end web applications from database design to pixel-perfect frontend — built to scale.",
-    features: [
-      "React & Next.js",
-      "Node.js & Express",
-      "MongoDB / PostgreSQL",
-      "REST & GraphQL APIs",
-    ],
-    tag: "Dev",
-    accent: "from-yellow-500/10 to-amber-500/5",
-    border: "border-yellow-500/20",
-    buttonAccent:
-      "bg-yellow-500/20 border-yellow-500/30 hover:bg-yellow-500/30",
-  },
-  {
-    icon: LayoutTemplate,
-    title: "WordPress Development",
-    description:
-      "Professional, fast, and SEO-ready WordPress builds — themes, plugins, and full custom sites.",
-    features: [
-      "Custom Themes",
-      "Plugin Development",
-      "WooCommerce",
-      "Gutenberg Blocks",
-    ],
-    tag: "CMS",
-    accent: "from-blue-500/10 to-cyan-500/5",
-    border: "border-blue-500/20",
-    buttonAccent: "bg-blue-500/20 border-blue-500/30 hover:bg-blue-500/30",
-  },
-  {
-    icon: ShoppingCart,
-    title: "E-Commerce Solutions",
-    description:
-      "Complete e-commerce with WooCommerce or Shopify — from product pages to checkout and beyond.",
-    features: [
-      "WooCommerce & Shopify",
-      "Payment Integration",
-      "Inventory Management",
-      "Order Automation",
-    ],
-    tag: "E-Commerce",
-    accent: "from-emerald-500/10 to-teal-500/5",
-    border: "border-emerald-500/20",
-    buttonAccent:
-      "bg-emerald-500/20 border-emerald-500/30 hover:bg-emerald-500/30",
-  },
-  {
-    icon: TrendingUp,
-    title: "Performance & SEO",
-    description:
-      "Speed optimisation, Core Web Vitals improvements, and technical SEO to help you rank and retain.",
-    features: [
-      "Core Web Vitals",
-      "Technical SEO Audit",
-      "Image & Code Optimisation",
-      "Analytics Setup",
-    ],
-    tag: "Growth",
-    accent: "from-violet-500/10 to-purple-500/5",
-    border: "border-violet-500/20",
-    buttonAccent:
-      "bg-violet-500/20 border-violet-500/30 hover:bg-violet-500/30",
-  },
-  {
-    icon: Wrench,
-    title: "Maintenance & Support",
-    description:
-      "Ongoing peace of mind — regular updates, security monitoring, and fast response to any issues.",
-    features: [
-      "Regular Updates",
-      "Security Scanning",
-      "Daily Backups",
-      "Priority Support",
-    ],
-    tag: "Support",
-    accent: "from-orange-500/10 to-red-500/5",
-    border: "border-orange-500/20",
-    buttonAccent:
-      "bg-orange-500/20 border-orange-500/30 hover:bg-orange-500/30",
-  },
-];
+type Service = (typeof SERVICE_DEFINITIONS)[number] & { icon: LucideIcon };
+
+const services: Service[] = SERVICE_DEFINITIONS.map((def) => ({
+  ...def,
+  icon: SERVICE_ICONS[def.id] ?? Code,
+}));
 
 const processSteps: WorkProcessStep[] = [
   {
@@ -220,6 +123,7 @@ const ServiceCard = ({
       className="h-full"
     >
       <div
+        id={service.id}
         className={`relative flex flex-col h-full p-7 rounded-2xl border bg-gradient-to-br
         ${service.accent} ${service.border} overflow-hidden
         transition-shadow duration-300 ${hovered ? "shadow-xl shadow-black/20" : ""}`}
@@ -307,9 +211,7 @@ export const ServicesPage = (): JSX.Element => {
             className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4"
           >
             What I build{" "}
-            <span className="bg-gradient-to-r from-blue-500 to-purple-800 bg-clip-text text-transparent">
-              for you
-            </span>
+            <span className="text-violet-400">for you</span>
           </motion.h1>
           <motion.p
             initial="hidden"
@@ -327,7 +229,7 @@ export const ServicesPage = (): JSX.Element => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {services.map((s, i) => (
-              <ServiceCard key={s.title} service={s} index={i} />
+              <ServiceCard key={s.id} service={s} index={i} />
             ))}
           </div>
         </div>

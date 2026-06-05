@@ -12,7 +12,6 @@ import {
   ExternalLink,
   FolderKanban,
   MonitorSmartphone,
-  Mail,
   Plus,
   RefreshCw,
 } from "lucide-react";
@@ -203,13 +202,6 @@ export function AdminDashboardPage(): JSX.Element {
             sublabel={`~${avgPerDay} per day avg`}
             icon={BarChart3}
             accent="emerald"
-          />
-          <StatCard
-            label="Unread messages"
-            value={loading ? "—" : data.unreadMessages}
-            sublabel="Contact inbox"
-            icon={Mail}
-            accent="amber"
           />
           <StatCard
             label="Blog posts"

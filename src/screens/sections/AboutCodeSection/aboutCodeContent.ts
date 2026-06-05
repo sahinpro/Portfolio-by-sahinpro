@@ -3,7 +3,7 @@ import { PROFILE_PLATFORMS, PROFILE_STACK, PROFILE_TYPEWRITER_FALLBACK } from "@
 export type AboutCodeProfile = {
   name: string;
   role: string;
-  bio: string;
+  highlights: string[];
   stack: string[];
   platforms: string[];
   available: boolean;
@@ -39,12 +39,15 @@ function formatStringArray(items: string[]): string {
 export function buildAboutCode(profile: AboutCodeProfile): string {
   const stackLines = formatStringArray(profile.stack);
   const platformLines = formatStringArray(profile.platforms);
+  const highlightLines = formatStringArray(profile.highlights);
 
   return `// about.ts — a quick intro
 export const developer = {
   name: "${escapeJsString(profile.name)}",
   role: "${escapeJsString(profile.role)}",
-  bio: "${escapeJsString(profile.bio)}",
+  highlights: [
+${highlightLines}
+  ],
   stack: [
 ${stackLines}
   ],

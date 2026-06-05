@@ -54,7 +54,7 @@ export const DevelopmentProcessSection = (): JSX.Element => {
           className="flex flex-col mx-auto items-center gap-5"
         >
           <div className="flex flex-col items-center gap-4 py-0 w-full">
-            <h2 className="flex items-center justify-center self-stretch section-heading-gradient [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">
+            <h2 className="flex items-center justify-center self-stretch section-heading [font-family:'Inter_Display-Medium',Helvetica] font-medium text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center tracking-[-1.00px] leading-tight sm:leading-[40px] md:leading-[48px] lg:leading-[56.0px]">
               My Development Process
             </h2>
 

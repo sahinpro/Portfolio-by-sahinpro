@@ -79,18 +79,6 @@ export type BlogPostRow = {
   updated_at: string;
 };
 
-export type ContactSubmissionRow = {
-  id: string;
-  name: string;
-  email: string;
-  subject: string | null;
-  phone: string | null;
-  budget: string | null;
-  message: string;
-  status: "unread" | "read" | "replied" | "archived";
-  created_at: string;
-};
-
 export type SocialLinkRow = {
   id: string;
   platform: string;

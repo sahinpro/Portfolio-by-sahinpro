@@ -1,5 +1,5 @@
 import { animate, AnimationPlaybackControls } from "framer-motion";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export interface ChromaItem {
   image?: string;
@@ -24,6 +24,33 @@ export interface ChromaGridProps {
   ease?: string;
 }
 
+const MOBILE_BREAKPOINT = 768;
+
+const useSimpleMode = (): boolean => {
+  const [simple, setSimple] = useState(() =>
+    typeof window !== "undefined"
+      ? window.innerWidth <= MOBILE_BREAKPOINT ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      : false,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`);
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () =>
+      setSimple(mq.matches || motion.matches);
+    update();
+    mq.addEventListener("change", update);
+    motion.addEventListener("change", update);
+    return () => {
+      mq.removeEventListener("change", update);
+      motion.removeEventListener("change", update);
+    };
+  }, []);
+
+  return simple;
+};
+
 const ChromaGrid: React.FC<ChromaGridProps> = ({
   items,
   className = "",
@@ -31,6 +58,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
   damping = 0.35,
   fadeOut = 0.5,
 }) => {
+  const simpleMode = useSimpleMode();
   const rootRef = useRef<HTMLDivElement>(null);
   const fadeRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
@@ -44,28 +72,28 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
   const demo: ChromaItem[] = [
     {
       image:
-        "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80&fm=jpg",
+        "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=75&fm=webp",
       title: "Quality Focused",
       subtitle: "Clean code and best practices",
       gradient: "linear-gradient(145deg,#4F46E5,#000)",
     },
     {
       image:
-        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80&fm=jpg",
+        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=75&fm=webp",
       title: "Fast & Reliable",
       subtitle: "Quick turnaround and responsive",
       gradient: "linear-gradient(210deg,#10B981,#000)",
     },
     {
       image:
-        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&fm=jpg",
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=75&fm=webp",
       title: "Growth Oriented",
       subtitle: "Solutions that help your business grow",
       gradient: "linear-gradient(165deg,#F59E0B,#000)",
     },
     {
       image:
-        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&fm=jpg",
+        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=75&fm=webp",
       title: "Professional Service",
       subtitle: "Expert development and support",
       gradient: "linear-gradient(195deg,#EF4444,#000)",
@@ -75,17 +103,26 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
   const data = items?.length ? items : demo;
 
   useEffect(() => {
+    if (simpleMode) return;
     const el = rootRef.current;
     if (!el) return;
     const { width, height } = el.getBoundingClientRect();
     pos.current = { x: width / 2, y: height / 2 };
     el.style.setProperty("--x", `${pos.current.x}px`);
     el.style.setProperty("--y", `${pos.current.y}px`);
-  }, []);
+  }, [simpleMode]);
 
   useEffect(() => {
     const cards = cardRefs.current.filter(Boolean) as HTMLElement[];
     if (cards.length === 0) return;
+
+    if (simpleMode) {
+      cards.forEach((card) => {
+        card.style.opacity = "1";
+        card.style.transform = "none";
+      });
+      return;
+    }
 
     const totalDuration = 0.6;
     cards.forEach((card, i) => {
@@ -96,7 +133,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
         { duration: 0.8, ease: "easeOut", delay },
       );
     });
-  }, [data.length]);
+  }, [data.length, simpleMode]);
 
   const moveTo = (targetX: number, targetY: number) => {
     const el = rootRef.current;
@@ -124,6 +161,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
   };
 
   const handleMove = (e: React.PointerEvent) => {
+    if (simpleMode) return;
     const r = rootRef.current!.getBoundingClientRect();
     moveTo(e.clientX - r.left, e.clientY - r.top);
 
@@ -136,6 +174,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
   };
 
   const handleLeave = () => {
+    if (simpleMode) return;
     fadeControls.current?.stop();
     fadeControls.current = animate(
       fadeRef.current!,
@@ -149,6 +188,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
   };
 
   const handleCardMove: React.MouseEventHandler<HTMLElement> = (e) => {
+    if (simpleMode) return;
     const c = e.currentTarget as HTMLElement;
     const rect = c.getBoundingClientRect();
     c.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
@@ -158,15 +198,17 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
   return (
     <div
       ref={rootRef}
-      onPointerMove={handleMove}
-      onPointerLeave={handleLeave}
-      className={`relative w-full h-full flex flex-wrap justify-center items-start gap-3 ${className}`}
+      onPointerMove={simpleMode ? undefined : handleMove}
+      onPointerLeave={simpleMode ? undefined : handleLeave}
+      className={`relative w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 ${className}`}
       style={
-        {
-          "--r": `${radius}px`,
-          "--x": "50%",
-          "--y": "50%",
-        } as React.CSSProperties
+        simpleMode
+          ? undefined
+          : ({
+              "--r": `${radius}px`,
+              "--x": "50%",
+              "--y": "50%",
+            } as React.CSSProperties)
       }
     >
       {data.map((c, i) => (
@@ -177,30 +219,33 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
           }}
           onMouseMove={handleCardMove}
           onClick={() => handleCardClick(c.url)}
-          className="group relative flex flex-col w-full lg:w-[300px] rounded-[20px] overflow-hidden border transition-colors duration-300 cursor-pointer"
+          className="group relative flex flex-col w-full min-w-0 rounded-[20px] overflow-hidden border border-white/10 transition-colors duration-300 cursor-pointer hover:border-white/20"
           style={
             {
               "--card-border": c.borderColor || "transparent",
               background: c.gradient,
               "--spotlight-color": "rgba(255,255,255,0.3)",
-              opacity: 0,
-              transform: "translateY(40px) scale(0.95)",
+              opacity: simpleMode ? 1 : 0,
+              transform: simpleMode ? "none" : "translateY(40px) scale(0.95)",
             } as React.CSSProperties
           }
         >
-          <div
-            className="absolute inset-0 pointer-events-none transition-opacity duration-500 z-20 opacity-0 group-hover:opacity-100"
-            style={{
-              background:
-                "radial-gradient(circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 70%)",
-            }}
-          />
+          {!simpleMode ? (
+            <div
+              className="absolute inset-0 pointer-events-none transition-opacity duration-500 z-20 opacity-0 group-hover:opacity-100"
+              style={{
+                background:
+                  "radial-gradient(circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 70%)",
+              }}
+            />
+          ) : null}
           <div className="relative z-10 flex-1 p-[10px] box-border">
             {c.mainVisual ? (
               <img
                 src={c.mainVisual}
                 alt={c.title}
                 loading="lazy"
+                decoding="async"
                 className="w-full h-[200px] object-cover rounded-[10px]"
               />
             ) : c.image ? (
@@ -208,6 +253,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
                 src={c.image}
                 alt={c.title}
                 loading="lazy"
+                decoding="async"
                 className="w-full h-[200px] object-cover rounded-[10px]"
               />
             ) : null}
@@ -238,32 +284,36 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
           </footer>
         </article>
       ))}
-      <div
-        className="absolute inset-0 pointer-events-none z-30"
-        style={{
-          backdropFilter: "grayscale(1) brightness(0.78)",
-          WebkitBackdropFilter: "grayscale(1) brightness(0.78)",
-          background: "rgba(0,0,0,0.001)",
-          maskImage:
-            "radial-gradient(circle var(--r) at var(--x) var(--y),transparent 0%,transparent 15%,rgba(0,0,0,0.10) 30%,rgba(0,0,0,0.22)45%,rgba(0,0,0,0.35)60%,rgba(0,0,0,0.50)75%,rgba(0,0,0,0.68)88%,white 100%)",
-          WebkitMaskImage:
-            "radial-gradient(circle var(--r) at var(--x) var(--y),transparent 0%,transparent 15%,rgba(0,0,0,0.10) 30%,rgba(0,0,0,0.22)45%,rgba(0,0,0,0.35)60%,rgba(0,0,0,0.50)75%,rgba(0,0,0,0.68)88%,white 100%)",
-        }}
-      />
-      <div
-        ref={fadeRef}
-        className="absolute inset-0 pointer-events-none transition-opacity duration-[250ms] z-40"
-        style={{
-          backdropFilter: "grayscale(1) brightness(0.78)",
-          WebkitBackdropFilter: "grayscale(1) brightness(0.78)",
-          background: "rgba(0,0,0,0.001)",
-          maskImage:
-            "radial-gradient(circle var(--r) at var(--x) var(--y),white 0%,white 15%,rgba(255,255,255,0.90)30%,rgba(255,255,255,0.78)45%,rgba(255,255,255,0.65)60%,rgba(255,255,255,0.50)75%,rgba(255,255,255,0.32)88%,transparent 100%)",
-          WebkitMaskImage:
-            "radial-gradient(circle var(--r) at var(--x) var(--y),white 0%,white 15%,rgba(255,255,255,0.90)30%,rgba(255,255,255,0.78)45%,rgba(255,255,255,0.65)60%,rgba(255,255,255,0.50)75%,rgba(255,255,255,0.32)88%,transparent 100%)",
-          opacity: 1,
-        }}
-      />
+      {!simpleMode ? (
+        <>
+          <div
+            className="absolute inset-0 pointer-events-none z-30"
+            style={{
+              backdropFilter: "grayscale(1) brightness(0.78)",
+              WebkitBackdropFilter: "grayscale(1) brightness(0.78)",
+              background: "rgba(0,0,0,0.001)",
+              maskImage:
+                "radial-gradient(circle var(--r) at var(--x) var(--y),transparent 0%,transparent 15%,rgba(0,0,0,0.10) 30%,rgba(0,0,0,0.22)45%,rgba(0,0,0,0.35)60%,rgba(0,0,0,0.50)75%,rgba(0,0,0,0.68)88%,white 100%)",
+              WebkitMaskImage:
+                "radial-gradient(circle var(--r) at var(--x) var(--y),transparent 0%,transparent 15%,rgba(0,0,0,0.10) 30%,rgba(0,0,0,0.22)45%,rgba(0,0,0,0.35)60%,rgba(0,0,0,0.50)75%,rgba(0,0,0,0.68)88%,white 100%)",
+            }}
+          />
+          <div
+            ref={fadeRef}
+            className="absolute inset-0 pointer-events-none transition-opacity duration-[250ms] z-40"
+            style={{
+              backdropFilter: "grayscale(1) brightness(0.78)",
+              WebkitBackdropFilter: "grayscale(1) brightness(0.78)",
+              background: "rgba(0,0,0,0.001)",
+              maskImage:
+                "radial-gradient(circle var(--r) at var(--x) var(--y),white 0%,white 15%,rgba(255,255,255,0.90)30%,rgba(255,255,255,0.78)45%,rgba(255,255,255,0.65)60%,rgba(255,255,255,0.50)75%,rgba(255,255,255,0.32)88%,transparent 100%)",
+              WebkitMaskImage:
+                "radial-gradient(circle var(--r) at var(--x) var(--y),white 0%,white 15%,rgba(255,255,255,0.90)30%,rgba(255,255,255,0.78)45%,rgba(255,255,255,0.65)60%,rgba(255,255,255,0.50)75%,rgba(255,255,255,0.32)88%,transparent 100%)",
+              opacity: 1,
+            }}
+          />
+        </>
+      ) : null}
     </div>
   );
 };

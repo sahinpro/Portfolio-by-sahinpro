@@ -4,22 +4,28 @@ export const PROFILE = {
   role: "Full Stack Developer",
   headline: "Full Stack Developer · React · Next.js · WordPress · Shopify",
   tagline: "Building fast, modern web experiences",
-  /** Hero subtitle — one phrase per line for staggered reveal */
+  /** Hero gradient lines — stack/role only; tagline is separate plain text */
   heroSubtitleLines: [
     "Full Stack Developer",
     "React · Next.js · WordPress · Shopify",
-    "Building fast, modern web experiences",
   ],
   location: "Dhaka, Bangladesh",
   workLocation: "Sunamganj, Sylhet, Bangladesh",
-  email: "sahinhub@gmail.com",
+  email: "sahinweb@proton.me",
   phone: "+8801791992313",
   whatsappUrl: "https://wa.me/8801791992313",
   linkedIn: "https://www.linkedin.com/in/sahincoder",
   portfolioUrl: "https://sahincoder.vercel.app/",
   yearsExperience: "3+",
   projectsDelivered: "200+",
-  bio: "Full Stack Developer specializing in WordPress, Shopify, React, and Next.js — building modern web apps and e-commerce stores for clients worldwide.",
+  /** Outcome-focused — hero prose (left column only) */
+  bio: "I partner with agencies and founders to ship polished sites and stores — from launch through long-term support, with a focus on speed and maintainability.",
+  /** Bullet highlights for hero code panel — complements {@link bio}, not duplicated */
+  codeHighlights: [
+    "E-commerce & CMS builds at scale",
+    "React / Next.js product development",
+    "Launch, optimization & long-term support",
+  ],
   aboutIntro:
     "Since March 2023 I've been a Full Stack Web Developer at We Next Coder, delivering 200+ WordPress, WooCommerce, and Shopify projects plus modern Next.js products like payment platforms. I also work independently for local and international clients — always focused on clean code, fast performance, and outcomes you can measure.",
   journeyDescription:
@@ -38,6 +44,7 @@ export const PROFILE = {
 export const LEGACY_HERO_DESCRIPTIONS = [
   "Web Designer & Developer specializing in WordPress, now diving into Full Stack Web Development.",
   "Web Designer & Developer specializing in WordPress, now diving into Full Stack Web Development",
+  "Full Stack Developer specializing in WordPress, Shopify, React, and Next.js — building modern web apps and e-commerce stores for clients worldwide.",
 ] as const;
 
 export function resolveHeroDescription(stored: string | undefined): string {
@@ -56,7 +63,6 @@ export function resolveHeroDescription(stored: string | undefined): string {
 export const PROFILE_TYPEWRITER_FALLBACK = [
   "Full Stack Developer",
   "React · Next.js · WordPress · Shopify",
-  "Building fast, modern web experiences",
 ] as const;
 
 /** Frameworks, languages, and styling — typical “stack” items */
@@ -70,4 +76,8 @@ export const PROFILE_STACK = [
 ] as const;
 
 /** CMS / e-commerce platforms (not a stack, but core to your work) */
-export const PROFILE_PLATFORMS = ["WordPress", "WooCommerce", "Shopify"] as const;
+export const PROFILE_PLATFORMS = [
+  "WordPress",
+  "WooCommerce",
+  "Shopify",
+] as const;
