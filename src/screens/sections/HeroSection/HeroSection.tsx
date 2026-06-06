@@ -41,7 +41,9 @@ export const HeroSection = (): JSX.Element => {
         const isMobile = window.matchMedia(
           `(max-width: ${DESKTOP_LAYOUT_BREAKPOINT - 1}px)`,
         ).matches;
-        const deferMs = isMobile ? MOBILE_EDITOR_DEFER_MS : DESKTOP_EDITOR_DEFER_MS;
+        const deferMs = isMobile
+          ? MOBILE_EDITOR_DEFER_MS
+          : DESKTOP_EDITOR_DEFER_MS;
 
         cancelDefer?.();
         cancelDefer = deferUntilIdle(() => setShowCodeEditor(true), deferMs);
@@ -64,9 +66,9 @@ export const HeroSection = (): JSX.Element => {
 
       <div className="pointer-events-none absolute left-0 bottom-0 w-full h-[200px] bg-gradient-to-t from-[#050505] via-[#05050580] to-transparent z-[1]" />
 
-      <div className="relative z-[2] container mx-auto px-4">
-        <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 xl:gap-16 justify-between items-center">
-          <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+      <div className="relative z-[2] container mx-auto px-4 pt-5">
+        <div className="relative flex flex-col lg:flex-row gap-0 lg:gap-12 xl:gap-16 justify-between items-center max-lg:items-stretch max-lg:pt-2 max-lg:pb-4">
+          <div className="relative z-10 flex flex-col items-center lg:items-start text-center lg:text-left w-full lg:w-auto max-lg:px-1 mb-10 lg:mb-0">
             <div className="w-full">
               <HeroContent />
             </div>
@@ -105,7 +107,7 @@ export const HeroSection = (): JSX.Element => {
 
           <div
             ref={editorRef}
-            className="w-full min-w-0 lg:w-1/2 aspect-video"
+            className="relative z-0 w-full min-w-0 lg:w-1/2 aspect-video max-lg:pointer-events-none max-lg:select-none max-lg:origin-top max-lg:scale-[0.98]"
           >
             {showCodeEditor ? (
               <Suspense fallback={<CodeEditorPlaceholder />}>

@@ -17,7 +17,7 @@ export const HeroSubtitle = (): JSX.Element => {
       {PROFILE.heroSubtitleLines.map((text) => (
         <span
           key={text}
-          className="section-hero-subtitle block font-bold leading-[2rem] tracking-[-0.2px] text-3xl lg:text-[42px]"
+          className="section-hero-subtitle block font-bold leading-[3.5rem] tracking-[-0.2px] text-3xl lg:text-[42px]"
           style={subtitleGradient}
         >
           {text}
