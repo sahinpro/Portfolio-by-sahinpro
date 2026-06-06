@@ -12,6 +12,7 @@ Built with **React 18**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Frame
 - **Security**: Row Level Security (RLS) on the database; admin allowlist; protected admin routes.
 - **SEO**: `react-helmet-async` for titles and meta tags driven from the database where available.
 - **Contact**: Vercel API route (`/api/contact`) → Resend email delivery (optional Cloudflare Turnstile).
+- **Mobile performance**: Self-hosted fonts (`public/fonts/`), CSS-only hero aurora on mobile, below-fold `LazySection` deferral on the homepage, Calendly loaded on demand from the contact page.
 - **TypeScript** throughout, ESLint with zero-warning policy, path aliases under `@/`.
 
 ## Tech stack
@@ -120,7 +121,9 @@ For **Vercel production**, add the same server variables in **Project → Settin
 
 ```
 Portfolio-by-sahinhub/
-├── public/                 # Static assets
+├── public/
+│   ├── fonts/              # Self-hosted Inter + MonteCarlo (woff2)
+│   └── …                   # Static assets
 ├── supabase/
 │   ├── migrations/         # SQL migrations (run in order)
 │   └── README.md           # Backend setup, RLS, Edge Functions, secrets
@@ -148,6 +151,20 @@ Portfolio-by-sahinhub/
 - Functional components with TypeScript; hooks for reusable logic.
 - Imports from `src/` use the `@/` alias (see `vite.config.ts` / `tsconfig`).
 - Components: PascalCase; functions and variables: camelCase.
+
+## Mobile performance
+
+Phase 1 optimizations for faster first paint on phones:
+
+| Technique | Location | Effect |
+| --------- | -------- | ------ |
+| Self-hosted fonts | `public/fonts/`, `@font-face` in `tailwind.css` | Inter 400/600/700 + MonteCarlo only; no Google Fonts round-trip |
+| CSS-only hero aurora on mobile | `src/components/AuroraBackground.tsx` | Skips Three.js WebGL below 768px |
+| Below-fold deferral | `LazySection` in `src/pages/HomePage.tsx` | Mounts sections near viewport only |
+| Optimistic site gate | `src/routes/PublicSiteGate.tsx` | Renders public pages immediately; coming-soon check after settings load |
+| Deferred Calendly | `src/lib/loadCalendly.ts`, Contact page CTA | Third-party widget loads on click only |
+
+Font files were sourced from `@fontsource/inter` and `@fontsource/montecarlo` (devDependencies used at build/setup time).
 
 ## License
 

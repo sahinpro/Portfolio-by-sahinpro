@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import { PublicSeo } from "@/components/public/PublicSeo";
+import { LazySection } from "@/components/section/LazySection";
 import { CareerJourneySection } from "@/screens/sections/CareerJourneySection";
 import { CustomerStoriesSection } from "@/screens/sections/CustomerStoriesSection";
 import { DevelopmentProcessSection } from "@/screens/sections/DevelopmentProcessSection";
@@ -19,15 +20,33 @@ export const HomePage = (): JSX.Element => {
       <Header />
       <HeroSection />
       <StatsSection />
-      <FeaturedProjectsSection />
-      <SkillsSection />
-      <CareerJourneySection />
-      <DevelopmentProcessSection />
-      <CustomerStoriesSection />
-      <WhyChooseUsSection />
-      <FAQSection />
-      <GetStartedSection />
-      <FooterSection />
+      <LazySection minHeight={480}>
+        <FeaturedProjectsSection />
+      </LazySection>
+      <LazySection minHeight={600}>
+        <SkillsSection />
+      </LazySection>
+      <LazySection minHeight={500}>
+        <CareerJourneySection />
+      </LazySection>
+      <LazySection minHeight={400}>
+        <DevelopmentProcessSection />
+      </LazySection>
+      <LazySection minHeight={520}>
+        <CustomerStoriesSection />
+      </LazySection>
+      <LazySection minHeight={480}>
+        <WhyChooseUsSection />
+      </LazySection>
+      <LazySection minHeight={400}>
+        <FAQSection />
+      </LazySection>
+      <LazySection minHeight={320}>
+        <GetStartedSection />
+      </LazySection>
+      <LazySection minHeight={280}>
+        <FooterSection />
+      </LazySection>
     </div>
   );
 };

@@ -90,7 +90,7 @@ export const SkillsSection = (): JSX.Element => {
             clickEffect={false}
             spotlightRadius={200}
             particleCount={0}
-            disableAnimations={false}
+            disableAnimations={true}
             cards={skillsCards}
           />
         </motion.div>

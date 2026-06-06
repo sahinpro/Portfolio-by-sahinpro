@@ -40,11 +40,7 @@ export function PublicSiteGate(): JSX.Element {
     return <Outlet />;
   }
 
-  if (settingsLoading) {
-    return <PageSpinner />;
-  }
-
-  if (isComingSoonEnabled(settings)) {
+  if (!settingsLoading && isComingSoonEnabled(settings)) {
     if (adminBypass === null) {
       return <PageSpinner />;
     }

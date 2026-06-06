@@ -1,3 +1,4 @@
+import { MOBILE_LAYOUT_BREAKPOINT } from "@/constants/styles";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 const BRAND_COLORS = {
@@ -114,6 +115,13 @@ const prefersReducedMotion = (): boolean =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+const isMobileViewport = (): boolean =>
+  typeof window !== "undefined" &&
+  window.matchMedia(`(max-width: ${MOBILE_LAYOUT_BREAKPOINT}px)`).matches;
+
+const shouldUseWebGL = (): boolean =>
+  !prefersReducedMotion() && !isMobileViewport();
+
 const scheduleDeferredInit = (callback: () => void): (() => void) => {
   if (typeof window.requestIdleCallback === "function") {
     const id = window.requestIdleCallback(callback, {
@@ -126,7 +134,7 @@ const scheduleDeferredInit = (callback: () => void): (() => void) => {
 };
 
 const getPixelRatio = (): number => {
-  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  const isMobile = isMobileViewport();
   return Math.min(window.devicePixelRatio, isMobile ? 1 : 1.5);
 };
 
@@ -146,7 +154,7 @@ export function AuroraBackground({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || prefersReducedMotion()) return;
+    if (!container || !shouldUseWebGL()) return;
 
     let cancelIdle: (() => void) | undefined;
     const observer = new IntersectionObserver(

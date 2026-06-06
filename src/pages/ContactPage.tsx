@@ -14,6 +14,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { PROFILE } from "@/constants/profile";
 import { submitContactForm } from "@/lib/submitContact";
+import { loadCalendly } from "@/lib/loadCalendly";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
@@ -795,8 +796,10 @@ export const ContactPage = (): JSX.Element => {
                 variant="secondary"
                 className="w-full justify-center text-xs"
                 onClick={() => {
-                  window.Calendly?.initPopupWidget({
-                    url: CALENDLY_POPUP_URL,
+                  void loadCalendly().then(() => {
+                    window.Calendly?.initPopupWidget({
+                      url: CALENDLY_POPUP_URL,
+                    });
                   });
                 }}
               >
