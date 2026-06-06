@@ -15,7 +15,7 @@ export const PROFILE = {
   phone: "+8801791992313",
   whatsappUrl: "https://wa.me/8801791992313",
   linkedIn: "https://www.linkedin.com/in/sahincoder",
-  portfolioUrl: "https://sahincoder.vercel.app/",
+  portfolioUrl: "https://sahin.pro.bd/",
   yearsExperience: "3+",
   projectsDelivered: "200+",
   /** Outcome-focused    hero prose (left column only) */

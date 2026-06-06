@@ -15,7 +15,7 @@ import { WhyChooseUsSection } from "@/screens/sections/WhyChooseUsSection";
 
 export const HomePage = (): JSX.Element => {
   return (
-    <div className="flex flex-col items-start relative bg-[#050505] min-h-screen w-full overflow-x-hidden">
+    <main id="main-content" className="flex flex-col items-start relative bg-[#050505] min-h-screen w-full overflow-x-hidden">
       <PublicSeo />
       <Header />
       <HeroSection />
@@ -47,6 +47,6 @@ export const HomePage = (): JSX.Element => {
       <LazySection minHeight={280}>
         <FooterSection />
       </LazySection>
-    </div>
+    </main>
   );
 };

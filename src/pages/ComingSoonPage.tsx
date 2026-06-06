@@ -55,6 +55,7 @@ export function ComingSoonPage({
     >
       <Helmet prioritizeSeoTags>
         <title>Coming Soon | Sahin Alam</title>
+        <meta name="robots" content="noindex, nofollow" />
         <meta
           name="description"
           content="The website is temporarily unavailable while a polished update is being prepared."

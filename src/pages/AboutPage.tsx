@@ -141,7 +141,7 @@ export const AboutPage = (): JSX.Element => {
   };
 
   return (
-    <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+    <main id="main-content" className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <PublicSeo />
       <Header />
 
@@ -342,6 +342,6 @@ export const AboutPage = (): JSX.Element => {
       </section>
 
       <FooterSection />
-    </div>
+    </main>
   );
 };

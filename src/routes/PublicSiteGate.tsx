@@ -1,4 +1,5 @@
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
+import { SkipToContent } from "@/components/SkipToContent";
 import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
 import { getComingSoonContent, isComingSoonEnabled } from "@/lib/siteMode";
 import { ComingSoonPage } from "@/pages/ComingSoonPage";
@@ -50,5 +51,10 @@ export function PublicSiteGate(): JSX.Element {
     return <ComingSoonPage {...getComingSoonContent(settings)} />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <SkipToContent />
+      <Outlet />
+    </>
+  );
 }

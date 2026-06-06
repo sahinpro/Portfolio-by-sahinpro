@@ -1,6 +1,7 @@
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
 import { PublicSeo } from "@/components/public/PublicSeo";
+import { absoluteUrl, canonicalPath, getSiteUrl } from "@/constants/site";
 import { LandscapePageCtaSection } from "@/components/section";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { usePublishedProject } from "@/hooks/usePublishedProject";
@@ -24,7 +25,7 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 
 const SITE = "Sahin Alam";
 
@@ -146,6 +147,7 @@ function RelatedCard({
 
 export function ProjectDetailPage(): JSX.Element {
   const { slug } = useParams<{ slug: string }>();
+  const { pathname } = useLocation();
   const { project, loading, error } = usePublishedProject(slug);
   const { projects: allProjects } = usePublishedProjects();
 
@@ -174,14 +176,17 @@ export function ProjectDetailPage(): JSX.Element {
   }
 
   return (
-    <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+    <main id="main-content" className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <PublicSeo />
       {project && (
         <Helmet prioritizeSeoTags>
           <title>{`${project.title} · ${SITE}`}</title>
+          <link rel="canonical" href={canonicalPath(pathname)} />
           {metaDescription && (
             <meta name="description" content={metaDescription.slice(0, 320)} />
           )}
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content={canonicalPath(pathname)} />
           <meta property="og:title" content={project.title} />
           {metaDescription && (
             <meta
@@ -189,7 +194,31 @@ export function ProjectDetailPage(): JSX.Element {
               content={metaDescription.slice(0, 320)}
             />
           )}
-          <meta property="og:image" content={project.image} />
+          <meta property="og:image" content={absoluteUrl(project.image)} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={project.title} />
+          {metaDescription && (
+            <meta
+              name="twitter:description"
+              content={metaDescription.slice(0, 320)}
+            />
+          )}
+          <meta name="twitter:image" content={absoluteUrl(project.image)} />
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "CreativeWork",
+              name: project.title,
+              description: metaDescription?.slice(0, 320),
+              image: absoluteUrl(project.image),
+              url: canonicalPath(pathname),
+              author: {
+                "@type": "Person",
+                name: SITE,
+                url: getSiteUrl(),
+              },
+            })}
+          </script>
         </Helmet>
       )}
 
@@ -525,6 +554,6 @@ export function ProjectDetailPage(): JSX.Element {
       ) : null}
 
       <FooterSection />
-    </div>
+    </main>
   );
 }

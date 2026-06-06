@@ -54,7 +54,7 @@ export const ProjectsPage = (): JSX.Element => {
 
   if (loading && projects.length === 0) {
     return (
-      <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+      <main id="main-content" className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
         <div className="relative z-[1] flex flex-col w-full">
           <PublicSeo />
           <Header />
@@ -76,13 +76,13 @@ export const ProjectsPage = (): JSX.Element => {
           </section>
           <FooterSection />
         </div>
-      </div>
+      </main>
     );
   }
 
   if (error && projects.length === 0) {
     return (
-      <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+      <main id="main-content" className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
         <div className="relative z-[1] flex flex-col w-full">
           <PublicSeo />
           <Header />
@@ -92,12 +92,12 @@ export const ProjectsPage = (): JSX.Element => {
           </div>
           <FooterSection />
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+    <main id="main-content" className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <div className="relative z-[1] flex flex-col w-full">
         <PublicSeo />
         <Header />
@@ -230,6 +230,6 @@ export const ProjectsPage = (): JSX.Element => {
 
         <FooterSection />
       </div>
-    </div>
+    </main>
   );
 };

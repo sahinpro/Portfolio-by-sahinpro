@@ -88,8 +88,9 @@ const Header = () => {
   }, [isScrolled]);
 
   return (
-    <div
+    <header
       ref={headerRef}
+      role="banner"
       className="fixed font-sans after:content-[''] after:absolute after:top-0 after:bottom-0 after:bg-gradient-to-b after:from-black/70 after:to-transparent container mx-auto top-2 left-0 right-0 z-50 flex justify-center pt-4 sm:pt-8 px-4 rounded-xl"
     >
       <div
@@ -110,6 +111,7 @@ const Header = () => {
 
             <nav
               ref={navRef}
+              aria-label="Primary"
               className="hidden lg:flex items-center space-x-10"
             >
               <Navigation />
@@ -135,7 +137,7 @@ const Header = () => {
           <MobileMenu isOpen={isOpen} onClose={close} />
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 

@@ -1,0 +1,38 @@
+# Sahin Alam — Full Stack Developer Portfolio
+# https://sahin.pro.bd
+
+> Full Stack Developer from Bangladesh specializing in React, Next.js, WordPress, WooCommerce, and Shopify. 3+ years experience, 200+ delivered client projects.
+
+## About
+
+Sahin Alam is a Full Stack Web Developer based in Dhaka, Bangladesh. He builds modern web applications, e-commerce stores, and CMS-powered websites for agencies and founders worldwide.
+
+## Contact
+
+- Email: sahinweb@proton.me
+- Phone: +8801791992313
+- LinkedIn: https://www.linkedin.com/in/sahincoder
+- WhatsApp: https://wa.me/8801791992313
+
+## Main pages
+
+- [Home](https://sahin.pro.bd/): Portfolio landing page with featured projects, skills, testimonials, and FAQ.
+- [About](https://sahin.pro.bd/about): Professional background, career journey, certifications, and resume download.
+- [Projects](https://sahin.pro.bd/projects): Published portfolio work — WordPress, WooCommerce, Shopify, React, and Next.js builds.
+- [Services](https://sahin.pro.bd/services): Web development, e-commerce, CMS, and performance/SEO services offered.
+- [Blog](https://sahin.pro.bd/blogs): Articles on web development, WordPress, React, and related topics.
+- [Contact](https://sahin.pro.bd/contact): Contact form and scheduling options.
+
+## Expertise
+
+- React, Next.js, TypeScript, Node.js
+- WordPress, WooCommerce, Shopify
+- Tailwind CSS, responsive design
+- Performance optimization and technical SEO
+
+## Crawling
+
+- Sitemap: https://sahin.pro.bd/sitemap.xml
+- Robots: https://sahin.pro.bd/robots.txt
+
+This site is a client-rendered React SPA. Meta tags, Open Graph data, and JSON-LD structured data are injected per route. Dynamic project and blog URLs are listed in the sitemap.

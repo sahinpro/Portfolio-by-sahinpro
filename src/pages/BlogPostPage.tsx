@@ -3,6 +3,7 @@ import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
 import { LandscapePageCtaSection } from "@/components/section";
 import { PublicSeo } from "@/components/public/PublicSeo";
+import { absoluteUrl, canonicalPath, getSiteUrl } from "@/constants/site";
 import { BLOG_COVER_PLACEHOLDER } from "@/constants/placeholders";
 import { usePublishedBlogPost } from "@/hooks/usePublishedBlogPost";
 import { usePublishedBlogPosts } from "@/hooks/usePublishedBlogPosts";
@@ -18,7 +19,7 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 const SITE = "Sahin Alam";
 
@@ -117,6 +118,7 @@ function RelatedCard({
 /* ─── page ─── */
 export const BlogPostPage = (): JSX.Element => {
   const { slug } = useParams<{ slug: string }>();
+  const { pathname } = useLocation();
   const { post, loading, error } = usePublishedBlogPost(slug);
   const { posts: allPosts } = usePublishedBlogPosts();
 
@@ -139,20 +141,50 @@ export const BlogPostPage = (): JSX.Element => {
   }
 
   return (
-    <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+    <main id="main-content" className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <PublicSeo />
       {post && (
         <Helmet prioritizeSeoTags>
           <title>{`${post.title} · ${SITE}`}</title>
+          <link rel="canonical" href={canonicalPath(pathname)} />
           {post.excerpt && <meta name="description" content={post.excerpt} />}
+          <meta property="og:type" content="article" />
+          <meta property="og:url" content={canonicalPath(pathname)} />
           <meta property="og:title" content={post.title} />
           {post.excerpt && (
             <meta property="og:description" content={post.excerpt} />
           )}
           <meta
             property="og:image"
-            content={post.cover_image || BLOG_COVER_PLACEHOLDER}
+            content={absoluteUrl(post.cover_image || BLOG_COVER_PLACEHOLDER)}
           />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={post.title} />
+          {post.excerpt && (
+            <meta name="twitter:description" content={post.excerpt} />
+          )}
+          <meta
+            name="twitter:image"
+            content={absoluteUrl(post.cover_image || BLOG_COVER_PLACEHOLDER)}
+          />
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BlogPosting",
+              headline: post.title,
+              description: post.excerpt ?? undefined,
+              image: absoluteUrl(post.cover_image || BLOG_COVER_PLACEHOLDER),
+              datePublished: post.published_at ?? post.created_at,
+              dateModified: post.updated_at,
+              author: {
+                "@type": "Person",
+                name: SITE,
+                url: getSiteUrl(),
+              },
+              mainEntityOfPage: canonicalPath(pathname),
+              url: canonicalPath(pathname),
+            })}
+          </script>
         </Helmet>
       )}
 
@@ -324,6 +356,6 @@ export const BlogPostPage = (): JSX.Element => {
       ) : null}
 
       <FooterSection />
-    </div>
+    </main>
   );
 };

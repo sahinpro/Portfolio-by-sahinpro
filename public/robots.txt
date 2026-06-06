@@ -1,0 +1,48 @@
+# https://sahin.pro.bd robots.txt
+# Allow all crawlers, including search engines and AI agents.
+
+User-agent: *
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# Admin and API routes are not useful in search indexes.
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://sahin.pro.bd/sitemap.xml
