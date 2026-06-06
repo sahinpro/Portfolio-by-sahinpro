@@ -65,7 +65,25 @@
       ]
     },
     {
-      "source": "/(.*\\.(webp|png|svg|jpg|jpeg))",
+      "source": "/sahin.webp",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/sahin-avatar.webp",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/sahin.png",
       "headers": [
         {
           "key": "Cache-Control",

@@ -12,6 +12,7 @@ export default tseslint.config(
       "coverage",
       "tailwind.config.js",
       "postcss.config.js",
+      "scripts/**/*.mjs",
     ],
   },
   js.configs.recommended,
