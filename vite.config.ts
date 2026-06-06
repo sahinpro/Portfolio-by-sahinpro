@@ -153,6 +153,9 @@ export default defineConfig(({ mode }) => {
           ) {
             return "md-editor";
           }
+          if (id.includes("/three/") || id.endsWith("/three")) {
+            return "three";
+          }
           if (
             id.includes("react-dom/") ||
             id.includes("react-router-dom/") ||
