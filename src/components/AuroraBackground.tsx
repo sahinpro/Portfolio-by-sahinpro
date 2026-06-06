@@ -1,4 +1,4 @@
-import { MOBILE_LAYOUT_BREAKPOINT } from "@/constants/styles";
+import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
@@ -9,10 +9,10 @@ const BRAND_COLORS = {
   accent: "#ee2a7b",
 } as const;
 
-/** Fewer layers than the original 24 — lighter GPU work after WebGL starts. */
 const AURORA_LAYERS = 16;
-/** Wait until after load + idle so lab metrics stay clean (mobile never loads WebGL). */
 const WEBGL_DEFER_MS = 4200;
+
+const DESKTOP_AURORA_MEDIA = `(min-width: ${DESKTOP_LAYOUT_BREAKPOINT}px) and (hover: hover) and (pointer: fine)`;
 
 const VERTEX_SHADER = `
 void main() {
@@ -95,7 +95,7 @@ void main() {
 }
 `;
 
-const FALLBACK_STYLE: CSSProperties = {
+const CSS_AURORA_STYLE: CSSProperties = {
   background: `
     radial-gradient(ellipse 85% 55% at 50% -15%, rgba(149, 0, 255, 0.22), transparent 58%),
     radial-gradient(ellipse 55% 45% at 85% 45%, rgba(120, 156, 255, 0.14), transparent 55%),
@@ -114,18 +114,6 @@ const hexToRgb = (hex: string): [number, number, number] => {
   ];
 };
 
-const prefersReducedMotion = (): boolean =>
-  typeof window !== "undefined" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-const isMobileViewport = (): boolean =>
-  typeof window !== "undefined" &&
-  window.matchMedia(`(max-width: ${MOBILE_LAYOUT_BREAKPOINT}px)`).matches;
-
-/** Desktop only, after idle — keeps mobile scores and lab TBT clean. */
-const shouldUseWebGL = (): boolean =>
-  !prefersReducedMotion() && !isMobileViewport();
-
 const getPixelRatio = (): number =>
   Math.min(window.devicePixelRatio, 1.25);
 
@@ -134,11 +122,77 @@ interface AuroraBackgroundProps {
   opacity?: number;
 }
 
+function isDesktopAuroraEligible(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    window.matchMedia(DESKTOP_AURORA_MEDIA).matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+function AuroraBackgroundCss({
+  className = "",
+  opacity = 1,
+}: AuroraBackgroundProps): JSX.Element {
+  return (
+    <div
+      className={`absolute inset-0 w-full h-full overflow-hidden pointer-events-none ${className}`.trim()}
+      style={{ opacity, ...CSS_AURORA_STYLE }}
+      aria-hidden
+    />
+  );
+}
+
 /**
- * CSS aurora paints immediately for LCP. WebGL rays load lazily on desktop
- * after idle + in-viewport, then crossfade over the CSS fallback.
+ * Mobile: CSS-only aurora (no WebGL, no Three.js) — preserves lab scores.
+ * Desktop: CSS fallback + deferred WebGL rays after idle.
  */
 export function AuroraBackground({
+  className = "",
+  opacity = 1,
+}: AuroraBackgroundProps): JSX.Element {
+  if (!isDesktopAuroraEligible()) {
+    return <AuroraBackgroundCss className={className} opacity={opacity} />;
+  }
+
+  return (
+    <AuroraBackgroundDesktopWithSync className={className} opacity={opacity} />
+  );
+}
+
+function AuroraBackgroundDesktopWithSync({
+  className = "",
+  opacity = 1,
+}: AuroraBackgroundProps): JSX.Element {
+  const [desktopAurora, setDesktopAurora] = useState(true);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const desktop = window.matchMedia(DESKTOP_AURORA_MEDIA);
+
+    const sync = (): void => {
+      setDesktopAurora(desktop.matches && !reducedMotion.matches);
+    };
+
+    sync();
+    desktop.addEventListener("change", sync);
+    reducedMotion.addEventListener("change", sync);
+    return () => {
+      desktop.removeEventListener("change", sync);
+      reducedMotion.removeEventListener("change", sync);
+    };
+  }, []);
+
+  if (!desktopAurora) {
+    return <AuroraBackgroundCss className={className} opacity={opacity} />;
+  }
+
+  return (
+    <AuroraBackgroundDesktop className={className} opacity={opacity} />
+  );
+}
+
+function AuroraBackgroundDesktop({
   className = "",
   opacity = 1,
 }: AuroraBackgroundProps): JSX.Element {
@@ -149,7 +203,7 @@ export function AuroraBackground({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !shouldUseWebGL()) return;
+    if (!container) return;
 
     let cancelDefer: (() => void) | undefined;
     const observer = new IntersectionObserver(
@@ -285,7 +339,7 @@ export function AuroraBackground({
       <div
         className="absolute inset-0 transition-opacity duration-700"
         style={{
-          ...FALLBACK_STYLE,
+          ...CSS_AURORA_STYLE,
           opacity: webglReady ? 0 : 1,
         }}
       />

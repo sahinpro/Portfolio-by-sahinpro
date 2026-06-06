@@ -2,6 +2,7 @@ import { AuroraBackground } from "@/components/AuroraBackground";
 import { getSocialBrand } from "@/components/public/socialBrands";
 import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
 import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
+import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
@@ -26,7 +27,7 @@ export const HeroSection = (): JSX.Element => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.matchMedia("(max-width: 1023px)").matches) return;
+    if (window.matchMedia(`(max-width: ${DESKTOP_LAYOUT_BREAKPOINT - 1}px)`).matches) return;
 
     return deferUntilIdle(() => setShowCodeEditor(true), 2500);
   }, []);

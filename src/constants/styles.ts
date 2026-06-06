@@ -3,8 +3,10 @@ import { colors } from '@/theme/colors';
 export const SCROLL_THRESHOLD = 50;
 export const HEADER_ANIMATION_DURATION = 0.4;
 export const MOBILE_BREAKPOINT = 640;
-/** Layout breakpoint for deferring heavy visuals (Aurora WebGL, bento, chroma grid). */
+/** Layout breakpoint for deferring heavy visuals (bento, chroma grid). */
 export const MOBILE_LAYOUT_BREAKPOINT = 768;
+/** Tailwind `lg` — WebGL aurora + hero code panel; disabled below this width. */
+export const DESKTOP_LAYOUT_BREAKPOINT = 1024;
 
 export const COLORS = {
   background: colors.background.primary,
