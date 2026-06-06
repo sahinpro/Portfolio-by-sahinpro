@@ -1,6 +1,9 @@
 import { cn } from "@/lib/utils";
 import { useEffect, type ReactNode } from "react";
-import { aboutCodePaneClass } from "./aboutCodeLayout";
+import {
+  aboutCodePaneClass,
+  aboutCodePanePassScrollClass,
+} from "./aboutCodeLayout";
 import { highlightCodeLine } from "./highlightCode";
 import { useTypewriter } from "./useTypewriter";
 
@@ -90,8 +93,9 @@ export const CodeEditorPanel = ({
             }
           }}
           className={cn(
-            "w-full text-left cursor-text focus:outline-none focus-visible:ring-1 focus-visible:ring-violet-500/40",
+            "w-full text-left cursor-text focus:outline-none focus-visible:ring-1 focus-visible:ring-violet-500/40 max-md:cursor-default",
             aboutCodePaneClass,
+            aboutCodePanePassScrollClass,
           )}
           aria-label="Code editor with typing animation. Click to skip."
         >
@@ -118,7 +122,9 @@ export const CodeEditorPanel = ({
           </pre>
         </div>
       ) : (
-        <div className={aboutCodePaneClass}>{terminal}</div>
+        <div className={cn(aboutCodePaneClass, aboutCodePanePassScrollClass)}>
+          {terminal}
+        </div>
       )}
     </div>
   );
