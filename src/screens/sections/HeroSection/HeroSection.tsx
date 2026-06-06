@@ -21,16 +21,18 @@ const CodeEditorPlaceholder = (): JSX.Element => (
 
 export const HeroSection = (): JSX.Element => {
   const socialLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
-  const { links: socialLinks, loading: socialLoading } =
-    useVisibleSocialLinks();
+  const { links: socialLinks } = useVisibleSocialLinks({ deferMs: 4000 });
   const [showCodeEditor, setShowCodeEditor] = useState(false);
 
   useEffect(() => {
-    return deferUntilIdle(() => setShowCodeEditor(true), 2200);
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(max-width: 1023px)").matches) return;
+
+    return deferUntilIdle(() => setShowCodeEditor(true), 2500);
   }, []);
 
   return (
-    <section className="relative w-full overflow-hidden min-h-screen flex items-center pt-24 sm:pt-28 pb-10">
+    <section className="relative w-full overflow-hidden min-h-0 lg:min-h-screen flex items-center pt-24 sm:pt-28 pb-10">
       <div className="absolute inset-0 w-full h-full z-0">
         <AuroraBackground />
       </div>
@@ -44,37 +46,39 @@ export const HeroSection = (): JSX.Element => {
               <HeroContent />
             </div>
 
-            <div className="flex items-center justify-center lg:justify-start gap-2 mt-8 min-h-[32px] w-full">
-              {!socialLoading || socialLinks.length > 0
-                ? socialLinks.map((link, index) => {
-                    const { brandColor, bg } = getSocialBrand(link);
-                    return (
-                      <a
-                        key={link.id}
-                        ref={(el) => {
-                          socialLinksRef.current[index] = el;
-                        }}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={link.platform}
-                        aria-label={link.platform}
-                        className={`group w-8 h-8 rounded-xl bg-white/5 border border-white/10
+            {socialLinks.length > 0 ? (
+              <div className="flex items-center justify-center lg:justify-start gap-2 mt-8 min-h-[32px] w-full">
+                {socialLinks.map((link, index) => {
+                  const { brandColor, bg } = getSocialBrand(link);
+                  return (
+                    <a
+                      key={link.id}
+                      ref={(el) => {
+                        socialLinksRef.current[index] = el;
+                      }}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={link.platform}
+                      aria-label={link.platform}
+                      className={`group w-8 h-8 rounded-xl bg-white/5 border border-white/10
                   flex items-center justify-center ${bg}
                   transition-all duration-200 hover:scale-110 hover:-translate-y-0.5 active:scale-95`}
-                        style={{ ["--brand-color" as string]: brandColor }}
-                      >
-                        <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
-                          <SocialLinkGlyph link={link} />
-                        </span>
-                      </a>
-                    );
-                  })
-                : null}
-            </div>
+                      style={{ ["--brand-color" as string]: brandColor }}
+                    >
+                      <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
+                        <SocialLinkGlyph link={link} />
+                      </span>
+                    </a>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="mt-8 min-h-[32px] w-full" aria-hidden />
+            )}
           </div>
 
-          <div className="w-full min-w-0 lg:w-1/2 aspect-video">
+          <div className="hidden lg:block w-full min-w-0 lg:w-1/2 aspect-video">
             {showCodeEditor ? (
               <Suspense fallback={<CodeEditorPlaceholder />}>
                 <AboutCodeWindow startOnMount />

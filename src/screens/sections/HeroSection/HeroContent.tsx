@@ -7,7 +7,7 @@ import { HeroSubtitle } from "./HeroSubtitle";
 import { HeroTitle } from "./HeroTitle";
 
 export const HeroContent = (): JSX.Element => {
-  const { data: resume, loading } = useActiveResume();
+  const { data: resume } = useActiveResume({ deferMs: 4500 });
 
   return (
     <div className="flex flex-col items-center lg:items-start gap-7 w-full max-w-xl lg:max-w-2xl">
@@ -26,7 +26,7 @@ export const HeroContent = (): JSX.Element => {
           View My Work
         </CTAButton>
 
-        {!loading && resume ? (
+        {resume ? (
           <CTAButton
             className="text-md font-semibold gap-2"
             variant="secondary"

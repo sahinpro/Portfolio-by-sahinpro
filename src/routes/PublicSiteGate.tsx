@@ -1,6 +1,8 @@
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
 import { SkipToContent } from "@/components/SkipToContent";
-import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
+import { fetchSiteSettingsMap } from "@/data/publicSupabase";
+import { deferUntilIdle } from "@/lib/deferUntilIdle";
+import { getCachedPublic } from "@/lib/publicDataCache";
 import { getComingSoonContent, isComingSoonEnabled } from "@/lib/siteMode";
 import { ComingSoonPage } from "@/pages/ComingSoonPage";
 import { PageSpinner } from "@/routes/PageSpinner";
@@ -9,10 +11,23 @@ import { Outlet, useLocation } from "react-router-dom";
 
 export function PublicSiteGate(): JSX.Element {
   const location = useLocation();
-  const { settings, loading: settingsLoading } = useSiteSettingsMap();
+  const [settings, setSettings] = useState<Record<string, string>>({});
+  const [settingsChecked, setSettingsChecked] = useState(false);
   const [adminBypass, setAdminBypass] = useState<boolean | null>(null);
-  const comingSoonActive =
-    !settingsLoading && isComingSoonEnabled(settings);
+  const comingSoonActive = settingsChecked && isComingSoonEnabled(settings);
+
+  useEffect(() => {
+    return deferUntilIdle(() => {
+      void getCachedPublic("site_settings_map", fetchSiteSettingsMap)
+        .then((nextSettings) => {
+          setSettings(nextSettings);
+          setSettingsChecked(true);
+        })
+        .catch(() => {
+          setSettingsChecked(true);
+        });
+    }, 3500);
+  }, []);
 
   useEffect(() => {
     if (!comingSoonActive) {

@@ -1,6 +1,6 @@
 import type { ContactSubmission } from "./types";
 
-const LOGO_URL = "https://sahin.pro.bd/sahin.png";
+const LOGO_URL = "https://sahin.pro.bd/sahin.webp";
 const ICON_BASE = "https://sahin.pro.bd/email/icons";
 
 export function escapeHtml(value: string): string {

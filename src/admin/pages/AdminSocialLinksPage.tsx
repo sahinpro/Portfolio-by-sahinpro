@@ -25,6 +25,7 @@ export function AdminSocialLinksPage(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [drafts, setDrafts] = useState<Record<string, Partial<SocialLinkRow>>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [savingAll, setSavingAll] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -53,6 +54,53 @@ export function AdminSocialLinksPage(): JSX.Element {
   };
 
   const merged = (r: SocialLinkRow): SocialLinkRow => ({ ...r, ...d(r.id) });
+
+  const hasDrafts = Object.keys(drafts).length > 0;
+  const isBusy = savingAll || savingId !== null || deletingId !== null;
+
+  const saveAll = async () => {
+    const dirtyIds = Object.keys(drafts);
+    if (dirtyIds.length === 0) {
+      showToast("No changes to save", "warning");
+      return;
+    }
+
+    setSavingAll(true);
+    let failed = false;
+
+    for (const id of dirtyIds) {
+      const r = rows.find((row) => row.id === id);
+      if (!r) continue;
+
+      const m = merged(r);
+      const { error } = await supabase
+        .from("social_links")
+        .update({
+          platform: m.platform,
+          url: m.url,
+          icon: m.icon,
+          visible: m.visible,
+          sort_order: m.sort_order,
+        })
+        .eq("id", r.id);
+
+      if (error) {
+        showToast(formatSocialLinkError(error), "error");
+        failed = true;
+        break;
+      }
+    }
+
+    setSavingAll(false);
+    if (failed) return;
+
+    invalidatePublicDataCache();
+    showToast(
+      dirtyIds.length === 1 ? "Saved 1 link" : `Saved ${dirtyIds.length} links`,
+    );
+    setDrafts({});
+    void load();
+  };
 
   const saveRow = async (r: SocialLinkRow) => {
     const m = merged(r);
@@ -128,14 +176,26 @@ export function AdminSocialLinksPage(): JSX.Element {
           <h1 className="text-2xl font-semibold text-white">Social links</h1>
           <p className="text-sm text-white/45 mt-1">Footer and hero icons.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => void addRow()}
-          className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-black"
-        >
-          <Plus className="h-4 w-4" />
-          Add
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={!hasDrafts || isBusy}
+            onClick={() => void saveAll()}
+            className="inline-flex items-center gap-2 rounded-lg border border-white/12 bg-white/[0.04] px-3 py-2 text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.08] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Save className="h-4 w-4" />
+            {savingAll ? "Saving…" : "Save all"}
+          </button>
+          <button
+            type="button"
+            disabled={isBusy}
+            onClick={() => void addRow()}
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-black disabled:opacity-50"
+          >
+            <Plus className="h-4 w-4" />
+            Add
+          </button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-white/[0.08] bg-[#111] overflow-x-auto">
@@ -203,7 +263,7 @@ export function AdminSocialLinksPage(): JSX.Element {
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        disabled={savingId === r.id || deletingId === r.id}
+                        disabled={isBusy}
                         onClick={() => void saveRow(r)}
                         className="p-2 rounded-lg text-white/60 hover:bg-white/[0.08] hover:text-white disabled:opacity-50"
                         title="Save row"
@@ -212,7 +272,7 @@ export function AdminSocialLinksPage(): JSX.Element {
                       </button>
                       <button
                         type="button"
-                        disabled={savingId === r.id || deletingId === r.id}
+                        disabled={isBusy}
                         onClick={() => void deleteRow(r)}
                         className="p-2 rounded-lg text-white/50 hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50"
                         title="Delete row"

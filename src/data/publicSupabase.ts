@@ -10,9 +10,19 @@ import {
   isLegacyProjectIdParam,
   projectSlugFromTitle,
 } from "@/lib/projectPaths";
-import { supabase } from "@/utils/supabase";
+let supabaseClientPromise: Promise<
+  typeof import("@/utils/supabase")["supabase"]
+> | null = null;
+
+async function getSupabase() {
+  if (!supabaseClientPromise) {
+    supabaseClientPromise = import("@/utils/supabase").then((m) => m.supabase);
+  }
+  return supabaseClientPromise;
+}
 
 export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("projects")
     .select("*")
@@ -23,6 +33,7 @@ export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
 }
 
 export async function fetchPublishedProjectById(id: string): Promise<ProjectRow | null> {
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("projects")
     .select("*")
@@ -46,6 +57,7 @@ export async function fetchPublishedProjectBySlug(
 }
 
 export async function fetchPublishedTestimonials(): Promise<TestimonialRow[]> {
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("testimonials")
     .select("*")
@@ -56,6 +68,7 @@ export async function fetchPublishedTestimonials(): Promise<TestimonialRow[]> {
 }
 
 export async function fetchVisibleSocialLinks(): Promise<SocialLinkRow[]> {
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("social_links")
     .select("*")
@@ -73,12 +86,14 @@ export async function fetchVisibleSocialLinks(): Promise<SocialLinkRow[]> {
 }
 
 export async function fetchSiteSettingsMap(): Promise<Record<string, string>> {
+  const supabase = await getSupabase();
   const { data, error } = await supabase.from("site_settings").select("key, value");
   if (error) throw error;
   return Object.fromEntries((data ?? []).map((r) => [r.key, r.value ?? ""]));
 }
 
 export async function fetchSeoForPage(page: string): Promise<SeoSettingsRow | null> {
+  const supabase = await getSupabase();
   const { data, error } = await supabase.from("seo_settings").select("*").eq("page", page).maybeSingle();
   if (error) throw error;
   return (data as SeoSettingsRow | null) ?? null;
@@ -87,6 +102,7 @@ export async function fetchSeoForPage(page: string): Promise<SeoSettingsRow | nu
 export type PublicActiveResume = Pick<ResumeRow, "file_url" | "file_name">;
 
 export async function fetchActiveResume(): Promise<PublicActiveResume | null> {
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("resume")
     .select("file_url, file_name")
@@ -101,6 +117,7 @@ export async function fetchActiveResume(): Promise<PublicActiveResume | null> {
 }
 
 export async function fetchPublishedBlogPosts(): Promise<BlogPostRow[]> {
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*")
@@ -112,6 +129,7 @@ export async function fetchPublishedBlogPosts(): Promise<BlogPostRow[]> {
 }
 
 export async function fetchPublishedBlogPostBySlug(slug: string): Promise<BlogPostRow | null> {
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*")

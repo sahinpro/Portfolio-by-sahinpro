@@ -2,6 +2,7 @@ import type { SocialLinkRow } from "@/admin/types/database";
 import { getSocialLinkIconKey } from "@/components/public/socialBrands";
 import { Github, Link2, Linkedin, Mail, type LucideIcon } from "lucide-react";
 import type { IconType } from "react-icons";
+import { FaXTwitter } from "react-icons/fa6";
 import { BsBehance, BsDribbble, BsTelegram } from "react-icons/bs";
 
 type SocialGlyph = (props: { className?: string }) => JSX.Element;
@@ -18,6 +19,8 @@ const ICONS: Record<string, SocialGlyph> = {
   behance: asGlyph(BsBehance),
   dribbble: asGlyph(BsDribbble),
   telegram: asGlyph(BsTelegram),
+  twitter: asGlyph(FaXTwitter),
+  x: asGlyph(FaXTwitter),
   mail: asGlyph(Mail),
   email: asGlyph(Mail),
 };

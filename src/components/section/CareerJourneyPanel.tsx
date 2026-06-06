@@ -4,7 +4,7 @@ import type { TimelineEntry } from "@/screens/sections/CareerJourneySection/care
 import { motion } from "framer-motion";
 import { CareerTimelineList } from "./CareerTimelineList";
 
-const PROFILE_IMAGE = "/sahin.png";
+const PROFILE_IMAGE = "/sahin.webp";
 
 const timelineCardClass = "  p-6 sm:p-8 overflow-hidden relative h-full";
 

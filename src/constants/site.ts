@@ -1,7 +1,7 @@
 /** Canonical production origin (no trailing slash). */
 export const SITE_URL = "https://sahin.pro.bd";
 
-export const DEFAULT_OG_IMAGE_PATH = "/sahin.png";
+export const DEFAULT_OG_IMAGE_PATH = "/sahin.webp";
 
 export function getSiteUrl(): string {
   return SITE_URL;

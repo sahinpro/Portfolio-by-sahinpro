@@ -26,7 +26,7 @@ function resolveOgImage(row: SeoSettingsRow | null): string {
 export function PublicSeo(): JSX.Element {
   const { pathname, search } = useLocation();
   const page = normalizeSeoPagePath(pathname);
-  const { seo } = useSeoForPage(page);
+  const { seo } = useSeoForPage(page, { deferMs: 4500 });
 
   const documentTitle = seo?.meta_title?.trim() || DEFAULT_META_TITLE;
   const description = seo?.meta_description?.trim() || DEFAULT_META_DESCRIPTION;
