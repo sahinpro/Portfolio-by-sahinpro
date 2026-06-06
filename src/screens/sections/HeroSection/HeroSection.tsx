@@ -1,8 +1,8 @@
 import { AuroraBackground } from "@/components/AuroraBackground";
 import { getSocialBrand } from "@/components/public/socialBrands";
 import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
-import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
 import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
+import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
@@ -13,6 +13,9 @@ const AboutCodeWindow = lazy(() =>
   })),
 );
 
+const MOBILE_EDITOR_DEFER_MS = 4500;
+const DESKTOP_EDITOR_DEFER_MS = 2500;
+
 const CodeEditorPlaceholder = (): JSX.Element => (
   <div
     className="w-full aspect-video rounded-[25px] border border-white/10 bg-[#0f0f0f]/35"
@@ -22,14 +25,35 @@ const CodeEditorPlaceholder = (): JSX.Element => (
 
 export const HeroSection = (): JSX.Element => {
   const socialLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
+  const editorRef = useRef<HTMLDivElement>(null);
   const { links: socialLinks } = useVisibleSocialLinks({ deferMs: 4000 });
   const [showCodeEditor, setShowCodeEditor] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.matchMedia(`(max-width: ${DESKTOP_LAYOUT_BREAKPOINT - 1}px)`).matches) return;
+    const el = editorRef.current;
+    if (!el) return;
 
-    return deferUntilIdle(() => setShowCodeEditor(true), 2500);
+    let cancelDefer: (() => void) | undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+
+        const isMobile = window.matchMedia(
+          `(max-width: ${DESKTOP_LAYOUT_BREAKPOINT - 1}px)`,
+        ).matches;
+        const deferMs = isMobile ? MOBILE_EDITOR_DEFER_MS : DESKTOP_EDITOR_DEFER_MS;
+
+        cancelDefer?.();
+        cancelDefer = deferUntilIdle(() => setShowCodeEditor(true), deferMs);
+      },
+      { rootMargin: "160px 0px", threshold: 0.01 },
+    );
+
+    observer.observe(el);
+    return () => {
+      cancelDefer?.();
+      observer.disconnect();
+    };
   }, []);
 
   return (
@@ -79,7 +103,10 @@ export const HeroSection = (): JSX.Element => {
             )}
           </div>
 
-          <div className="hidden lg:block w-full min-w-0 lg:w-1/2 ">
+          <div
+            ref={editorRef}
+            className="w-full min-w-0 lg:w-1/2 aspect-video"
+          >
             {showCodeEditor ? (
               <Suspense fallback={<CodeEditorPlaceholder />}>
                 <AboutCodeWindow startOnMount />

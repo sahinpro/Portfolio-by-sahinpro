@@ -10,7 +10,7 @@ const titleGradient = {
 export const HeroTitle = (): JSX.Element => {
   return (
     <h1
-      className="font-sans lg:font-monte-carlo lg:text-5xl text-4xl text-center lg:text-left leading-[70px]"
+      className="font-monte-carlo text-4xl lg:text-5xl text-center lg:text-left leading-[70px]"
       style={titleGradient}
     >
       {PROFILE.name}
