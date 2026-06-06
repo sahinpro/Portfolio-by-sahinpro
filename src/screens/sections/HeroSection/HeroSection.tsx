@@ -78,7 +78,7 @@ export const HeroSection = (): JSX.Element => {
             )}
           </div>
 
-          <div className="hidden lg:block w-full min-w-0 lg:w-1/2 aspect-video">
+          <div className="hidden lg:block w-full min-w-0 lg:w-1/2 ">
             {showCodeEditor ? (
               <Suspense fallback={<CodeEditorPlaceholder />}>
                 <AboutCodeWindow startOnMount />
