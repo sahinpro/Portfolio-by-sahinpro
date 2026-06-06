@@ -2,76 +2,32 @@ import { AuroraBackground } from "@/components/AuroraBackground";
 import { getSocialBrand } from "@/components/public/socialBrands";
 import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
 import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
-import { AboutCodeWindow } from "@/screens/sections/AboutCodeSection/AboutCodeWindow";
-import { motion } from "framer-motion";
-import { useRef } from "react";
-import { HeroContent } from "./HeroContent";
+import { deferUntilIdle } from "@/lib/deferUntilIdle";
+import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
+
+const AboutCodeWindow = lazy(() =>
+  import("@/screens/sections/AboutCodeSection/AboutCodeWindow").then((m) => ({
+    default: m.AboutCodeWindow,
+  })),
+);
+
+const CodeEditorPlaceholder = (): JSX.Element => (
+  <div
+    className="w-full aspect-video rounded-[25px] border border-white/10 bg-[#0f0f0f]/35"
+    aria-hidden
+  />
+);
 
 export const HeroSection = (): JSX.Element => {
   const socialLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const { links: socialLinks, loading: socialLoading } =
     useVisibleSocialLinks();
+  const [showCodeEditor, setShowCodeEditor] = useState(false);
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: [0.37, 0.04, 0.29, 1.01] },
-    },
-  };
-
-  const contentVariants = {
-    hidden: { opacity: 0, x: -24 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.65,
-        delay: 0.1,
-        ease: [0.37, 0.04, 0.29, 1.01],
-      },
-    },
-  };
-
-  const editorVariants = {
-    hidden: { opacity: 0, x: 24 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.7, delay: 0.2, ease: [0.37, 0.04, 0.29, 1.01] },
-    },
-  };
-
-  const socialVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.45,
-        staggerChildren: 0.07,
-      },
-    },
-  };
-
-  const iconVariants = {
-    hidden: { opacity: 0, scale: 0.6, y: 10 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: { duration: 0.4, ease: [0.37, 0.04, 0.29, 1.01] },
-    },
-    hover: {
-      scale: 1.15,
-      y: -5,
-      transition: { duration: 0.2, ease: [0.42, 0, 0.58, 1] },
-    },
-    tap: {
-      scale: 0.95,
-      transition: { duration: 0.1 },
-    },
-  };
+  useEffect(() => {
+    return deferUntilIdle(() => setShowCodeEditor(true), 2200);
+  }, []);
 
   return (
     <section className="relative w-full overflow-hidden min-h-screen flex items-center pt-24 sm:pt-28 pb-10">
@@ -81,27 +37,19 @@ export const HeroSection = (): JSX.Element => {
 
       <div className="pointer-events-none absolute left-0 bottom-0 w-full h-[200px] bg-gradient-to-t from-[#050505] via-[#05050580] to-transparent z-[1]" />
 
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-        className="relative z-[2] container mx-auto px-4 "
-      >
+      <div className="relative z-[2] container mx-auto px-4">
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 xl:gap-16 justify-between items-center">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-            <motion.div variants={contentVariants} className="w-full">
+            <div className="w-full">
               <HeroContent />
-            </motion.div>
+            </div>
 
-            <motion.div
-              variants={socialVariants}
-              className="flex items-center justify-center lg:justify-start gap-2 mt-8 min-h-[32px] w-full"
-            >
+            <div className="flex items-center justify-center lg:justify-start gap-2 mt-8 min-h-[32px] w-full">
               {!socialLoading || socialLinks.length > 0
                 ? socialLinks.map((link, index) => {
                     const { brandColor, bg } = getSocialBrand(link);
                     return (
-                      <motion.a
+                      <a
                         key={link.id}
                         ref={(el) => {
                           socialLinksRef.current[index] = el;
@@ -111,31 +59,32 @@ export const HeroSection = (): JSX.Element => {
                         rel="noopener noreferrer"
                         title={link.platform}
                         aria-label={link.platform}
-                        variants={iconVariants}
-                        whileTap="tap"
                         className={`group w-8 h-8 rounded-xl bg-white/5 border border-white/10
                   flex items-center justify-center ${bg}
-                  transition-all duration-200`}
+                  transition-all duration-200 hover:scale-110 hover:-translate-y-0.5 active:scale-95`}
                         style={{ ["--brand-color" as string]: brandColor }}
                       >
                         <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
                           <SocialLinkGlyph link={link} />
                         </span>
-                      </motion.a>
+                      </a>
                     );
                   })
                 : null}
-            </motion.div>
+            </div>
           </div>
 
-          <motion.div
-            variants={editorVariants}
-            className="w-full min-w-0 lg:w-1/2 aspect-video"
-          >
-            <AboutCodeWindow startOnMount />
-          </motion.div>
+          <div className="w-full min-w-0 lg:w-1/2 aspect-video">
+            {showCodeEditor ? (
+              <Suspense fallback={<CodeEditorPlaceholder />}>
+                <AboutCodeWindow startOnMount />
+              </Suspense>
+            ) : (
+              <CodeEditorPlaceholder />
+            )}
+          </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 };

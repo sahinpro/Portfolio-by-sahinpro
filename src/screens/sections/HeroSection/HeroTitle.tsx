@@ -1,23 +1,23 @@
-import { TextEffect } from "@/components/MotionPrimitives/TextEffect";
 import { PROFILE } from "@/constants/profile";
 import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
 
-export const HeroTitle = () => {
+const titleGradient = {
+  backgroundImage: "linear-gradient(45deg, #ee2a7b, #6228d7, #2b8ace)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  backgroundClip: "text",
+} as const;
+
+export const HeroTitle = (): JSX.Element => {
   const { settings } = useSiteSettingsMap();
   const title = settings.hero_title?.trim() || PROFILE.name;
+
   return (
-    <TextEffect
-      per="char"
-      preset="fade"
+    <h1
       className="font-monte-carlo lg:text-5xl text-4xl text-center lg:text-left leading-[70px]"
-      style={{
-        backgroundImage: "linear-gradient(45deg, #ee2a7b, #6228d7, #2b8ace)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        backgroundClip: "text",
-      }}
+      style={titleGradient}
     >
       {title}
-    </TextEffect>
+    </h1>
   );
 };

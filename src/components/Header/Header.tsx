@@ -5,8 +5,7 @@ import {
 } from "@/constants/styles";
 import { useMobileMenu } from "@/hooks/useMobileMenu";
 import { useScrollPosition } from "@/hooks/useScrollPosition";
-import { animate } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HeaderLogo } from "./HeaderLogo";
 import { MenuButton } from "./MenuButton";
 import { MobileMenu } from "./MobileMenu";
@@ -27,98 +26,70 @@ const isMobileViewport = (): boolean => {
 const Header = () => {
   const isScrolled = useScrollPosition();
   const { isOpen, toggle, close } = useMobileMenu();
-  const headerRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const logoRef = useRef<HTMLDivElement>(null);
-  const navRef = useRef<HTMLElement>(null);
-  const actionsRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
-  const menuBtnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (headerRef.current) {
-      animate(
-        headerRef.current,
-        { opacity: [0, 1], y: [-20, 0] },
-        { duration: 0.5, ease: "easeOut" },
-      );
-    }
-    if (logoRef.current) {
-      animate(
-        logoRef.current,
-        { opacity: [0, 1], x: [-20, 0] },
-        { duration: 0.5, delay: 0.1, ease: "easeOut" },
-      );
-    }
-    if (ctaRef.current) {
-      animate(
-        ctaRef.current,
-        { opacity: [0, 1], x: [20, 0] },
-        { duration: 0.4, delay: 0.4, ease: "easeOut" },
-      );
-    }
-    if (menuBtnRef.current) {
-      animate(
-        menuBtnRef.current,
-        { opacity: [0, 1], scale: [0.8, 1] },
-        { duration: 0.4, delay: 0.48, ease: "easeOut" },
-      );
-    }
+    setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container || isMobileViewport()) return;
 
-    if (isMobileViewport()) {
-      containerRef.current.style.width = "100%";
-      containerRef.current.style.borderRadius = "20px";
-      containerRef.current.style.transform = "none";
-      return;
-    }
-
-    animate(
-      containerRef.current,
-      {
-        width: isScrolled ? getMaxWidth() : "100%",
-        borderRadius: "20px",
-        y: isScrolled ? 0 : -20,
-      },
-      { duration: HEADER_ANIMATION_DURATION, ease: "easeInOut" },
-    );
+    container.style.width = isScrolled ? getMaxWidth() : "100%";
+    container.style.transform = isScrolled
+      ? "translateY(0)"
+      : "translateY(-20px)";
   }, [isScrolled]);
+
+  const mobile = isMobileViewport();
 
   return (
     <header
-      ref={headerRef}
       role="banner"
-      className="fixed font-sans after:content-[''] after:absolute after:top-0 after:bottom-0 after:bg-gradient-to-b after:from-black/70 after:to-transparent container mx-auto top-2 left-0 right-0 z-50 flex justify-center pt-4 sm:pt-8 px-4 rounded-xl"
+      className={`fixed font-sans after:content-[''] after:absolute after:top-0 after:bottom-0 after:bg-gradient-to-b after:from-black/70 after:to-transparent container mx-auto top-2 left-0 right-0 z-50 flex justify-center pt-4 sm:pt-8 px-4 rounded-xl transition-all duration-500 ease-out ${
+        mounted ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-5"
+      }`}
     >
       <div
         ref={containerRef}
-        className={`px-2 ${
+        className={`px-2 rounded-xl transition-all ease-in-out ${
           isScrolled
-            ? "shadow-lg shading-effect bg-white/10 backdrop-blur-md rounded-xl relative border border-white/20 shadow-cyan-500/10 after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-cyan-500/5 after:to-transparent  after:pointer-events-none after:rounded-xl"
-            : "backdrop-blur-md border border-white/10 r  "
+            ? "shadow-lg shading-effect bg-white/10 backdrop-blur-md relative border border-white/20 shadow-cyan-500/10 after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-cyan-500/5 after:to-transparent after:pointer-events-none after:rounded-xl"
+            : "backdrop-blur-md border border-white/10"
         }`}
+        style={{
+          width: mobile ? "100%" : undefined,
+          transform: mobile ? "none" : undefined,
+          transitionDuration: `${HEADER_ANIMATION_DURATION}s`,
+        }}
       >
         <div className="absolute bottom-0 left-0 right-0 h-px [background:radial-gradient(50%_50%_at_50%_50%,rgba(224,224,224,.2)_0%,rgba(225,225,225,0)_100%)] transition-all duration-[400ms]" />
 
         <div className="px-0 lg:px-1 rounded-xl w-full relative z-10 ">
           <div className="flex items-center justify-between h-16 w-full">
-            <div ref={logoRef}>
+            <div
+              className={`transition-all duration-500 ease-out delay-100 ${
+                mounted ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-5"
+              }`}
+            >
               <HeaderLogo />
             </div>
 
             <nav
-              ref={navRef}
               aria-label="Primary"
               className="hidden lg:flex items-center space-x-10"
             >
               <Navigation />
             </nav>
 
-            <div ref={actionsRef} className="flex items-center space-x-4 m-0">
-              <div ref={ctaRef}>
+            <div className="flex items-center space-x-4 m-0">
+              <div
+                className={`transition-all duration-400 ease-out delay-[400ms] ${
+                  mounted ? "opacity-100 translate-x-0" : "opacity-0 translate-x-5"
+                }`}
+              >
                 <CTAButton
                   variant="primary"
                   href="/contact"
@@ -128,7 +99,11 @@ const Header = () => {
                 </CTAButton>
               </div>
 
-              <div ref={menuBtnRef} className="lg:hidden">
+              <div
+                className={`lg:hidden transition-all duration-400 ease-out delay-[480ms] ${
+                  mounted ? "opacity-100 scale-100" : "opacity-0 scale-90"
+                }`}
+              >
                 <MenuButton isOpen={isOpen} onClick={toggle} />
               </div>
             </div>

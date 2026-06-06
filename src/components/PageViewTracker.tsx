@@ -1,4 +1,4 @@
-import { recordPageView } from "@/lib/recordPageView";
+import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -21,7 +21,11 @@ export function PageViewTracker(): null {
     }
     lastRef.current = { key: path, t: now };
 
-    void recordPageView(path || "/");
+    return deferUntilIdle(() => {
+      void import("@/lib/recordPageView").then(({ recordPageView }) =>
+        recordPageView(path || "/"),
+      );
+    }, 4500);
   }, [location.pathname, location.search]);
 
   return null;

@@ -1,6 +1,4 @@
-import { animate } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { useEffect, useRef } from "react";
 
 interface MenuButtonProps {
   isOpen: boolean;
@@ -8,26 +6,6 @@ interface MenuButtonProps {
 }
 
 export const MenuButton = ({ isOpen, onClick }: MenuButtonProps) => {
-  const iconRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!iconRef.current) return;
-
-    if (isOpen) {
-      animate(
-        iconRef.current,
-        { rotate: [-90, 0], opacity: [0, 1] },
-        { duration: 0.2, ease: "easeOut" }
-      );
-    } else {
-      animate(
-        iconRef.current,
-        { rotate: [90, 0], opacity: [0, 1] },
-        { duration: 0.2, ease: "easeOut" }
-      );
-    }
-  }, [isOpen]);
-
   return (
     <button
       onClick={onClick}
@@ -35,7 +13,7 @@ export const MenuButton = ({ isOpen, onClick }: MenuButtonProps) => {
       aria-label={isOpen ? "Close menu" : "Open menu"}
       aria-expanded={isOpen}
     >
-      <div ref={iconRef} className="relative w-5 h-5">
+      <div className="relative w-5 h-5 transition-transform duration-200">
         {isOpen ? (
           <X className="h-5 w-5 text-white absolute inset-0" />
         ) : (

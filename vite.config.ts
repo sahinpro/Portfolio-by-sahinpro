@@ -140,20 +140,28 @@ export default defineConfig(({ mode }) => {
         suppressLottieEvalWarning(warning, defaultHandler);
       },
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
-          framer: ["framer-motion"],
-          ui: [
-            "@radix-ui/react-accordion",
-            "@radix-ui/react-separator",
-            "@radix-ui/react-scroll-area",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-slot",
-          ],
-          icons: ["lucide-react", "react-icons"],
-          supabase: ["@supabase/supabase-js"],
-          lottie: ["lottie-react", "lottie-web"],
-          three: ["three"],
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+
+          if (id.includes("@supabase/supabase-js")) return "supabase";
+          if (id.includes("lottie-react") || id.includes("lottie-web")) {
+            return "lottie";
+          }
+          if (
+            id.includes("@uiw/react-md-editor") ||
+            id.includes("@codemirror/")
+          ) {
+            return "md-editor";
+          }
+          if (
+            id.includes("react-dom/") ||
+            id.includes("react-router-dom/") ||
+            id.includes("react-router/") ||
+            id.includes("/react/jsx-runtime") ||
+            id.includes("/react/index")
+          ) {
+            return "vendor";
+          }
         },
       },
     },

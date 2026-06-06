@@ -1,17 +1,59 @@
 import Header from "@/components/Header";
 import { PublicSeo } from "@/components/public/PublicSeo";
 import { LazySection } from "@/components/section/LazySection";
-import { CareerJourneySection } from "@/screens/sections/CareerJourneySection";
-import { CustomerStoriesSection } from "@/screens/sections/CustomerStoriesSection";
-import { DevelopmentProcessSection } from "@/screens/sections/DevelopmentProcessSection";
-import { FAQSection } from "@/screens/sections/FAQSection";
-import { FeaturedProjectsSection } from "@/screens/sections/FeaturedProjectsSection/FeaturedProjectsSection";
-import { FooterSection } from "@/screens/sections/FooterSection";
-import { GetStartedSection } from "@/screens/sections/GetStartedSection";
 import { HeroSection } from "@/screens/sections/HeroSection";
-import { SkillsSection } from "@/screens/sections/SkillsSection";
-import { StatsSection } from "@/screens/sections/StatsSection";
-import { WhyChooseUsSection } from "@/screens/sections/WhyChooseUsSection";
+import { Suspense, lazy } from "react";
+
+const StatsSection = lazy(() =>
+  import("@/screens/sections/StatsSection").then((m) => ({
+    default: m.StatsSection,
+  })),
+);
+const FeaturedProjectsSection = lazy(() =>
+  import("@/screens/sections/FeaturedProjectsSection/FeaturedProjectsSection").then(
+    (m) => ({ default: m.FeaturedProjectsSection }),
+  ),
+);
+const SkillsSection = lazy(() =>
+  import("@/screens/sections/SkillsSection").then((m) => ({
+    default: m.SkillsSection,
+  })),
+);
+const CareerJourneySection = lazy(() =>
+  import("@/screens/sections/CareerJourneySection").then((m) => ({
+    default: m.CareerJourneySection,
+  })),
+);
+const DevelopmentProcessSection = lazy(() =>
+  import("@/screens/sections/DevelopmentProcessSection").then((m) => ({
+    default: m.DevelopmentProcessSection,
+  })),
+);
+const CustomerStoriesSection = lazy(() =>
+  import("@/screens/sections/CustomerStoriesSection").then((m) => ({
+    default: m.CustomerStoriesSection,
+  })),
+);
+const WhyChooseUsSection = lazy(() =>
+  import("@/screens/sections/WhyChooseUsSection").then((m) => ({
+    default: m.WhyChooseUsSection,
+  })),
+);
+const FAQSection = lazy(() =>
+  import("@/screens/sections/FAQSection").then((m) => ({
+    default: m.FAQSection,
+  })),
+);
+const GetStartedSection = lazy(() =>
+  import("@/screens/sections/GetStartedSection").then((m) => ({
+    default: m.GetStartedSection,
+  })),
+);
+const FooterSection = lazy(() =>
+  import("@/screens/sections/FooterSection").then((m) => ({
+    default: m.FooterSection,
+  })),
+);
 
 export const HomePage = (): JSX.Element => {
   return (
@@ -19,33 +61,55 @@ export const HomePage = (): JSX.Element => {
       <PublicSeo />
       <Header />
       <HeroSection />
-      <StatsSection />
+      <LazySection minHeight={120}>
+        <Suspense fallback={null}>
+          <StatsSection />
+        </Suspense>
+      </LazySection>
       <LazySection minHeight={480}>
-        <FeaturedProjectsSection />
+        <Suspense fallback={null}>
+          <FeaturedProjectsSection />
+        </Suspense>
       </LazySection>
       <LazySection minHeight={600}>
-        <SkillsSection />
+        <Suspense fallback={null}>
+          <SkillsSection />
+        </Suspense>
       </LazySection>
       <LazySection minHeight={500}>
-        <CareerJourneySection />
+        <Suspense fallback={null}>
+          <CareerJourneySection />
+        </Suspense>
       </LazySection>
       <LazySection minHeight={400}>
-        <DevelopmentProcessSection />
+        <Suspense fallback={null}>
+          <DevelopmentProcessSection />
+        </Suspense>
       </LazySection>
       <LazySection minHeight={520}>
-        <CustomerStoriesSection />
+        <Suspense fallback={null}>
+          <CustomerStoriesSection />
+        </Suspense>
       </LazySection>
       <LazySection minHeight={480}>
-        <WhyChooseUsSection />
+        <Suspense fallback={null}>
+          <WhyChooseUsSection />
+        </Suspense>
       </LazySection>
       <LazySection minHeight={400}>
-        <FAQSection />
+        <Suspense fallback={null}>
+          <FAQSection />
+        </Suspense>
       </LazySection>
       <LazySection minHeight={320}>
-        <GetStartedSection />
+        <Suspense fallback={null}>
+          <GetStartedSection />
+        </Suspense>
       </LazySection>
       <LazySection minHeight={280}>
-        <FooterSection />
+        <Suspense fallback={null}>
+          <FooterSection />
+        </Suspense>
       </LazySection>
     </main>
   );
