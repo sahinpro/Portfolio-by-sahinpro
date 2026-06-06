@@ -1,10 +1,10 @@
+import { SectionHeader } from "@/components/section";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { SectionHeader } from "@/components/section";
 import {
   fadeInUp,
   scrollViewport,
@@ -26,12 +26,12 @@ const faqItems = [
   {
     question: "Do you provide ongoing maintenance and support?",
     answer:
-      "Yes — from security updates and content changes to performance tuning. We can agree on a support window or a monthly maintenance plan before launch.",
+      "Yes    from security updates and content changes to performance tuning. We can agree on a support window or a monthly maintenance plan before launch.",
   },
   {
     question: "Can you work with existing websites or only build new ones?",
     answer:
-      "Both. I can redesign, add features, fix bugs, or improve performance on an existing site — not just greenfield builds.",
+      "Both. I can redesign, add features, fix bugs, or improve performance on an existing site    not just greenfield builds.",
   },
   {
     question: "What is your process for starting a new project?",
@@ -56,7 +56,7 @@ export const FAQSection = (): JSX.Element => {
         <motion.div variants={fadeInUp} className="w-full max-w-3xl">
           <SectionHeader
             title="Frequently asked questions"
-            description="Don't see your answer? Get in touch — I'm happy to clarify anything before we start."
+            description="Don't see your answer? Get in touch    I'm happy to clarify anything before we start."
           />
         </motion.div>
 

@@ -5,7 +5,7 @@ export function isLikelyImageFile(file: File): boolean {
   return /\.(png|jpe?g|gif|webp|svg|avif|heic|heif|ico|bmp)$/i.test(file.name);
 }
 
-/** Supabase buckets may restrict MIME types — set contentType when the browser omits it. */
+/** Supabase buckets may restrict MIME types    set contentType when the browser omits it. */
 export function guessImageMimeFromName(fileName: string): string | undefined {
   const ext = fileName.split(".").pop()?.toLowerCase();
   if (!ext) return undefined;

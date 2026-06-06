@@ -101,7 +101,7 @@ function AdminSidebarProfile(): JSX.Element {
               className="text-[14px] text-zinc-500 truncate mt-0.5"
               title={email}
             >
-              {email || "—"}
+              {email || "  "}
             </p>
           </div>
         </div>

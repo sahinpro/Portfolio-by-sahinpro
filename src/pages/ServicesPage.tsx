@@ -9,12 +9,12 @@ import {
   type WorkProcessStep,
 } from "@/components/section";
 import Glow from "@/components/ui/glow";
+import { SERVICE_DEFINITIONS } from "@/constants/expertise";
 import {
   fadeInUp,
   scrollViewport,
   sectionReveal,
 } from "@/constants/scrollMotion";
-import { SERVICE_DEFINITIONS } from "@/constants/expertise";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
@@ -62,7 +62,7 @@ const processSteps: WorkProcessStep[] = [
   {
     step: "02",
     title: "Design",
-    description: "Wireframes and mockups — approved before a line is coded.",
+    description: "Wireframes and mockups    approved before a line is coded.",
     icon: Paintbrush,
     accent: "from-pink-500/10 to-rose-500/5",
     border: "border-pink-500/20",
@@ -210,8 +210,7 @@ export const ServicesPage = (): JSX.Element => {
             variants={fadeUp(0.05)}
             className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4"
           >
-            What I build{" "}
-            <span className="text-violet-400">for you</span>
+            What I build <span className="text-violet-400">for you</span>
           </motion.h1>
           <motion.p
             initial="hidden"
@@ -219,7 +218,7 @@ export const ServicesPage = (): JSX.Element => {
             variants={fadeUp(0.1)}
             className="text-lg text-white/50 max-w-xl"
           >
-            Comprehensive web development services — from concept to launch —
+            Comprehensive web development services from concept to launch
             crafted with precision and purpose.
           </motion.p>
         </div>
@@ -257,7 +256,7 @@ export const ServicesPage = (): JSX.Element => {
             <SectionHeader
               label="Process"
               title="How I work"
-              description="A clear, collaborative workflow from first conversation to launch — with milestones you can track at every stage."
+              description="A clear, collaborative workflow from first conversation to launch    with milestones you can track at every stage."
             />
           </motion.div>
 

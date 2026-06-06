@@ -268,13 +268,13 @@
     box-shadow: 0px 12px 24px var(--overlay-white-10);
   }
 
-  /* Section headings — solid white (gradients reserved for hero only) */
+  /* Section headings    solid white (gradients reserved for hero only) */
   .section-heading {
     @apply text-white font-semibold;
     line-height: 1.2;
   }
 
-  /* Legacy gradient — avoid on section titles */
+  /* Legacy gradient    avoid on section titles */
   .section-heading-gradient {
     background-image:
       linear-gradient(rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.2) 58%),

@@ -149,9 +149,13 @@ function ProjectRowActions({
 
 function EmptyState({ search, filter }: { search: string; filter: Filter }) {
   const message =
-    search || filter !== "all" ? "No projects match your search." : "No projects yet.";
+    search || filter !== "all"
+      ? "No projects match your search."
+      : "No projects yet.";
   const hint =
-    search || filter !== "all" ? "Try adjusting your filters." : "Create a project to add it to your portfolio.";
+    search || filter !== "all"
+      ? "Try adjusting your filters."
+      : "Create a project to add it to your portfolio.";
 
   return (
     <div className="flex flex-col items-center gap-3 py-16 px-4">
@@ -166,7 +170,9 @@ function EmptyState({ search, filter }: { search: string; filter: Filter }) {
         <p className="mt-0.5 text-xs text-white/30">{hint}</p>
       </div>
       {filter === "trash" ? (
-        <p className="text-xs text-white/25">Deleted projects appear here until removed permanently.</p>
+        <p className="text-xs text-white/25">
+          Deleted projects appear here until removed permanently.
+        </p>
       ) : null}
       {!(search || filter !== "all") ? (
         <Link
@@ -218,7 +224,11 @@ export function AdminProjectsListPage(): JSX.Element {
   useEffect(() => {
     const prev = prevPathRef.current;
     prevPathRef.current = location.pathname;
-    if (prev !== null && prev !== "/admin/projects" && location.pathname === "/admin/projects") {
+    if (
+      prev !== null &&
+      prev !== "/admin/projects" &&
+      location.pathname === "/admin/projects"
+    ) {
       void load();
     }
   }, [location.pathname, load]);
@@ -235,15 +245,23 @@ export function AdminProjectsListPage(): JSX.Element {
     const q = search.trim().toLowerCase();
     const desc = (r.description ?? "").toLowerCase();
     const cat = (r.category ?? "").toLowerCase();
-    return r.title.toLowerCase().includes(q) || desc.includes(q) || cat.includes(q);
+    return (
+      r.title.toLowerCase().includes(q) || desc.includes(q) || cat.includes(q)
+    );
   });
 
   const filteredIds = filtered.map((row) => row.id);
-  const allFilteredSelected = filteredIds.length > 0 && filteredIds.every((id) => selectedIds.includes(id));
-  const someFilteredSelected = filteredIds.some((id) => selectedIds.includes(id));
+  const allFilteredSelected =
+    filteredIds.length > 0 &&
+    filteredIds.every((id) => selectedIds.includes(id));
+  const someFilteredSelected = filteredIds.some((id) =>
+    selectedIds.includes(id),
+  );
 
   const toggleSelect = (id: string, checked: boolean) => {
-    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((value) => value !== id)));
+    setSelectedIds((prev) =>
+      checked ? [...prev, id] : prev.filter((value) => value !== id),
+    );
   };
 
   const toggleSelectAll = (checked: boolean) => {
@@ -252,13 +270,20 @@ export function AdminProjectsListPage(): JSX.Element {
 
   const bulkUpdateStatus = async (status: ProjectRow["status"]) => {
     if (selectedIds.length === 0) return;
-    const { error } = await supabase.from("projects").update({ status }).in("id", selectedIds);
+    const { error } = await supabase
+      .from("projects")
+      .update({ status })
+      .in("id", selectedIds);
     if (error) {
       showToast(error.message, "error");
       return;
     }
     invalidatePublicDataCache();
-    setRows((prev) => prev.map((row) => (selectedIds.includes(row.id) ? { ...row, status } : row)));
+    setRows((prev) =>
+      prev.map((row) =>
+        selectedIds.includes(row.id) ? { ...row, status } : row,
+      ),
+    );
     if (status === "trash") {
       showToast(
         `${selectedIds.length} project${selectedIds.length === 1 ? "" : "s"} moved to trash`,
@@ -266,7 +291,9 @@ export function AdminProjectsListPage(): JSX.Element {
         "They are hidden from the public site until restored.",
       );
     } else {
-      showToast(`${selectedIds.length} project${selectedIds.length === 1 ? "" : "s"} updated`);
+      showToast(
+        `${selectedIds.length} project${selectedIds.length === 1 ? "" : "s"} updated`,
+      );
     }
     setSelectedIds([]);
   };
@@ -281,7 +308,10 @@ export function AdminProjectsListPage(): JSX.Element {
   };
 
   const toggleFeatured = async (id: string, featured: boolean) => {
-    const { error } = await supabase.from("projects").update({ featured }).eq("id", id);
+    const { error } = await supabase
+      .from("projects")
+      .update({ featured })
+      .eq("id", id);
     if (error) {
       showToast(error.message, "error");
       return;
@@ -291,13 +321,18 @@ export function AdminProjectsListPage(): JSX.Element {
   };
 
   const restoreDraft = async (id: string) => {
-    const { error } = await supabase.from("projects").update({ status: "draft" }).eq("id", id);
+    const { error } = await supabase
+      .from("projects")
+      .update({ status: "draft" })
+      .eq("id", id);
     if (error) {
       showToast(error.message, "error");
       return;
     }
     invalidatePublicDataCache();
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status: "draft" } : r)));
+    setRows((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status: "draft" } : r)),
+    );
     setSelectedIds((prev) => prev.filter((value) => value !== id));
     showToast("Project restored to draft");
   };
@@ -316,7 +351,11 @@ export function AdminProjectsListPage(): JSX.Element {
     }
     invalidatePublicDataCache();
     if (permanent) {
-      showToast("Project deleted permanently", "error", "This cannot be undone.");
+      showToast(
+        "Project deleted permanently",
+        "error",
+        "This cannot be undone.",
+      );
       setRows((prev) => prev.filter((row) => row.id !== id));
     } else {
       showToast(
@@ -324,7 +363,9 @@ export function AdminProjectsListPage(): JSX.Element {
         "error",
         "Hidden from the public site. Restore anytime from Trash.",
       );
-      setRows((prev) => prev.map((row) => (row.id === id ? { ...row, status: "trash" } : row)));
+      setRows((prev) =>
+        prev.map((row) => (row.id === id ? { ...row, status: "trash" } : row)),
+      );
     }
     setSelectedIds((prev) => prev.filter((value) => value !== id));
   };
@@ -340,9 +381,12 @@ export function AdminProjectsListPage(): JSX.Element {
     <div className="max-w-6xl space-y-6 xl:max-w-[90rem]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">Projects</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-white">
+            Projects
+          </h1>
           <p className="mt-0.5 text-sm text-white/40">
-            Manage portfolio case studies. Published projects appear on the public site.
+            Manage portfolio case studies. Published projects appear on the
+            public site.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -367,7 +411,10 @@ export function AdminProjectsListPage(): JSX.Element {
 
       <div className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Select value={bulkAction} onValueChange={(value) => setBulkAction(value as BulkAction)}>
+          <Select
+            value={bulkAction}
+            onValueChange={(value) => setBulkAction(value as BulkAction)}
+          >
             <SelectTrigger className="h-9 w-full border-white/10 bg-white/[0.04] text-white sm:w-[190px]">
               <SelectValue placeholder="Bulk actions" />
             </SelectTrigger>
@@ -402,11 +449,15 @@ export function AdminProjectsListPage(): JSX.Element {
                 type="button"
                 onClick={() => setFilter(value)}
                 className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-all ${
-                  filter === value ? "bg-white/[0.12] text-white shadow-sm" : "text-white/40 hover:text-white/70"
+                  filter === value
+                    ? "bg-white/[0.12] text-white shadow-sm"
+                    : "text-white/40 hover:text-white/70"
                 }`}
               >
                 {value}
-                <span className={`tabular-nums text-[11px] ${filter === value ? "text-white/60" : "text-white/25"}`}>
+                <span
+                  className={`tabular-nums text-[11px] ${filter === value ? "text-white/60" : "text-white/25"}`}
+                >
                   {counts[value]}
                 </span>
               </button>
@@ -426,7 +477,9 @@ export function AdminProjectsListPage(): JSX.Element {
             />
           </div>
           <p className="text-sm text-white/55">
-            {selectedIds.length > 0 ? `${selectedIds.length} selected` : "Select one or more projects"}
+            {selectedIds.length > 0
+              ? `${selectedIds.length} selected`
+              : "Select one or more projects"}
           </p>
         </div>
       </div>
@@ -436,17 +489,32 @@ export function AdminProjectsListPage(): JSX.Element {
           <div className={`grid gap-0 px-4 py-2.5 md:grid ${projectsGridCols}`}>
             <span className="flex items-center">
               <Checkbox
-                checked={allFilteredSelected || (someFilteredSelected ? "indeterminate" : false)}
+                checked={
+                  allFilteredSelected ||
+                  (someFilteredSelected ? "indeterminate" : false)
+                }
                 onCheckedChange={(checked) => toggleSelectAll(checked === true)}
                 aria-label="Select all projects"
               />
             </span>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Cover</span>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Title</span>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Category</span>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Status</span>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Updated</span>
-            <span className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/30">Featured</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Cover
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Title
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Category
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Status
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Updated
+            </span>
+            <span className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Featured
+            </span>
             <span />
           </div>
         </div>
@@ -498,7 +566,9 @@ export function AdminProjectsListPage(): JSX.Element {
               <div
                 key={row.id}
                 className={`group border-b border-white/[0.04] last:border-b-0 transition-colors ${
-                  selectedIds.includes(row.id) ? "bg-white/[0.04]" : "hover:bg-white/[0.025]"
+                  selectedIds.includes(row.id)
+                    ? "bg-white/[0.04]"
+                    : "hover:bg-white/[0.025]"
                 } ${row.status === "trash" ? "opacity-75" : ""}`}
               >
                 <div className="px-4 py-3.5 md:hidden">
@@ -506,13 +576,19 @@ export function AdminProjectsListPage(): JSX.Element {
                     <div className="pt-1">
                       <Checkbox
                         checked={selectedIds.includes(row.id)}
-                        onCheckedChange={(checked) => toggleSelect(row.id, checked === true)}
+                        onCheckedChange={(checked) =>
+                          toggleSelect(row.id, checked === true)
+                        }
                         aria-label={`Select ${row.title}`}
                       />
                     </div>
                     <div className="flex shrink-0 items-start">
                       <img
-                        src={row.image_url?.trim() ? row.image_url : PROJECT_IMAGE_PLACEHOLDER}
+                        src={
+                          row.image_url?.trim()
+                            ? row.image_url
+                            : PROJECT_IMAGE_PLACEHOLDER
+                        }
                         alt=""
                         className="h-14 w-14 rounded-lg border border-white/[0.08] bg-black/30 object-cover"
                       />
@@ -527,17 +603,27 @@ export function AdminProjectsListPage(): JSX.Element {
                         </Link>
                         <ProjectRowActions
                           row={row}
-                          onMoveToTrash={(id) => setDeleteDialog({ id, permanent: false })}
+                          onMoveToTrash={(id) =>
+                            setDeleteDialog({ id, permanent: false })
+                          }
                           onRestoreDraft={(id) => void restoreDraft(id)}
-                          onPermanentDelete={(id) => setDeleteDialog({ id, permanent: true })}
+                          onPermanentDelete={(id) =>
+                            setDeleteDialog({ id, permanent: true })
+                          }
                         />
                       </div>
                       {row.description?.trim() ? (
-                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">{row.description.trim()}</p>
+                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">
+                          {row.description.trim()}
+                        </p>
                       ) : null}
-                      <span className="mt-1 block truncate text-[11px] text-white/28">{row.category}</span>
+                      <span className="mt-1 block truncate text-[11px] text-white/28">
+                        {row.category}
+                      </span>
                       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-white/40">
-                        <span className="tabular-nums">{formatDate(row.updated_at)}</span>
+                        <span className="tabular-nums">
+                          {formatDate(row.updated_at)}
+                        </span>
                         <StatusBadge status={row.status} />
                         <span className="inline-flex items-center gap-1.5 text-white/45">
                           Featured
@@ -558,13 +644,19 @@ export function AdminProjectsListPage(): JSX.Element {
                   <div className="flex items-center">
                     <Checkbox
                       checked={selectedIds.includes(row.id)}
-                      onCheckedChange={(checked) => toggleSelect(row.id, checked === true)}
+                      onCheckedChange={(checked) =>
+                        toggleSelect(row.id, checked === true)
+                      }
                       aria-label={`Select ${row.title}`}
                     />
                   </div>
                   <div className="flex items-center">
                     <img
-                      src={row.image_url?.trim() ? row.image_url : PROJECT_IMAGE_PLACEHOLDER}
+                      src={
+                        row.image_url?.trim()
+                          ? row.image_url
+                          : PROJECT_IMAGE_PLACEHOLDER
+                      }
                       alt=""
                       className="h-14 w-14 rounded-lg border border-white/[0.08] bg-black/30 object-cover lg:h-[4.5rem] lg:w-[4.5rem]"
                     />
@@ -577,16 +669,25 @@ export function AdminProjectsListPage(): JSX.Element {
                       {row.title}
                     </Link>
                     {row.description?.trim() ? (
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">{row.description.trim()}</p>
+                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">
+                        {row.description.trim()}
+                      </p>
                     ) : null}
                   </div>
-                  <div className="min-w-0 text-sm text-white/55" title={row.category || undefined}>
-                    <span className="line-clamp-2">{row.category?.trim() ? row.category : "—"}</span>
+                  <div
+                    className="min-w-0 text-sm text-white/55"
+                    title={row.category || undefined}
+                  >
+                    <span className="line-clamp-2">
+                      {row.category?.trim() ? row.category : "  "}
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <StatusBadge status={row.status} />
                   </div>
-                  <div className="tabular-nums text-xs text-white/40">{formatDate(row.updated_at)}</div>
+                  <div className="tabular-nums text-xs text-white/40">
+                    {formatDate(row.updated_at)}
+                  </div>
                   <div className="flex justify-center">
                     <ToggleSwitch
                       checked={row.featured}
@@ -597,9 +698,13 @@ export function AdminProjectsListPage(): JSX.Element {
                   <div className="flex justify-end">
                     <ProjectRowActions
                       row={row}
-                      onMoveToTrash={(id) => setDeleteDialog({ id, permanent: false })}
+                      onMoveToTrash={(id) =>
+                        setDeleteDialog({ id, permanent: false })
+                      }
                       onRestoreDraft={(id) => void restoreDraft(id)}
-                      onPermanentDelete={(id) => setDeleteDialog({ id, permanent: true })}
+                      onPermanentDelete={(id) =>
+                        setDeleteDialog({ id, permanent: true })
+                      }
                     />
                   </div>
                 </div>
@@ -611,7 +716,8 @@ export function AdminProjectsListPage(): JSX.Element {
         {!loading && filtered.length > 0 ? (
           <div className="border-t border-white/[0.06] bg-white/[0.01] px-4 py-3">
             <p className="text-xs tabular-nums text-white/25">
-              {filtered.length} of {counts[filter]} project{counts[filter] !== 1 ? "s" : ""}
+              {filtered.length} of {counts[filter]} project
+              {counts[filter] !== 1 ? "s" : ""}
             </p>
           </div>
         ) : null}
@@ -619,14 +725,20 @@ export function AdminProjectsListPage(): JSX.Element {
 
       <ConfirmDialog
         open={Boolean(deleteDialog)}
-        title={deleteDialog?.permanent ? "Delete project permanently?" : "Move project to trash?"}
+        title={
+          deleteDialog?.permanent
+            ? "Delete project permanently?"
+            : "Move project to trash?"
+        }
         message={
           deleteDialog?.permanent
             ? "This permanently removes the project from the database. This cannot be undone."
             : "The project will be hidden from the public site and listed under Trash. You can restore it anytime."
         }
         danger={deleteDialog?.permanent}
-        confirmLabel={deleteDialog?.permanent ? "Delete permanently" : "Move to trash"}
+        confirmLabel={
+          deleteDialog?.permanent ? "Delete permanently" : "Move to trash"
+        }
         onCancel={() => setDeleteDialog(null)}
         onConfirm={() => void confirmDelete()}
       />

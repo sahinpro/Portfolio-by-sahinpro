@@ -1,9 +1,12 @@
-import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
-import { useToast } from "@/admin/context/ToastContext";
-import { getSiteSettingsMap, upsertSiteSettings } from "@/admin/lib/siteSettings";
 import { ChartAreaInteractive } from "@/admin/components/charts/ChartAreaInteractive";
 import { StatCard } from "@/admin/components/ui/StatCard";
+import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
+import { useToast } from "@/admin/context/ToastContext";
 import { useDashboardData } from "@/admin/hooks/useDashboardData";
+import {
+  getSiteSettingsMap,
+  upsertSiteSettings,
+} from "@/admin/lib/siteSettings";
 import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { COMING_SOON_MODE_KEY } from "@/lib/siteMode";
 import {
@@ -66,7 +69,10 @@ export function AdminDashboardPage(): JSX.Element {
         }
       } catch (error) {
         if (!cancelled) {
-          showToast(error instanceof Error ? error.message : "Failed to load site mode", "error");
+          showToast(
+            error instanceof Error ? error.message : "Failed to load site mode",
+            "error",
+          );
         }
       } finally {
         if (!cancelled) {
@@ -91,10 +97,15 @@ export function AdminDashboardPage(): JSX.Element {
         [COMING_SOON_MODE_KEY]: nextValue ? "enabled" : "disabled",
       });
       invalidatePublicDataCache();
-      showToast(nextValue ? "Coming soon mode is now active" : "Website is live again");
+      showToast(
+        nextValue ? "Coming soon mode is now active" : "Website is live again",
+      );
     } catch (error) {
       setComingSoonMode(previousValue);
-      showToast(error instanceof Error ? error.message : "Failed to update site mode", "error");
+      showToast(
+        error instanceof Error ? error.message : "Failed to update site mode",
+        "error",
+      );
     } finally {
       setComingSoonSaving(false);
     }
@@ -140,8 +151,8 @@ export function AdminDashboardPage(): JSX.Element {
       {/* ── Error banner ── */}
       {error && (
         <div className="rounded-xl border border-amber-500/25 bg-amber-500/8 px-4 py-3 text-sm text-amber-200/90">
-          <span className="font-medium">Note:</span> {error} — check RLS and
-          that you are in{" "}
+          <span className="font-medium">Note:</span> {error} check RLS and that
+          you are in{" "}
           <code className="text-amber-100 font-mono text-xs">
             admin_allowlist
           </code>
@@ -156,7 +167,9 @@ export function AdminDashboardPage(): JSX.Element {
               <MonitorSmartphone className="h-4.5 w-4.5 text-cyan-200" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">Coming soon status</p>
+              <p className="text-sm font-semibold text-white">
+                Coming soon status
+              </p>
               <p className="mt-1 text-sm leading-6 text-zinc-400">
                 {comingSoonMode
                   ? "Public visitors currently see the coming soon page."
@@ -191,21 +204,21 @@ export function AdminDashboardPage(): JSX.Element {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             label="Total projects"
-            value={loading ? "—" : data.totalProjects}
+            value={loading ? "  " : data.totalProjects}
             sublabel={`${data.publishedProjects} published · ${data.draftProjects} draft`}
             icon={FolderKanban}
             accent="violet"
           />
           <StatCard
             label="Page views (30d)"
-            value={loading ? "—" : total30d.toLocaleString()}
+            value={loading ? "  " : total30d.toLocaleString()}
             sublabel={`~${avgPerDay} per day avg`}
             icon={BarChart3}
             accent="emerald"
           />
           <StatCard
             label="Blog posts"
-            value={loading ? "—" : data.blogPosts}
+            value={loading ? "  " : data.blogPosts}
             sublabel="All statuses"
             icon={BookOpen}
             accent="default"

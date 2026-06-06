@@ -247,7 +247,7 @@ export function AdminProjectFormPage(): JSX.Element {
   const onSubmit = async (values: ProjectFormValues) => {
     if (values.status === "published" && !values.live_url?.trim()) {
       showToast(
-        "Published without a live URL — add one when you can.",
+        "Published without a live URL    add one when you can.",
         "warning",
       );
     }

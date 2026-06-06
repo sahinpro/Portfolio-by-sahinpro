@@ -45,7 +45,7 @@ export const FeaturedProjectsSection = (): JSX.Element | null => {
         <motion.div variants={fadeInUp} className={sectionHeaderWrapClass}>
           <SectionHeader
             title="Featured projects"
-            description="Selected client work — from e-commerce stores to full-stack web applications."
+            description="Selected client work    from e-commerce stores to full-stack web applications."
           />
         </motion.div>
 

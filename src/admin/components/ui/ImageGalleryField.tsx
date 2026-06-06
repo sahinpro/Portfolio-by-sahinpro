@@ -12,7 +12,14 @@ import {
 } from "@/admin/lib/storageUpload";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, GripVertical, ImagePlus, Images, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  ImagePlus,
+  Images,
+  Trash2,
+} from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 const field =
@@ -78,24 +85,32 @@ export function ImageGalleryField({
       try {
         const prefix = pathPrefix.replace(/^\/+|\/+$/g, "");
         for (const file of list) {
-          const baseTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-          const { publicUrl, skippedUpload } = await uploadPublicFileContentAddressed(
-            bucket,
-            prefix,
-            file,
-            { title: baseTitle },
-          );
+          const baseTitle = file.name
+            .replace(/\.[^.]+$/, "")
+            .replace(/[-_]+/g, " ");
+          const { publicUrl, skippedUpload } =
+            await uploadPublicFileContentAddressed(bucket, prefix, file, {
+              title: baseTitle,
+            });
           newUrls.push(publicUrl);
           if (skippedUpload) skipped += 1;
         }
         const newCount = list.length - skipped;
         if (skipped > 0) {
-          const proceed = await promptBatchDuplicateFiles(openPrompt, newCount, skipped);
+          const proceed = await promptBatchDuplicateFiles(
+            openPrompt,
+            newCount,
+            skipped,
+          );
           if (!proceed) return;
         }
         onChange(mergeUnique(value, newUrls));
         if (skipped === 0) {
-          showToast(list.length === 1 ? "Image uploaded" : `${list.length} images uploaded`);
+          showToast(
+            list.length === 1
+              ? "Image uploaded"
+              : `${list.length} images uploaded`,
+          );
         } else {
           showToast(
             newCount > 0
@@ -152,8 +167,8 @@ export function ImageGalleryField({
     <div>
       {label ? <label className={labelCls}>{label}</label> : null}
       <p className="text-[11px] text-white/35 mb-3">
-        Upload several images, pick many from the media library, or paste URLs below. Order is shown on the public
-        project page.
+        Upload several images, pick many from the media library, or paste URLs
+        below. Order is shown on the public project page.
       </p>
 
       <input
@@ -201,9 +216,13 @@ export function ImageGalleryField({
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-white/80">
-                {uploading ? "Uploading…" : "Drop images here or click to upload (multiple)"}
+                {uploading
+                  ? "Uploading…"
+                  : "Drop images here or click to upload (multiple)"}
               </p>
-              <p className="mt-1 text-xs text-white/35">PNG, JPG, WebP, SVG — multiple files allowed</p>
+              <p className="mt-1 text-xs text-white/35">
+                PNG, JPG, WebP, SVG multiple files allowed
+              </p>
             </div>
           </button>
         </div>
@@ -230,7 +249,11 @@ export function ImageGalleryField({
                   <GripVertical className="h-4 w-4 opacity-50" />
                 </div>
                 <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-white/[0.08] bg-black/30">
-                  <img src={url} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <Input
                   className={cn(field, "min-w-0 flex-1 text-xs h-8")}

@@ -50,15 +50,15 @@ Create a `.env` file in the project root (values are not committed).
 | `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY` or `VITE_SUPABASE_ANON_KEY` | For CMS / admin | Public/anon key for the browser client                                               |
 | `VITE_ADMIN_EMAIL`                                                  | Optional        | If set, only this email may use admin login UI (allowlist still required for writes) |
 | `VITE_TURNSTILE_SITE_KEY`                                           | Optional        | Cloudflare Turnstile on contact form (public site key)                               |
-| `RESEND_API_KEY`                                                    | For contact     | Resend API key — **server-only**, do not prefix with `VITE_`                         |
+| `RESEND_API_KEY`                                                    | For contact     | Resend API key **server-only**, do not prefix with `VITE_`                           |
 | `CONTACT_NOTIFICATION_TO_EMAIL`                                     | Optional        | Inbox for form submissions (defaults to `sahinweb@proton.me`)                        |
 | `CONTACT_NOTIFICATION_FROM_EMAIL`                                   | Optional        | Sender (defaults to `Sahin Alam <contact@sahin.pro.bd>`)                             |
-| `RESEND_CONTACT_TEMPLATE_ID`                                        | Optional        | Published Resend template ID — when set, sends via template + variables              |
+| `RESEND_CONTACT_TEMPLATE_ID`                                        | Optional        | Published Resend template ID when set, sends via template + variables                |
 | `TURNSTILE_SECRET_KEY`                                              | Recommended     | Pairs with `VITE_TURNSTILE_SITE_KEY` for bot protection (server-only)                |
-| `CONTACT_RATE_LIMIT_PER_MINUTE`                                     | Optional        | Per-IP API limit (default `6`) — helps under traffic spikes                          |
+| `CONTACT_RATE_LIMIT_PER_MINUTE`                                     | Optional        | Per-IP API limit (default `6`) helps under traffic spikes                            |
 | `CONTACT_RATE_LIMIT_WINDOW_MS`                                      | Optional        | Rate-limit window in ms (default `60000`)                                            |
 
-The Supabase client lives in `src/utils/supabase.ts` (CMS/admin only — contact form does not use Supabase).
+The Supabase client lives in `src/utils/supabase.ts` (CMS/admin only contact form does not use Supabase).
 
 ### Contact form (`.env` + Resend)
 
@@ -83,7 +83,7 @@ For **Vercel production**, add the same server variables in **Project → Settin
 
 - Uses the official Resend `/emails` API with `Idempotency-Key`, `html` + `text`, `reply_to`, and `tags`.
 - Retries Resend `429` / `5xx` responses using the `retry-after` header (per Resend rate-limit docs).
-- Resend team rate limit is **5 requests/second** by default — a burst of thousands of simultaneous submissions will queue/fail at Resend; Turnstile + per-IP rate limiting reduce abuse.
+- Resend team rate limit is **5 requests/second** by default a burst of thousands of simultaneous submissions will queue/fail at Resend; Turnstile + per-IP rate limiting reduce abuse.
 - After domain verification, send from `contact@sahin.pro.bd` via `CONTACT_NOTIFICATION_FROM_EMAIL`.
 - Replies go to the visitor’s email via `reply_to`.
 
@@ -104,13 +104,13 @@ For **Vercel production**, add the same server variables in **Project → Settin
 
 **Public**
 
-- `/` — Home
+- `/` Home
 - `/about`, `/projects`, `/services`, `/contact`
-- `*` — Not found
+- `*` Not found
 
 **Admin** (sign in at `/admin/login`)
 
-- `/admin` — Dashboard
+- `/admin` Dashboard
 - `/admin/projects`, `/admin/projects/new`, `/admin/projects/:id`
 - `/admin/testimonials`
 - `/admin/blog`, `/admin/blog/new`, `/admin/blog/:id`
@@ -156,19 +156,19 @@ Portfolio-by-sahinhub/
 
 Phase 1 optimizations for faster first paint on phones:
 
-| Technique | Location | Effect |
-| --------- | -------- | ------ |
-| Self-hosted fonts | `public/fonts/`, `@font-face` in `tailwind.css` | Inter 400/600/700 + MonteCarlo only; no Google Fonts round-trip |
-| CSS-only hero aurora on mobile | `src/components/AuroraBackground.tsx` | Skips Three.js WebGL below 768px |
-| Below-fold deferral | `LazySection` in `src/pages/HomePage.tsx` | Mounts sections near viewport only |
-| Optimistic site gate | `src/routes/PublicSiteGate.tsx` | Renders public pages immediately; coming-soon check after settings load |
-| Deferred Calendly | `src/lib/loadCalendly.ts`, Contact page CTA | Third-party widget loads on click only |
+| Technique                      | Location                                        | Effect                                                                  |
+| ------------------------------ | ----------------------------------------------- | ----------------------------------------------------------------------- |
+| Self-hosted fonts              | `public/fonts/`, `@font-face` in `tailwind.css` | Inter 400/600/700 + MonteCarlo only; no Google Fonts round-trip         |
+| CSS-only hero aurora on mobile | `src/components/AuroraBackground.tsx`           | Skips Three.js WebGL below 768px                                        |
+| Below-fold deferral            | `LazySection` in `src/pages/HomePage.tsx`       | Mounts sections near viewport only                                      |
+| Optimistic site gate           | `src/routes/PublicSiteGate.tsx`                 | Renders public pages immediately; coming-soon check after settings load |
+| Deferred Calendly              | `src/lib/loadCalendly.ts`, Contact page CTA     | Third-party widget loads on click only                                  |
 
 Font files were sourced from `@fontsource/inter` and `@fontsource/montecarlo` (devDependencies used at build/setup time).
 
 ## License
 
-MIT — use freely for your own portfolio.
+MIT use freely for your own portfolio.
 
 ## Author
 

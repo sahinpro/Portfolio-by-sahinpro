@@ -465,7 +465,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
             </div>
           </motion.div>
 
-          {/* Avatar carousel — active item stays centered, infinite loop */}
+          {/* Avatar carousel    active item stays centered, infinite loop */}
           <motion.div
             className="relative z-20 avatar-button mx-auto px-4 sm:px-6 py-4 sm:py-5 rounded-2xl backdrop-blur-xl max-w-[min(100%,40rem)]"
             variants={avatarRowVariants}

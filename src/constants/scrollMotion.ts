@@ -1,4 +1,4 @@
-/** Matches Contact page scroll triggers — use for all public scroll entrances. */
+/** Matches Contact page scroll triggers    use for all public scroll entrances. */
 export const scrollViewport = {
   once: true,
   amount: 0.2 as const,

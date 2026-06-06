@@ -5,7 +5,7 @@ import {
 
 /**
  * Sends a page view to the `record-page-view` Edge Function.
- * Uses explicit fetch with JWT anon key — the Functions API expects `Authorization: Bearer <jwt>`;
+ * Uses explicit fetch with JWT anon key    the Functions API expects `Authorization: Bearer <jwt>`;
  * publishable-only keys can return 401 "Missing authorization header".
  * Requires the same secret in Supabase (`ANALYTICS_INGEST_SECRET`) and in the app
  * (`VITE_ANALYTICS_INGEST_SECRET`).

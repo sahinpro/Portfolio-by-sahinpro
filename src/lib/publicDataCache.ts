@@ -9,7 +9,11 @@ type CacheEntry<T> = { data: T; storedAt: number };
 const cache = new Map<string, CacheEntry<unknown>>();
 const inflight = new Map<string, Promise<unknown>>();
 
-export function getCachedPublic<T>(key: string, fetcher: () => Promise<T>, ttlMs = DEFAULT_TTL_MS): Promise<T> {
+export function getCachedPublic<T>(
+  key: string,
+  fetcher: () => Promise<T>,
+  ttlMs = DEFAULT_TTL_MS,
+): Promise<T> {
   const hit = cache.get(key) as CacheEntry<T> | undefined;
   if (hit && Date.now() - hit.storedAt < ttlMs) {
     return Promise.resolve(hit.data);
@@ -35,7 +39,7 @@ export function getCachedPublic<T>(key: string, fetcher: () => Promise<T>, ttlMs
   return p as Promise<T>;
 }
 
-/** Clear all cached public reads (e.g. after admin publish in same tab — optional). */
+/** Clear all cached public reads (e.g. after admin publish in same tab    optional). */
 export function invalidatePublicDataCache(): void {
   cache.clear();
   inflight.clear();

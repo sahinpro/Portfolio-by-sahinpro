@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { PROFILE } from "@/constants/profile";
-import { submitContactForm } from "@/lib/submitContact";
 import { loadCalendly } from "@/lib/loadCalendly";
+import { submitContactForm } from "@/lib/submitContact";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
@@ -114,8 +114,8 @@ const faqs = [
     a: "I read every message personally. You can usually expect a first reply within 24 hours on business days (often much sooner), with a short call or written plan of next steps.",
   },
   {
-    q: "How do you price projects — fixed fee or hourly?",
-    a: "Most work is quoted as a fixed scope and milestone-based fee so you know the cost up front. For ongoing or evolving work, we can use a retainer or hourly model — I’ll recommend what fits your project after we clarify goals and deliverables.",
+    q: "How do you price projects    fixed fee or hourly?",
+    a: "Most work is quoted as a fixed scope and milestone-based fee so you know the cost up front. For ongoing or evolving work, we can use a retainer or hourly model    I’ll recommend what fits your project after we clarify goals and deliverables.",
   },
   {
     q: "What’s your process after we say go?",
@@ -135,7 +135,7 @@ const faqs = [
   },
   {
     q: "What about revisions, scope changes, and after launch?",
-    a: "Revisions are built into each phase so we can refine before sign-off. Bigger scope changes are scoped and priced separately so there are no surprises. After launch, I can offer a support window or ongoing maintenance — we’ll align on what you need before we ship.",
+    a: "Revisions are built into each phase so we can refine before sign-off. Bigger scope changes are scoped and priced separately so there are no surprises. After launch, I can offer a support window or ongoing maintenance    we’ll align on what you need before we ship.",
   },
 ];
 
@@ -310,11 +310,11 @@ export const ContactPage = (): JSX.Element => {
           ? "The server could not accept this submission (check required fields or verification)."
           : r.status === 429
             ? `Too many requests right now.${retryHint}`
-          : r.status === 503
-            ? `The email service is temporarily unavailable.${retryHint}`
-          : r.status === 0
-            ? "Could not reach the contact API. Run `npm run dev` locally or deploy to Vercel."
-            : null);
+            : r.status === 503
+              ? `The email service is temporarily unavailable.${retryHint}`
+              : r.status === 0
+                ? "Could not reach the contact API. Run `npm run dev` locally or deploy to Vercel."
+                : null);
       setSubmitError(
         detail ??
           (r.status === 500
@@ -417,8 +417,8 @@ export const ContactPage = (): JSX.Element => {
             variants={fadeUp(0.1)}
             className="text-base sm:text-lg text-white/50 max-w-lg mx-auto mb-6 sm:mb-8 px-1"
           >
-            Have a project in mind? Tell me about it — I typically respond
-            within 24 hours.
+            Have a project in mind? Tell me about it I typically respond within
+            24 hours.
           </motion.p>
 
           <motion.div
@@ -480,7 +480,7 @@ export const ContactPage = (): JSX.Element => {
                     Send a message
                   </h2>
                   <p className="text-sm text-white/40 mb-6 sm:mb-8">
-                    Fill in the details below — the more context, the better.
+                    Fill in the details below the more context, the better.
                   </p>
 
                   <form
@@ -788,8 +788,8 @@ export const ContactPage = (): JSX.Element => {
                 </span>
               </div>
               <p className="text-sm text-white/50 mb-4 leading-relaxed">
-                Prefer to talk? Schedule a free 15-minute Google Meet — no
-                pitch, no pressure, just an honest conversation.
+                Prefer to talk? Schedule a free 15-minute Google Meet no pitch,
+                no pressure, just an honest conversation.
               </p>
               <CTAButton
                 type="button"

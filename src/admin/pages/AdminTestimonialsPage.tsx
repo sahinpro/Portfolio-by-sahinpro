@@ -148,7 +148,10 @@ export function AdminTestimonialsPage(): JSX.Element {
     const payload = testimonialToPayload(form);
     void (async () => {
       try {
-        const { error } = await supabase.from("testimonials").update(payload).eq("id", editing.id);
+        const { error } = await supabase
+          .from("testimonials")
+          .update(payload)
+          .eq("id", editing.id);
         if (error) showToast(error.message, "error");
         else invalidatePublicDataCache();
       } finally {
@@ -167,7 +170,10 @@ export function AdminTestimonialsPage(): JSX.Element {
     setSaving(true);
     const payload = testimonialToPayload(form);
     if (editing) {
-      const { error } = await supabase.from("testimonials").update(payload).eq("id", editing.id);
+      const { error } = await supabase
+        .from("testimonials")
+        .update(payload)
+        .eq("id", editing.id);
       setSaving(false);
       if (error) {
         showToast(error.message, "error");
@@ -195,15 +201,20 @@ export function AdminTestimonialsPage(): JSX.Element {
   };
 
   const filteredRows =
-    statusFilter === "all" ? rows : rows.filter((r) => r.status === statusFilter);
+    statusFilter === "all"
+      ? rows
+      : rows.filter((r) => r.status === statusFilter);
 
   return (
     <div className="max-w-6xl space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">Testimonials</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-white">
+            Testimonials
+          </h1>
           <p className="text-sm text-white/40 mt-1">
-            Customer stories on the home page. Only published items are public; drafts stay in the admin until you publish.
+            Customer stories on the home page. Only published items are public;
+            drafts stay in the admin until you publish.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -216,7 +227,11 @@ export function AdminTestimonialsPage(): JSX.Element {
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
-          <Button type="button" onClick={openNew} className="bg-white text-black hover:bg-white/90">
+          <Button
+            type="button"
+            onClick={openNew}
+            className="bg-white text-black hover:bg-white/90"
+          >
             <Plus className="h-4 w-4" />
             Add testimonial
           </Button>
@@ -230,11 +245,15 @@ export function AdminTestimonialsPage(): JSX.Element {
             type="button"
             onClick={() => setStatusFilter(f)}
             className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-all ${
-              statusFilter === f ? "bg-white/[0.12] text-white shadow-sm" : "text-white/40 hover:text-white/70"
+              statusFilter === f
+                ? "bg-white/[0.12] text-white shadow-sm"
+                : "text-white/40 hover:text-white/70"
             }`}
           >
             {f}
-            <span className={`tabular-nums text-[11px] ${statusFilter === f ? "text-white/60" : "text-white/25"}`}>
+            <span
+              className={`tabular-nums text-[11px] ${statusFilter === f ? "text-white/60" : "text-white/25"}`}
+            >
               {counts[f]}
             </span>
           </button>
@@ -245,7 +264,9 @@ export function AdminTestimonialsPage(): JSX.Element {
         <p className="text-white/45 text-sm">Loading…</p>
       ) : filteredRows.length === 0 ? (
         <p className="text-sm text-white/45 py-8 text-center rounded-xl border border-white/[0.08] bg-[#111]">
-          {statusFilter === "all" ? "No testimonials yet." : `No ${statusFilter} testimonials.`}
+          {statusFilter === "all"
+            ? "No testimonials yet."
+            : `No ${statusFilter} testimonials.`}
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -266,7 +287,11 @@ export function AdminTestimonialsPage(): JSX.Element {
               <CardContent className="p-4">
                 <div className="mb-3 flex items-center gap-3">
                   {r.author_avatar ? (
-                    <img src={r.author_avatar} alt="" className="h-12 w-12 rounded-lg object-cover" />
+                    <img
+                      src={r.author_avatar}
+                      alt=""
+                      className="h-12 w-12 rounded-lg object-cover"
+                    />
                   ) : (
                     <div className="h-12 w-12 rounded-lg bg-white/10" />
                   )}
@@ -294,7 +319,7 @@ export function AdminTestimonialsPage(): JSX.Element {
           description={
             editing
               ? "Changes apply when you save, or when you close the panel (latest values are written)."
-              : "Save when ready, or close after editing—a draft is saved if you entered a name and quote."
+              : "Save when ready, or close after editing  a draft is saved if you entered a name and quote."
           }
           onClose={closePanel}
         >
@@ -305,7 +330,9 @@ export function AdminTestimonialsPage(): JSX.Element {
                 <Input
                   className={field}
                   value={form.author_name}
-                  onChange={(e) => setForm((f) => ({ ...f, author_name: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, author_name: e.target.value }))
+                  }
                 />
               </div>
               <div>
@@ -315,7 +342,10 @@ export function AdminTestimonialsPage(): JSX.Element {
                   className={field}
                   value={form.sort_order}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, sort_order: Number(e.target.value) || 0 }))
+                    setForm((f) => ({
+                      ...f,
+                      sort_order: Number(e.target.value) || 0,
+                    }))
                   }
                 />
               </div>
@@ -326,7 +356,9 @@ export function AdminTestimonialsPage(): JSX.Element {
                 <Input
                   className={field}
                   value={form.author_role}
-                  onChange={(e) => setForm((f) => ({ ...f, author_role: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, author_role: e.target.value }))
+                  }
                 />
               </div>
               <div>
@@ -334,7 +366,9 @@ export function AdminTestimonialsPage(): JSX.Element {
                 <Input
                   className={field}
                   value={form.author_company}
-                  onChange={(e) => setForm((f) => ({ ...f, author_company: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, author_company: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -350,7 +384,9 @@ export function AdminTestimonialsPage(): JSX.Element {
               <Textarea
                 className={`${field} min-h-[100px]`}
                 value={form.quote}
-                onChange={(e) => setForm((f) => ({ ...f, quote: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, quote: e.target.value }))
+                }
               />
             </div>
             <div>
@@ -358,7 +394,9 @@ export function AdminTestimonialsPage(): JSX.Element {
               <Textarea
                 className={`${field} min-h-[100px] font-mono text-xs`}
                 value={form.highlighted_quote}
-                onChange={(e) => setForm((f) => ({ ...f, highlighted_quote: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, highlighted_quote: e.target.value }))
+                }
               />
             </div>
             <div>

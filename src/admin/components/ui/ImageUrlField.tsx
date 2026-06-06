@@ -214,7 +214,7 @@ export function ImageUrlField({
                   : "Drop an image here or click to upload"}
               </p>
               <p className="mt-1 text-xs text-white/35">
-                PNG, JPG, WebP, SVG — full width drop zone
+                PNG, JPG, WebP, SVG full width drop zone
               </p>
             </div>
           </button>

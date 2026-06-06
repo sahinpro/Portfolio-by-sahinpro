@@ -51,7 +51,7 @@ const highlights: {
     icon: Paintbrush,
     title: "WordPress, Shopify & WooCommerce",
     description:
-      "200+ delivered sites and stores — WordPress themes, WooCommerce and Shopify builds, Elementor, and on-page SEO for international clients.",
+      "200+ delivered sites and stores    WordPress themes, WooCommerce and Shopify builds, Elementor, and on-page SEO for international clients.",
     tag: "CMS",
     color: "from-orange-500/10 to-amber-500/5",
     border: "border-orange-500/20",
@@ -60,7 +60,7 @@ const highlights: {
     icon: Zap,
     title: "React & Next.js",
     description:
-      "Modern full stack apps and platforms — including payment gateways with Next.js, TypeScript, and MongoDB.",
+      "Modern full stack apps and platforms    including payment gateways with Next.js, TypeScript, and MongoDB.",
     tag: "Full Stack",
     color: "from-yellow-500/10 to-lime-500/5",
     border: "border-yellow-500/20",
@@ -78,7 +78,7 @@ const highlights: {
     icon: BookOpen,
     title: "Performance & SEO",
     description:
-      "Core Web Vitals optimization, lazy loading, and asset tuning — often improving load speed 40%+ on client projects.",
+      "Core Web Vitals optimization, lazy loading, and asset tuning    often improving load speed 40%+ on client projects.",
     tag: "Speed",
     color: "from-violet-500/10 to-purple-500/5",
     border: "border-violet-500/20",
@@ -168,8 +168,7 @@ export const AboutPage = (): JSX.Element => {
             className="text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.05] mb-6 max-w-4xl"
           >
             Crafting digital{" "}
-            <span className="text-violet-400">experiences</span>{" "}
-            that matter
+            <span className="text-violet-400">experiences</span> that matter
           </motion.h1>
 
           <motion.p
@@ -275,7 +274,7 @@ export const AboutPage = (): JSX.Element => {
 
       <LandscapePageCtaSection
         title="Let's work together"
-        description="Available for freelance, full-time, and remote collaboration — startups, redesigns, or joining your team. Let's build something great."
+        description="Available for freelance, full-time, and remote collaboration    startups, redesigns, or joining your team. Let's build something great."
         actions={
           <>
             {!resumeLoading && activeResume ? (

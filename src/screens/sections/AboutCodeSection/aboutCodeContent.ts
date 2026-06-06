@@ -1,4 +1,8 @@
-import { PROFILE_PLATFORMS, PROFILE_STACK, PROFILE_TYPEWRITER_FALLBACK } from "@/constants/profile";
+import {
+  PROFILE_PLATFORMS,
+  PROFILE_STACK,
+  PROFILE_TYPEWRITER_FALLBACK,
+} from "@/constants/profile";
 
 export type AboutCodeProfile = {
   name: string;
@@ -15,7 +19,11 @@ const DEFAULT_PLATFORMS = [...PROFILE_PLATFORMS];
 const TYPEWRITER_FALLBACK = [...PROFILE_TYPEWRITER_FALLBACK];
 
 function escapeJsString(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\s+/g, " ").trim();
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function parseTypewriterWords(raw: string | undefined): string[] {
@@ -23,7 +31,10 @@ export function parseTypewriterWords(raw: string | undefined): string[] {
     const trimmed = raw?.trim();
     if (!trimmed) return TYPEWRITER_FALLBACK;
     const parsed = JSON.parse(trimmed) as unknown;
-    if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === "string")) {
+    if (
+      !Array.isArray(parsed) ||
+      !parsed.every((item) => typeof item === "string")
+    ) {
       return TYPEWRITER_FALLBACK;
     }
     return parsed.length ? parsed : TYPEWRITER_FALLBACK;
@@ -41,7 +52,7 @@ export function buildAboutCode(profile: AboutCodeProfile): string {
   const platformLines = formatStringArray(profile.platforms);
   const highlightLines = formatStringArray(profile.highlights);
 
-  return `// about.ts — a quick intro
+  return `// about.ts    a quick intro
 export const developer = {
   name: "${escapeJsString(profile.name)}",
   role: "${escapeJsString(profile.role)}",
@@ -85,7 +96,7 @@ export function buildTerminalLines(profile: AboutCodeProfile): TerminalLine[] {
       command: 'grep -i "hire" availability.log',
       output: profile.available
         ? "Status: open to new projects ✓"
-        : "Status: booked — still happy to chat",
+        : "Status: booked    still happy to chat",
     },
     { command: "open portfolio --about", output: "→ /about" },
   ];

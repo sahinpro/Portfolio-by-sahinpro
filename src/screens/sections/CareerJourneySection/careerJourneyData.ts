@@ -24,7 +24,7 @@ export const careerTimeline: TimelineEntry[] = [
     year: "Feb 2023–Present",
     role: "WordPress Developer",
     company: "Self-employed",
-    desc: "WordPress, WooCommerce, and Shopify for local and international clients — custom stores, landing pages, theme customization, on-page SEO, and full project lifecycle from scoping to post-launch support.",
+    desc: "WordPress, WooCommerce, and Shopify for local and international clients    custom stores, landing pages, theme customization, on-page SEO, and full project lifecycle from scoping to post-launch support.",
     icon: Rocket,
   },
   {

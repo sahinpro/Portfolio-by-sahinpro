@@ -1,7 +1,7 @@
 import { CTAButton } from "@/components/CTAButton";
 import Header from "@/components/Header";
-import { LandscapePageCtaSection } from "@/components/section";
 import { PublicSeo } from "@/components/public/PublicSeo";
+import { LandscapePageCtaSection } from "@/components/section";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { usePublishedProject } from "@/hooks/usePublishedProject";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
@@ -311,7 +311,7 @@ export function ProjectDetailPage(): JSX.Element {
                       >
                         <img
                           src={src}
-                          alt={`${project.title} — screenshot ${i + 1}`}
+                          alt={`${project.title}    screenshot ${i + 1}`}
                           className="block max-h-36 max-w-[320px] w-auto h-auto  transition-transform duration-500 group-hover:scale-[1.02]"
                         />
                       </a>
@@ -505,7 +505,6 @@ export function ProjectDetailPage(): JSX.Element {
             </motion.div>
           )}
         </div>
-
       </article>
 
       {!loading && !error && project ? (

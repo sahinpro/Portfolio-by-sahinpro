@@ -4,7 +4,7 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL: string;
   /** New Supabase publishable key (dashboard) */
   readonly VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY?: string;
-  /** Legacy JWT anon key — used if publishable key is unset */
+  /** Legacy JWT anon key    used if publishable key is unset */
   readonly VITE_SUPABASE_ANON_KEY?: string;
   readonly VITE_TURNSTILE_SITE_KEY?: string;
   readonly VITE_ADMIN_EMAIL?: string;
@@ -20,5 +20,5 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-declare module '*.glb';
-declare module '*.png';
+declare module "*.glb";
+declare module "*.png";

@@ -59,7 +59,7 @@ export function AdminAnalyticsPage(): JSX.Element {
           role="alert"
         >
           <span className="font-medium">Dashboard query failed:</span>{" "}
-          {dashboardError} — often missing{" "}
+          {dashboardError} often missing{" "}
           <code className="rounded bg-black/30 px-1 text-xs">page_views</code>{" "}
           table, RLS blocking{" "}
           <code className="rounded bg-black/30 px-1 text-xs">SELECT</code> for{" "}
@@ -83,9 +83,9 @@ export function AdminAnalyticsPage(): JSX.Element {
           <h1 className="text-2xl font-semibold text-white">Analytics</h1>
           <p className="text-sm text-white/45 mt-1">
             Charts read from your Supabase page view ingest. In production,{" "}
-            <span className="text-white/60">@vercel/analytics</span> also sends data to
-            your Vercel dashboard; Vercel does not expose that time series for this
-            chart, so the graph stays on first-party data.
+            <span className="text-white/60">@vercel/analytics</span> also sends
+            data to your Vercel dashboard; Vercel does not expose that time
+            series for this chart, so the graph stays on first-party data.
           </p>
         </div>
         <button
@@ -104,14 +104,14 @@ export function AdminAnalyticsPage(): JSX.Element {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
         {[
-          { label: "Views (30d)", value: loading ? "—" : total30d },
+          { label: "Views (30d)", value: loading ? "  " : total30d },
           {
             label: "Top page views",
-            value: loading ? "—" : (data.topPages[0]?.count ?? 0),
+            value: loading ? "  " : (data.topPages[0]?.count ?? 0),
           },
           {
             label: "Unique paths (30d)",
-            value: loading ? "—" : data.topPages.length,
+            value: loading ? "  " : data.topPages.length,
           },
           { label: "Data points", value: recent.length },
         ].map((c) => (

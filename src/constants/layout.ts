@@ -1,4 +1,4 @@
-/** Shared homepage section layout — matches hero inner width (`container mx-auto px-4`). */
+/** Shared homepage section layout    matches hero inner width (`container mx-auto px-4`). */
 
 export const heroContainerClass = "container mx-auto w-full px-4";
 

@@ -71,7 +71,7 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
     id: "full-stack",
     title: "Full Stack Development",
     description:
-      "End-to-end web applications from database design to pixel-perfect frontend — built to scale.",
+      "End-to-end web applications from database design to pixel-perfect frontend    built to scale.",
     tag: "Dev",
     accent: "from-yellow-500/10 to-amber-500/5",
     border: "border-yellow-500/20",
@@ -88,7 +88,7 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
     id: "wordpress",
     title: "WordPress Development",
     description:
-      "Professional, fast, and SEO-ready WordPress builds — themes, plugins, and full custom sites.",
+      "Professional, fast, and SEO-ready WordPress builds    themes, plugins, and full custom sites.",
     tag: "CMS",
     accent: "from-blue-500/10 to-cyan-500/5",
     border: "border-blue-500/20",
@@ -104,7 +104,7 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
     id: "ecommerce",
     title: "E-Commerce Solutions",
     description:
-      "Complete e-commerce with WooCommerce or Shopify — from product pages to checkout and beyond.",
+      "Complete e-commerce with WooCommerce or Shopify    from product pages to checkout and beyond.",
     tag: "E-Commerce",
     accent: "from-emerald-500/10 to-teal-500/5",
     border: "border-emerald-500/20",
@@ -138,7 +138,7 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
     id: "maintenance",
     title: "Maintenance & Support",
     description:
-      "Ongoing peace of mind — regular updates, security monitoring, and fast response to any issues.",
+      "Ongoing peace of mind    regular updates, security monitoring, and fast response to any issues.",
     tag: "Support",
     accent: "from-orange-500/10 to-red-500/5",
     border: "border-orange-500/20",
@@ -153,7 +153,7 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
   },
 ];
 
-/** Compact cards shown on the homepage — link to full services page */
+/** Compact cards shown on the homepage    link to full services page */
 export const SERVICE_HOME_CARDS = SERVICE_DEFINITIONS.filter((s) =>
   ["full-stack", "wordpress", "ecommerce", "performance"].includes(s.id),
 );
@@ -179,7 +179,7 @@ export const WHY_CHOOSE_PROOF_CARDS: ProofCard[] = [
     iconKey: "speed",
     title: "40%+ faster loads",
     description:
-      "Core Web Vitals optimisation on client sites — including pkpayplus.com and agency storefronts.",
+      "Core Web Vitals optimisation on client sites    including pkpayplus.com and agency storefronts.",
   },
   {
     iconKey: "satisfaction",
@@ -191,6 +191,6 @@ export const WHY_CHOOSE_PROOF_CARDS: ProofCard[] = [
     iconKey: "support",
     title: "End-to-end delivery",
     description:
-      "From Figma/PSD handoff to deployment — scoping, build, QA, and handover documentation.",
+      "From Figma/PSD handoff to deployment    scoping, build, QA, and handover documentation.",
   },
 ];

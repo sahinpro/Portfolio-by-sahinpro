@@ -1,5 +1,5 @@
-import { AdminSidePanel } from "@/admin/components/ui/AdminSidePanel";
 import { BlogMarkdownEditor } from "@/admin/components/BlogMarkdownEditor";
+import { AdminSidePanel } from "@/admin/components/ui/AdminSidePanel";
 import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
 import { TagInput } from "@/admin/components/ui/TagInput";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
@@ -32,7 +32,10 @@ const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
 const labelCls = "block text-xs font-medium text-white/50 mb-1.5";
 
-function formatBlogSaveError(error: { message: string; code?: string }): string {
+function formatBlogSaveError(error: {
+  message: string;
+  code?: string;
+}): string {
   if (error.code === "23505") {
     return "A blog post with this slug already exists. Choose a different slug.";
   }
@@ -54,7 +57,9 @@ export function AdminBlogFormPage(): JSX.Element {
   const [coverImage, setCoverImage] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [featured, setFeatured] = useState(false);
-  const [status, setStatus] = useState<"draft" | "published" | "trash">("draft");
+  const [status, setStatus] = useState<"draft" | "published" | "trash">(
+    "draft",
+  );
   const [publishedAt, setPublishedAt] = useState("");
 
   const formSnapshot = useCallback(
@@ -69,7 +74,17 @@ export function AdminBlogFormPage(): JSX.Element {
       status,
       publishedAt,
     }),
-    [title, slug, excerpt, content, coverImage, tags, featured, status, publishedAt],
+    [
+      title,
+      slug,
+      excerpt,
+      content,
+      coverImage,
+      tags,
+      featured,
+      status,
+      publishedAt,
+    ],
   );
 
   useEffect(() => {
@@ -91,7 +106,11 @@ export function AdminBlogFormPage(): JSX.Element {
     let cancelled = false;
     setLoading(true);
     (async () => {
-      const { data, error } = await supabase.from("blog_posts").select("*").eq("id", id!).single();
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("id", id!)
+        .single();
       if (cancelled) return;
       setLoading(false);
       if (error || !data) {
@@ -169,7 +188,10 @@ export function AdminBlogFormPage(): JSX.Element {
     void (async () => {
       try {
         const payload = buildBlogPostPayload(snap);
-        const { error } = await supabase.from("blog_posts").update(payload).eq("id", id);
+        const { error } = await supabase
+          .from("blog_posts")
+          .update(payload)
+          .eq("id", id);
         if (error) showToast(formatBlogSaveError(error), "error");
         else invalidatePublicDataCache();
       } finally {
@@ -206,7 +228,10 @@ export function AdminBlogFormPage(): JSX.Element {
       }
       showToast("Post created");
     } else {
-      const { error } = await supabase.from("blog_posts").update(payload).eq("id", id!);
+      const { error } = await supabase
+        .from("blog_posts")
+        .update(payload)
+        .eq("id", id!);
       setSubmitting(false);
       if (error) {
         showToast(formatBlogSaveError(error), "error");
@@ -238,7 +263,7 @@ export function AdminBlogFormPage(): JSX.Element {
       title={isNew ? "New blog post" : "Edit post"}
       description={
         isNew
-          ? "Nothing is stored until you save, or close after editing—then a draft is created if there are changes."
+          ? "Nothing is stored until you save, or close after editing  then a draft is created if there are changes."
           : "Write, schedule, and publish blog content. Closing saves your latest edits."
       }
       onClose={closePanel}
@@ -266,7 +291,11 @@ export function AdminBlogFormPage(): JSX.Element {
         </div>
         <div>
           <label className={labelCls}>Excerpt</label>
-          <Textarea className={`${field} min-h-[80px]`} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} />
+          <Textarea
+            className={`${field} min-h-[80px]`}
+            value={excerpt}
+            onChange={(e) => setExcerpt(e.target.value)}
+          />
         </div>
         <ImageUrlField
           label="Cover image"
@@ -284,17 +313,27 @@ export function AdminBlogFormPage(): JSX.Element {
           <p className="text-xs text-white/40 mb-2 max-w-2xl">
             Click where you want text or an image. Use the toolbar:{" "}
             <span className="text-white/55">Upload image</span> or{" "}
-            <span className="text-white/55">Media library</span> (next to the small image icon) inserts the picture at
-            your cursor. Drag the divider to resize editor vs preview.
+            <span className="text-white/55">Media library</span> (next to the
+            small image icon) inserts the picture at your cursor. Drag the
+            divider to resize editor vs preview.
           </p>
           <div className="rounded-lg overflow-hidden border border-white/10 [&_.w-md-editor]:bg-[#1a1a1a] [&_.w-md-editor-text]:bg-[#1a1a1a] [&_.w-md-editor-text-pre]:text-white/90">
-            <BlogMarkdownEditor value={content} onChange={setContent} height={420} />
+            <BlogMarkdownEditor
+              value={content}
+              onChange={setContent}
+              height={420}
+            />
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>Status</label>
-            <Select value={status} onValueChange={(v) => setStatus(v as "draft" | "published" | "trash")}>
+            <Select
+              value={status}
+              onValueChange={(v) =>
+                setStatus(v as "draft" | "published" | "trash")
+              }
+            >
               <SelectTrigger className={field}>
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -321,7 +360,11 @@ export function AdminBlogFormPage(): JSX.Element {
             />
           </div>
         </div>
-        <ToggleSwitch checked={featured} onChange={setFeatured} label="Featured" />
+        <ToggleSwitch
+          checked={featured}
+          onChange={setFeatured}
+          label="Featured"
+        />
 
         <div className="flex gap-3 pt-4">
           <button

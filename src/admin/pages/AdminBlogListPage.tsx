@@ -1,7 +1,7 @@
 import { ConfirmDialog } from "@/admin/components/ui/ConfirmDialog";
 import { StatusBadge } from "@/admin/components/ui/StatusBadge";
 import { useToast } from "@/admin/context/ToastContext";
-import { invalidatePublicDataCache } from "@/lib/publicDataCache";
+import type { BlogPostRow } from "@/admin/types/database";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { BlogPostRow } from "@/admin/types/database";
 import { BLOG_COVER_PLACEHOLDER } from "@/constants/placeholders";
+import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import {
   BookOpen,
@@ -123,8 +123,14 @@ function RowActions({
 }
 
 function EmptyState({ search, filter }: { search: string; filter: Filter }) {
-  const message = search || filter !== "all" ? "No posts match your search." : "No blog posts yet.";
-  const hint = search || filter !== "all" ? "Try adjusting your filters." : "Create your first post to get started.";
+  const message =
+    search || filter !== "all"
+      ? "No posts match your search."
+      : "No blog posts yet.";
+  const hint =
+    search || filter !== "all"
+      ? "Try adjusting your filters."
+      : "Create your first post to get started.";
 
   return (
     <div className="flex flex-col items-center gap-3 py-16">
@@ -184,7 +190,11 @@ export function AdminBlogListPage(): JSX.Element {
   useEffect(() => {
     const prev = prevPathRef.current;
     prevPathRef.current = location.pathname;
-    if (prev !== null && prev !== "/admin/blog" && location.pathname === "/admin/blog") {
+    if (
+      prev !== null &&
+      prev !== "/admin/blog" &&
+      location.pathname === "/admin/blog"
+    ) {
       void load();
     }
   }, [location.pathname, load]);
@@ -200,15 +210,25 @@ export function AdminBlogListPage(): JSX.Element {
     if (!search.trim()) return true;
     const q = search.trim().toLowerCase();
     const excerpt = (row.excerpt ?? "").toLowerCase();
-    return row.title.toLowerCase().includes(q) || row.slug.toLowerCase().includes(q) || excerpt.includes(q);
+    return (
+      row.title.toLowerCase().includes(q) ||
+      row.slug.toLowerCase().includes(q) ||
+      excerpt.includes(q)
+    );
   });
 
   const filteredIds = filtered.map((row) => row.id);
-  const allFilteredSelected = filteredIds.length > 0 && filteredIds.every((id) => selectedIds.includes(id));
-  const someFilteredSelected = filteredIds.some((id) => selectedIds.includes(id));
+  const allFilteredSelected =
+    filteredIds.length > 0 &&
+    filteredIds.every((id) => selectedIds.includes(id));
+  const someFilteredSelected = filteredIds.some((id) =>
+    selectedIds.includes(id),
+  );
 
   const toggleSelect = (id: string, checked: boolean) => {
-    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((value) => value !== id)));
+    setSelectedIds((prev) =>
+      checked ? [...prev, id] : prev.filter((value) => value !== id),
+    );
   };
 
   const toggleSelectAll = (checked: boolean) => {
@@ -217,14 +237,23 @@ export function AdminBlogListPage(): JSX.Element {
 
   const bulkUpdateStatus = async (status: BlogPostRow["status"]) => {
     if (selectedIds.length === 0) return;
-    const { error } = await supabase.from("blog_posts").update({ status }).in("id", selectedIds);
+    const { error } = await supabase
+      .from("blog_posts")
+      .update({ status })
+      .in("id", selectedIds);
     if (error) {
       showToast(error.message, "error");
       return;
     }
     invalidatePublicDataCache();
-    setRows((prev) => prev.map((row) => (selectedIds.includes(row.id) ? { ...row, status } : row)));
-    showToast(`${selectedIds.length} post${selectedIds.length === 1 ? "" : "s"} updated`);
+    setRows((prev) =>
+      prev.map((row) =>
+        selectedIds.includes(row.id) ? { ...row, status } : row,
+      ),
+    );
+    showToast(
+      `${selectedIds.length} post${selectedIds.length === 1 ? "" : "s"} updated`,
+    );
     setSelectedIds([]);
   };
 
@@ -257,7 +286,9 @@ export function AdminBlogListPage(): JSX.Element {
       return;
     }
     invalidatePublicDataCache();
-    setRows((prev) => prev.map((row) => (row.id === id ? { ...row, status: "trash" } : row)));
+    setRows((prev) =>
+      prev.map((row) => (row.id === id ? { ...row, status: "trash" } : row)),
+    );
     setSelectedIds((prev) => prev.filter((value) => value !== id));
     showToast("Post moved to trash");
   };
@@ -273,8 +304,12 @@ export function AdminBlogListPage(): JSX.Element {
     <div className="max-w-6xl space-y-6 xl:max-w-[90rem]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">Blog</h1>
-          <p className="mt-0.5 text-sm text-white/40">Manage your articles. Published posts appear on the public site.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-white">
+            Blog
+          </h1>
+          <p className="mt-0.5 text-sm text-white/40">
+            Manage your articles. Published posts appear on the public site.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -297,7 +332,10 @@ export function AdminBlogListPage(): JSX.Element {
 
       <div className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Select value={bulkAction} onValueChange={(value) => setBulkAction(value as BulkAction)}>
+          <Select
+            value={bulkAction}
+            onValueChange={(value) => setBulkAction(value as BulkAction)}
+          >
             <SelectTrigger className="h-9 w-full border-white/10 bg-white/[0.04] text-white sm:w-[190px]">
               <SelectValue placeholder="Bulk actions" />
             </SelectTrigger>
@@ -332,11 +370,15 @@ export function AdminBlogListPage(): JSX.Element {
                 type="button"
                 onClick={() => setFilter(value)}
                 className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-all ${
-                  filter === value ? "bg-white/[0.12] text-white shadow-sm" : "text-white/40 hover:text-white/70"
+                  filter === value
+                    ? "bg-white/[0.12] text-white shadow-sm"
+                    : "text-white/40 hover:text-white/70"
                 }`}
               >
                 {value}
-                <span className={`tabular-nums text-[11px] ${filter === value ? "text-white/60" : "text-white/25"}`}>
+                <span
+                  className={`tabular-nums text-[11px] ${filter === value ? "text-white/60" : "text-white/25"}`}
+                >
                   {counts[value]}
                 </span>
               </button>
@@ -356,7 +398,9 @@ export function AdminBlogListPage(): JSX.Element {
             />
           </div>
           <p className="text-sm text-white/55">
-            {selectedIds.length > 0 ? `${selectedIds.length} selected` : "Select one or more posts"}
+            {selectedIds.length > 0
+              ? `${selectedIds.length} selected`
+              : "Select one or more posts"}
           </p>
         </div>
       </div>
@@ -370,15 +414,26 @@ export function AdminBlogListPage(): JSX.Element {
           >
             <span className="flex items-center">
               <Checkbox
-                checked={allFilteredSelected || (someFilteredSelected ? "indeterminate" : false)}
+                checked={
+                  allFilteredSelected ||
+                  (someFilteredSelected ? "indeterminate" : false)
+                }
                 onCheckedChange={(checked) => toggleSelectAll(checked === true)}
                 aria-label="Select all posts"
               />
             </span>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Cover</span>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Title</span>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">Date</span>
-            <span className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/30">Read</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Cover
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Title
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Date
+            </span>
+            <span className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/30">
+              Read
+            </span>
             <span />
           </div>
         </div>
@@ -430,7 +485,9 @@ export function AdminBlogListPage(): JSX.Element {
               <div
                 key={row.id}
                 className={`group border-b border-white/[0.04] last:border-b-0 transition-colors ${
-                  selectedIds.includes(row.id) ? "bg-white/[0.04]" : "hover:bg-white/[0.025]"
+                  selectedIds.includes(row.id)
+                    ? "bg-white/[0.04]"
+                    : "hover:bg-white/[0.025]"
                 }`}
               >
                 <div className="px-4 py-3.5 md:hidden">
@@ -438,13 +495,19 @@ export function AdminBlogListPage(): JSX.Element {
                     <div className="pt-1">
                       <Checkbox
                         checked={selectedIds.includes(row.id)}
-                        onCheckedChange={(checked) => toggleSelect(row.id, checked === true)}
+                        onCheckedChange={(checked) =>
+                          toggleSelect(row.id, checked === true)
+                        }
                         aria-label={`Select ${row.title}`}
                       />
                     </div>
                     <div className="flex shrink-0 items-start">
                       <img
-                        src={row.cover_image?.trim() ? row.cover_image : BLOG_COVER_PLACEHOLDER}
+                        src={
+                          row.cover_image?.trim()
+                            ? row.cover_image
+                            : BLOG_COVER_PLACEHOLDER
+                        }
                         alt=""
                         className="h-14 w-14 rounded-lg border border-white/[0.08] bg-black/30 object-cover"
                       />
@@ -459,16 +522,26 @@ export function AdminBlogListPage(): JSX.Element {
                         </Link>
                         <RowActions
                           row={row}
-                          onTrash={(id) => setDeleteDialog({ id, permanent: false })}
-                          onPermanentDelete={(id) => setDeleteDialog({ id, permanent: true })}
+                          onTrash={(id) =>
+                            setDeleteDialog({ id, permanent: false })
+                          }
+                          onPermanentDelete={(id) =>
+                            setDeleteDialog({ id, permanent: true })
+                          }
                         />
                       </div>
                       {row.excerpt?.trim() ? (
-                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">{row.excerpt.trim()}</p>
+                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">
+                          {row.excerpt.trim()}
+                        </p>
                       ) : null}
-                      <span className="mt-1 block truncate font-mono text-[11px] text-white/28">/{row.slug}</span>
+                      <span className="mt-1 block truncate font-mono text-[11px] text-white/28">
+                        /{row.slug}
+                      </span>
                       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-white/40">
-                        <span className="tabular-nums">{formatDate(row.updated_at)}</span>
+                        <span className="tabular-nums">
+                          {formatDate(row.updated_at)}
+                        </span>
                         {row.reading_time != null ? (
                           <span className="inline-flex items-center gap-1">
                             <Clock className="h-3 w-3 shrink-0" />
@@ -489,13 +562,19 @@ export function AdminBlogListPage(): JSX.Element {
                   <div className="flex items-center">
                     <Checkbox
                       checked={selectedIds.includes(row.id)}
-                      onCheckedChange={(checked) => toggleSelect(row.id, checked === true)}
+                      onCheckedChange={(checked) =>
+                        toggleSelect(row.id, checked === true)
+                      }
                       aria-label={`Select ${row.title}`}
                     />
                   </div>
                   <div className="flex items-center">
                     <img
-                      src={row.cover_image?.trim() ? row.cover_image : BLOG_COVER_PLACEHOLDER}
+                      src={
+                        row.cover_image?.trim()
+                          ? row.cover_image
+                          : BLOG_COVER_PLACEHOLDER
+                      }
                       alt=""
                       className="h-14 w-14 rounded-lg border border-white/[0.08] bg-black/30 object-cover lg:h-[4.5rem] lg:w-[4.5rem]"
                     />
@@ -508,11 +587,17 @@ export function AdminBlogListPage(): JSX.Element {
                       {row.title}
                     </Link>
                     {row.excerpt?.trim() ? (
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">{row.excerpt.trim()}</p>
+                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">
+                        {row.excerpt.trim()}
+                      </p>
                     ) : null}
-                    <span className="mt-1 block font-mono text-[11px] text-white/28">/{row.slug}</span>
+                    <span className="mt-1 block font-mono text-[11px] text-white/28">
+                      /{row.slug}
+                    </span>
                   </div>
-                  <div className="tabular-nums text-xs text-white/40">{formatDate(row.updated_at)}</div>
+                  <div className="tabular-nums text-xs text-white/40">
+                    {formatDate(row.updated_at)}
+                  </div>
                   <div className="text-center text-xs text-white/40">
                     {row.reading_time != null ? (
                       <span className="inline-flex items-center gap-1">
@@ -520,14 +605,18 @@ export function AdminBlogListPage(): JSX.Element {
                         {row.reading_time}m
                       </span>
                     ) : (
-                      "—"
+                      "  "
                     )}
                   </div>
                   <div className="flex justify-end">
                     <RowActions
                       row={row}
-                      onTrash={(id) => setDeleteDialog({ id, permanent: false })}
-                      onPermanentDelete={(id) => setDeleteDialog({ id, permanent: true })}
+                      onTrash={(id) =>
+                        setDeleteDialog({ id, permanent: false })
+                      }
+                      onPermanentDelete={(id) =>
+                        setDeleteDialog({ id, permanent: true })
+                      }
                     />
                   </div>
                 </div>
@@ -539,7 +628,8 @@ export function AdminBlogListPage(): JSX.Element {
         {!loading && filtered.length > 0 ? (
           <div className="border-t border-white/[0.06] bg-white/[0.01] px-4 py-3">
             <p className="text-xs tabular-nums text-white/25">
-              {filtered.length} of {counts[filter]} post{counts[filter] !== 1 ? "s" : ""}
+              {filtered.length} of {counts[filter]} post
+              {counts[filter] !== 1 ? "s" : ""}
             </p>
           </div>
         ) : null}
@@ -547,14 +637,20 @@ export function AdminBlogListPage(): JSX.Element {
 
       <ConfirmDialog
         open={Boolean(deleteDialog)}
-        title={deleteDialog?.permanent ? "Delete post permanently?" : "Move post to trash?"}
+        title={
+          deleteDialog?.permanent
+            ? "Delete post permanently?"
+            : "Move post to trash?"
+        }
         message={
           deleteDialog?.permanent
             ? "This will permanently remove the post and cannot be undone."
             : "The post will be moved to trash. You can restore it later by changing its status."
         }
         danger={deleteDialog?.permanent}
-        confirmLabel={deleteDialog?.permanent ? "Delete permanently" : "Move to trash"}
+        confirmLabel={
+          deleteDialog?.permanent ? "Delete permanently" : "Move to trash"
+        }
         onCancel={() => setDeleteDialog(null)}
         onConfirm={() => void confirmDelete()}
       />

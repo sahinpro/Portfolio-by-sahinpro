@@ -134,7 +134,7 @@ export const ProjectsPage = (): JSX.Element => {
               variants={fadeUp(0.1)}
               className="text-lg text-white/50 max-w-xl mb-10"
             >
-              A curated selection of work — from full-stack applications to
+              A curated selection of work from full-stack applications to
               WordPress, Shopify, and WooCommerce builds.
             </motion.p>
 
@@ -200,7 +200,7 @@ export const ProjectsPage = (): JSX.Element => {
               <Layers className="w-8 h-8 text-white/20" />
               <p className="text-white/50 text-sm leading-relaxed">
                 No published projects yet. Open the admin, add projects, and set
-                status to <span className="text-white/70">published</span> —
+                status to <span className="text-white/70">published</span>
                 they will appear here automatically.
               </p>
             </div>
