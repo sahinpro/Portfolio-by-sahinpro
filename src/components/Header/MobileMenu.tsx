@@ -11,9 +11,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
     <div
       aria-hidden={!isOpen}
       className={`overflow-hidden bg-black/50 backdrop-blur-sm rounded-xl border-t border-[#ffffff1a] lg:hidden mb-2 transition-all duration-300 ease-in-out ${
-        isOpen
-          ? "max-h-[480px] opacity-100 mt-2"
-          : "max-h-0 opacity-0 pointer-events-none"
+        isOpen ? "max-h-[480px] opacity-100 mt-2" : "hidden"
       }`}
     >
       <div className="px-4 py-4 space-y-2">
