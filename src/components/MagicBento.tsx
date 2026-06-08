@@ -16,6 +16,7 @@ export interface BentoProps {
   enableStars?: boolean;
   enableSpotlight?: boolean;
   enableBorderGlow?: boolean;
+  enableLiquidBorder?: boolean;
   disableAnimations?: boolean;
   spotlightRadius?: number;
   particleCount?: number;
@@ -541,6 +542,7 @@ const MagicBento: React.FC<BentoProps> = ({
   enableStars = true,
   enableSpotlight = true,
   enableBorderGlow = true,
+  enableLiquidBorder = false,
   disableAnimations = false,
   spotlightRadius = DEFAULT_SPOTLIGHT_RADIUS,
   particleCount = DEFAULT_PARTICLE_COUNT,
@@ -645,6 +647,32 @@ const MagicBento: React.FC<BentoProps> = ({
             box-shadow: 0 4px 20px rgba(46, 24, 78, 0.4), 0 0 30px rgba(${glowColor}, 0.2);
           }
 
+          .card--liquid-border {
+            --liquid-inset: 4px;
+            backdrop-filter: blur(10px) saturate(1.25);
+            -webkit-backdrop-filter: blur(10px) saturate(1.25);
+            --liquid-inner-radius: 13px;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            isolation: isolate;
+            box-shadow:
+              inset 0 1px 0 rgba(255, 255, 255, 0.18),
+              inset 1px 0 0 rgba(255, 255, 255, 0.1),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+              inset -1px 0 0 rgba(0, 0, 0, 0.22),
+              0 10px 28px rgba(0, 0, 0, 0.32);
+          }
+
+          .card--liquid-border::after {
+            content: '';
+            position: absolute;
+            inset: var(--liquid-inset);
+            border-radius: var(--liquid-inner-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+            pointer-events: none;
+            z-index: 4;
+          }
+
           .particle::before {
             content: '';
             position: absolute;
@@ -694,15 +722,17 @@ const MagicBento: React.FC<BentoProps> = ({
       <BentoCardGrid gridRef={gridRef}>
         <div className="card-responsive p-0 lg:p-4 grid gap-2">
           {cards.map((card, index) => {
-            const baseClassName = `card flex flex-col justify-between relative aspect-[4/3] min-h-[200px] w-full max-w-full lg:p-5 p-3 rounded-[20px] border border-solid font-light overflow-hidden transition-colors duration-300 ease-in-out ${
-              enableBorderGlow
-                ? "card--border-glow hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)]"
-                : "border-white/[0.08] hover:border-white/[0.12]"
+            const baseClassName = `card flex flex-col justify-between relative aspect-[4/3] min-h-[200px] w-full max-w-full lg:p-5 p-3 rounded-[20px] border border-solid font-light overflow-hidden transition-all duration-300 ease-in-out ${
+              enableLiquidBorder
+                ? "card--liquid-border hover:-translate-y-0.5"
+                : enableBorderGlow
+                  ? "card--border-glow hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)]"
+                  : "border-white/[0.08] hover:border-white/[0.12]"
             }`;
 
             const cardStyle = {
               backgroundColor: card.color || "var(--background-dark)",
-              ...(enableBorderGlow
+              ...(enableBorderGlow && !enableLiquidBorder
                 ? { borderColor: "var(--border-color)" }
                 : {}),
               color: "var(--white)",
@@ -768,13 +798,13 @@ const MagicBento: React.FC<BentoProps> = ({
                   let magnetCtrl: AnimationPlaybackControls | null = null;
 
                   const handleMouseMove = (e: MouseEvent) => {
-                    if (shouldDisableAnimations) return;
-
                     const rect = el.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
+
+                    if (shouldDisableAnimations) return;
 
                     if (enableTilt) {
                       animate(
