@@ -2,6 +2,8 @@
 
 import type { PublicProject } from "@/data/projectUiMapper";
 import { projectDetailPath } from "@/lib/projectPaths";
+import { PublicImage } from "@/components/ui/PublicImage";
+import { projectImageAlt } from "@/lib/seoImages";
 import { motion } from "framer-motion";
 import { ExternalLink, EyeIcon, Github, Star } from "lucide-react";
 import Link from "next/link";
@@ -47,12 +49,12 @@ export const ProjectCard = ({
         href={projectDetailPath(project)}
         className="absolute inset-0 z-0 block"
       >
-        <img
+        <PublicImage
           src={project.image}
-          alt={project.title}
-          loading="lazy"
-          decoding="async"
-          className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+          alt={projectImageAlt(project.title)}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
         />
       </Link>
 

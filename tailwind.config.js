@@ -146,7 +146,7 @@ module.exports = {
       },
       fontFamily: {
         sans: [
-          "Inter",
+          "var(--font-inter)",
           "ui-sans-serif",
           "system-ui",
           "sans-serif",
@@ -155,7 +155,7 @@ module.exports = {
           '"Segoe UI Symbol"',
           '"Noto Color Emoji"',
         ],
-        "monte-carlo": ['"MonteCarlo"', 'cursive'],
+        "monte-carlo": ["var(--font-monte-carlo)", "cursive"],
       },
       keyframes: {
         "accordion-down": {

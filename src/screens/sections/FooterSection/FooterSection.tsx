@@ -16,18 +16,12 @@ export const FooterSection = (): JSX.Element => {
             <TextEffect 
               per="char" 
               preset="fade"
-              className="font-monte-carlo text-4xl text-center leading-[70px]"
-              style={{
-                backgroundImage: 'linear-gradient(45deg, #ee2a7b, #6228d7, #2b8ace)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
+              className="font-monte-carlo text-4xl text-center leading-[70px] text-white"
             >
               {displayName}
             </TextEffect>
           <SocialLinksRow size="footer" />
-        <p className="flex items-center justify-center mt-[-1.00px] [font-family:'Inter_Display-Regular',Helvetica] font-normal text-[#ebebeb99] text-sm tracking-[0] leading-5 whitespace-nowrap">
+        <p className="flex items-center justify-center mt-[-1.00px] font-normal text-zinc-400 text-sm tracking-[0] leading-5 whitespace-nowrap">
           © {year} {displayName}. All rights reserved.
         </p>
         </div>

@@ -15,11 +15,30 @@ import {
   DEFAULT_META_TITLE,
   DEFAULT_OG_IMAGE,
 } from "@/lib/seoDefaults";
+import { OG_IMAGE, projectImageAlt } from "@/lib/seoImages";
 
 const SITE = PROFILE.name;
 
 function buildKeywords(row: SeoSettingsRow | null): string {
   return row?.keywords?.trim() || DEFAULT_KEYWORDS;
+}
+
+function ogImageMeta(
+  imageUrl: string,
+  alt: string,
+  width = OG_IMAGE.width,
+  height = OG_IMAGE.height,
+  type = OG_IMAGE.type,
+): NonNullable<Metadata["openGraph"]>["images"] {
+  return [
+    {
+      url: imageUrl,
+      width,
+      height,
+      alt,
+      type,
+    },
+  ];
 }
 
 function resolveOgImage(row: SeoSettingsRow | null, fallback?: string): string {
@@ -34,6 +53,7 @@ function baseOpenGraph(
   description: string,
   url: string,
   image: string,
+  imageAlt = OG_IMAGE.alt,
   type: "website" | "article" = "website",
 ): Metadata["openGraph"] {
   return {
@@ -43,12 +63,7 @@ function baseOpenGraph(
     url,
     title,
     description,
-    images: [
-      {
-        url: image,
-        alt: `${SITE} — ${PROFILE.role}`,
-      },
-    ],
+    images: ogImageMeta(image, imageAlt),
   };
 }
 
@@ -133,7 +148,13 @@ export async function buildProjectMetadata(slug: string): Promise<Metadata> {
     title: { absolute: title },
     description,
     alternates: { canonical },
-    openGraph: baseOpenGraph(title, description, canonical, ogImage),
+    openGraph: baseOpenGraph(
+      title,
+      description,
+      canonical,
+      ogImage,
+      projectImageAlt(project.title),
+    ),
     twitter: baseTwitter(title, description, canonical, ogImage),
   };
 }

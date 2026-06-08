@@ -5,20 +5,14 @@ import {
   HEADER_ANIMATION_DURATION,
   MOBILE_BREAKPOINT,
 } from "@/constants/styles";
+import { cn } from "@/lib/utils";
 import { useMobileMenu } from "@/hooks/useMobileMenu";
 import { useScrollPosition } from "@/hooks/useScrollPosition";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { HeaderLogo } from "./HeaderLogo";
 import { MenuButton } from "./MenuButton";
 import { MobileMenu } from "./MobileMenu";
 import { Navigation } from "./Navigation";
-
-const getMaxWidth = (): string => {
-  if (typeof window === "undefined") return "800px";
-  return window.innerWidth < MOBILE_BREAKPOINT
-    ? "calc(100% - 0.5rem)"
-    : "800px";
-};
 
 const isMobileViewport = (): boolean => {
   if (typeof window === "undefined") return false;
@@ -29,23 +23,15 @@ const Header = () => {
   const isScrolled = useScrollPosition();
   const { isOpen, toggle, close } = useMobileMenu();
   const [mounted, setMounted] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [mobile, setMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    const sync = (): void => setMobile(isMobileViewport());
+    sync();
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
   }, []);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || isMobileViewport()) return;
-
-    container.style.width = isScrolled ? getMaxWidth() : "100%";
-    container.style.transform = isScrolled
-      ? "translateY(0)"
-      : "translateY(-20px)";
-  }, [isScrolled]);
-
-  const mobile = isMobileViewport();
 
   return (
     <header
@@ -55,15 +41,15 @@ const Header = () => {
       }`}
     >
       <div
-        ref={containerRef}
-        className={`px-2 rounded-xl transition-all ease-in-out ${
-          isScrolled
-            ? "shadow-lg shading-effect bg-white/10 backdrop-blur-md relative border border-white/20 shadow-cyan-500/10 after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-cyan-500/5 after:to-transparent after:pointer-events-none after:rounded-xl"
-            : "backdrop-blur-md border border-white/10"
-        }`}
+        className={cn(
+          "px-2 rounded-xl transition-all ease-in-out",
+          mobile
+            ? "w-full"
+            : isScrolled
+              ? "w-[min(800px,calc(100%-0.5rem))] translate-y-0 shadow-lg shading-effect bg-white/10 backdrop-blur-md relative border border-white/20 shadow-cyan-500/10 after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-cyan-500/5 after:to-transparent after:pointer-events-none after:rounded-xl"
+              : "w-full -translate-y-5 backdrop-blur-md border border-white/10",
+        )}
         style={{
-          width: mobile ? "100%" : undefined,
-          transform: mobile ? "none" : undefined,
           transitionDuration: `${HEADER_ANIMATION_DURATION}s`,
         }}
       >

@@ -1,9 +1,11 @@
 import { PROFILE } from "@/constants/profile";
 import { getSiteUrl } from "@/constants/site";
 import { DEFAULT_META_DESCRIPTION } from "@/lib/seoDefaults";
+import { PROFILE_PORTRAIT } from "@/lib/seoImages";
 
 const PERSON_ID = `${getSiteUrl()}/#person`;
 const WEBSITE_ID = `${getSiteUrl()}/#website`;
+const PORTRAIT_ID = `${getSiteUrl()}/#profile-image`;
 
 export function siteStructuredDataGraph() {
   const siteUrl = getSiteUrl();
@@ -21,10 +23,22 @@ export function siteStructuredDataGraph() {
         publisher: { "@id": PERSON_ID },
       },
       {
+        "@type": "ImageObject",
+        "@id": PORTRAIT_ID,
+        url: PROFILE_PORTRAIT.url,
+        contentUrl: PROFILE_PORTRAIT.url,
+        width: PROFILE_PORTRAIT.width,
+        height: PROFILE_PORTRAIT.height,
+        caption: PROFILE_PORTRAIT.alt,
+        name: `${PROFILE.name} — ${PROFILE.role}`,
+        inLanguage: "en",
+      },
+      {
         "@type": "Person",
         "@id": PERSON_ID,
         name: PROFILE.name,
         url: siteUrl,
+        image: { "@id": PORTRAIT_ID },
         jobTitle: PROFILE.role,
         description: PROFILE.bio,
         email: `mailto:${PROFILE.email}`,
@@ -40,6 +54,7 @@ export function siteStructuredDataGraph() {
         "@id": `${siteUrl}/#business`,
         name: `${PROFILE.name} — ${PROFILE.role}`,
         url: siteUrl,
+        image: { "@id": PORTRAIT_ID },
         description: PROFILE.aboutIntro,
         areaServed: "Worldwide",
         founder: { "@id": PERSON_ID },

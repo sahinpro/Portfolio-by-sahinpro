@@ -1,10 +1,12 @@
 import { PROFILE } from "@/constants/profile";
+import { PROFILE_PORTRAIT } from "@/lib/seoImages";
 import { scrollViewport, sectionEase } from "@/constants/scrollMotion";
 import type { TimelineEntry } from "@/screens/sections/CareerJourneySection/careerJourneyData";
+import { PublicImage } from "@/components/ui/PublicImage";
 import { motion } from "framer-motion";
 import { CareerTimelineList } from "./CareerTimelineList";
 
-const PROFILE_IMAGE = "/sahin.webp";
+const PROFILE_IMAGE = PROFILE_PORTRAIT.path;
 
 const timelineCardClass = "  p-6 sm:p-8 overflow-hidden relative h-full";
 
@@ -39,9 +41,12 @@ export const CareerJourneyPanel = ({
             aria-hidden
           />
           <div className="w-full h-full relative p-1 rounded-full bg-gradient-to-br from-violet-500/30 via-white/10 to-purple-600/20">
-            <img
+            <PublicImage
               src={PROFILE_IMAGE}
-              alt="Sahin Alam"
+              alt={PROFILE_PORTRAIT.alt}
+              width={PROFILE_PORTRAIT.width}
+              height={PROFILE_PORTRAIT.height}
+              sizes="(max-width: 1024px) 80vw, 33vw"
               className="relative w-full h-full object-cover rounded-full border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
             />
           </div>

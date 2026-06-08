@@ -60,15 +60,13 @@ export const CTAButton = ({
     if (variant === "secondary") {
       return (
         <>
-          <span className="flex items-center gap-1 [font-family:'Inter_Display-Medium',Helvetica] font-medium text-sm text-center tracking-[0] leading-5 whitespace-nowrap">
+          <span className="flex items-center gap-1 font-medium text-sm text-center tracking-[0] leading-5 whitespace-nowrap text-white">
             {leftIcon ? (
               <span className="[&_svg]:text-white shrink-0" aria-hidden>
                 {leftIcon}
               </span>
             ) : null}
-            <span className="bg-[linear-gradient(58deg,rgba(255,255,255,0.8)_0%,rgba(255,255,255,1)_100%)] [-webkit-background-clip:text] bg-clip-text [-webkit-text-fill-color:transparent] [text-fill-color:transparent] text-transparent">
-              {children}
-            </span>
+            {children}
           </span>
           {trailingIcon ? (
             <span

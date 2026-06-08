@@ -1,5 +1,7 @@
 import { SiteStructuredDataScript } from "@/components/public/SiteStructuredDataScript";
+import { inter, monteCarlo } from "@/lib/fonts";
 import { DEFAULT_META_DESCRIPTION, DEFAULT_META_TITLE } from "@/lib/seoDefaults";
+import { OG_IMAGE } from "@/lib/seoImages";
 import { getSiteUrl } from "@/constants/site";
 import type { Metadata, Viewport } from "next";
 import { PublicLayoutShell } from "@/components/layout/PublicLayoutShell";
@@ -16,17 +18,39 @@ export const metadata: Metadata = {
   },
   description: DEFAULT_META_DESCRIPTION,
   icons: {
-    icon: "/logo.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/icons/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icons/favicon-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  openGraph: {
+    images: [
+      {
+        url: OG_IMAGE.url,
+        width: OG_IMAGE.width,
+        height: OG_IMAGE.height,
+        alt: OG_IMAGE.alt,
+        type: OG_IMAGE.type,
+      },
+    ],
   },
   alternates: {
     types: {
       "application/xml": "/sitemap.xml",
     },
   },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: "#050505",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -35,25 +59,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${monteCarlo.variable}`}>
       <head>
-        <link
-          rel="preload"
-          href="/fonts/inter-latin-400.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/montecarlo-latin-400.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
         <SiteStructuredDataScript />
       </head>
-      <body>
+      <body className={`${inter.className} antialiased`}>
         <noscript>
           <div
             style={{
