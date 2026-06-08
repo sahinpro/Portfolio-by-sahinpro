@@ -7,10 +7,14 @@ const SOURCE = resolve("public/sahin.jpg");
 const ICONS_DIR = resolve("public/icons");
 
 const PNG_SIZES = [
+  { file: "favicon-16x16.png", size: 16 },
+  { file: "favicon-32x32.png", size: 32 },
   { file: "favicon-48x48.png", size: 48 },
   { file: "favicon-192x192.png", size: 192 },
   { file: "icon-512.png", size: 512 },
 ];
+
+const ICO_SIZES = [16, 32, 48];
 
 async function main() {
   mkdirSync(ICONS_DIR, { recursive: true });
@@ -19,12 +23,14 @@ async function main() {
 
   for (const { file, size } of PNG_SIZES) {
     const buffer = await sharp(SOURCE)
+      .rotate()
       .resize(size, size, { fit: "cover", position: "centre" })
-      .png({ compressionLevel: 9 })
+      .ensureAlpha()
+      .png({ compressionLevel: 9, palette: false })
       .toBuffer();
 
     writeFileSync(resolve(ICONS_DIR, file), buffer);
-    if (size <= 192) icoBuffers.push(buffer);
+    if (ICO_SIZES.includes(size)) icoBuffers.push(buffer);
   }
 
   const appleBuffer = await sharp(SOURCE)
