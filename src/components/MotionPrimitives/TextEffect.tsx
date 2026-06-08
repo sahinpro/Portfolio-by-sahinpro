@@ -74,7 +74,7 @@ const splitWordsWithSpaces = (text: string): string[] => {
 export function TextEffect({
   children,
   per = "word",
-  as = "p",
+  as = "div",
   className,
   preset = "fade",
   delay = 0,
@@ -128,7 +128,7 @@ export function TextEffect({
     return (
       <Tag ref={containerRef} className={className} style={style}>
         <span className="sr-only">{children}</span>
-        <motion.div
+        <motion.span
           initial="hidden"
           animate={isVisible ? "visible" : "hidden"}
           variants={containerVariants}
@@ -184,7 +184,7 @@ export function TextEffect({
               </span>
             );
           })}
-        </motion.div>
+        </motion.span>
       </Tag>
     );
   }
@@ -192,12 +192,13 @@ export function TextEffect({
   return (
     <Tag ref={containerRef} className={className} style={style}>
       {per !== "line" && <span className="sr-only">{children}</span>}
-      <motion.div
+      <motion.span
         initial="hidden"
         animate={isVisible ? "visible" : "hidden"}
         variants={containerVariants}
         onAnimationStart={onAnimationStart}
         onAnimationComplete={onAnimationComplete}
+        className={per === "line" ? "block" : "inline"}
       >
         {segments.map((segment, index) => {
           if (per === "line") {
@@ -225,7 +226,7 @@ export function TextEffect({
             </motion.span>
           );
         })}
-      </motion.div>
+      </motion.span>
     </Tag>
   );
 }

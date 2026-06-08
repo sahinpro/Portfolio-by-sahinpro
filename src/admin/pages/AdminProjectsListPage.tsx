@@ -1,3 +1,5 @@
+"use client";
+
 import { ConfirmDialog } from "@/admin/components/ui/ConfirmDialog";
 import { StatusBadge } from "@/admin/components/ui/StatusBadge";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
@@ -33,8 +35,9 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Fragment, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type Filter = "all" | "published" | "draft" | "trash";
 type DeleteDialogState = { id: string; permanent: boolean } | null;
@@ -83,7 +86,7 @@ function ProjectRowActions({
       >
         <div className="py-1">
           <Link
-            to={`/admin/projects/${row.id}`}
+            href={`/admin/projects/${row.id}`}
             className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.05] hover:text-white"
             onClick={() => setOpen(false)}
           >
@@ -176,7 +179,7 @@ function EmptyState({ search, filter }: { search: string; filter: Filter }) {
       ) : null}
       {!(search || filter !== "all") ? (
         <Link
-          to="/admin/projects/new"
+          href="/admin/projects/new"
           className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-white/90"
         >
           <Plus className="h-4 w-4" />
@@ -191,8 +194,12 @@ function EmptyState({ search, filter }: { search: string; filter: Filter }) {
 const projectsGridCols =
   "md:grid-cols-[40px_72px_1fr_108px_88px_112px_72px_44px] lg:grid-cols-[40px_88px_1fr_128px_96px_128px_80px_44px]";
 
-export function AdminProjectsListPage(): JSX.Element {
-  const location = useLocation();
+export function AdminProjectsListPage({
+  children,
+}: {
+  children?: ReactNode;
+}): JSX.Element {
+  const pathname = usePathname();
   const prevPathRef = useRef<string | null>(null);
   const { showToast } = useToast();
   const [rows, setRows] = useState<ProjectRow[]>([]);
@@ -223,15 +230,15 @@ export function AdminProjectsListPage(): JSX.Element {
 
   useEffect(() => {
     const prev = prevPathRef.current;
-    prevPathRef.current = location.pathname;
+    prevPathRef.current = pathname;
     if (
       prev !== null &&
       prev !== "/admin/projects" &&
-      location.pathname === "/admin/projects"
+      pathname === "/admin/projects"
     ) {
       void load();
     }
-  }, [location.pathname, load]);
+  }, [pathname, load]);
 
   useEffect(() => {
     setSelectedIds([]);
@@ -400,7 +407,7 @@ export function AdminProjectsListPage(): JSX.Element {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <Link
-            to="/admin/projects/new"
+            href="/admin/projects/new"
             className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-white/90"
           >
             <Plus className="h-4 w-4" />
@@ -596,7 +603,7 @@ export function AdminProjectsListPage(): JSX.Element {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <Link
-                          to={`/admin/projects/${row.id}`}
+                          href={`/admin/projects/${row.id}`}
                           className="line-clamp-2 text-sm font-medium text-white/85 transition-colors hover:text-white"
                         >
                           {row.title}
@@ -663,7 +670,7 @@ export function AdminProjectsListPage(): JSX.Element {
                   </div>
                   <div className="min-w-0 pr-3 lg:pr-4">
                     <Link
-                      to={`/admin/projects/${row.id}`}
+                      href={`/admin/projects/${row.id}`}
                       className="block line-clamp-1 text-sm font-medium text-white/85 transition-colors hover:text-white"
                     >
                       {row.title}
@@ -742,7 +749,7 @@ export function AdminProjectsListPage(): JSX.Element {
         onCancel={() => setDeleteDialog(null)}
         onConfirm={() => void confirmDelete()}
       />
-      <Outlet />
+      {children}
     </div>
   );
 }

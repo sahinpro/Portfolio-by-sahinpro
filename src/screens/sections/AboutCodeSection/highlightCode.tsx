@@ -1,5 +1,3 @@
-import type { JSX } from "react";
-
 const KEYWORDS = new Set([
   "export",
   "const",

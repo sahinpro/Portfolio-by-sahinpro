@@ -1,3 +1,6 @@
+"use client";
+
+import { env } from "@/lib/env";
 import { ChartAreaInteractive } from "@/admin/components/charts/ChartAreaInteractive";
 import { useDashboardData } from "@/admin/hooks/useDashboardData";
 import type { PageViewRow } from "@/admin/types/database";
@@ -29,7 +32,7 @@ export function AdminAnalyticsPage(): JSX.Element {
   }, [loadRecent]);
 
   const total30d = data.viewsByDay.slice(-30).reduce((a, b) => a + b.count, 0);
-  const analyticsSecretMissing = !import.meta.env.VITE_ANALYTICS_INGEST_SECRET;
+  const analyticsSecretMissing = !env.analyticsIngestSecret;
 
   return (
     <div className="max-w-6xl">
@@ -40,7 +43,7 @@ export function AdminAnalyticsPage(): JSX.Element {
         >
           Page views are not being recorded: add{" "}
           <code className="rounded bg-black/30 px-1 py-0.5 text-xs text-amber-50/95">
-            VITE_ANALYTICS_INGEST_SECRET
+            NEXT_PUBLIC_ANALYTICS_INGEST_SECRET
           </code>{" "}
           in Vercel (same string as Supabase secret{" "}
           <code className="rounded bg-black/30 px-1 py-0.5 text-xs">

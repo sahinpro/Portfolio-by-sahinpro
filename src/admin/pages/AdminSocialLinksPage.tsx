@@ -1,3 +1,5 @@
+"use client";
+
 import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { useToast } from "@/admin/context/ToastContext";

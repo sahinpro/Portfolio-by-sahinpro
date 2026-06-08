@@ -26,7 +26,7 @@ const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
 const labelCls = "block text-xs font-medium text-white/50 mb-1.5";
 
-type BucketId = "portfolio-assets" | "blog-media";
+type BucketId = "portfolio-assets";
 
 type ImageGalleryFieldProps = {
   label?: string;

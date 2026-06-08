@@ -1,6 +1,8 @@
+"use client";
+
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const DEDUPE_MS = 2600;
 
@@ -8,11 +10,13 @@ const DEDUPE_MS = 2600;
  * Records public route views (skips `/admin`). Mount once inside the router.
  */
 export function PageViewTracker(): null {
-  const location = useLocation();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const lastRef = useRef({ key: "", t: 0 });
 
   useEffect(() => {
-    const path = `${location.pathname}${location.search}`;
+    const search = searchParams.toString();
+    const path = `${pathname}${search ? `?${search}` : ""}`;
     if (path.startsWith("/admin")) return;
 
     const now = Date.now();
@@ -26,7 +30,7 @@ export function PageViewTracker(): null {
         recordPageView(path || "/"),
       );
     }, 4500);
-  }, [location.pathname, location.search]);
+  }, [pathname, searchParams]);
 
   return null;
 }

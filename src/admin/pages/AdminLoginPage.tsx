@@ -1,14 +1,17 @@
+"use client";
+
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/utils/supabase";
+import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useId, useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 
-export function AdminLoginPage(): JSX.Element {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from ?? "/admin";
+export function AdminLoginPage(): JSX.Element | null {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from") ?? "/admin";
   const formId = useId();
   const errorAlertId = `${formId}-error`;
 
@@ -23,12 +26,7 @@ export function AdminLoginPage(): JSX.Element {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState<string | null>(null);
 
-  const hasConfig =
-    Boolean(import.meta.env.VITE_SUPABASE_URL) &&
-    Boolean(
-      import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-        import.meta.env.VITE_SUPABASE_ANON_KEY,
-    );
+  const hasConfig = isSupabaseConfigured;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -38,6 +36,11 @@ export function AdminLoginPage(): JSX.Element {
       setSessionChecked(true);
     });
   }, []);
+
+  useEffect(() => {
+    if (!sessionChecked || !hasSession) return;
+    router.replace(from === "/admin/login" ? "/admin" : from);
+  }, [sessionChecked, hasSession, from, router]);
 
   if (!sessionChecked) {
     return (
@@ -69,7 +72,7 @@ export function AdminLoginPage(): JSX.Element {
   }
 
   if (hasSession) {
-    return <Navigate to={from === "/admin/login" ? "/admin" : from} replace />;
+    return null;
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -95,7 +98,7 @@ export function AdminLoginPage(): JSX.Element {
       setError("This account is not authorized for admin access.");
       return;
     }
-    navigate(from.startsWith("/admin") ? from : "/admin", { replace: true });
+    router.replace(from.startsWith("/admin") ? from : "/admin");
   };
 
   const handleForgotPassword = async (e: FormEvent) => {
@@ -170,7 +173,7 @@ export function AdminLoginPage(): JSX.Element {
         {!hasConfig && (
           <p className="text-amber-300/90 text-sm mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
             Add{" "}
-            <code className="text-amber-200">VITE_SUPABASE_URL</code> and a key
+            <code className="text-amber-200">NEXT_PUBLIC_SUPABASE_URL</code> and a key
             to <code className="text-amber-200">.env</code>, then restart the dev
             server.
           </p>
@@ -323,7 +326,7 @@ export function AdminLoginPage(): JSX.Element {
 
         <p className="mt-8 text-center text-sm text-white/40">
           <Link
-            to="/"
+            href="/"
             className="inline-flex items-center gap-1.5 text-white/55 hover:text-white transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden />

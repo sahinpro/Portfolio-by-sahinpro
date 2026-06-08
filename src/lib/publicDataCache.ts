@@ -1,3 +1,6 @@
+import { ALL_CACHE_TAGS } from "@/lib/revalidate";
+import { env } from "@/lib/env";
+
 /**
  * In-memory cache + single-flight deduplication for public Supabase reads.
  * Reduces duplicate network requests when multiple components mount (e.g. hero + footer socials).
@@ -39,8 +42,26 @@ export function getCachedPublic<T>(
   return p as Promise<T>;
 }
 
-/** Clear all cached public reads (e.g. after admin publish in same tab    optional). */
+function revalidateServerCache(): void {
+  if (typeof window === "undefined") return;
+  const token = env.analyticsIngestSecret;
+  if (!token) return;
+
+  void fetch("/api/revalidate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-revalidate-token": token,
+    },
+    body: JSON.stringify({ tags: ALL_CACHE_TAGS }),
+  }).catch(() => {
+    /* best-effort — ISR still refreshes on schedule */
+  });
+}
+
+/** Clear client cache and trigger on-demand ISR revalidation for public pages. */
 export function invalidatePublicDataCache(): void {
   cache.clear();
   inflight.clear();
+  revalidateServerCache();
 }

@@ -1,7 +1,10 @@
+"use client";
+
 import { navItems } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
 import { Fragment } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface NavigationProps {
   className?: string;
@@ -15,8 +18,7 @@ function navItemActive(pathname: string, href: string, matchPrefix?: boolean): b
 }
 
 export const Navigation = ({ className, onItemClick }: NavigationProps) => {
-  const location = useLocation();
-  const pathname = location.pathname.replace(/\/$/, "") || "/";
+  const pathname = (usePathname() ?? "/").replace(/\/$/, "") || "/";
 
   return (
     <Fragment>
@@ -25,7 +27,7 @@ export const Navigation = ({ className, onItemClick }: NavigationProps) => {
         return (
           <div key={item.name}>
             <Link
-              to={item.href}
+              href={item.href}
               onClick={onItemClick}
               className={cn(
                 "text-lg transition-all duration-300 relative group",

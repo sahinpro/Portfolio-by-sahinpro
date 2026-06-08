@@ -1,3 +1,5 @@
+"use client";
+
 import { CTAButton } from "@/components/CTAButton";
 import {
   HEADER_ANIMATION_DURATION,

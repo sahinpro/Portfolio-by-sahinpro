@@ -1,10 +1,12 @@
+"use client";
+
 import { PROFILE } from "@/constants/profile";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export const HeaderLogo = (): JSX.Element => {
   return (
     <Link
-      to="/"
+      href="/"
       className="flex items-center gap-2.5 group cursor-pointer z-10"
       aria-label="Home"
     >

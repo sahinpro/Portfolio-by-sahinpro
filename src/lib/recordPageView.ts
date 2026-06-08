@@ -2,18 +2,15 @@ import {
   getSupabaseEdgeFunctionInvokeKey,
   getSupabaseProjectUrl,
 } from "@/lib/supabaseFunctions";
+import { env } from "@/lib/env";
 
 /**
  * Sends a page view to the `record-page-view` Edge Function.
- * Uses explicit fetch with JWT anon key    the Functions API expects `Authorization: Bearer <jwt>`;
- * publishable-only keys can return 401 "Missing authorization header".
- * Requires the same secret in Supabase (`ANALYTICS_INGEST_SECRET`) and in the app
- * (`VITE_ANALYTICS_INGEST_SECRET`).
  */
 export async function recordPageView(path: string): Promise<void> {
   const base = getSupabaseProjectUrl();
   const key = getSupabaseEdgeFunctionInvokeKey();
-  const secret = import.meta.env.VITE_ANALYTICS_INGEST_SECRET;
+  const secret = env.analyticsIngestSecret;
   if (!base || !key || !secret) return;
 
   try {
@@ -37,12 +34,12 @@ export async function recordPageView(path: string): Promise<void> {
             : null,
       }),
     });
-    if (import.meta.env.DEV && !res.ok) {
+    if (env.isDev && !res.ok) {
       const text = await res.text().catch(() => "");
       console.warn("[analytics] record-page-view failed:", res.status, text);
     }
   } catch (e) {
-    if (import.meta.env.DEV) {
+    if (env.isDev) {
       console.warn("[analytics] record-page-view", e);
     }
   }

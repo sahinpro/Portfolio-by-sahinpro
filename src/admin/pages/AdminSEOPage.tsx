@@ -1,3 +1,5 @@
+"use client";
+
 import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
 import { CharCounter } from "@/admin/components/ui/CharCounter";
 import { TagInput } from "@/admin/components/ui/TagInput";
@@ -9,7 +11,7 @@ import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import { useCallback, useEffect, useState } from "react";
 
-const PAGES = ["/", "/about", "/projects", "/services", "/contact", "/blogs"] as const;
+const PAGES = ["/", "/about", "/projects", "/services", "/contact"] as const;
 
 const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";

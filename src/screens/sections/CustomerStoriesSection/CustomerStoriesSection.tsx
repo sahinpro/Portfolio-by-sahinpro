@@ -1,3 +1,5 @@
+"use client";
+
 import type { TestimonialRow } from "@/admin/types/database";
 import {
   fadeInUp,
@@ -8,7 +10,7 @@ import {
 import { usePublishedTestimonials } from "@/hooks/usePublishedTestimonials";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 interface Author {
   name: string;
@@ -323,7 +325,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
           <p className="text-sm text-white/35">
             Working together?{" "}
             <Link
-              to="/contact"
+              href="/contact"
               className="text-violet-400 hover:text-violet-300 underline underline-offset-2"
             >
               Get in touch

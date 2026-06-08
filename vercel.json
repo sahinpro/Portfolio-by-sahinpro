@@ -1,14 +1,7 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
+  "framework": "nextjs",
   "installCommand": "npm install",
-  "rewrites": [
-    {
-      "source": "/((?!api).*)",
-      "destination": "/index.html"
-    }
-  ],
   "headers": [
     {
       "source": "/admin/(.*)",
@@ -47,7 +40,7 @@
       ]
     },
     {
-      "source": "/assets/(.*)",
+      "source": "/_next/static/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

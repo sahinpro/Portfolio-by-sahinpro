@@ -37,7 +37,7 @@ type MediaLibraryPickerModalProps = {
   onOpenChange: (open: boolean) => void;
   /** Bucket for new uploads from this dialog (listing always shows all media). */
   uploadBucket: MediaBucketId;
-  /** Storage path prefix for uploads (no leading/trailing slash), e.g. `blog`, `projects`. */
+  /** Storage path prefix for uploads (no leading/trailing slash), e.g. `projects`. */
   pathPrefix: string;
   /** Default: single image selection (existing behavior). */
   mode?: "single" | "multiple";

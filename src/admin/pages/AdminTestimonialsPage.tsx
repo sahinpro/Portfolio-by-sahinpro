@@ -1,3 +1,5 @@
+"use client";
+
 import { AdminSidePanel } from "@/admin/components/ui/AdminSidePanel";
 import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
 import { StatusBadge } from "@/admin/components/ui/StatusBadge";

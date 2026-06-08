@@ -15,7 +15,7 @@ export type DashboardData = {
   totalProjects: number;
   publishedProjects: number;
   draftProjects: number;
-  blogPosts: number;
+  testimonials: number;
   viewsByDay: ViewsByDay[];
   topPages: TopPage[];
 };
@@ -24,7 +24,7 @@ const emptyData: DashboardData = {
   totalProjects: 0,
   publishedProjects: 0,
   draftProjects: 0,
-  blogPosts: 0,
+  testimonials: 0,
   viewsByDay: [],
   topPages: [],
 };
@@ -88,14 +88,15 @@ export function useDashboardData(): {
         .from("projects")
         .select("*", { count: "exact", head: true })
         .eq("status", "published");
-      const blogRes = await supabase
-        .from("blog_posts")
-        .select("*", { count: "exact", head: true });
+      const testimonialsRes = await supabase
+        .from("testimonials")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "published");
       const viewsRes = await viewsPromise;
 
       const total = projectsTotal.count ?? 0;
       const published = projectsPublished.count ?? 0;
-      const blogs = blogRes.count ?? 0;
+      const testimonials = testimonialsRes.count ?? 0;
 
       const dayKeys = buildLastNDaysKeys(90);
       const byDayMobile = new Map<string, number>();
@@ -143,7 +144,7 @@ export function useDashboardData(): {
         totalProjects: total,
         publishedProjects: published,
         draftProjects: Math.max(0, total - published),
-        blogPosts: blogs,
+        testimonials,
         viewsByDay,
         topPages,
       });
@@ -151,7 +152,7 @@ export function useDashboardData(): {
       const errMsg =
         projectsTotal.error?.message ||
         projectsPublished.error?.message ||
-        blogRes.error?.message ||
+        testimonialsRes.error?.message ||
         viewsRes.error?.message;
       if (errMsg) setError(errMsg);
     } catch (e) {

@@ -1,3 +1,5 @@
+"use client";
+
 import { useDuplicateUploadConfirm } from "@/admin/context/DuplicateUploadConfirmContext";
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";

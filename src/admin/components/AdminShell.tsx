@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -5,7 +7,6 @@ import { supabase } from "@/utils/supabase";
 import type { User } from "@supabase/supabase-js";
 import {
   BarChart3,
-  BookOpen,
   ChevronDown,
   ExternalLink,
   FileText,
@@ -20,9 +21,11 @@ import {
   Share2,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import avatarUrl from "/sahin.png";
+import { AdminNavLink } from "@/components/AdminNavLink";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+
+const avatarUrl = "/sahin.png";
 
 const navLinkBase =
   "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium outline-none transition-colors " +
@@ -52,7 +55,6 @@ function mobileAdminTitle(pathname: string): string {
   if (pathname === "/admin" || pathname === "/admin/") return "Dashboard";
   if (pathname.startsWith("/admin/projects")) return "Projects";
   if (pathname.startsWith("/admin/testimonials")) return "Testimonials";
-  if (pathname.startsWith("/admin/blog")) return "Blog";
   if (pathname.startsWith("/admin/media")) return "Media";
   if (pathname.startsWith("/admin/analytics")) return "Analytics";
   if (pathname.startsWith("/admin/settings")) return "Settings";
@@ -110,18 +112,18 @@ function AdminSidebarProfile(): JSX.Element {
   );
 }
 
-export function AdminShell(): JSX.Element {
-  const navigate = useNavigate();
-  const location = useLocation();
+export function AdminShell({ children }: { children: ReactNode }): JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [siteSettingsMenuOpen, setSiteSettingsMenuOpen] = useState(false);
-  const isSettingsRoute = location.pathname.startsWith("/admin/settings");
+  const isSettingsRoute = pathname.startsWith("/admin/settings");
   const siteSettingsMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setMobileNavOpen(false);
     setSiteSettingsMenuOpen(false);
-  }, [location.pathname]);
+  }, [pathname]);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -168,7 +170,7 @@ export function AdminShell(): JSX.Element {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    navigate("/admin/login", { replace: true });
+    router.replace("/admin/login");
   };
 
   return (
@@ -199,7 +201,7 @@ export function AdminShell(): JSX.Element {
           </p>
           <div className="mt-1 flex items-center gap-2">
             <span className="truncate text-sm font-semibold tracking-tight text-zinc-100">
-              {mobileAdminTitle(location.pathname)}
+              {mobileAdminTitle(pathname)}
             </span>
           </div>
         </div>
@@ -247,30 +249,26 @@ export function AdminShell(): JSX.Element {
           <nav className="pr-6 pb-4">
             <p className={sectionLabel}>Main</p>
             <div className="flex flex-col gap-0.5">
-              <NavLink to="/admin" end className={navClass}>
+              <AdminNavLink href="/admin" end className={navClass}>
                 <LayoutDashboard className="h-4 w-4 shrink-0 opacity-80" />
                 Dashboard
-              </NavLink>
-              <NavLink to="/admin/projects" className={navClass}>
+              </AdminNavLink>
+              <AdminNavLink href="/admin/projects" className={navClass}>
                 <FolderKanban className="h-4 w-4 shrink-0 opacity-80" />
                 Projects
-              </NavLink>
-              <NavLink to="/admin/testimonials" className={navClass}>
+              </AdminNavLink>
+              <AdminNavLink href="/admin/testimonials" className={navClass}>
                 <MessageSquareQuote className="h-4 w-4 shrink-0 opacity-80" />
                 Testimonials
-              </NavLink>
-              <NavLink to="/admin/blog" className={navClass}>
-                <BookOpen className="h-4 w-4 shrink-0 opacity-80" />
-                Blogs
-              </NavLink>
-              <NavLink to="/admin/media" className={navClass}>
+              </AdminNavLink>
+              <AdminNavLink href="/admin/media" className={navClass}>
                 <ImageIcon className="h-4 w-4 shrink-0 opacity-80" />
                 Media library
-              </NavLink>
-              <NavLink to="/admin/analytics" className={navClass}>
+              </AdminNavLink>
+              <AdminNavLink href="/admin/analytics" className={navClass}>
                 <BarChart3 className="h-4 w-4 shrink-0 opacity-80" />
                 Analytics
-              </NavLink>
+              </AdminNavLink>
             </div>
 
             <p className={cn(sectionLabel, "mt-4")}>Settings</p>
@@ -281,15 +279,15 @@ export function AdminShell(): JSX.Element {
               className="relative"
             >
               <div className="flex items-stretch gap-1">
-                <NavLink
-                  to="/admin/settings"
+                <AdminNavLink
+                  href="/admin/settings"
                   className={({ isActive }) =>
                     cn(navClass({ isActive }), "min-w-0 flex-1")
                   }
                 >
                   <Settings2 className="h-4 w-4 shrink-0 opacity-80" />
                   <span className="truncate">Site settings</span>
-                </NavLink>
+                </AdminNavLink>
                 <button
                   type="button"
                   onClick={() => setSiteSettingsMenuOpen((open) => !open)}
@@ -319,24 +317,24 @@ export function AdminShell(): JSX.Element {
                   aria-label="Site settings submenu"
                 >
                   <div className="flex flex-col gap-0.5">
-                    <NavLink
-                      to="/admin/settings/social"
+                    <AdminNavLink
+                      href="/admin/settings/social"
                       className={subNavClass}
                     >
                       <Share2 className="h-3.5 w-3.5 opacity-70 shrink-0" />
                       Social links
-                    </NavLink>
-                    <NavLink to="/admin/settings/seo" className={subNavClass}>
+                    </AdminNavLink>
+                    <AdminNavLink href="/admin/settings/seo" className={subNavClass}>
                       <Search className="h-3.5 w-3.5 opacity-70 shrink-0" />
                       SEO
-                    </NavLink>
-                    <NavLink
-                      to="/admin/settings/resume"
+                    </AdminNavLink>
+                    <AdminNavLink
+                      href="/admin/settings/resume"
                       className={subNavClass}
                     >
                       <FileText className="h-3.5 w-3.5 opacity-70 shrink-0" />
                       Resume
-                    </NavLink>
+                    </AdminNavLink>
                   </div>
                 </div>
               ) : null}
@@ -375,7 +373,7 @@ export function AdminShell(): JSX.Element {
           [background-image:radial-gradient(ellipse_85%_55%_at_50%_-18%,rgba(99,102,241,0.11),transparent_58%)]"
       >
         <div className="max-w-7xl mx-auto px-4 py-5 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
-          <Outlet />
+          {children}
         </div>
       </main>
     </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   acknowledgeDuplicateUploads,
   useDuplicateUploadConfirm,
@@ -291,7 +293,7 @@ export function AdminMediaLibraryPage(): JSX.Element {
             Media library
           </h1>
           <p className="text-sm text-white/45 mt-2 max-w-xl leading-relaxed">
-            One library for all site images: portfolio uploads, blog assets, and
+            One library for all site images: portfolio uploads and
             anything you attach in forms. Files live in Supabase Storage (two
             buckets shown together here).
           </p>
@@ -732,11 +734,10 @@ export function AdminMediaLibraryPage(): JSX.Element {
       <p className="mt-10 text-xs text-white/30 flex items-start gap-2">
         <FileImage className="h-4 w-4 shrink-0 mt-0.5 opacity-60" />
         <span>
-          Form uploads (projects, blog, etc.) appear here automatically. Uploads
+          Form uploads (projects, etc.) appear here automatically. Uploads
           from this page go to{" "}
           <code className="text-white/50">portfolio-assets/library/</code> for a
           predictable path; field uploads keep their own folders (
-          <code className="text-white/50">blog/</code>,{" "}
           <code className="text-white/50">projects/</code>, …).
         </span>
       </p>

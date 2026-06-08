@@ -1,14 +1,21 @@
+"use client";
+
 import { supabase } from "@/utils/supabase";
 import type { Session } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { useEffect, useState, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { AdminShell } from "@/admin/components/AdminShell";
 import { DuplicateUploadConfirmProvider } from "@/admin/context/DuplicateUploadConfirmContext";
 import { ToastProvider } from "@/admin/context/ToastContext";
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
 
-export function AdminProtectedLayout(): JSX.Element {
-  const location = useLocation();
+export function AdminProtectedLayout({
+  children,
+}: {
+  children: ReactNode;
+}): JSX.Element | null {
+  const router = useRouter();
+  const pathname = usePathname();
   const [session, setSession] = useState<Session | null | undefined>(undefined);
 
   useEffect(() => {
@@ -38,6 +45,16 @@ export function AdminProtectedLayout(): JSX.Element {
     }
   }, [session]);
 
+  useEffect(() => {
+    if (session === undefined) return;
+    if (!session?.user) {
+      const from = encodeURIComponent(pathname);
+      router.replace(`/admin/login?from=${from}`);
+    } else if (!isAllowedAdminEmail(session.user)) {
+      router.replace("/admin/login");
+    }
+  }, [session, pathname, router]);
+
   if (session === undefined) {
     return (
       <div
@@ -49,20 +66,14 @@ export function AdminProtectedLayout(): JSX.Element {
     );
   }
 
-  if (!session?.user) {
-    return (
-      <Navigate to="/admin/login" replace state={{ from: location.pathname }} />
-    );
-  }
-
-  if (!isAllowedAdminEmail(session.user)) {
-    return <Navigate to="/admin/login" replace />;
+  if (!session?.user || !isAllowedAdminEmail(session.user)) {
+    return null;
   }
 
   return (
     <ToastProvider>
       <DuplicateUploadConfirmProvider>
-        <AdminShell />
+        <AdminShell>{children}</AdminShell>
       </DuplicateUploadConfirmProvider>
     </ToastProvider>
   );

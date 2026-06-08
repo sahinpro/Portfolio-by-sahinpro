@@ -16,7 +16,7 @@ type PhoneInputProps = Omit<
   React.ComponentProps<typeof RPNInput.default>,
   "onChange"
 > & {
-  onChange?: (value: RPNInput.Value) => void;
+  onChange?: (value: RPNInput.Value | undefined) => void;
   error?: string;
   id?: string;
 };
@@ -56,19 +56,19 @@ const PhoneInput = React.forwardRef<
 ));
 PhoneInput.displayName = "PhoneInput";
 
-const InputComponent = React.forwardRef<
-  HTMLInputElement,
-  React.ComponentProps<"input">
->(({ className, ...props }, ref) => (
-  <Input
+const InputComponent = ({
+  className,
+  ref: _ref,
+  ...props
+}: React.ComponentProps<"input">) => (
+  <input
     className={cn(
-      "rounded-r-xl rounded-l-none border-0 border-l border-white/10 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 h-10 flex-1 min-w-0",
-      className
+      "flex h-10 w-full min-w-0 flex-1 rounded-r-xl rounded-l-none border-0 border-l border-white/10 bg-transparent px-3 py-1 text-base text-white shadow-none transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 md:text-sm",
+      className,
     )}
-    ref={ref}
     {...props}
   />
-));
+);
 InputComponent.displayName = "InputComponent";
 
 type CountrySelectOption = { label: string; value: RPNInput.Country };
@@ -133,7 +133,7 @@ const CountrySelect = ({
             const Flag = flags[selected.value];
             return Flag ? (
               <span className="flex h-5 w-6 shrink-0 overflow-hidden rounded-sm">
-                <Flag className="h-full w-full object-cover" />
+                <Flag title={selected.label} />
               </span>
             ) : null;
           })()}
@@ -199,7 +199,7 @@ const CountrySelect = ({
                 >
                   {Flag ? (
                     <span className="flex h-5 w-6 shrink-0 overflow-hidden rounded-sm place-self-center">
-                      <Flag className="h-full w-full object-cover" />
+                      <Flag title={option.label} />
                     </span>
                   ) : (
                     <span className="w-6" />

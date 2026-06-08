@@ -1,3 +1,5 @@
+"use client";
+
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { useToast } from "@/admin/context/ToastContext";
 import { getSiteSettingsMap, upsertSiteSettings } from "@/admin/lib/siteSettings";

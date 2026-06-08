@@ -1,0 +1,314 @@
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/inter-latin-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/inter-latin-600.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/inter-latin-700.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "MonteCarlo";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/montecarlo-latin-400.woff2") format("woff2");
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 5 5 5;
+    --foreground: 0 0% 100%;
+
+    --muted: 0 0% 4.3%;
+    --muted-foreground: 0 0% 67.1%;
+
+    --popover: 5 5 5;
+    --popover-foreground: 0 0% 100%;
+
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+
+    --card: 7 7 7;
+    --card-foreground: 0 0% 100%;
+
+    --primary: 0 0% 100%;
+    --primary-foreground: 5 5 5;
+
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 0 0% 98%;
+    --radius: 0.5rem;
+
+    /* Brand colors for Glow component */
+    --brand-ember: lab(49.32% 84.65 -79.22);
+    --brand-ember-foreground: lab(44.62% 67.08 -87.23);
+
+    /* Global Theme Color Variables */
+    /* Background Colors */
+    --bg-primary: #050505;
+    --bg-secondary: #070707;
+    --bg-card: #070707;
+    --bg-card-opacity: #070707cc;
+    --bg-dark: #0d0d0d;
+    --bg-darker: #0f0f0f;
+    --bg-darkest: #141414;
+    --bg-panel: #1c1c1c;
+    --bg-button: #181818;
+    --bg-button-dark: #161616;
+    --bg-button-text: #1a1a1b;
+    --bg-gray: #252525;
+    --bg-gray-light: #2d2d2d;
+    --bg-gray-medium: #474747;
+    /* Custom Background Colors */
+    --bg-color-2: #474747;
+
+    /* Text Colors */
+    --text-primary: rgb(255, 255, 255);
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --text-muted: rgba(255, 255, 255, 0.7);
+    --text-muted-light: rgba(255, 255, 255, 0.6);
+    --text-heading: rgb(255, 255, 255);
+    --text-menu-active: rgb(255, 255, 255);
+    --text-menu-hover: rgb(255, 255, 255);
+    --text-normal: rgba(255, 255, 255, 0.7);
+    --text-gray: #727272;
+    --text-gray-light: #acb5bb;
+    --text-gray-medium: #b3b3b3;
+    --text-gray-lighter: #b1b1b1;
+    --text-gray-lightest: #ebebeb;
+    --text-dark: #161616;
+    --text-dark-medium: #181818;
+    --text-dark-light: #1a1a1b;
+
+    /* Border Colors */
+    --border-primary: rgba(255, 255, 255, 0.1);
+    --border-secondary: rgba(255, 255, 255, 0.2);
+    --border-light: rgba(255, 255, 255, 0.05);
+    --border-medium: rgba(255, 255, 255, 0.08);
+    --border-white-10: #ffffff1a;
+    --border-white-05: #ffffff0d;
+    --border-white-08: #ffffff08;
+    --border-white-05-hex: #ffffff05;
+    --border-white-0a: #ffffff0a;
+    --border-white-0f: #ffffff0f;
+    --border-white-26: #ffffff26;
+    --border-white-1f: #ffffff1f;
+    --border-gray: #474747;
+    --border-gray-80: #47474780;
+    --border-gray-33: #47474733;
+
+    /* Accent Colors */
+    --accent-cyan: #06b6d4;
+    --accent-cyan-light: #22d3ee;
+    --accent-yellow: #ebac30;
+    --accent-white: #ffffff;
+    --accent-gray: #dbdbdb;
+    --accent-gray-light: #ababab;
+    --accent-beige: #fcf6eb;
+
+    /* Shadow Colors */
+    --shadow-black-40: #00000040;
+    --shadow-black-1f: #0000001f;
+    --shadow-black-0a: #0000000a;
+    --shadow-black-4c: #0000004c;
+    --shadow-black-0d: #0000000d;
+    --shadow-blue-1a: #131d321a;
+    --shadow-gray-0d: #2525250d;
+    --shadow-purple-1a: #d8dbfe1a;
+    --shadow-white-1a: #ffffff1a;
+    --shadow-white-26: #ffffff26;
+    --shadow-white-1c: #ffffff1c;
+    --shadow-blue-08: #becaea08;
+
+    /* Overlay Colors */
+    --overlay-white-05: rgba(255, 255, 255, 0.05);
+    --overlay-white-08: rgba(255, 255, 255, 0.08);
+    --overlay-white-10: rgba(255, 255, 255, 0.1);
+    --overlay-white-15: rgba(255, 255, 255, 0.15);
+    --overlay-white-20: rgba(255, 255, 255, 0.2);
+    --overlay-white-26: rgba(255, 255, 255, 0.26);
+    --overlay-white-40: rgba(255, 255, 255, 0.4);
+    --overlay-white-60: rgba(255, 255, 255, 0.6);
+    --overlay-white-80: rgba(255, 255, 255, 0.8);
+    --overlay-white-95: rgba(255, 255, 255, 0.95);
+    --overlay-black-05: rgba(0, 0, 0, 0.05);
+    --overlay-black-10: rgba(0, 0, 0, 0.1);
+    --overlay-black-20: rgba(0, 0, 0, 0.2);
+    --overlay-black-30: rgba(0, 0, 0, 0.3);
+    --overlay-black-40: rgba(0, 0, 0, 0.4);
+    --overlay-black-50: rgba(0, 0, 0, 0.5);
+    --overlay-gray-80: #d9d9d980;
+
+    /* Legacy variables for backward compatibility */
+    --bg-transparent: rgba(5, 5, 5, 0.1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.28) rgba(255, 255, 255, 0.06);
+  }
+
+  body {
+    @apply bg-[var(--bg-primary)] text-text-normal;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+
+  /* Global heading styles */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-text-heading;
+  }
+}
+
+/* Global scrollbar style (WebKit browsers) */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.28);
+  border-radius: 9999px;
+  border: 2px solid rgba(0, 0, 0, 0.22);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.42);
+}
+
+/* Shading effects matching SVG design */
+@layer utilities {
+  .shading-effect {
+    position: relative;
+  }
+
+  .shading-effect::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at 50% 50%,
+      var(--overlay-white-05) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .shading-effect-light {
+    position: relative;
+  }
+
+  .shading-effect-light::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at 30% 20%,
+      var(--overlay-white-08) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glass-card {
+    background: rgba(7, 7, 7, 0.8);
+    backdrop-filter: blur(45.94px);
+    -webkit-backdrop-filter: blur(45.94px);
+    border: 0.81px solid var(--border-primary);
+    box-shadow: 0px 4px 15px var(--overlay-black-50);
+  }
+
+  .glass-card-hover {
+    transition: all 0.3s ease;
+  }
+
+  .glass-card-hover:hover {
+    border-color: var(--border-secondary);
+    transform: translateY(-4px);
+    box-shadow: 0px 12px 24px var(--overlay-white-10);
+  }
+
+  /* Section headings    solid white (gradients reserved for hero only) */
+  .section-heading {
+    @apply text-white font-semibold;
+    line-height: 1.2;
+  }
+
+  /* Legacy gradient    avoid on section titles */
+  .section-heading-gradient {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.2) 58%),
+      linear-gradient(140deg, rgb(255, 255, 255), rgb(124, 101, 161));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    line-height: 3.5rem;
+    font-weight: 700;
+  }
+  .section-hero-subtitle {
+    background-image: linear-gradient(
+      169deg,
+      rgba(120, 156, 255, 1) 0%,
+      rgba(149, 0, 255, 1) 35%,
+      rgba(195, 122, 255, 1) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    line-height: 3rem;
+    font-weight: 700;
+  }
+
+  /* Radial gradient utility for Glow component */
+  .bg-radial {
+    background-image: radial-gradient(var(--tw-gradient-stops));
+  }
+}
+@media screen and (max-width: 768px) {
+  .section-hero-subtitle {
+    line-height: 2.5rem;
+    font-size: 2.25rem;
+  }
+}

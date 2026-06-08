@@ -25,6 +25,7 @@ export type ProjectRow = {
   id: string;
   title: string;
   description: string | null;
+  long_description: string | null;
   image_url: string | null;
   technologies: string[];
   /** Display label; legacy rows may still use old bucket names until migrated. */
@@ -59,22 +60,6 @@ export type TestimonialRow = {
   highlighted_quote: string | null;
   status: "draft" | "published";
   sort_order: number;
-  created_at: string;
-  updated_at: string;
-};
-
-export type BlogPostRow = {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  content: string;
-  cover_image: string | null;
-  tags: string[];
-  status: "draft" | "published" | "trash";
-  featured: boolean;
-  reading_time: number | null;
-  published_at: string | null;
   created_at: string;
   updated_at: string;
 };

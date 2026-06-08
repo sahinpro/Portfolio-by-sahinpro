@@ -1,3 +1,5 @@
+"use client";
+
 import { AdminSidePanel } from "@/admin/components/ui/AdminSidePanel";
 import { ImageGalleryField } from "@/admin/components/ui/ImageGalleryField";
 import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
@@ -48,7 +50,7 @@ import {
   useForm,
   useWatch,
 } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
@@ -73,9 +75,13 @@ function FieldError({ message }: { message?: string }): JSX.Element | null {
   );
 }
 
-export function AdminProjectFormPage(): JSX.Element {
-  const { id: routeId } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+export function AdminProjectFormPage({
+  projectId,
+}: {
+  projectId?: string;
+}): JSX.Element {
+  const routeId = projectId;
+  const router = useRouter();
   const { showToast } = useToast();
   const isNewRoute = !routeId || routeId === "new";
   const [loadingRow, setLoadingRow] = useState(!isNewRoute);
@@ -127,7 +133,7 @@ export function AdminProjectFormPage(): JSX.Element {
       setLoadingRow(false);
       if (error || !data) {
         showToast(withRlsHint(error?.message ?? "Not found"), "error");
-        navigate("/admin/projects");
+        router.replace("/admin/projects");
         return;
       }
       const row = data as ProjectRow;
@@ -140,11 +146,11 @@ export function AdminProjectFormPage(): JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [isNewRoute, routeId, navigate, reset, showToast]);
+  }, [isNewRoute, routeId, router.replace, reset, showToast]);
 
   const closePanel = useCallback(() => {
     if (loadingRow) {
-      navigate("/admin/projects");
+      router.replace("/admin/projects");
       return;
     }
 
@@ -153,7 +159,7 @@ export function AdminProjectFormPage(): JSX.Element {
       if (shouldPersistNewProjectDraft(raw)) {
         if (!canLenientDraftInsert(raw)) {
           showToast("Select a CMS platform to save this draft.", "warning");
-          navigate("/admin/projects");
+          router.replace("/admin/projects");
           return;
         }
         void (async () => {
@@ -175,17 +181,17 @@ export function AdminProjectFormPage(): JSX.Element {
               showToast("Draft saved", "success");
             }
           } finally {
-            navigate("/admin/projects");
+            router.replace("/admin/projects");
           }
         })();
         return;
       }
-      navigate("/admin/projects");
+      router.replace("/admin/projects");
       return;
     }
 
     if (!routeId) {
-      navigate("/admin/projects");
+      router.replace("/admin/projects");
       return;
     }
 
@@ -205,10 +211,10 @@ export function AdminProjectFormPage(): JSX.Element {
       } catch {
         /* still leave the panel */
       } finally {
-        navigate("/admin/projects");
+        router.replace("/admin/projects");
       }
     })();
-  }, [getValues, isNewRoute, loadingRow, navigate, routeId, showToast]);
+  }, [getValues, isNewRoute, loadingRow, router.replace, routeId, showToast]);
 
   const scrollToFirstFieldError = useCallback((fieldKeys: string[]) => {
     requestAnimationFrame(() => {
@@ -265,7 +271,7 @@ export function AdminProjectFormPage(): JSX.Element {
       }
       showToast("Project saved", "success");
       invalidatePublicDataCache();
-      navigate("/admin/projects");
+      router.replace("/admin/projects");
       return;
     }
 
@@ -281,7 +287,7 @@ export function AdminProjectFormPage(): JSX.Element {
     }
     showToast("Project saved", "success");
     invalidatePublicDataCache();
-    navigate("/admin/projects");
+    router.replace("/admin/projects");
   };
 
   if (loadingRow) {

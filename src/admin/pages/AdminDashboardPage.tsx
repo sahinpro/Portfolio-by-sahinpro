@@ -1,3 +1,5 @@
+"use client";
+
 import { ChartAreaInteractive } from "@/admin/components/charts/ChartAreaInteractive";
 import { StatCard } from "@/admin/components/ui/StatCard";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
@@ -11,15 +13,15 @@ import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { COMING_SOON_MODE_KEY } from "@/lib/siteMode";
 import {
   BarChart3,
-  BookOpen,
   ExternalLink,
   FolderKanban,
+  MessageSquareQuote,
   MonitorSmartphone,
   Plus,
   RefreshCw,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 /* ─────────────── section header ─────────────── */
 
@@ -138,7 +140,7 @@ export function AdminDashboardPage(): JSX.Element {
             Refresh
           </button>
           <Link
-            to="/admin/projects/new"
+            href="/admin/projects/new"
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white
               text-black text-sm font-semibold hover:bg-white/90 transition-colors"
           >
@@ -217,10 +219,10 @@ export function AdminDashboardPage(): JSX.Element {
             accent="emerald"
           />
           <StatCard
-            label="Blog posts"
-            value={loading ? "  " : data.blogPosts}
-            sublabel="All statuses"
-            icon={BookOpen}
+            label="Testimonials"
+            value={loading ? "  " : data.testimonials}
+            sublabel="Published on site"
+            icon={MessageSquareQuote}
             accent="default"
           />
         </div>
@@ -233,7 +235,7 @@ export function AdminDashboardPage(): JSX.Element {
           subtitle="Page views over the last 30 days"
           action={
             <Link
-              to="/admin/analytics"
+              href="/admin/analytics"
               className="text-xs text-white/35 hover:text-white/70 inline-flex items-center gap-1 transition-colors"
             >
               View all <ExternalLink className="w-3 h-3" />

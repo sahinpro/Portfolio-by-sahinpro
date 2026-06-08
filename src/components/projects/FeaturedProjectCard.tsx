@@ -1,3 +1,5 @@
+"use client";
+
 import type { PublicProject } from "@/data/projectUiMapper";
 import { projectDetailPath } from "@/lib/projectPaths";
 import { motion } from "framer-motion";
@@ -7,7 +9,7 @@ import {
   Github,
   Tag,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const categoryBadge: Record<string, string> = {
   "Web Development": "bg-violet-500/20 text-violet-300 border-violet-500/30",
@@ -58,7 +60,7 @@ export const FeaturedProjectCard = ({
           hover:border-white/[0.14] transition-all duration-500"
       >
         <Link
-          to={projectDetailPath(project)}
+          href={projectDetailPath(project)}
           className={`relative overflow-hidden aspect-auto h-[280px] sm:h-[360px] lg:h-[480px] block ${even ? "lg:order-1" : "lg:order-2"}`}
         >
           <img
@@ -88,12 +90,12 @@ export const FeaturedProjectCard = ({
             ) : null}
           </div>
 
-          <Link to={projectDetailPath(project)} className="group/title block">
+          <Link href={projectDetailPath(project)} className="group/title block">
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 tracking-tight group-hover/title:text-violet-200/95 transition-colors">
               {project.title}
             </h3>
           </Link>
-          <Link to={projectDetailPath(project)} className="block mb-6">
+          <Link href={projectDetailPath(project)} className="block mb-6">
             <p className="text-white/50 leading-relaxed line-clamp-4 hover:text-white/60 transition-colors">
               {project.longDescription || project.description}
             </p>
@@ -113,7 +115,7 @@ export const FeaturedProjectCard = ({
 
           <div className="flex flex-wrap gap-3">
             <Link
-              to={projectDetailPath(project)}
+              href={projectDetailPath(project)}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/15 border border-violet-500/30
                 text-sm font-semibold text-violet-200 hover:bg-violet-500/25 transition-all duration-200"
             >

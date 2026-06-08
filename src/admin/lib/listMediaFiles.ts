@@ -2,7 +2,7 @@ import { guessImageMimeFromName } from "@/admin/lib/imageFileAccept";
 import { supabase } from "@/utils/supabase";
 import type { FileObject } from "@supabase/storage-js";
 
-export type MediaBucketId = "portfolio-assets" | "blog-media";
+export type MediaBucketId = "portfolio-assets";
 
 export type MediaLibraryItem = {
   bucket: MediaBucketId;
@@ -68,17 +68,7 @@ export async function listAllMediaInBucket(bucket: MediaBucketId): Promise<Media
 
 /** All public media buckets in one list, newest first. */
 export async function listAllMediaMerged(): Promise<MediaLibraryItem[]> {
-  const [portfolio, blog] = await Promise.all([
-    listAllMediaInBucket("portfolio-assets"),
-    listAllMediaInBucket("blog-media"),
-  ]);
-  const merged = [...portfolio, ...blog];
-  merged.sort((x, y) => {
-    const tx = x.updatedAt ? Date.parse(x.updatedAt) : 0;
-    const ty = y.updatedAt ? Date.parse(y.updatedAt) : 0;
-    return ty - tx;
-  });
-  return merged;
+  return listAllMediaInBucket("portfolio-assets");
 }
 
 export async function deleteMediaObject(bucket: MediaBucketId, path: string): Promise<void> {

@@ -1,7 +1,9 @@
+"use client";
+
 import { BUTTON_VARIANTS } from "@/constants/buttonStyles";
 import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 interface CTAButtonProps {
   href?: string;
@@ -112,7 +114,7 @@ export const CTAButton = ({
       );
     }
     return (
-      <Link to={href} onClick={onClick} className={linkClassName}>
+      <Link href={href} onClick={onClick} className={linkClassName}>
         {renderContent()}
       </Link>
     );

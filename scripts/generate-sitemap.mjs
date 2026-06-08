@@ -64,8 +64,10 @@ function renderUrl(entry) {
 }
 
 function getSupabaseConfig() {
-  const url = process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL;
   const key =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
     process.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY ??
     process.env.VITE_SUPABASE_ANON_KEY ??
     process.env.SUPABASE_ANON_KEY;
@@ -86,16 +88,10 @@ async function fetchDynamicEntries() {
   const entries = [];
 
   try {
-    const [projectsRes, blogsRes] = await Promise.all([
-      fetch(
-        `${supabase.url}/rest/v1/projects?status=eq.published&select=title,updated_at&order=sort_order.asc`,
-        { headers },
-      ),
-      fetch(
-        `${supabase.url}/rest/v1/blog_posts?status=eq.published&select=slug,updated_at,published_at&order=published_at.desc`,
-        { headers },
-      ),
-    ]);
+    const projectsRes = await fetch(
+      `${supabase.url}/rest/v1/projects?status=eq.published&select=title,updated_at&order=sort_order.asc`,
+      { headers },
+    );
 
     if (projectsRes.ok) {
       const projects = await projectsRes.json();
@@ -105,18 +101,6 @@ async function fetchDynamicEntries() {
           lastmod: toIsoDate(project.updated_at),
           changefreq: "monthly",
           priority: 0.7,
-        });
-      }
-    }
-
-    if (blogsRes.ok) {
-      const posts = await blogsRes.json();
-      for (const post of posts) {
-        entries.push({
-          loc: `${SITE_URL}/blogs/${post.slug}`,
-          lastmod: toIsoDate(post.updated_at ?? post.published_at),
-          changefreq: "weekly",
-          priority: 0.6,
         });
       }
     }
@@ -136,7 +120,6 @@ async function main() {
     { loc: `${SITE_URL}/about`, lastmod: today, changefreq: "monthly", priority: 0.9 },
     { loc: `${SITE_URL}/projects`, lastmod: today, changefreq: "weekly", priority: 0.9 },
     { loc: `${SITE_URL}/services`, lastmod: today, changefreq: "monthly", priority: 0.8 },
-    { loc: `${SITE_URL}/blogs`, lastmod: today, changefreq: "weekly", priority: 0.8 },
     { loc: `${SITE_URL}/contact`, lastmod: today, changefreq: "monthly", priority: 0.7 },
   ];
 

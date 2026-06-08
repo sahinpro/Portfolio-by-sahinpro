@@ -2,13 +2,12 @@
 
 import { SCROLL_THRESHOLD } from "@/constants/styles";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { usePathname } from "next/navigation";
 
 export const useScrollPosition = (): boolean => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const location = useLocation();
-  const pathname = location.pathname;
+  const pathname = usePathname();
 
   useEffect(() => {
     window.scrollTo(0, 0);
