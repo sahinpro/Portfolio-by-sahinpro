@@ -44,6 +44,10 @@ const publicEnv = Object.fromEntries(
       "NEXT_PUBLIC_ADMIN_AVATAR_URL",
       "VITE_ADMIN_AVATAR_URL",
     ),
+    NEXT_PUBLIC_SUPABASE_STORAGE_QUOTA_GB: pick(
+      "NEXT_PUBLIC_SUPABASE_STORAGE_QUOTA_GB",
+      "VITE_SUPABASE_STORAGE_QUOTA_GB",
+    ),
   }).filter(([, value]) => value.length > 0),
 );
 

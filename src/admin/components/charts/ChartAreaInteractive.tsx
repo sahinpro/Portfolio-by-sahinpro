@@ -234,15 +234,15 @@ export function ChartAreaInteractive({
           </div>
         ) : visibleSeries === 0 ? (
           <div
-            className="flex h-[250px] items-center justify-center rounded-lg border border-dashed border-white/[0.08]
-              text-sm text-white/35 sm:h-[280px]"
+            className="flex h-[380px] items-center justify-center rounded-lg border border-dashed border-white/[0.08]
+              text-sm text-white/35 sm:h-[380px]"
           >
             Select at least one series above.
           </div>
         ) : (
           <div className="w-full min-w-0 pt-3 pb-6">
-            <div className="h-[280px] w-full min-w-0">
-              <ResponsiveContainer width="100%" height={280} minWidth={0}>
+            <div className="h-[380px] w-full min-w-0">
+              <ResponsiveContainer width="100%" height={400} minWidth={0}>
                 <AreaChart
                   data={chartData}
                   margin={{ top: 5, right: 12, left: 0, bottom: 5 }}

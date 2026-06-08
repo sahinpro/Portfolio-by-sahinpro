@@ -36,4 +36,10 @@ export const env = {
   get isProd(): boolean {
     return process.env.NODE_ENV === "production";
   },
+  /** Supabase project file-storage quota (default 1 GB — free tier). */
+  get supabaseStorageQuotaBytes(): number {
+    const gb = Number(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_QUOTA_GB?.trim());
+    if (Number.isFinite(gb) && gb > 0) return Math.round(gb * 1024 ** 3);
+    return 1024 ** 3;
+  },
 } as const;

@@ -5,6 +5,8 @@ import { StatCard } from "@/admin/components/ui/StatCard";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import { useToast } from "@/admin/context/ToastContext";
 import { useDashboardData } from "@/admin/hooks/useDashboardData";
+import { useStorageMetrics } from "@/admin/hooks/useStorageMetrics";
+import { StorageStatCard } from "@/admin/components/ui/StorageStatCard";
 import {
   getSiteSettingsMap,
   upsertSiteSettings,
@@ -51,6 +53,14 @@ function SectionHeader({
 
 export function AdminDashboardPage(): JSX.Element {
   const { data, loading, error, refresh } = useDashboardData();
+  const {
+    metrics: storageMetrics,
+    loading: storageLoading,
+    refreshing: storageRefreshing,
+    live: storageLive,
+    error: storageError,
+    refresh: refreshStorage,
+  } = useStorageMetrics();
   const { showToast } = useToast();
   const [comingSoonMode, setComingSoonMode] = useState(false);
   const [comingSoonLoading, setComingSoonLoading] = useState(true);
@@ -128,14 +138,17 @@ export function AdminDashboardPage(): JSX.Element {
         <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
           <button
             type="button"
-            onClick={() => void refresh()}
-            disabled={loading}
+            onClick={() => {
+              void refresh();
+              void refreshStorage();
+            }}
+            disabled={loading || (storageLoading && !storageRefreshing)}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-white/[0.10]
               bg-white/[0.04] text-sm text-white/70 hover:bg-white/[0.07] hover:text-white
               disabled:opacity-40 transition-all duration-200"
           >
             <RefreshCw
-              className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`}
+              className={`h-3.5 w-3.5 ${loading || (storageLoading && !storageRefreshing) ? "animate-spin" : ""}`}
             />
             Refresh
           </button>
@@ -224,6 +237,13 @@ export function AdminDashboardPage(): JSX.Element {
             sublabel="Published on site"
             icon={MessageSquareQuote}
             accent="default"
+          />
+          <StorageStatCard
+            metrics={storageMetrics}
+            loading={storageLoading}
+            refreshing={storageRefreshing}
+            live={storageLive}
+            error={storageError}
           />
         </div>
       </section>
