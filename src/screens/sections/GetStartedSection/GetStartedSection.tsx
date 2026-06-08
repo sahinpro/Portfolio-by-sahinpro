@@ -1,4 +1,5 @@
 import { CTAButton } from "@/components/CTAButton";
+import { PublicImage } from "@/components/ui/PublicImage";
 import { Card, CardContent } from "@/components/ui/card";
 import { navItems } from "@/constants/navigation";
 import {
@@ -6,6 +7,7 @@ import {
   scrollViewport,
   sectionReveal,
 } from "@/constants/scrollMotion";
+import { PROFILE_DESK } from "@/lib/seoImages";
 import { motion } from "framer-motion";
 
 const contactHref =
@@ -22,11 +24,19 @@ export const GetStartedSection = (): JSX.Element => {
         variants={sectionReveal}
       >
         <Card className="relative w-full rounded-[20px] overflow-hidden border border-[#ffffff1a] glass-card">
-          <img
-            className="absolute top-0 left-[77px] w-[1158px] h-[404px] pointer-events-none"
-            alt="Group"
-            src="/Group 24.png"
-          />
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <PublicImage
+              src={PROFILE_DESK.path}
+              alt={PROFILE_DESK.alt}
+              fill
+              sizes="100vw"
+              className="object-cover object-center opacity-40"
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-[#090909] via-[#090909]/85 to-[#090909]/60"
+              aria-hidden
+            />
+          </div>
 
           <CardContent className="flex flex-col items-center justify-center gap-8 px-8 md:px-20 py-[100px] relative">
             <motion.div

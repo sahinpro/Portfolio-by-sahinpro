@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 const SITE_URL = "https://sahin.pro.bd";
 const OUTPUT = resolve("public/sitemap.xml");
-const PROFILE_IMAGE = `${SITE_URL}/sahin.webp`;
+const PROFILE_IMAGE = `${SITE_URL}/sahin.jpg`;
 const PROFILE_IMAGE_TITLE = "Sahin Alam — Full Stack Developer · React · Next.js · WordPress";
 
 function loadLocalEnv() {

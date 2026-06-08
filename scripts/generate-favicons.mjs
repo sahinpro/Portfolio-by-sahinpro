@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import sharp from "sharp";
 import toIco from "to-ico";
 
-const SOURCE = resolve("public/sahin-avatar.webp");
+const SOURCE = resolve("public/sahin.jpg");
 const ICONS_DIR = resolve("public/icons");
 
 const PNG_SIZES = [

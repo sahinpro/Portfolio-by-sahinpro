@@ -10,6 +10,7 @@ import {
   SectionHeader,
   SectionLabel,
 } from "@/components/section";
+import { PublicImage } from "@/components/ui/PublicImage";
 import { PROFILE } from "@/constants/profile";
 import {
   fadeInUp,
@@ -18,6 +19,7 @@ import {
 } from "@/constants/scrollMotion";
 import { useActiveResume } from "@/hooks/useActiveResume";
 import { triggerResumeDownload } from "@/lib/resumeDownload";
+import { PROFILE_DESK } from "@/lib/seoImages";
 import {
   careerTimeline,
   JOURNEY_DESCRIPTION,
@@ -142,7 +144,10 @@ export const AboutPage = (): JSX.Element => {
   };
 
   return (
-    <main id="main-content" className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+    <main
+      id="main-content"
+      className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect"
+    >
       <Header />
 
       <section className="w-full pt-40 pb-20 relative overflow-hidden">
@@ -159,28 +164,52 @@ export const AboutPage = (): JSX.Element => {
           variants={heroStagger}
           className="container mx-auto px-4"
         >
-          <motion.div variants={fadeStep}>
-            <SectionLabel className="mb-4">About Me</SectionLabel>
-          </motion.div>
+          <div className="flex flex-col lg:flex-row items-center lg:justify-between gap-10 lg:gap-10">
+            <div className="flex-1 min-w-0 max-w-2xl">
+              <motion.div variants={fadeStep}>
+                <SectionLabel className="mb-4">About Me</SectionLabel>
+              </motion.div>
 
-          <motion.h1
-            variants={fadeStep}
-            className="text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.05] mb-6 max-w-4xl"
-          >
-            Crafting digital{" "}
-            <span className="text-violet-400">experiences</span> that matter
-          </motion.h1>
+              <motion.h1
+                variants={fadeStep}
+                className="text-4xl lg:text-[63px] font-bold text-white tracking-tight leading-[1.05] mb-6"
+              >
+                Crafting digital{" "}
+                <span className="text-violet-400">experiences</span> that matter
+              </motion.h1>
 
-          <motion.p
-            variants={fadeStep}
-            className="max-w-2xl text-lg text-white/60 leading-relaxed"
-          >
-            {PROFILE.aboutIntro}
-          </motion.p>
+              <motion.p
+                variants={fadeStep}
+                className="text-lg text-white/60 leading-relaxed"
+              >
+                {PROFILE.aboutIntro}
+              </motion.p>
 
-          <motion.div variants={fadeStep}>
-            <SocialLinksRow size="hero" />
-          </motion.div>
+              <motion.div variants={fadeStep}>
+                <SocialLinksRow size="hero" />
+              </motion.div>
+            </div>
+
+            <motion.div
+              variants={fadeStep}
+              className="relative w-full max-w-sm sm:max-w-md lg:max-w-[420px] xl:max-w-[480px] shrink-0 mx-auto lg:mx-0 lg:pt-8"
+            >
+              <div
+                className="pointer-events-none absolute -inset-4 rounded-3xl bg-gradient-to-br from-violet-600/20 via-purple-600/10 to-blue-600/15 blur-2xl"
+                aria-hidden
+              />
+              <div className="relative aspect-square overflow-hidden rounded-4xl">
+                <PublicImage
+                  src={PROFILE_DESK.path}
+                  alt={PROFILE_DESK.alt}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 90vw, 480px"
+                  className="object-cover object-center"
+                />
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
       </section>
 

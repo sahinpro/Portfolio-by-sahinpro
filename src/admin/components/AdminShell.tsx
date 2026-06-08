@@ -25,7 +25,9 @@ import { AdminNavLink } from "@/components/AdminNavLink";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-const avatarUrl = "/sahin.png";
+import { PROFILE_AVATAR } from "@/lib/seoImages";
+
+const avatarUrl = PROFILE_AVATAR.path;
 
 const navLinkBase =
   "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium outline-none transition-colors " +
