@@ -4,6 +4,7 @@ import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
 import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
 import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
+import { AboutCodePlaceholder } from "@/screens/sections/AboutCodeSection";
 import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 
@@ -15,13 +16,6 @@ const AboutCodeWindow = lazy(() =>
 
 const MOBILE_EDITOR_DEFER_MS = 4500;
 const DESKTOP_EDITOR_DEFER_MS = 2500;
-
-const CodeEditorPlaceholder = (): JSX.Element => (
-  <div
-    className="w-full aspect-video rounded-[25px] border border-white/10 bg-[#0f0f0f]/35"
-    aria-hidden
-  />
-);
 
 export const HeroSection = (): JSX.Element => {
   const socialLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -110,11 +104,11 @@ export const HeroSection = (): JSX.Element => {
             className="relative z-0 w-full min-w-0 lg:w-1/2 aspect-video max-lg:pointer-events-none max-lg:select-none max-lg:origin-top max-lg:scale-[0.98]"
           >
             {showCodeEditor ? (
-              <Suspense fallback={<CodeEditorPlaceholder />}>
+              <Suspense fallback={<AboutCodePlaceholder className="w-full" />}>
                 <AboutCodeWindow startOnMount />
               </Suspense>
             ) : (
-              <CodeEditorPlaceholder />
+              <AboutCodePlaceholder className="w-full" />
             )}
           </div>
         </div>

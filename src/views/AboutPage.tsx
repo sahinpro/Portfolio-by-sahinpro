@@ -8,7 +8,6 @@ import {
   LandscapePageCtaSection,
   PortfolioStatCard,
   SectionHeader,
-  SectionLabel,
 } from "@/components/section";
 import { PublicImage } from "@/components/ui/PublicImage";
 import { PROFILE } from "@/constants/profile";
@@ -166,10 +165,6 @@ export const AboutPage = (): JSX.Element => {
         >
           <div className="flex flex-col lg:flex-row items-center lg:justify-between gap-10 lg:gap-10">
             <div className="flex-1 min-w-0 max-w-2xl">
-              <motion.div variants={fadeStep}>
-                <SectionLabel className="mb-4">About Me</SectionLabel>
-              </motion.div>
-
               <motion.h1
                 variants={fadeStep}
                 className="text-4xl lg:text-[63px] font-bold text-white tracking-tight leading-[1.05] mb-6"

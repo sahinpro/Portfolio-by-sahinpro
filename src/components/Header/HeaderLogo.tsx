@@ -14,11 +14,11 @@ export const HeaderLogo = (): JSX.Element => {
       <PublicImage
         src={PROFILE_AVATAR.path}
         alt={PROFILE_AVATAR_ALT}
-        width={40}
-        height={40}
+        width={45}
+        height={45}
         priority
-        sizes="40px"
-        className="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] object-cover border-2 border-white/20 shadow-md ring-1 ring-white/10 transition-transform duration-200 group-hover:scale-105"
+        sizes="45px"
+        className="w-11 h-11 sm:w-12 sm:h-12 rounded-[10px] object-cover border-2 border-white/20 shadow-md ring-1 ring-white/10 "
       />
     </Link>
   );
