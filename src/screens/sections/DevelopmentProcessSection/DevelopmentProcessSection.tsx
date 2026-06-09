@@ -12,7 +12,6 @@ const stepsData = [
     title: "Discovery & Planning",
     description:
       "We discuss your requirements, goals, and vision. I create wireframes and plan the technical approach.",
-    textureUrl: "/texture-3.png",
     maskUrl:
       "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop&q=80",
   },
@@ -21,7 +20,6 @@ const stepsData = [
     title: "Design & Development",
     description:
       "I design mockups and develop your website using latest technologies, ensuring best practices and performance.",
-    textureUrl: "/texture-4.png",
     maskUrl:
       "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop&q=80",
   },
@@ -30,7 +28,6 @@ const stepsData = [
     title: "Testing & Delivery",
     description:
       "Thorough testing, optimization, and deployment. Ongoing support and maintenance for your peace of mind.",
-    textureUrl: "/texture-5.png",
     maskUrl:
       "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&q=80",
   },
@@ -72,11 +69,6 @@ export const DevelopmentProcessSection = (): JSX.Element => {
               className="min-w-0 w-full"
             >
               <Card className="flex flex-col w-full min-w-0 h-[300px] sm:h-[400px] md:h-[460px] max-w-[400px] mx-auto md:max-w-none items-start relative bg-[#0d0d0d] rounded-[10.87px] overflow-hidden border-[none] before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[10.87px] before:[background:linear-gradient(173deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.12)_100%)] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none">
-                <div
-                  className="absolute top-0 left-0 w-full h-full bg-[100%_100%]"
-                  style={{ backgroundImage: `url(${step.textureUrl})` }}
-                />
-
                 <img
                   className="relative w-full h-full min-w-0 object-cover"
                   alt={`${step.title} visual`}

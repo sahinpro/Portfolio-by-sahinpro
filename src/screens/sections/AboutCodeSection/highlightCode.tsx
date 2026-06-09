@@ -18,7 +18,7 @@ function tokenizeLine(line: string): Token[] {
     const rest = line.slice(i);
 
     if (rest.startsWith("//")) {
-      tokens.push({ text: rest, className: "text-zinc-500" });
+      tokens.push({ text: rest, className: "text-zinc-400" });
       break;
     }
 

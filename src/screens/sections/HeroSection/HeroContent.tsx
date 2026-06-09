@@ -17,7 +17,7 @@ export const HeroContent = (): JSX.Element => {
       </div>
       <HeroDescription />
 
-      <div className="inline-flex items-center gap-3 flex-wrap justify-center lg:justify-start">
+      <div className="inline-flex items-center gap-3 flex-wrap justify-center lg:justify-start min-h-10">
         <CTAButton
           className="text-md font-medium"
           href="/projects"

@@ -23,10 +23,12 @@ export const GetStartedSection = (): JSX.Element => {
       >
         <Card className="relative w-full rounded-[20px] overflow-hidden border border-[#ffffff1a] glass-card">
           <img
-            className="absolute top-0 left-0 lg:left-[77px] w-[1158px] h-[445px] lg:h-[415px] pointer-events-none"
+            className="absolute top-0 left-0 lg:left-[77px] w-[1158px] h-[404px] pointer-events-none object-none"
             alt=""
             src="/Group 24.png"
             aria-hidden
+            width={1158}
+            height={404}
           />
 
           <CardContent className="flex flex-col items-center justify-center gap-8 px-8 md:px-20 py-[100px] relative">

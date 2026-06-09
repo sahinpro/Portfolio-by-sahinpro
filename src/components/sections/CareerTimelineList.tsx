@@ -41,9 +41,9 @@ export const CareerTimelineList = ({
             <span className="inline-block text-xs font-semibold tracking-widest text-violet-400 mb-1">
               {item.year}
             </span>
-            <h4 className="text-base sm:text-lg font-semibold text-white">
+            <h3 className="text-base sm:text-lg font-semibold text-white">
               {item.role}
-            </h4>
+            </h3>
             <p className="text-sm text-zinc-400 mb-2">{item.company}</p>
             <p className="text-sm text-zinc-300 leading-relaxed">{item.desc}</p>
           </div>

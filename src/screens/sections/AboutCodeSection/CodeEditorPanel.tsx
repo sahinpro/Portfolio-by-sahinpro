@@ -97,7 +97,7 @@ export const CodeEditorPanel = ({
               <code>
                 {lines.map((line, index) => (
                   <div key={`line-${index}`} className="flex items-start gap-0">
-                    <span className="select-none w-6 sm:w-7 shrink-0 text-right pr-2 sm:pr-3 pt-px text-zinc-600 tabular-nums leading-[1.55]">
+                    <span className="select-none w-6 sm:w-7 shrink-0 text-right pr-2 sm:pr-3 pt-px text-zinc-400 tabular-nums leading-[1.55]">
                       {index + 1}
                     </span>
                     <span className="min-w-0 flex-1 whitespace-pre-wrap break-words leading-[1.55]">
