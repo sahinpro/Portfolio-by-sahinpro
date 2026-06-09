@@ -11,11 +11,7 @@ import {
   liquidBorderShell,
   modalHeroHeight,
 } from "@/views/ProjectsPage/projectModalStyles";
-import {
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-} from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Star, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import {
@@ -166,7 +162,7 @@ export function ProjectDetailModal({
                         alt={projectImageAlt(project.title)}
                         fill
                         sizes="(max-width: 768px) 100vw, 768px"
-                        className="object-contain object-center"
+                        className="object-cover object-center"
                         priority
                       />
                       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0a0a0a] to-transparent sm:h-24" />
@@ -208,7 +204,10 @@ export function ProjectDetailModal({
                   <motion.div
                     initial={reduceMotion ? false : { opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.28, delay: reduceMotion ? 0 : 0.06 }}
+                    transition={{
+                      duration: 0.28,
+                      delay: reduceMotion ? 0 : 0.06,
+                    }}
                     className="px-5 pb-6 pt-2 sm:px-8 sm:pb-10"
                   >
                     <ProjectExpandedContent project={project} />
