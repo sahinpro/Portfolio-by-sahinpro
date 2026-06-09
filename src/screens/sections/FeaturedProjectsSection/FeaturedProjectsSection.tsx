@@ -1,6 +1,6 @@
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/common/CTAButton";
 import { FeaturedProjectCard } from "@/components/projects/FeaturedProjectCard";
-import { SectionHeader } from "@/components/section";
+import { SectionHeader } from "@/components/sections";
 import {
   sectionHeaderWrapClass,
   sectionInnerClass,

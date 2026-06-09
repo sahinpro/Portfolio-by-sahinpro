@@ -47,7 +47,7 @@ export const AboutCodePlaceholder = ({
                 <span className="rounded-md px-2.5 py-1 text-[11px] sm:text-xs font-mono bg-white/10 text-white">
                   about.ts
                 </span>
-                <span className="rounded-md px-2.5 py-1 text-[11px] sm:text-xs font-mono text-white/40">
+                <span className="rounded-md px-2.5 py-1 text-[11px] sm:text-xs font-mono text-zinc-400">
                   terminal
                 </span>
               </div>
@@ -64,7 +64,7 @@ export const AboutCodePlaceholder = ({
                 <code>
                   {lines.map((line, index) => (
                     <div key={`line-${index}`} className="flex items-start gap-0">
-                      <span className="select-none w-6 sm:w-7 shrink-0 text-right pr-2 sm:pr-3 pt-px text-white/20 tabular-nums leading-[1.55]">
+                      <span className="select-none w-6 sm:w-7 shrink-0 text-right pr-2 sm:pr-3 pt-px text-zinc-600 tabular-nums leading-[1.55]">
                         {index + 1}
                       </span>
                       <span className="min-w-0 flex-1 whitespace-pre-wrap break-words leading-[1.55]">

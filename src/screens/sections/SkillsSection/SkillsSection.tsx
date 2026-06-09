@@ -1,6 +1,6 @@
-import type { BentoCardProps } from "@/components/MagicBento";
-import MagicBento from "@/components/MagicBento";
-import { SectionHeader, SectionShell } from "@/components/section";
+import type { BentoCardProps } from "@/components/effects/MagicBento";
+import MagicBento from "@/components/effects/MagicBento";
+import { SectionHeader, SectionShell } from "@/components/sections";
 import {
   sectionContentClass,
   sectionHeaderWrapClass,

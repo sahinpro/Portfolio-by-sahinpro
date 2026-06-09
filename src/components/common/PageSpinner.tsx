@@ -12,6 +12,7 @@ export function PageSpinner(): JSX.Element {
       <Image
         src="/logo.svg"
         alt=""
+        aria-hidden
         width={56}
         height={56}
         className="h-14 w-14 animate-pulse opacity-90"

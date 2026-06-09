@@ -1,5 +1,5 @@
-import ChromaGrid from "@/components/ChromaGrid";
-import { SectionHeader, SectionShell } from "@/components/section";
+import ChromaGrid from "@/components/effects/ChromaGrid";
+import { SectionHeader, SectionShell } from "@/components/sections";
 import {
   sectionContentClass,
   sectionHeaderWrapClass,

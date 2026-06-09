@@ -36,7 +36,7 @@ export const TerminalPanel = ({
       className="bg-[#0a0a0a] px-3 py-2.5 sm:px-4 sm:py-3 font-mono text-[11px] sm:text-xs"
       aria-label="Terminal output"
     >
-      <div className="mb-2 flex items-center gap-2 text-white/40">
+      <div className="mb-2 flex items-center gap-2 text-zinc-400">
         <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">
           bash
         </span>
@@ -48,7 +48,7 @@ export const TerminalPanel = ({
             <p className="text-sky-400/90">
               <span className="text-emerald-400/80">$</span> {line.command}
             </p>
-            <p className="pl-3 text-white/65">{line.output}</p>
+            <p className="pl-3 text-zinc-300">{line.output}</p>
           </div>
         ))}
         {active && visibleCount < lines.length && !instant ? (

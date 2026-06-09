@@ -1,7 +1,7 @@
 "use client";
 
 import Header from "@/components/Header";
-import { LazySection } from "@/components/section/LazySection";
+import { LazySection } from "@/components/sections/LazySection";
 import { HeroSection } from "@/screens/sections/HeroSection";
 import { Suspense, lazy } from "react";
 

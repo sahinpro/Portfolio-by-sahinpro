@@ -48,7 +48,7 @@ export const PortfolioStatCard = ({
       <p className="text-3xl sm:text-4xl font-bold text-white tracking-tight tabular-nums">
         {reduceMotion ? stat.value : displayValue}
       </p>
-      <p className="text-xs sm:text-sm text-white/50 text-center leading-tight">
+      <p className="text-xs sm:text-sm text-zinc-400 text-center leading-tight">
         {stat.label}
       </p>
       <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/[0.03] blur-xl pointer-events-none transition-opacity duration-300 group-hover:opacity-80" />

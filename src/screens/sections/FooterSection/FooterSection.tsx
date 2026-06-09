@@ -1,6 +1,6 @@
 import { HeaderLogo } from "@/components/Header";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
-import { TextEffect } from "@/components/MotionPrimitives/TextEffect";
+import { TextEffect } from "@/components/motion/TextEffect";
 import { PROFILE } from "@/constants/profile";
 import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
 
@@ -21,7 +21,7 @@ export const FooterSection = (): JSX.Element => {
               {displayName}
             </TextEffect>
           <SocialLinksRow size="footer" />
-        <p className="flex items-center justify-center mt-[-1.00px] font-normal text-zinc-400 text-sm tracking-[0] leading-5 whitespace-nowrap">
+        <p className="flex items-center justify-center mt-[-1.00px] font-normal text-zinc-300 text-sm tracking-[0] leading-5 whitespace-nowrap">
           © {year} {displayName}. All rights reserved.
         </p>
         </div>

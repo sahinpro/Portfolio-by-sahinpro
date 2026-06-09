@@ -1,6 +1,6 @@
 "use client";
 
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/common/CTAButton";
 import Header from "@/components/Header";
 import FuzzyText from "@/components/ui/FuzzyText";
 import { FooterSection } from "@/screens/sections/FooterSection";

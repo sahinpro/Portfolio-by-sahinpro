@@ -1,4 +1,4 @@
-import { PortfolioStatCard } from "@/components/section";
+import { PortfolioStatCard } from "@/components/sections";
 import { scrollViewport, sectionReveal } from "@/constants/scrollMotion";
 import { motion } from "framer-motion";
 import { portfolioStats } from "./statsData";

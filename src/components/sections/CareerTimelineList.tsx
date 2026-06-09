@@ -44,8 +44,8 @@ export const CareerTimelineList = ({
             <h4 className="text-base sm:text-lg font-semibold text-white">
               {item.role}
             </h4>
-            <p className="text-sm text-white/40 mb-2">{item.company}</p>
-            <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+            <p className="text-sm text-zinc-400 mb-2">{item.company}</p>
+            <p className="text-sm text-zinc-300 leading-relaxed">{item.desc}</p>
           </div>
         </motion.div>
       );

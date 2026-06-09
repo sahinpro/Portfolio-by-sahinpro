@@ -290,7 +290,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
             <div className="h-14 w-14 rounded-xl bg-white/10" />
           </div>
         </div>
-        <p className="text-center text-white/35 text-sm">
+        <p className="text-center text-zinc-400 text-sm">
           Loading testimonials…
         </p>
       </section>
@@ -322,7 +322,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
             panel. Until then, this space stays open so the home layout stays
             balanced.
           </p>
-          <p className="text-sm text-white/35">
+          <p className="text-sm text-zinc-400">
             Working together?{" "}
             <Link
               href="/contact"
@@ -455,7 +455,7 @@ export const CustomerStoriesSection = (): JSX.Element => {
                     <cite className="text-base sm:text-lg font-semibold text-white/95 not-italic">
                       {activeTestimonial?.author.name}
                     </cite>
-                    <span className="text-sm sm:text-base text-white/50">
+                    <span className="text-sm sm:text-base text-zinc-300">
                       {activeTestimonial?.author.role}
                       {activeTestimonial?.author.company
                         ? `, ${activeTestimonial.author.company}`

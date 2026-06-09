@@ -82,13 +82,13 @@ export const FeaturedProjectCard = ({
           <div className="flex items-center gap-2 mb-4">
             <span
               className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-semibold border
-                ${categoryBadge[project.category] ?? "bg-white/10 text-white/50 border-white/10"}`}
+                ${categoryBadge[project.category] ?? "bg-white/10 text-zinc-400 border-white/10"}`}
             >
               <Tag className="w-3 h-3" aria-hidden />
               {project.category}
             </span>
             {project.year ? (
-              <span className="text-xs text-white/30">{project.year}</span>
+              <span className="text-xs text-zinc-400">{project.year}</span>
             ) : null}
           </div>
 
@@ -98,7 +98,7 @@ export const FeaturedProjectCard = ({
             </h3>
           </Link>
           <Link href={projectDetailPath(project)} className="block mb-6">
-            <p className="text-white/50 leading-relaxed line-clamp-4 hover:text-white/60 transition-colors">
+            <p className="text-zinc-300 leading-relaxed line-clamp-4 hover:text-zinc-200 transition-colors">
               {project.longDescription || project.description}
             </p>
           </Link>

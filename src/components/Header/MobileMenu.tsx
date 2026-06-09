@@ -1,4 +1,4 @@
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/common/CTAButton";
 import { Navigation } from "./Navigation";
 
 interface MobileMenuProps {
@@ -8,8 +8,10 @@ interface MobileMenuProps {
 
 export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
   return (
-    <div
+    <nav
+      id="mobile-primary-nav"
       aria-hidden={!isOpen}
+      aria-label="Mobile"
       className={`overflow-hidden bg-black/50 backdrop-blur-sm rounded-xl border-t border-[#ffffff1a] lg:hidden mb-2 transition-all duration-300 ease-in-out ${
         isOpen ? "max-h-[480px] opacity-100 mt-2" : "hidden"
       }`}
@@ -29,6 +31,6 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
           </CTAButton>
         </div>
       </div>
-    </div>
+    </nav>
   );
 };

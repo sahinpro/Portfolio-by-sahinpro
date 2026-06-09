@@ -1,13 +1,13 @@
 "use client";
 
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
-import { SkipToContent } from "@/components/SkipToContent";
+import { SkipToContent } from "@/components/layout/SkipToContent";
 import { fetchSiteSettingsMap } from "@/data/publicSupabase";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { getCachedPublic } from "@/lib/publicDataCache";
 import { getComingSoonContent, isComingSoonEnabled } from "@/lib/siteMode";
 import { ComingSoonPage } from "@/views/ComingSoonPage";
-import { PageSpinner } from "@/components/PageSpinner";
+import { PageSpinner } from "@/components/common/PageSpinner";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 

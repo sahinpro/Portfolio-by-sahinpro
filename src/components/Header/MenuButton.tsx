@@ -12,6 +12,7 @@ export const MenuButton = ({ isOpen, onClick }: MenuButtonProps) => {
       className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg bg-[#1c1c1c] border border-[#ffffff1a] hover:border-white/40 transition-colors"
       aria-label={isOpen ? "Close menu" : "Open menu"}
       aria-expanded={isOpen}
+      aria-controls="mobile-primary-nav"
     >
       <div className="relative w-5 h-5 transition-transform duration-200">
         {isOpen ? (

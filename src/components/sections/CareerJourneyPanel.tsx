@@ -51,7 +51,7 @@ export const CareerJourneyPanel = ({
             />
           </div>
         </motion.div>
-        <p className="mt-5 text-center text-sm text-white/40 max-w-[480px] leading-relaxed">
+        <p className="mt-5 text-center text-sm text-zinc-400 max-w-[480px] leading-relaxed">
           {imageCaption}
         </p>
       </div>

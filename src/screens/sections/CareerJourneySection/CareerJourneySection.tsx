@@ -2,7 +2,7 @@ import {
   CareerJourneyPanel,
   SectionHeader,
   SectionShell,
-} from "@/components/section";
+} from "@/components/sections";
 import {
   sectionContentClass,
   sectionHeaderWrapClass,

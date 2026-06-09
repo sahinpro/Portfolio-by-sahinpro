@@ -41,7 +41,7 @@ export const WorkProcessPanel = ({
               </div>
               <span
                 className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-widest uppercase
-                bg-white/5 border border-white/10 text-white/35 tabular-nums"
+                bg-white/5 border border-white/10 text-zinc-400 tabular-nums"
               >
                 {step.step}
               </span>

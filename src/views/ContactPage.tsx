@@ -2,7 +2,7 @@
 
 import errorAnimationData from "@/assets/lottie/error.json";
 import successAnimationData from "@/assets/lottie/success.json";
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/common/CTAButton";
 import Header from "@/components/Header";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import { Input } from "@/components/ui/input";

@@ -18,7 +18,7 @@ function tokenizeLine(line: string): Token[] {
     const rest = line.slice(i);
 
     if (rest.startsWith("//")) {
-      tokens.push({ text: rest, className: "text-white/35" });
+      tokens.push({ text: rest, className: "text-zinc-500" });
       break;
     }
 
@@ -65,8 +65,8 @@ function tokenizeLine(line: string): Token[] {
     tokens.push({
       text: rest[0],
       className: /[{}[\](),:;.]/.test(rest[0])
-        ? "text-white/50"
-        : "text-white/75",
+        ? "text-zinc-400"
+        : "text-zinc-200",
     });
     i += 1;
   }

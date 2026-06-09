@@ -1,6 +1,6 @@
 "use client";
 
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/common/CTAButton";
 import Header from "@/components/Header";
 import {
   LandscapePageCtaSection,
@@ -8,7 +8,7 @@ import {
   SectionLabel,
   WorkProcessPanel,
   type WorkProcessStep,
-} from "@/components/section";
+} from "@/components/sections";
 import Glow from "@/components/ui/glow";
 import { SERVICE_DEFINITIONS } from "@/constants/expertise";
 import {

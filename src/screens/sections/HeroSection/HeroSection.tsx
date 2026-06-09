@@ -1,9 +1,7 @@
-import { AuroraBackground } from "@/components/AuroraBackground";
-import { getSocialBrand } from "@/components/public/socialBrands";
-import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
-import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
-import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
+import { AuroraBackground } from "@/components/effects/AuroraBackground";
+import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
+import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
 import { AboutCodePlaceholder } from "@/screens/sections/AboutCodeSection";
 import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
@@ -18,9 +16,7 @@ const MOBILE_EDITOR_DEFER_MS = 4500;
 const DESKTOP_EDITOR_DEFER_MS = 2500;
 
 export const HeroSection = (): JSX.Element => {
-  const socialLinksRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const editorRef = useRef<HTMLDivElement>(null);
-  const { links: socialLinks } = useVisibleSocialLinks({ deferMs: 4000 });
   const [showCodeEditor, setShowCodeEditor] = useState(false);
 
   useEffect(() => {
@@ -67,36 +63,7 @@ export const HeroSection = (): JSX.Element => {
               <HeroContent />
             </div>
 
-            {socialLinks.length > 0 ? (
-              <div className="flex items-center justify-center lg:justify-start gap-2 mt-8 min-h-[32px] w-full">
-                {socialLinks.map((link, index) => {
-                  const { brandColor, bg } = getSocialBrand(link);
-                  return (
-                    <a
-                      key={link.id}
-                      ref={(el) => {
-                        socialLinksRef.current[index] = el;
-                      }}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={link.platform}
-                      aria-label={link.platform}
-                      className={`group w-8 h-8 rounded-xl bg-white/5 border border-white/10
-                  flex items-center justify-center ${bg}
-                  transition-all duration-200 hover:scale-110 hover:-translate-y-0.5 active:scale-95`}
-                      style={{ ["--brand-color" as string]: brandColor }}
-                    >
-                      <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
-                        <SocialLinkGlyph link={link} />
-                      </span>
-                    </a>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="mt-8 min-h-[32px] w-full" aria-hidden />
-            )}
+            <SocialLinksRow size="hero" />
           </div>
 
           <div
@@ -116,3 +83,4 @@ export const HeroSection = (): JSX.Element => {
     </section>
   );
 };
+

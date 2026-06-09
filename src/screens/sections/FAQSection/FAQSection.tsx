@@ -1,4 +1,4 @@
-import { SectionHeader } from "@/components/section";
+import { SectionHeader } from "@/components/sections";
 import {
   Accordion,
   AccordionContent,
@@ -79,7 +79,7 @@ export const FAQSection = (): JSX.Element => {
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-5 pb-4">
-                  <p className="text-sm sm:text-base text-white/55 leading-relaxed">
+                  <p className="text-sm sm:text-base text-zinc-300 leading-relaxed">
                     {item.answer}
                   </p>
                 </AccordionContent>

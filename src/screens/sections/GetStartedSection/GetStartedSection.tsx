@@ -1,4 +1,4 @@
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/common/CTAButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { navItems } from "@/constants/navigation";
 import {

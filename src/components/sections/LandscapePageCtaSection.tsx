@@ -79,7 +79,7 @@ export const LandscapePageCtaSection = ({
             <h3 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
               {title}
             </h3>
-            <p className="text-white/50 max-w-xl leading-relaxed">{description}</p>
+            <p className="text-zinc-300 max-w-xl leading-relaxed">{description}</p>
           </div>
 
           <div className="relative z-10 flex flex-wrap gap-3 flex-shrink-0">

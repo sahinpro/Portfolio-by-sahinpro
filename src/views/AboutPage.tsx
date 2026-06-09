@@ -1,6 +1,6 @@
 "use client";
 
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/common/CTAButton";
 import Header from "@/components/Header";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import {
@@ -8,7 +8,7 @@ import {
   LandscapePageCtaSection,
   PortfolioStatCard,
   SectionHeader,
-} from "@/components/section";
+} from "@/components/sections";
 import { PublicImage } from "@/components/ui/PublicImage";
 import { PROFILE } from "@/constants/profile";
 import {

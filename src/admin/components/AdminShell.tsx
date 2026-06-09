@@ -21,7 +21,7 @@ import {
   Share2,
   X,
 } from "lucide-react";
-import { AdminNavLink } from "@/components/AdminNavLink";
+import { AdminNavLink } from "@/components/common/AdminNavLink";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/common/CTAButton";
 import { HEADER_ANIMATION_DURATION } from "@/constants/styles";
 import { useMobileMenu } from "@/hooks/useMobileMenu";
 import { useScrollPosition } from "@/hooks/useScrollPosition";

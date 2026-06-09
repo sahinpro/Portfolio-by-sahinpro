@@ -1,9 +1,9 @@
 "use client";
 
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/common/CTAButton";
 import Header from "@/components/Header";
 import { absoluteUrl, canonicalPath, getSiteUrl } from "@/constants/site";
-import { LandscapePageCtaSection } from "@/components/section";
+import { LandscapePageCtaSection } from "@/components/sections";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { usePublishedProject } from "@/hooks/usePublishedProject";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";

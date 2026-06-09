@@ -1,4 +1,4 @@
-import { CTAButton } from "@/components/CTAButton";
+import { CTAButton } from "@/components/common/CTAButton";
 import { useActiveResume } from "@/hooks/useActiveResume";
 import { triggerResumeDownload } from "@/lib/resumeDownload";
 import { DownloadIcon } from "lucide-react";

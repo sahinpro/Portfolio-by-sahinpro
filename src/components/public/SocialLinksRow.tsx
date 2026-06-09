@@ -55,7 +55,7 @@ export function SocialLinksRow({ size }: { size: Size }): JSX.Element | null {
             className={`${cls.iconWrap} ${bg}`}
             style={{ ["--brand-color" as string]: brandColor }}
           >
-            <span className="text-white/40 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
+            <span className="text-zinc-400 transition-colors duration-200 group-hover:[color:var(--brand-color)]">
               <SocialLinkGlyph link={link} className={cls.glyph} />
             </span>
           </a>

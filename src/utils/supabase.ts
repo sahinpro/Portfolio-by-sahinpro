@@ -8,7 +8,7 @@ const supabaseKey =
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey);
 
-if (!isSupabaseConfigured && typeof window !== "undefined") {
+if (!isSupabaseConfigured && typeof window !== "undefined" && process.env.NODE_ENV === "development") {
   console.error(
     "[supabase] Missing NEXT_PUBLIC_SUPABASE_URL or key. " +
       "Add them to .env.local, then restart the dev server (npm run dev).",
