@@ -13,9 +13,9 @@ import {
   DEFAULT_KEYWORDS,
   DEFAULT_META_DESCRIPTION,
   DEFAULT_META_TITLE,
-  DEFAULT_OG_IMAGE,
 } from "@/lib/seoDefaults";
 import { OG_IMAGE, projectImageAlt } from "@/lib/seoImages";
+import { ogImageMimeType, resolveOgImageUrl } from "@/lib/resolveOgImage";
 
 const SITE = PROFILE.name;
 
@@ -28,7 +28,7 @@ function ogImageMeta(
   alt: string,
   width = OG_IMAGE.width,
   height = OG_IMAGE.height,
-  type = OG_IMAGE.type,
+  type = ogImageMimeType(imageUrl),
 ): NonNullable<Metadata["openGraph"]>["images"] {
   return [
     {
@@ -42,10 +42,7 @@ function ogImageMeta(
 }
 
 function resolveOgImage(row: SeoSettingsRow | null, fallback?: string): string {
-  const custom = row?.og_image?.trim();
-  if (custom) return absoluteUrl(custom);
-  if (fallback) return absoluteUrl(fallback);
-  return DEFAULT_OG_IMAGE;
+  return resolveOgImageUrl(row?.og_image, fallback);
 }
 
 function baseOpenGraph(
