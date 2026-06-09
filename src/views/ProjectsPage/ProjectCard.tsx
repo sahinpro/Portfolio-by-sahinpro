@@ -6,7 +6,12 @@ import { projectCategoryLine } from "@/lib/projectMeta";
 import { projectImageAlt } from "@/lib/seoImages";
 import { cn } from "@/lib/utils";
 import { ProjectDetailModal } from "@/views/ProjectsPage/ProjectDetailModal";
-import { layoutSpring } from "@/views/ProjectsPage/projectModalStyles";
+import {
+  layoutSpring,
+  projectCardActionBtn,
+  projectCardInnerFrame,
+  projectCardShell,
+} from "@/views/ProjectsPage/projectModalStyles";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Star } from "lucide-react";
 import {
@@ -31,9 +36,6 @@ const fadeUp = (delay = 0) => ({
     transition: { duration: 0.55, delay, ease: [0.37, 0.04, 0.29, 1.01] },
   },
 });
-
-const projectCardGlassMask =
-  "linear-gradient(to top, black 0%, black 55%, rgba(0, 0, 0, 0.6) 72%, transparent 100%)";
 
 export interface ProjectCardProps {
   project: PublicProjectDetail;
@@ -99,8 +101,8 @@ export const ProjectCard = ({
           }
         }}
         className={cn(
-          "group relative cursor-pointer overflow-hidden rounded-[1.75rem] border border-white/[0.08] bg-[#111]",
-          "transition-[border-color] duration-300 hover:border-white/[0.12]",
+          projectCardShell,
+          "group cursor-pointer transition-[border-color] duration-300 hover:border-white/[0.12]",
           active && "pointer-events-none",
         )}
       >
@@ -138,28 +140,12 @@ export const ProjectCard = ({
               e.stopPropagation();
               openModal();
             }}
-            className="absolute top-4 right-4 z-[5] flex h-9 w-9 items-center justify-center rounded-full
-              border border-white/15 bg-black/45 text-white/80 backdrop-blur-sm transition-colors
-              hover:border-white/25 hover:bg-black/60 hover:text-white"
+            className={cn(projectCardActionBtn, "absolute top-4 right-4 z-[5]")}
           >
             <ArrowUpRight className="h-4 w-4" aria-hidden />
           </motion.button>
 
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[52%] bg-gradient-to-t
-              from-[rgba(10,14,20,0.82)] via-[rgba(10,14,20,0.55)] via-45% to-transparent"
-          />
-
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[300px] bg-gradient-to-t
-              from-white/[0.06] via-white/[0.03] via-50% to-transparent max-md:backdrop-blur-md md:backdrop-blur-[22px]"
-            style={{
-              maskImage: projectCardGlassMask,
-              WebkitMaskImage: projectCardGlassMask,
-            }}
-          />
-
-          <div className="pointer-events-none absolute inset-[7px] z-[2] rounded-[1.35rem] border border-white/10" />
+          <div className={cn(projectCardInnerFrame, "z-[2]")} />
 
           <div className="absolute inset-x-0 bottom-0 z-[3] px-5 pb-5">
             <motion.h3

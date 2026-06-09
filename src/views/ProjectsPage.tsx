@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import { ProjectCard } from "@/views/ProjectsPage/ProjectCard";
+import { ProjectsPageSkeleton } from "@/views/ProjectsPage/ProjectsPageSkeleton";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { LayoutGroup, motion } from "framer-motion";
 import { Layers, Search } from "lucide-react";
@@ -54,30 +55,7 @@ export const ProjectsPage = (): JSX.Element => {
       : projects.filter((p) => p.category === cat).length;
 
   if (loading && projects.length === 0) {
-    return (
-      <main id="main-content" className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
-        <div className="relative z-[1] flex flex-col w-full">
-          <Header />
-          <section
-            className="w-full flex-1 pt-40 pb-16 relative"
-            aria-busy="true"
-          >
-            <div className="container mx-auto px-4 animate-pulse space-y-6">
-              <div className="h-7 w-28 rounded-full bg-white/10" />
-              <div className="h-14 max-w-md rounded-lg bg-white/10" />
-              <div className="h-5 max-w-xl rounded bg-white/[0.06]" />
-              <div className="flex flex-wrap gap-2 pt-2">
-                <div className="h-10 w-20 rounded-xl bg-white/10" />
-                <div className="h-10 w-24 rounded-xl bg-white/10" />
-                <div className="h-10 w-28 rounded-xl bg-white/10" />
-              </div>
-              <p className="text-white/40 text-sm pt-4">Loading projects…</p>
-            </div>
-          </section>
-          <FooterSection />
-        </div>
-      </main>
-    );
+    return <ProjectsPageSkeleton />;
   }
 
   if (error && projects.length === 0) {

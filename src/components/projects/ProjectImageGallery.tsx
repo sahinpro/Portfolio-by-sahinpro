@@ -3,7 +3,12 @@
 import Carousel, { type CarouselItem } from "@/components/ui/Carousel";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { projectImageAlt } from "@/lib/seoImages";
-import { modalHeroHeight } from "@/views/ProjectsPage/projectModalStyles";
+import {
+  modalHeroHeight,
+  projectCardGlassBlur,
+  projectCardGlassGradient,
+  projectCardGlassMask,
+} from "@/views/ProjectsPage/projectModalStyles";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export interface ProjectImageGalleryProps {
@@ -85,7 +90,14 @@ export function ProjectImageGallery({
           className="h-full"
         />
       ) : null}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0a0a0a] to-transparent sm:h-24" />
+      <div className={projectCardGlassGradient} />
+      <div
+        className={projectCardGlassBlur}
+        style={{
+          maskImage: projectCardGlassMask,
+          WebkitMaskImage: projectCardGlassMask,
+        }}
+      />
     </div>
   );
 }
