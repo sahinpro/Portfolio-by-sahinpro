@@ -14,13 +14,7 @@ import {
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Star, X } from "lucide-react";
 import dynamic from "next/dynamic";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type MouseEvent as ReactMouseEvent,
-} from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useRef, type MouseEvent as ReactMouseEvent } from "react";
 
 const ProjectImageGallery = dynamic(
   () =>
@@ -51,18 +45,13 @@ export function ProjectDetailModal({
   categoryLine,
   onClose,
   onExitComplete,
-}: ProjectDetailModalProps): JSX.Element | null {
+}: ProjectDetailModalProps): JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
   const reduceMotion = useReducedMotion();
   const hasGallery = project.screenshots.length > 0;
   const transition = reduceMotion ? { duration: 0.2 } : layoutSpring;
   const layoutId = (id: string) =>
     reduceMotion ? undefined : `${id}-${layoutKey}`;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -96,32 +85,31 @@ export function ProjectDetailModal({
     };
   }, [open, onClose]);
 
-  if (!mounted) return null;
-
-  return createPortal(
-    <AnimatePresence onExitComplete={onExitComplete}>
-      {open ? (
-        <motion.div
-          key="project-modal"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: reduceMotion ? 0.15 : 0.25 }}
-          className="fixed inset-0 z-[120]"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={`project-modal-title-${project.id}`}
-        >
+  return (
+    <>
+      <AnimatePresence>
+        {open ? (
           <motion.div
+            key="backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: reduceMotion ? 0.15 : 0.25 }}
-            className="absolute inset-0 bg-black/60 max-md:backdrop-blur-sm md:bg-black/50 md:backdrop-blur-xl"
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[110] bg-black/50 max-md:backdrop-blur-sm md:backdrop-blur-xl"
             aria-hidden
           />
+        ) : null}
+      </AnimatePresence>
 
-          <div className="pointer-events-none absolute inset-0 grid place-items-center p-3 sm:p-6">
+      <AnimatePresence onExitComplete={onExitComplete}>
+        {open ? (
+          <div
+            key="modal-shell"
+            className="pointer-events-none fixed inset-0 z-[120] grid place-items-center p-3 sm:p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`project-modal-title-${project.id}`}
+          >
             <motion.div
               layoutId={layoutId("project-card")}
               ref={modalRef}
@@ -202,11 +190,12 @@ export function ProjectDetailModal({
                   </div>
 
                   <motion.div
-                    initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+                    initial={reduceMotion ? false : { opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
                     transition={{
-                      duration: 0.28,
-                      delay: reduceMotion ? 0 : 0.06,
+                      duration: 0.3,
+                      delay: reduceMotion ? 0 : 0.08,
                     }}
                     className="px-5 pb-6 pt-2 sm:px-8 sm:pb-10"
                   >
@@ -216,9 +205,8 @@ export function ProjectDetailModal({
               </div>
             </motion.div>
           </div>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>,
-    document.body,
+        ) : null}
+      </AnimatePresence>
+    </>
   );
 }

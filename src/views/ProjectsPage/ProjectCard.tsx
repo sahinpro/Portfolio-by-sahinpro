@@ -10,7 +10,7 @@ import { layoutSpring } from "@/views/ProjectsPage/projectModalStyles";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Star } from "lucide-react";
 import {
-  useEffect,
+  useCallback,
   useId,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -47,12 +47,8 @@ export const ProjectCard = ({
   animateOnView = true,
 }: ProjectCardProps): JSX.Element => {
   const [active, setActive] = useState(false);
-  const [modalMounted, setModalMounted] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const uid = useId();
-
-  useEffect(() => {
-    if (active) setModalMounted(true);
-  }, [active]);
   const layoutKey = `${project.id}-${uid}`;
   const reduceMotion = useReducedMotion();
   const techPreview = project.technologies.slice(0, 4).join(" · ");
@@ -62,16 +58,29 @@ export const ProjectCard = ({
   const layoutId = (id: string) =>
     reduceMotion ? undefined : `${id}-${layoutKey}`;
 
+  const openModal = useCallback(() => {
+    setShowModal(true);
+    setActive(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setActive(false);
+  }, []);
+
+  const handleExitComplete = useCallback(() => {
+    setShowModal(false);
+  }, []);
+
   const card = (
     <>
-      {modalMounted ? (
+      {showModal ? (
         <ProjectDetailModal
           open={active}
           project={project}
           layoutKey={layoutKey}
           categoryLine={categoryLine}
-          onClose={() => setActive(false)}
-          onExitComplete={() => setModalMounted(false)}
+          onClose={closeModal}
+          onExitComplete={handleExitComplete}
         />
       ) : null}
 
@@ -81,12 +90,12 @@ export const ProjectCard = ({
         role="button"
         tabIndex={active ? -1 : 0}
         aria-expanded={active}
-        onClick={() => !active && setActive(true)}
+        onClick={() => !active && openModal()}
         onKeyDown={(e: ReactKeyboardEvent<HTMLElement>) => {
           if (active) return;
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            setActive(true);
+            openModal();
           }
         }}
         className={cn(
@@ -127,7 +136,7 @@ export const ProjectCard = ({
             aria-label={`Open ${project.title}`}
             onClick={(e: ReactMouseEvent<HTMLButtonElement>) => {
               e.stopPropagation();
-              setActive(true);
+              openModal();
             }}
             className="absolute top-4 right-4 z-[5] flex h-9 w-9 items-center justify-center rounded-full
               border border-white/15 bg-black/45 text-white/80 backdrop-blur-sm transition-colors
