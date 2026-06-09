@@ -1,21 +1,16 @@
-import type { Metadata } from "next";
 import type { SeoSettingsRow } from "@/admin/types/database";
 import { PROFILE } from "@/constants/profile";
-import { absoluteUrl, canonicalPath, getSiteUrl } from "@/constants/site";
-import { mapProjectRowToPublicDetail } from "@/data/projectUiMapper";
-import {
-  fetchPublishedProjectBySlug,
-  fetchSeoForPage,
-  fetchSiteSettingsMap,
-} from "@/data/publicSupabase.server";
-import { isComingSoonEnabled } from "@/lib/siteMode";
+import { canonicalPath, getSiteUrl } from "@/constants/site";
+import { fetchSeoForPage, fetchSiteSettingsMap } from "@/data/publicSupabase.server";
+import { resolveOgImageUrl, ogImageMimeType } from "@/lib/resolveOgImage";
 import {
   DEFAULT_KEYWORDS,
   DEFAULT_META_DESCRIPTION,
   DEFAULT_META_TITLE,
 } from "@/lib/seoDefaults";
-import { OG_IMAGE, projectImageAlt } from "@/lib/seoImages";
-import { ogImageMimeType, resolveOgImageUrl } from "@/lib/resolveOgImage";
+import { OG_IMAGE } from "@/lib/seoImages";
+import { isComingSoonEnabled } from "@/lib/siteMode";
+import type { Metadata } from "next";
 
 const SITE = PROFILE.name;
 
@@ -95,8 +90,7 @@ export async function buildPageMetadata(
 ): Promise<Metadata> {
   const seo = await fetchSeoForPage(pagePath);
   const title = seo?.meta_title?.trim() || DEFAULT_META_TITLE;
-  const description =
-    seo?.meta_description?.trim() || DEFAULT_META_DESCRIPTION;
+  const description = seo?.meta_description?.trim() || DEFAULT_META_DESCRIPTION;
   const keywords = buildKeywords(seo);
   const ogImage = resolveOgImage(seo);
   const canonical = canonicalPath(pathname);
@@ -120,38 +114,6 @@ export async function buildPageMetadata(
       },
     },
     openGraph: baseOpenGraph(title, description, canonical, ogImage),
-    twitter: baseTwitter(title, description, canonical, ogImage),
-  };
-}
-
-export async function buildProjectMetadata(slug: string): Promise<Metadata> {
-  const row = await fetchPublishedProjectBySlug(slug);
-  if (!row) {
-    return buildPageMetadata("/projects", `/projects/${slug}`);
-  }
-
-  const project = mapProjectRowToPublicDetail(row);
-  const pathname = `/projects/${project.slug}`;
-  const metaDescription =
-    project.longDescription?.trim() ||
-    project.description ||
-    DEFAULT_META_DESCRIPTION;
-  const description = metaDescription.slice(0, 320);
-  const title = `${project.title} · ${SITE}`;
-  const canonical = canonicalPath(pathname);
-  const ogImage = absoluteUrl(project.image);
-
-  return {
-    title: { absolute: title },
-    description,
-    alternates: { canonical },
-    openGraph: baseOpenGraph(
-      title,
-      description,
-      canonical,
-      ogImage,
-      projectImageAlt(project.title),
-    ),
     twitter: baseTwitter(title, description, canonical, ogImage),
   };
 }

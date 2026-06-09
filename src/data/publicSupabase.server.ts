@@ -17,26 +17,6 @@ export const fetchPublishedProjects = unstable_cache(
   { revalidate: REVALIDATE_SECONDS, tags: [CACHE_TAGS.projects] },
 );
 
-export const fetchPublishedProjectById = (id: string) =>
-  unstable_cache(
-    () => publicSupabase.fetchPublishedProjectById(id),
-    ["published-project-by-id", id],
-    { revalidate: REVALIDATE_SECONDS, tags: [CACHE_TAGS.projects] },
-  )();
-
-export const fetchPublishedProjectBySlug = (slug: string) =>
-  unstable_cache(
-    () => publicSupabase.fetchPublishedProjectBySlug(slug),
-    ["published-project-by-slug", slug],
-    { revalidate: REVALIDATE_SECONDS, tags: [CACHE_TAGS.projects] },
-  )();
-
-export const fetchPublishedProjectSlugs = unstable_cache(
-  publicSupabase.fetchPublishedProjectSlugs,
-  ["published-project-slugs"],
-  { revalidate: REVALIDATE_SECONDS, tags: [CACHE_TAGS.projects] },
-);
-
 export const fetchPublishedTestimonials = unstable_cache(
   publicSupabase.fetchPublishedTestimonials,
   ["published-testimonials"],

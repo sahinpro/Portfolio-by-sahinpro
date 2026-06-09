@@ -89,58 +89,7 @@ function getSupabaseConfig() {
 }
 
 async function fetchDynamicEntries() {
-  const supabase = getSupabaseConfig();
-  if (!supabase) return [];
-
-  const headers = {
-    apikey: supabase.key,
-    Authorization: `Bearer ${supabase.key}`,
-  };
-
-  const entries = [];
-
-  try {
-    const projectsRes = await fetch(
-      `${supabase.url}/rest/v1/projects?status=eq.published&select=title,image,updated_at&order=sort_order.asc`,
-      { headers },
-    );
-
-    if (projectsRes.ok) {
-      const projects = await projectsRes.json();
-      for (const project of projects) {
-        const slug = slugify(project.title);
-        const imagePath =
-          typeof project.image === "string" && project.image.trim().length > 0
-            ? project.image.trim()
-            : null;
-        const imageLoc = imagePath
-          ? imagePath.startsWith("http")
-            ? imagePath
-            : `${SITE_URL}${imagePath.startsWith("/") ? imagePath : `/${imagePath}`}`
-          : null;
-
-        entries.push({
-          loc: `${SITE_URL}/projects/${slug}`,
-          lastmod: toIsoDate(project.updated_at),
-          changefreq: "monthly",
-          priority: 0.7,
-          images: imageLoc
-            ? [
-                {
-                  loc: imageLoc,
-                  title: `${project.title} — project by Sahin Alam`,
-                  caption: `${project.title} portfolio project`,
-                },
-              ]
-            : undefined,
-        });
-      }
-    }
-  } catch {
-    // Static pages still ship if Supabase is unreachable at build time.
-  }
-
-  return entries;
+  return [];
 }
 
 async function main() {

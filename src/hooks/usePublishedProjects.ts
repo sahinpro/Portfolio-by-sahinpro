@@ -1,14 +1,20 @@
 import { fetchPublishedProjects } from "@/data/publicSupabase";
-import { mapProjectRowToPublic, type PublicProject } from "@/data/projectUiMapper";
+import {
+  mapProjectRowToPublicDetail,
+  type PublicProjectDetail,
+} from "@/data/projectUiMapper";
 import { usePublicData } from "@/hooks/usePublicData";
 import { useMemo } from "react";
 
 export function usePublishedProjects(): {
-  projects: PublicProject[];
+  projects: PublicProjectDetail[];
   loading: boolean;
   error: Error | null;
 } {
   const { data, loading, error } = usePublicData("published_projects", fetchPublishedProjects);
-  const projects = useMemo(() => (data ?? []).map(mapProjectRowToPublic), [data]);
+  const projects = useMemo(
+    () => (data ?? []).map(mapProjectRowToPublicDetail),
+    [data],
+  );
   return { projects, loading, error };
 }

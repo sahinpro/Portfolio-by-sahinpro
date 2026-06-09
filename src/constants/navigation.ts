@@ -1,7 +1,7 @@
 export interface NavItem {
   name: string;
   href: string;
-  /** Highlight when pathname equals href or starts with `href/` (e.g. /projects/slug). */
+  /** Highlight when pathname equals href or starts with `href/`. */
   matchPrefix?: boolean;
 }
 

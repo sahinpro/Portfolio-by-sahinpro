@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import { ProjectCard } from "@/views/ProjectsPage/ProjectCard";
 import { FooterSection } from "@/screens/sections/FooterSection";
-import { motion } from "framer-motion";
+import { LayoutGroup, motion } from "framer-motion";
 import { Layers, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -183,11 +183,13 @@ export const ProjectsPage = (): JSX.Element => {
         {filteredProjects.length > 0 && (
           <section className="w-full pb-28">
             <div className="container mx-auto px-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredProjects.map((p, i) => (
-                  <ProjectCard key={p.id} project={p} index={i} />
-                ))}
-              </div>
+              <LayoutGroup>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredProjects.map((p, i) => (
+                    <ProjectCard key={p.id} project={p} index={i} />
+                  ))}
+                </div>
+              </LayoutGroup>
             </div>
           </section>
         )}

@@ -5,10 +5,6 @@ import type {
   SocialLinkRow,
   TestimonialRow,
 } from "@/admin/types/database";
-import {
-  isLegacyProjectIdParam,
-  projectSlugFromTitle,
-} from "@/lib/projectPaths";
 import { supabase } from "@/utils/supabase";
 
 export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
@@ -19,32 +15,6 @@ export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
     .order("sort_order", { ascending: true });
   if (error) throw error;
   return (data ?? []) as ProjectRow[];
-}
-
-export async function fetchPublishedProjectById(id: string): Promise<ProjectRow | null> {
-  const { data, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("id", id)
-    .eq("status", "published")
-    .maybeSingle();
-  if (error) throw error;
-  return (data as ProjectRow | null) ?? null;
-}
-
-export async function fetchPublishedProjectBySlug(
-  slug: string,
-): Promise<ProjectRow | null> {
-  if (isLegacyProjectIdParam(slug)) {
-    return fetchPublishedProjectById(slug);
-  }
-  const projects = await fetchPublishedProjects();
-  return projects.find((row) => projectSlugFromTitle(row.title) === slug) ?? null;
-}
-
-export async function fetchPublishedProjectSlugs(): Promise<string[]> {
-  const projects = await fetchPublishedProjects();
-  return projects.map((row) => projectSlugFromTitle(row.title));
 }
 
 export async function fetchPublishedTestimonials(): Promise<TestimonialRow[]> {

@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
-import { projectSlugFromTitle } from "@/lib/projectPaths";
 import { invalidatePublicDataCache } from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import {
@@ -95,7 +94,7 @@ function ProjectRowActions({
           </Link>
           {row.status === "published" ? (
             <a
-              href={`/projects/${projectSlugFromTitle(row.title)}`}
+              href="/projects"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.05] hover:text-white"
