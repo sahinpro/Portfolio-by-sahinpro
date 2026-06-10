@@ -23,7 +23,7 @@ export const GetStartedSection = (): JSX.Element => {
       >
         <Card className="relative w-full rounded-[20px] overflow-hidden border border-[#ffffff1a] glass-card">
           <img
-            className="absolute top-0 left-0 lg:left-[77px] w-[1158px] h-[404px] pointer-events-none object-none"
+            className="absolute top-0 left-0 lg:left-[77px] w-[1158px] h-[480px] md:h-[425px] pointer-events-none object-none"
             alt=""
             src="/Group 24.png"
             aria-hidden
