@@ -9,6 +9,9 @@ import { ProjectDetailModal } from "@/views/ProjectsPage/ProjectDetailModal";
 import {
   layoutSpring,
   projectCardActionBtn,
+  projectCardGlassBlur,
+  projectCardGlassGradient,
+  projectCardGlassMask,
   projectCardInnerFrame,
   projectCardShell,
 } from "@/views/ProjectsPage/projectModalStyles";
@@ -144,6 +147,16 @@ export const ProjectCard = ({
           >
             <ArrowUpRight className="h-4 w-4" aria-hidden />
           </motion.button>
+
+          <div className={projectCardGlassGradient} />
+
+          <div
+            className={projectCardGlassBlur}
+            style={{
+              maskImage: projectCardGlassMask,
+              WebkitMaskImage: projectCardGlassMask,
+            }}
+          />
 
           <div className={cn(projectCardInnerFrame, "z-[2]")} />
 
