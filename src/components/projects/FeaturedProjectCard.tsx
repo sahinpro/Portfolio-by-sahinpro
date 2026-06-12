@@ -1,15 +1,10 @@
 "use client";
 
-import type { PublicProject } from "@/data/projectUiMapper";
 import { PublicImage } from "@/components/ui/PublicImage";
+import type { PublicProject } from "@/data/projectUiMapper";
 import { projectImageAlt } from "@/lib/seoImages";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  ExternalLink,
-  Github,
-  Tag,
-} from "lucide-react";
+import { ArrowRight, ExternalLink, Github, Tag } from "lucide-react";
 import Link from "next/link";
 
 const categoryBadge: Record<string, string> = {
@@ -94,7 +89,7 @@ export const FeaturedProjectCard = ({
             {project.title}
           </h3>
           <p className="text-zinc-300 leading-relaxed line-clamp-4 mb-6">
-            {project.longDescription || project.description}
+            {project.description}
           </p>
 
           <div className="flex flex-wrap gap-2 mb-6">

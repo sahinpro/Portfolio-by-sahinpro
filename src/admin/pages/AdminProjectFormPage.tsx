@@ -85,9 +85,8 @@ export function AdminProjectFormPage({
   const { showToast } = useToast();
   const isNewRoute = !routeId || routeId === "new";
   const [loadingRow, setLoadingRow] = useState(!isNewRoute);
-  const persistedRowFields = useRef<{ stats: unknown; year: string | null }>({
+  const persistedRowFields = useRef<{ stats: unknown }>({
     stats: [],
-    year: null,
   });
 
   const form = useForm<ProjectFormValues>({
@@ -115,7 +114,7 @@ export function AdminProjectFormPage({
 
   useEffect(() => {
     if (!isNewRoute) return;
-    persistedRowFields.current = { stats: [], year: null };
+    persistedRowFields.current = { stats: [] };
     reset(defaultEmptyProjectForm());
   }, [isNewRoute, reset]);
 
@@ -139,7 +138,6 @@ export function AdminProjectFormPage({
       const row = data as ProjectRow;
       persistedRowFields.current = {
         stats: row.stats ?? [],
-        year: row.year ?? null,
       };
       reset(projectRowToFormValues(row));
     })();
@@ -166,7 +164,6 @@ export function AdminProjectFormPage({
           try {
             const payload = formValuesToProjectPayload(raw, {
               stats: [],
-              year: null,
             });
             const { error } = await supabase.from("projects").insert(payload);
             if (error) {
@@ -200,7 +197,6 @@ export function AdminProjectFormPage({
         const values = getValues();
         const payload = formValuesToProjectPayload(values, {
           stats: persistedRowFields.current.stats,
-          year: persistedRowFields.current.year,
         });
         const { error } = await supabase
           .from("projects")
@@ -260,7 +256,6 @@ export function AdminProjectFormPage({
 
     const payload = formValuesToProjectPayload(values, {
       stats: isNewRoute ? [] : persistedRowFields.current.stats,
-      year: isNewRoute ? null : persistedRowFields.current.year,
     });
 
     if (isNewRoute) {

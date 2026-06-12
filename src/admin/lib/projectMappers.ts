@@ -24,7 +24,9 @@ function parseExtensions(raw: unknown): string[] {
 
 export function parseScreenshotUrls(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
-  return raw.filter((x): x is string => typeof x === "string" && x.trim().length > 0);
+  return raw.filter(
+    (x): x is string => typeof x === "string" && x.trim().length > 0,
+  );
 }
 
 const LEGACY_CATEGORY_MAP: Record<string, ProjectFormValues["category"]> = {
@@ -46,7 +48,9 @@ function normalizeCategory(cat: string): ProjectFormValues["category"] {
  * (`Full Stack`, `Frontend`, `CMS`). The form always uses the new labels via `normalizeCategory` on read.
  * Note: `SaaS Platform` maps to `Full Stack` until the DB allows the new strings.
  */
-export function formCategoryToDbStorage(cat: ProjectFormValues["category"]): string {
+export function formCategoryToDbStorage(
+  cat: ProjectFormValues["category"],
+): string {
   switch (cat) {
     case "Web Development":
       return "Full Stack";
@@ -117,14 +121,15 @@ export function projectRowToFormValues(row: ProjectRow): ProjectFormValues {
 export type ProjectPayloadOptions = {
   /** Preserve DB stats when the form no longer edits them */
   stats?: unknown;
-  year?: string | null;
 };
 
 export function formValuesToProjectPayload(
   values: ProjectFormValues,
   options?: ProjectPayloadOptions,
 ): Omit<ProjectRow, "id" | "created_at" | "updated_at"> {
-  const screenshotClean = values.screenshot_urls.map((u) => u.trim()).filter(Boolean);
+  const screenshotClean = values.screenshot_urls
+    .map((u) => u.trim())
+    .filter(Boolean);
   const techClean = values.technologies.map((t) => t.trim()).filter(Boolean);
   const extClean = values.cms_extensions.map((e) => e.trim()).filter(Boolean);
   const desc = values.description.trim();
@@ -132,7 +137,6 @@ export function formValuesToProjectPayload(
   const base = {
     title: values.title.trim() || "Untitled project",
     description: desc || null,
-    long_description: desc || null,
     image_url: values.image_url.trim() || null,
     screenshot_urls: screenshotClean,
     technologies: values.build_kind === "custom" ? techClean : [],
@@ -142,7 +146,6 @@ export function formValuesToProjectPayload(
     status: values.status,
     sort_order: values.sort_order,
     stats: options?.stats ?? [],
-    year: options?.year ?? null,
   };
 
   if (values.build_kind === "custom") {
@@ -194,25 +197,36 @@ export function defaultEmptyProjectForm(): ProjectFormValues {
 }
 
 /** True when the new-project form differs from defaults (user entered something). */
-export function shouldPersistNewProjectDraft(values: ProjectFormValues): boolean {
+export function shouldPersistNewProjectDraft(
+  values: ProjectFormValues,
+): boolean {
   const d = defaultEmptyProjectForm();
   const t = (s: string) => s.trim();
   if (t(values.title) !== t(d.title)) return true;
   if (t(values.description) !== t(d.description)) return true;
   if (t(values.image_url) !== t(d.image_url)) return true;
   if (values.screenshot_urls.length !== d.screenshot_urls.length) return true;
-  if (values.screenshot_urls.some((u, i) => t(u) !== t(d.screenshot_urls[i] ?? ""))) return true;
+  if (
+    values.screenshot_urls.some(
+      (u, i) => t(u) !== t(d.screenshot_urls[i] ?? ""),
+    )
+  )
+    return true;
   if (values.category !== d.category) return true;
   if (t(values.live_url) !== t(d.live_url)) return true;
   if (values.build_kind !== d.build_kind) return true;
   if (values.custom_framework !== d.custom_framework) return true;
   if (t(values.github_url) !== t(d.github_url)) return true;
   if (values.technologies.length !== d.technologies.length) return true;
-  if (values.technologies.some((x, i) => t(x) !== t(d.technologies[i] ?? ""))) return true;
+  if (values.technologies.some((x, i) => t(x) !== t(d.technologies[i] ?? "")))
+    return true;
   if (values.cms_platform !== d.cms_platform) return true;
   if (t(values.cms_theme_name) !== t(d.cms_theme_name)) return true;
   if (values.cms_extensions.length !== d.cms_extensions.length) return true;
-  if (values.cms_extensions.some((x, i) => t(x) !== t(d.cms_extensions[i] ?? ""))) return true;
+  if (
+    values.cms_extensions.some((x, i) => t(x) !== t(d.cms_extensions[i] ?? ""))
+  )
+    return true;
   if (values.featured !== d.featured) return true;
   if (values.status !== d.status) return true;
   if (values.sort_order !== d.sort_order) return true;

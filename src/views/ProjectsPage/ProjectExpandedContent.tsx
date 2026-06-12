@@ -1,8 +1,5 @@
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
-import {
-  bodyParagraphs,
-  projectBuildLabel,
-} from "@/lib/projectMeta";
+import { bodyParagraphs, projectBuildLabel } from "@/lib/projectMeta";
 import { ExternalLink, Github } from "lucide-react";
 
 export function ProjectExpandedContent({
@@ -10,9 +7,7 @@ export function ProjectExpandedContent({
 }: {
   project: PublicProjectDetail;
 }): JSX.Element {
-  const paragraphs = bodyParagraphs(
-    project.longDescription?.trim() || project.description || "",
-  );
+  const paragraphs = bodyParagraphs(project.description || "");
   const buildLabel = projectBuildLabel(project);
 
   return (

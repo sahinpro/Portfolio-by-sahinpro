@@ -25,7 +25,6 @@ export type ProjectRow = {
   id: string;
   title: string;
   description: string | null;
-  long_description: string | null;
   image_url: string | null;
   technologies: string[];
   /** Display label; legacy rows may still use old bucket names until migrated. */
@@ -34,7 +33,6 @@ export type ProjectRow = {
   github_url: string | null;
   featured: boolean;
   status: ProjectStatus;
-  year: string | null;
   sort_order: number;
   stats: unknown;
   build_kind: ProjectBuildKind;
