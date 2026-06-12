@@ -15,6 +15,7 @@ export type PublicProject = {
   liveUrl: string | null;
   githubUrl: string | null;
   featured: boolean;
+  year?: string;
 };
 
 export type PublicFrameworkSlug = ProjectRow["custom_framework"];
