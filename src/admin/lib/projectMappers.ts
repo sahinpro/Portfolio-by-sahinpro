@@ -131,7 +131,9 @@ export function formValuesToProjectPayload(
     .map((u) => u.trim())
     .filter(Boolean);
   const techClean = values.technologies.map((t) => t.trim()).filter(Boolean);
-  const extClean = values.cms_extensions.map((e) => e.trim()).filter(Boolean);
+  const extClean = (values.cms_extensions ?? [])
+    .map((e) => (e ?? "").trim())
+    .filter(Boolean);
   const desc = values.description.trim();
 
   const base = {
@@ -170,7 +172,7 @@ export function formValuesToProjectPayload(
     custom_framework_label: null,
     custom_stack_facets: null,
     cms_platform: values.cms_platform as ProjectRow["cms_platform"],
-    cms_theme_name: values.cms_theme_name.trim() || null,
+    cms_theme_name: (values.cms_theme_name ?? "").trim() || null,
     cms_extensions: extClean.length ? extClean : null,
   };
 }
@@ -221,10 +223,13 @@ export function shouldPersistNewProjectDraft(
   if (values.technologies.some((x, i) => t(x) !== t(d.technologies[i] ?? "")))
     return true;
   if (values.cms_platform !== d.cms_platform) return true;
-  if (t(values.cms_theme_name) !== t(d.cms_theme_name)) return true;
-  if (values.cms_extensions.length !== d.cms_extensions.length) return true;
+  if (t(values.cms_theme_name ?? "") !== t(d.cms_theme_name ?? "")) return true;
+  if ((values.cms_extensions ?? []).length !== (d.cms_extensions ?? []).length)
+    return true;
   if (
-    values.cms_extensions.some((x, i) => t(x) !== t(d.cms_extensions[i] ?? ""))
+    (values.cms_extensions ?? []).some(
+      (x, i) => t(x ?? "") !== t((d.cms_extensions ?? [""])[i] ?? ""),
+    )
   )
     return true;
   if (values.featured !== d.featured) return true;

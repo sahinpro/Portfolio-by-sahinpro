@@ -43,6 +43,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/utils/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Controller,
@@ -50,7 +51,6 @@ import {
   useForm,
   useWatch,
 } from "react-hook-form";
-import { useRouter } from "next/navigation";
 
 const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
@@ -613,7 +613,7 @@ export function AdminProjectFormPage({
               </div>
               <div>
                 <label className={labelCls}>Plugin names (optional)</label>
-                {cmsExtensions.map((_, index) => (
+                {(cmsExtensions ?? []).map((_, index) => (
                   <div key={index} className="flex gap-2 mb-2">
                     <Input
                       className={field}
@@ -622,7 +622,7 @@ export function AdminProjectFormPage({
                     <button
                       type="button"
                       onClick={() => {
-                        const next = cmsExtensions.filter(
+                        const next = (cmsExtensions ?? []).filter(
                           (__, j) => j !== index,
                         );
                         setValue("cms_extensions", next.length ? next : [""], {
@@ -639,7 +639,7 @@ export function AdminProjectFormPage({
                 <button
                   type="button"
                   onClick={() =>
-                    setValue("cms_extensions", [...cmsExtensions, ""], {
+                    setValue("cms_extensions", [...(cmsExtensions ?? []), ""], {
                       shouldValidate: true,
                     })
                   }

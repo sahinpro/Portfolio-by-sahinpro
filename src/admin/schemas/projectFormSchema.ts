@@ -18,13 +18,13 @@ const baseProjectFields = {
   /** Required: pick Custom code or CMS; branch-specific fields validate separately. */
   build_kind: z.enum(["custom", "cms"]),
   /** Validated only when `build_kind === "custom"` (string avoids enum errors on CMS rows). */
-  custom_framework: z.string(),
+  custom_framework: z.string().nullable().optional(),
   github_url: z.string(),
   technologies: z.array(z.string()),
   /** Validated only when `build_kind === "cms"`. */
-  cms_platform: z.string(),
-  cms_theme_name: z.string(),
-  cms_extensions: z.array(z.string()),
+  cms_platform: z.string().nullable().optional(),
+  cms_theme_name: z.string().nullable().optional(),
+  cms_extensions: z.array(z.string().nullable()).optional(),
   featured: z.boolean(),
   status: z.enum(["draft", "published", "trash"]),
   sort_order: z.coerce.number().int(),
@@ -44,7 +44,7 @@ function refineProjectForm(
   if (data.status === "trash") return;
 
   if (data.build_kind === "custom") {
-    const fw = data.custom_framework.trim();
+    const fw = (data.custom_framework ?? "").trim();
     if (!fw) {
       ctx.addIssue({
         code: "custom",
@@ -69,7 +69,7 @@ function refineProjectForm(
     return;
   }
 
-  const platform = data.cms_platform.trim();
+  const platform = (data.cms_platform ?? "").trim();
   if (!platform) {
     ctx.addIssue({
       code: "custom",
