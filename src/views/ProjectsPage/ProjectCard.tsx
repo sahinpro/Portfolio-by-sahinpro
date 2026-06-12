@@ -109,7 +109,7 @@ export const ProjectCard = ({
           active && "pointer-events-none",
         )}
       >
-        <div className="relative h-[22rem] overflow-hidden">
+        <div className="relative h-[24rem] overflow-hidden">
           <motion.div
             layoutId={layoutId("project-image")}
             transition={transition}

@@ -24,8 +24,7 @@ export const modalShell = cn(
   "flex max-h-[min(90vh,880px)] flex-col isolate shadow-2xl shadow-black/60",
 );
 
-export const modalHeroHeight =
-  "h-[17.5rem] bg-[#111] sm:h-[22rem] md:h-[26rem]";
+export const modalHeroHeight = " bg-[#111] h-[20rem] lg:h-[32rem]";
 
 export const layoutSpring = {
   type: "spring" as const,
