@@ -38,7 +38,7 @@
 .carousel-item-image img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center center;
   display: block;
   user-select: none;
@@ -73,7 +73,9 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  transition: background-color 150ms, transform 150ms;
+  transition:
+    background-color 150ms,
+    transform 150ms;
 }
 
 .carousel-indicator.active {
