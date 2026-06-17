@@ -2,6 +2,7 @@
 
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import { ProjectCard } from "@/views/ProjectsPage/ProjectCard";
 import { ProjectsPageSkeleton } from "@/views/ProjectsPage/ProjectsPageSkeleton";
@@ -23,6 +24,7 @@ const fadeUp = (delay = 0) => ({
 
 export const ProjectsPage = (): JSX.Element => {
   const { projects, loading, error } = usePublishedProjects();
+  const isMobile = useIsMobile();
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
 
@@ -161,13 +163,21 @@ export const ProjectsPage = (): JSX.Element => {
         {filteredProjects.length > 0 && (
           <section className="w-full pb-28">
             <div className="container mx-auto px-4">
-              <LayoutGroup>
+              {isMobile ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredProjects.map((p, i) => (
                     <ProjectCard key={p.id} project={p} index={i} />
                   ))}
                 </div>
-              </LayoutGroup>
+              ) : (
+                <LayoutGroup>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {filteredProjects.map((p, i) => (
+                      <ProjectCard key={p.id} project={p} index={i} />
+                    ))}
+                  </div>
+                </LayoutGroup>
+              )}
             </div>
           </section>
         )}

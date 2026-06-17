@@ -7,7 +7,7 @@ import { projectImageAlt } from "@/lib/seoImages";
 import { cn } from "@/lib/utils";
 import { ProjectDetailModal } from "@/views/ProjectsPage/ProjectDetailModal";
 import {
-  layoutSpring,
+  morphGpuLayer,
   projectCardActionBtn,
   projectCardGlassBlur,
   projectCardGlassGradient,
@@ -15,12 +15,14 @@ import {
   projectCardInnerFrame,
   projectCardShell,
 } from "@/views/ProjectsPage/projectModalStyles";
-import { motion, useReducedMotion } from "framer-motion";
+import { useProjectMorphMotion } from "@/views/ProjectsPage/useProjectMorphMotion";
+import { motion } from "framer-motion";
 import { ArrowUpRight, Star } from "lucide-react";
 import {
   useCallback,
   useId,
   useState,
+  type ComponentPropsWithoutRef,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
 } from "react";
@@ -55,13 +57,23 @@ export const ProjectCard = ({
   const [showModal, setShowModal] = useState(false);
   const uid = useId();
   const layoutKey = `${project.id}-${uid}`;
-  const reduceMotion = useReducedMotion();
+  const { transition, layoutId, useMorph, isMobile } =
+    useProjectMorphMotion(layoutKey);
   const techPreview = project.technologies.slice(0, 4).join(" · ");
   const categoryLine = projectCategoryLine(project);
 
-  const transition = reduceMotion ? { duration: 0.2 } : layoutSpring;
-  const layoutId = (id: string) =>
-    reduceMotion ? undefined : `${id}-${layoutKey}`;
+  const CardShell = useMorph ? motion.article : "article";
+  const ImageShell = useMorph ? motion.div : "div";
+  const ActionBtn = useMorph ? motion.button : "button";
+  const TitleShell = useMorph ? motion.h3 : "h3";
+  const CategoryShell = useMorph ? motion.p : "p";
+
+  const morphProps = (
+    id: "project-card" | "project-image" | "project-btn" | "project-title" | "project-category",
+  ): ComponentPropsWithoutRef<typeof motion.article> =>
+    useMorph
+      ? { layoutId: layoutId(id), transition }
+      : {};
 
   const openModal = useCallback(() => {
     setShowModal(true);
@@ -89,9 +101,8 @@ export const ProjectCard = ({
         />
       ) : null}
 
-      <motion.article
-        layoutId={layoutId("project-card")}
-        transition={transition}
+      <CardShell
+        {...morphProps("project-card")}
         role="button"
         tabIndex={active ? -1 : 0}
         aria-expanded={active}
@@ -107,12 +118,13 @@ export const ProjectCard = ({
           projectCardShell,
           "group cursor-pointer transition-[border-color] duration-300 hover:border-white/[0.12]",
           active && "pointer-events-none",
+          active && useMorph && morphGpuLayer,
+          active && !useMorph && "invisible opacity-0",
         )}
       >
         <div className="relative h-[24rem] overflow-hidden">
-          <motion.div
-            layoutId={layoutId("project-image")}
-            transition={transition}
+          <ImageShell
+            {...morphProps("project-image")}
             className="absolute inset-0"
           >
             <PublicImage
@@ -122,7 +134,7 @@ export const ProjectCard = ({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03] max-md:group-hover:scale-100"
             />
-          </motion.div>
+          </ImageShell>
 
           {project.featured ? (
             <div
@@ -134,10 +146,9 @@ export const ProjectCard = ({
             </div>
           ) : null}
 
-          <motion.button
+          <ActionBtn
             type="button"
-            layoutId={layoutId("project-btn")}
-            transition={transition}
+            {...morphProps("project-btn")}
             aria-label={`Open ${project.title}`}
             onClick={(e: ReactMouseEvent<HTMLButtonElement>) => {
               e.stopPropagation();
@@ -146,7 +157,7 @@ export const ProjectCard = ({
             className={cn(projectCardActionBtn, "absolute top-4 right-4 z-[5]")}
           >
             <ArrowUpRight className="h-4 w-4" aria-hidden />
-          </motion.button>
+          </ActionBtn>
 
           <div className={projectCardGlassGradient} />
 
@@ -160,22 +171,25 @@ export const ProjectCard = ({
 
           <div className={cn(projectCardInnerFrame, "z-[2]")} />
 
-          <div className="absolute inset-x-0 bottom-0 z-[3] px-5 pb-5">
-            <motion.h3
-              layoutId={layoutId("project-title")}
-              transition={transition}
+          <div
+            className={cn(
+              "absolute inset-x-0 bottom-0 z-[3] px-5 pb-5",
+              active && useMorph && "opacity-0 transition-opacity duration-150",
+            )}
+          >
+            <TitleShell
+              {...morphProps("project-title")}
               className="text-[1.45rem] font-bold leading-tight text-white"
             >
               {project.title}
-            </motion.h3>
+            </TitleShell>
 
-            <motion.p
-              layoutId={layoutId("project-category")}
-              transition={transition}
+            <CategoryShell
+              {...morphProps("project-category")}
               className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#00BB7D]"
             >
               {categoryLine}
-            </motion.p>
+            </CategoryShell>
 
             <p className="mt-2.5 line-clamp-2 text-[13px] leading-relaxed text-white/55">
               {project.description}
@@ -191,11 +205,11 @@ export const ProjectCard = ({
             ) : null}
           </div>
         </div>
-      </motion.article>
+      </CardShell>
     </>
   );
 
-  if (!animateOnView) {
+  if (!animateOnView || isMobile) {
     return card;
   }
 
