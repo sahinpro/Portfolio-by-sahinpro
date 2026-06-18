@@ -5,11 +5,15 @@ import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import { ProjectCard } from "@/views/ProjectsPage/ProjectCard";
+import {
+  PROJECTS_PER_PAGE,
+  ProjectsPagination,
+} from "@/views/ProjectsPage/ProjectsPagination";
 import { ProjectsPageSkeleton } from "@/views/ProjectsPage/ProjectsPageSkeleton";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { LayoutGroup, motion } from "framer-motion";
 import { Layers, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export type { PublicProject as Project } from "@/data/projectUiMapper";
 
@@ -27,6 +31,8 @@ export const ProjectsPage = (): JSX.Element => {
   const isMobile = useIsMobile();
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const gridRef = useRef<HTMLElement>(null);
 
   const categories = useMemo(() => {
     const set = new Set(projects.map((p) => p.category).filter(Boolean));
@@ -50,6 +56,31 @@ export const ProjectsPage = (): JSX.Element => {
       return a.featured ? -1 : 1;
     });
   }, [projects, filter, search]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProjects.length / PROJECTS_PER_PAGE),
+  );
+
+  const paginatedProjects = useMemo(() => {
+    const start = (page - 1) * PROJECTS_PER_PAGE;
+    return filteredProjects.slice(start, start + PROJECTS_PER_PAGE);
+  }, [filteredProjects, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filter, search]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const countForCategory = (cat: string) =>
     cat === "All"
@@ -161,23 +192,33 @@ export const ProjectsPage = (): JSX.Element => {
         </section>
 
         {filteredProjects.length > 0 && (
-          <section className="w-full pb-28">
-            <div className="container mx-auto px-4">
+          <section
+            ref={gridRef}
+            id="projects-grid"
+            className="w-full scroll-mt-28 pb-28"
+          >
+            <div className="container mx-auto space-y-10 px-4">
               {isMobile ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {filteredProjects.map((p, i) => (
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                  {paginatedProjects.map((p, i) => (
                     <ProjectCard key={p.id} project={p} index={i} />
                   ))}
                 </div>
               ) : (
                 <LayoutGroup>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {filteredProjects.map((p, i) => (
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                    {paginatedProjects.map((p, i) => (
                       <ProjectCard key={p.id} project={p} index={i} />
                     ))}
                   </div>
                 </LayoutGroup>
               )}
+
+              <ProjectsPagination
+                page={page}
+                totalItems={filteredProjects.length}
+                onPageChange={handlePageChange}
+              />
             </div>
           </section>
         )}
@@ -207,6 +248,7 @@ export const ProjectsPage = (): JSX.Element => {
                 onClick={() => {
                   setFilter("All");
                   setSearch("");
+                  setPage(1);
                 }}
                 className="mt-2 text-sm text-violet-400 hover:text-violet-300 transition-colors"
               >

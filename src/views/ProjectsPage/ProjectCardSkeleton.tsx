@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { PROJECTS_PER_PAGE } from "@/views/ProjectsPage/ProjectsPagination";
 import {
   projectCardInnerFrame,
   projectCardShell,
@@ -38,12 +39,10 @@ export function ProjectCardSkeleton({
   );
 }
 
-const SKELETON_COUNT = 6;
-
 export function ProjectCardSkeletonGrid(): JSX.Element {
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+      {Array.from({ length: PROJECTS_PER_PAGE }).map((_, i) => (
         <ProjectCardSkeleton key={i} index={i} />
       ))}
     </div>
