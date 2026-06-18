@@ -34,9 +34,11 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react";
-import { Fragment, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AdminListPagination } from "@/admin/components/ui/AdminListPagination";
+import { LIST_PAGE_SIZE } from "@/lib/pagination";
 
 type Filter = "all" | "published" | "draft" | "trash";
 type DeleteDialogState = { id: string; permanent: boolean } | null;
@@ -200,11 +202,13 @@ export function AdminProjectsListPage({
 }): JSX.Element {
   const pathname = usePathname();
   const prevPathRef = useRef<string | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const { showToast } = useToast();
   const [rows, setRows] = useState<ProjectRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteDialog, setDeleteDialog] = useState<DeleteDialogState>(null);
   const [bulkAction, setBulkAction] = useState<BulkAction>("none");
@@ -242,19 +246,44 @@ export function AdminProjectsListPage({
   useEffect(() => {
     setSelectedIds([]);
     setBulkAction("none");
+    setPage(1);
   }, [filter, search]);
 
-  const filtered = rows.filter((r) => {
-    if (filter === "all" && r.status === "trash") return false;
-    if (filter !== "all" && r.status !== filter) return false;
-    if (!search.trim()) return true;
-    const q = search.trim().toLowerCase();
-    const desc = (r.description ?? "").toLowerCase();
-    const cat = (r.category ?? "").toLowerCase();
-    return (
-      r.title.toLowerCase().includes(q) || desc.includes(q) || cat.includes(q)
-    );
-  });
+  const filtered = useMemo(
+    () =>
+      rows.filter((r) => {
+        if (filter === "all" && r.status === "trash") return false;
+        if (filter !== "all" && r.status !== filter) return false;
+        if (!search.trim()) return true;
+        const q = search.trim().toLowerCase();
+        const desc = (r.description ?? "").toLowerCase();
+        const cat = (r.category ?? "").toLowerCase();
+        return (
+          r.title.toLowerCase().includes(q) ||
+          desc.includes(q) ||
+          cat.includes(q)
+        );
+      }),
+    [rows, filter, search],
+  );
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / LIST_PAGE_SIZE));
+
+  const paginated = useMemo(() => {
+    const start = (page - 1) * LIST_PAGE_SIZE;
+    return filtered.slice(start, start + LIST_PAGE_SIZE);
+  }, [filtered, page]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const filteredIds = filtered.map((row) => row.id);
   const allFilteredSelected =
@@ -490,7 +519,10 @@ export function AdminProjectsListPage({
         </div>
       </div>
 
-      <div className="min-w-0 overflow-hidden rounded-xl border border-white/[0.08]">
+      <div
+        ref={listRef}
+        className="min-w-0 scroll-mt-6 overflow-hidden rounded-xl border border-white/[0.08]"
+      >
         <div className="hidden border-b border-white/[0.06] bg-white/[0.02] md:block">
           <div className={`grid gap-0 px-4 py-2.5 md:grid ${projectsGridCols}`}>
             <span className="flex items-center">
@@ -527,7 +559,7 @@ export function AdminProjectsListPage({
 
         {loading ? (
           <div>
-            {Array.from({ length: 5 }).map((_, index) => (
+            {Array.from({ length: LIST_PAGE_SIZE }).map((_, index) => (
               <Fragment key={index}>
                 <div className="border-b border-white/[0.04] px-4 py-3.5 last:border-b-0 md:hidden">
                   <div className="animate-pulse">
@@ -568,7 +600,7 @@ export function AdminProjectsListPage({
           <EmptyState search={search} filter={filter} />
         ) : (
           <div>
-            {filtered.map((row) => (
+            {paginated.map((row) => (
               <div
                 key={row.id}
                 className={`group border-b border-white/[0.04] last:border-b-0 transition-colors ${
@@ -720,11 +752,13 @@ export function AdminProjectsListPage({
         )}
 
         {!loading && filtered.length > 0 ? (
-          <div className="border-t border-white/[0.06] bg-white/[0.01] px-4 py-3">
-            <p className="text-xs tabular-nums text-white/25">
-              {filtered.length} of {counts[filter]} project
-              {counts[filter] !== 1 ? "s" : ""}
-            </p>
+          <div className="border-t border-white/[0.06] bg-white/[0.01] px-4 py-4">
+            <AdminListPagination
+              page={page}
+              totalItems={filtered.length}
+              onPageChange={handlePageChange}
+              aria-label="Admin projects pagination"
+            />
           </div>
         ) : null}
       </div>
