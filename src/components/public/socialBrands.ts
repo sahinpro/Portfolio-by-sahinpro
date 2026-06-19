@@ -9,6 +9,8 @@ export const SOCIAL_BRAND: Record<string, { brandColor: string; bg: string }> =
     youtube: { brandColor: "#ff0000", bg: "hover:bg-red-500/20" },
     instagram: { brandColor: "#e4405f", bg: "hover:bg-pink-500/15" },
     telegram: { brandColor: "#26A5E4", bg: "hover:bg-[#26A5E4]/20" },
+    medium: { brandColor: "#ffffff", bg: "hover:bg-white/15" },
+    hashnode: { brandColor: "#2962FF", bg: "hover:bg-[#2962FF]/20" },
     twitter: { brandColor: "#e7e9ea", bg: "hover:bg-white/15" },
     x: { brandColor: "#e7e9ea", bg: "hover:bg-white/15" },
     mail: { brandColor: "#a78bfa", bg: "hover:bg-violet-500/20" },
@@ -29,6 +31,12 @@ export function getSocialLinkIconKey(link: SocialLinkRow): string {
 
   if (/twitter\.com|x\.com/i.test(url)) return "twitter";
   if (platform.includes("twitter") || platform === "x") return "twitter";
+
+  if (/medium\.com/i.test(url)) return "medium";
+  if (platform.includes("medium")) return "medium";
+
+  if (/hashnode\.(dev|com)/i.test(url)) return "hashnode";
+  if (platform.includes("hashnode")) return "hashnode";
 
   if (/^https?:\/\//i.test(raw)) {
     if (/telegram|t\.me/i.test(raw)) return "telegram";

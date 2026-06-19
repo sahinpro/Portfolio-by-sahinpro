@@ -26,7 +26,6 @@ export function AdminSocialLinksPage(): JSX.Element {
   const [rows, setRows] = useState<SocialLinkRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [drafts, setDrafts] = useState<Record<string, Partial<SocialLinkRow>>>({});
-  const [savingId, setSavingId] = useState<string | null>(null);
   const [savingAll, setSavingAll] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -58,7 +57,7 @@ export function AdminSocialLinksPage(): JSX.Element {
   const merged = (r: SocialLinkRow): SocialLinkRow => ({ ...r, ...d(r.id) });
 
   const hasDrafts = Object.keys(drafts).length > 0;
-  const isBusy = savingAll || savingId !== null || deletingId !== null;
+  const isBusy = savingAll || deletingId !== null;
 
   const saveAll = async () => {
     const dirtyIds = Object.keys(drafts);
@@ -101,34 +100,6 @@ export function AdminSocialLinksPage(): JSX.Element {
       dirtyIds.length === 1 ? "Saved 1 link" : `Saved ${dirtyIds.length} links`,
     );
     setDrafts({});
-    void load();
-  };
-
-  const saveRow = async (r: SocialLinkRow) => {
-    const m = merged(r);
-    setSavingId(r.id);
-    const { error } = await supabase
-      .from("social_links")
-      .update({
-        platform: m.platform,
-        url: m.url,
-        icon: m.icon,
-        visible: m.visible,
-        sort_order: m.sort_order,
-      })
-      .eq("id", r.id);
-    setSavingId(null);
-    if (error) {
-      showToast(formatSocialLinkError(error), "error");
-      return;
-    }
-    invalidatePublicDataCache();
-    showToast("Saved");
-    setDrafts((prev) => {
-      const next = { ...prev };
-      delete next[r.id];
-      return next;
-    });
     void load();
   };
 
@@ -209,7 +180,7 @@ export function AdminSocialLinksPage(): JSX.Element {
               <th className="px-3 py-2 min-w-[200px]">Icon / image</th>
               <th className="px-3 py-2">Order</th>
               <th className="px-3 py-2">Visible</th>
-              <th className="px-3 py-2 w-24" />
+              <th className="px-3 py-2 w-12" />
             </tr>
           </thead>
           <tbody>
@@ -262,26 +233,15 @@ export function AdminSocialLinksPage(): JSX.Element {
                     />
                   </td>
                   <td className="px-3 py-2">
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        disabled={isBusy}
-                        onClick={() => void saveRow(r)}
-                        className="p-2 rounded-lg text-white/60 hover:bg-white/[0.08] hover:text-white disabled:opacity-50"
-                        title="Save row"
-                      >
-                        <Save className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isBusy}
-                        onClick={() => void deleteRow(r)}
-                        className="p-2 rounded-lg text-white/50 hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50"
-                        title="Delete row"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      onClick={() => void deleteRow(r)}
+                      className="p-2 rounded-lg text-white/50 hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50"
+                      title="Delete row"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </td>
                 </tr>
               );
