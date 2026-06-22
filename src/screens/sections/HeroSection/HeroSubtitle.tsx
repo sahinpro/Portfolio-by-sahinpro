@@ -6,7 +6,7 @@ export const HeroSubtitle = (): JSX.Element => {
       {PROFILE.heroSubtitleLines.map((text) => (
         <p
           key={text}
-          className="section-hero-subtitle block font-bold leading-[3.5rem] tracking-[-0.2px] text-3xl lg:text-[42px] text-violet-200"
+          className="section-hero-subtitle block font-bold tracking-[-0.2px] text-3xl lg:text-[42px] text-violet-200 leading-[3.5rem]"
         >
           {text}
         </p>

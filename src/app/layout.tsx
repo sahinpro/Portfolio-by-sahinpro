@@ -1,10 +1,13 @@
-import { SiteStructuredDataScript } from "@/components/public/SiteStructuredDataScript";
-import { inter, monteCarlo } from "@/lib/fonts";
-import { DEFAULT_META_DESCRIPTION, DEFAULT_META_TITLE } from "@/lib/seoDefaults";
-import { OG_IMAGE } from "@/lib/seoImages";
-import { getSiteUrl } from "@/constants/site";
-import type { Metadata, Viewport } from "next";
 import { PublicLayoutShell } from "@/components/layout/PublicLayoutShell";
+import { SiteStructuredDataScript } from "@/components/public/SiteStructuredDataScript";
+import { getSiteUrl } from "@/constants/site";
+import { inter, monteCarlo } from "@/lib/fonts";
+import {
+  DEFAULT_META_DESCRIPTION,
+  DEFAULT_META_TITLE,
+} from "@/lib/seoDefaults";
+import { OG_IMAGE } from "@/lib/seoImages";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 /** ISR for public routes (1 h). Keep in sync with REVALIDATE_SECONDS in @/lib/revalidate. */
@@ -21,11 +24,17 @@ export const metadata: Metadata = {
     icon: [
       { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
       { url: "/icons/favicon-48x48.png", sizes: "48x48", type: "image/png" },
-      { url: "/icons/favicon-192x192.png", sizes: "192x192", type: "image/png" },
+      {
+        url: "/icons/favicon-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
       { url: "/favicon.ico", sizes: "48x48" },
     ],
     shortcut: "/icons/favicon-48x48.png",
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   openGraph: {
     images: [
@@ -77,9 +86,9 @@ export default function RootLayout({
           >
             <h1>Sahin Alam — Full Stack Developer</h1>
             <p>
-              Full Stack Developer from Bangladesh specializing in React, Next.js,
-              WordPress, WooCommerce, and Shopify. Explore the portfolio at{" "}
-              <a href="https://sahin.pro.bd/">sahin.pro.bd</a>.
+              Full Stack Developer from Bangladesh specializing in React,
+              Next.js, WordPress, WooCommerce, and Shopify. Explore the
+              portfolio at <a href="https://sahin.pro.bd/">sahin.pro.bd</a>.
             </p>
             <nav aria-label="Primary">
               <ul>

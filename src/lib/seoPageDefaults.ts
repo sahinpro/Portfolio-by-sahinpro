@@ -1,5 +1,9 @@
 import { DEFAULT_OG_IMAGE_PATH } from "@/constants/site";
-import { DEFAULT_KEYWORDS, DEFAULT_META_DESCRIPTION, DEFAULT_META_TITLE } from "@/lib/seoDefaults";
+import {
+  DEFAULT_KEYWORDS,
+  DEFAULT_META_DESCRIPTION,
+  DEFAULT_META_TITLE,
+} from "@/lib/seoDefaults";
 
 export const SEO_ADMIN_PAGES = [
   "/",
@@ -31,28 +35,32 @@ export const SEO_PAGE_DEFAULTS: Record<SeoAdminPage, SeoPageDefaults> = {
     meta_description:
       "Learn about Sahin Alam — Full Stack Developer from Bangladesh. Experience with React, Next.js, WordPress, WooCommerce, and Shopify for agencies and founders worldwide.",
     og_image: DEFAULT_OG_IMAGE_PATH,
-    keywords: "Sahin Alam, About, Full Stack Developer, React, Next.js, WordPress",
+    keywords:
+      "Sahin Alam, About, Full Stack Developer, React, Next.js, WordPress",
   },
   "/projects": {
     meta_title: "Projects | Sahin Alam — Portfolio Work",
     meta_description:
       "Selected client projects: WordPress stores, WooCommerce, Shopify, React and Next.js apps. E-commerce, CMS, and custom web development.",
     og_image: DEFAULT_OG_IMAGE_PATH,
-    keywords: "Portfolio, Projects, Web Development, React, Next.js, WordPress, WooCommerce",
+    keywords:
+      "Portfolio, Projects, Web Development, React, Next.js, WordPress, WooCommerce",
   },
   "/services": {
     meta_title: "Services | Sahin Alam — Web Development",
     meta_description:
       "Full stack web development services: React & Next.js apps, WordPress & WooCommerce stores, Shopify, performance, SEO, and ongoing support.",
     og_image: DEFAULT_OG_IMAGE_PATH,
-    keywords: "Web Development Services, React, Next.js, WordPress, WooCommerce, Shopify",
+    keywords:
+      "Web Development Services, React, Next.js, WordPress, WooCommerce, Shopify",
   },
   "/contact": {
     meta_title: "Contact | Sahin Alam — Hire a Full Stack Developer",
     meta_description:
       "Get in touch with Sahin Alam for your next website or web app. Available for freelance and agency projects worldwide.",
     og_image: DEFAULT_OG_IMAGE_PATH,
-    keywords: "Contact, Hire Developer, Full Stack Developer, Freelance Web Developer",
+    keywords:
+      "Contact, Hire Developer, Full Stack Developer, Freelance Web Developer",
   },
 };
 

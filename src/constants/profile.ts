@@ -2,49 +2,52 @@
 export const PROFILE = {
   name: "Sahin Alam",
   role: "Full Stack Developer",
-  headline: "Full Stack Developer · React · Next.js · WordPress · Shopify",
+  headline: "Full Stack Developer · React · Next.js · WordPress CMS",
   tagline: "Building fast, modern web experiences",
   /** Hero gradient lines    stack/role only; tagline is separate plain text */
   heroSubtitleLines: [
     "Full Stack Developer",
-    "React · Next.js · WordPress · Shopify",
+    "React · Next.js · WordPress CMS & WooCommerce",
   ],
-  location: "Dhaka, Bangladesh",
-  workLocation: "Sunamganj, Sylhet, Bangladesh",
+  location: "Sylhet, Bangladesh",
   email: "sahinweb@proton.me",
   phone: "+8801791992313",
   whatsappUrl: "https://wa.me/8801791992313",
-  linkedIn: "https://www.linkedin.com/in/sahincoder",
+  linkedIn: "https://www.linkedin.com/in/sahinpro",
   portfolioUrl: "https://sahin.pro.bd/",
   yearsExperience: "3+",
   projectsDelivered: "200+",
   /** Outcome-focused    hero prose (left column only) */
-  bio: "I partner with agencies and founders to ship polished sites and stores    from launch through long-term support, with a focus on speed and maintainability.",
+  bio: " I'm a Full Stack Developer at We Next Coder, delivering 200+ WordPress, WooCommerce projects plus modern React & Next.js products like payment platforms.",
   /** Bullet highlights for hero code panel    complements {@link bio}, not duplicated */
   codeHighlights: [
-    "E-commerce & CMS builds at scale",
-    "React / Next.js product development",
-    "Launch, optimization & long-term support",
+    "JavaScript Fundamentals & Modern Web Development.",
+    "React, Next.js, WordPress & WooCommerce.",
+    "200+ projects delivered for clients worldwide under Next Coder Agency.",
   ],
   aboutIntro:
-    "Since March 2023 I've been a Full Stack Web Developer at We Next Coder, delivering 200+ WordPress, WooCommerce, and Shopify projects plus modern Next.js products like payment platforms. I also work independently for local and international clients    always focused on clean code, fast performance, and outcomes you can measure.",
+    "Since March 2023 I've been a Full Stack Web Developer at We Next Coder, delivering 200+ WordPress, WooCommerce, and Shopify projects plus modern Next.js products like payment platforms. I also work independently for local and international clients  always focused on clean code , focused on JavaScript fundamentals, fast performance, and outcomes you can measure.",
   journeyDescription:
     "Three years shipping real client work    WordPress, WooCommerce, and Shopify at scale, plus Next.js products, Figma/PSD builds, and long-term support.",
   imageCaption:
-    "Full Stack developer from Bangladesh    WordPress, Shopify, WooCommerce, React, and Next.js for teams worldwide.",
+    "Full Stack developer from Bangladesh    WordPress, WooCommerce, React, and Next.js for teams worldwide.",
   certifications: [
     "Introduction to Programming Using HTML and CSS",
     "Best Straight To The Point WordPress Course",
-    "JavaScript (Intermediate) Certificate",
   ],
-  topSkills: ["JavaScript", "React.js", "TypeScript"],
+  topSkills: [
+    "JavaScript",
+    "React",
+    "Next.js",
+    "Node.js",
+    "WordPress",
+    "WooCommerce",
+  ],
 } as const;
 
 /** Superseded hero copy still stored in site settings    map to {@link PROFILE.bio}. */
 export const LEGACY_HERO_DESCRIPTIONS = [
-  "Web Designer & Developer specializing in WordPress, now diving into Full Stack Web Development.",
-  "Web Designer & Developer specializing in WordPress, now diving into Full Stack Web Development",
-  "Full Stack Developer specializing in WordPress, Shopify, React, and Next.js    building modern web apps and e-commerce stores for clients worldwide.",
+  "Full Stack Developer specializing in WordPress, Shopify, React, and Next.js building modern web apps and e-commerce stores for clients worldwide.",
 ] as const;
 
 export function resolveHeroDescription(stored: string | undefined): string {

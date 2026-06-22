@@ -4,13 +4,13 @@ import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
+import { FooterSection } from "@/screens/sections/FooterSection";
 import { ProjectCard } from "@/views/ProjectsPage/ProjectCard";
+import { ProjectsPageSkeleton } from "@/views/ProjectsPage/ProjectsPageSkeleton";
 import {
   PROJECTS_PER_PAGE,
   ProjectsPagination,
 } from "@/views/ProjectsPage/ProjectsPagination";
-import { ProjectsPageSkeleton } from "@/views/ProjectsPage/ProjectsPageSkeleton";
-import { FooterSection } from "@/screens/sections/FooterSection";
 import { LayoutGroup, motion } from "framer-motion";
 import { Layers, Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -93,7 +93,10 @@ export const ProjectsPage = (): JSX.Element => {
 
   if (error && projects.length === 0) {
     return (
-      <main id="main-content" className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+      <main
+        id="main-content"
+        className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect"
+      >
         <div className="relative z-[1] flex flex-col w-full">
           <Header />
           <div className="w-full flex-1 pt-40 pb-24 text-center text-red-400/80 text-sm px-4">
@@ -107,7 +110,10 @@ export const ProjectsPage = (): JSX.Element => {
   }
 
   return (
-    <main id="main-content" className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
+    <main
+      id="main-content"
+      className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect"
+    >
       <div className="relative z-[1] flex flex-col w-full">
         <Header />
 
