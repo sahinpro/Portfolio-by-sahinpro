@@ -9,4 +9,4 @@ export const DEFAULT_META_DESCRIPTION =
 export const DEFAULT_OG_IMAGE = OG_IMAGE.url;
 
 export const DEFAULT_KEYWORDS =
-  "Sahin Alam, Full Stack Developer, React, Next.js, TypeScript, WordPress, WooCommerce, Web Developer, Portfolio, Bangladesh";
+  "Sahin Alam, Full Stack Developer, React, Next.js, JavaScript, WordPress, WooCommerce, Web Developer, Portfolio, Bangladesh";

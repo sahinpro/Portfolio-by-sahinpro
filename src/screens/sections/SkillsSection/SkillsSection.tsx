@@ -18,7 +18,7 @@ const skillsCards: BentoCardProps[] = [
     color: "#0d0d0d",
     title: "Full Stack Development",
     description:
-      "Responsive interfaces and production-ready pages from design handoff    React, Next.js, and TypeScript.",
+      "Responsive interfaces and production-ready pages from design handoff — React, Next.js, and JavaScript.",
     image: "/bentocardImage/full-stack.webp",
   },
   {

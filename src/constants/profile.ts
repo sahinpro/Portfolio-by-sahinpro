@@ -1,36 +1,39 @@
-/** Canonical public profile    aligned with LinkedIn / resume (May 2026). */
+/** Canonical public profile — aligned with LinkedIn / resume (May 2026). */
 export const PROFILE = {
   name: "Sahin Alam",
   role: "Full Stack Developer",
-  headline: "Full Stack Developer · React · Next.js · WordPress CMS",
+  headline: "Full Stack Developer · React · Next.js · WordPress",
   tagline: "Building fast, modern web experiences",
-  /** Hero gradient lines    stack/role only; tagline is separate plain text */
+  /** Hero gradient lines — stack/role only; tagline is separate plain text */
   heroSubtitleLines: [
     "Full Stack Developer",
-    "React · Next.js · WordPress CMS & WooCommerce",
+    "React · Next.js · WordPress & WooCommerce",
   ],
   location: "Sylhet, Bangladesh",
+  workLocation: "Sunamganj, Sylhet, Bangladesh",
   email: "sahinweb@proton.me",
   phone: "+8801791992313",
   whatsappUrl: "https://wa.me/8801791992313",
-  linkedIn: "https://www.linkedin.com/in/sahinpro",
+  linkedIn: "https://linkedin.com/in/sahinpro",
+  medium: "https://medium.com/@sahinpro",
+  hashnode: "https://sahinpro.hashnode.dev",
   portfolioUrl: "https://sahin.pro.bd/",
   yearsExperience: "3+",
   projectsDelivered: "200+",
-  /** Outcome-focused    hero prose (left column only) */
-  bio: " I'm a Full Stack Developer at We Next Coder, delivering 200+ WordPress, WooCommerce projects plus modern React & Next.js products like payment platforms.",
-  /** Bullet highlights for hero code panel    complements {@link bio}, not duplicated */
+  /** Outcome-focused — hero prose (left column only) */
+  bio: "I'm a Full Stack Developer at We Next Coder, delivering 200+ WordPress, WooCommerce projects plus modern React & Next.js products like payment platforms.",
+  /** Bullet highlights for hero code panel — complements {@link bio}, not duplicated */
   codeHighlights: [
     "JavaScript Fundamentals & Modern Web Development.",
     "React, Next.js, WordPress & WooCommerce.",
     "200+ projects delivered for clients worldwide under Next Coder Agency.",
   ],
   aboutIntro:
-    "Since March 2023 I've been a Full Stack Web Developer at We Next Coder, delivering 200+ WordPress, WooCommerce, and Shopify projects plus modern Next.js products like payment platforms. I also work independently for local and international clients  always focused on clean code , focused on JavaScript fundamentals, fast performance, and outcomes you can measure.",
+    "Since March 2023 I've been a Full Stack Web Developer at We Next Coder, delivering 200+ WordPress, WooCommerce, and Shopify projects plus modern Next.js products like payment platforms. I also work independently for local and international clients — always focused on clean code, JavaScript fundamentals, fast performance, and outcomes you can measure.",
   journeyDescription:
-    "Three years shipping real client work    WordPress, WooCommerce, and Shopify at scale, plus Next.js products, Figma/PSD builds, and long-term support.",
+    "Three years shipping real client work — WordPress, WooCommerce, and Shopify at scale, plus Next.js products, Figma/PSD builds, and long-term support.",
   imageCaption:
-    "Full Stack developer from Bangladesh    WordPress, WooCommerce, React, and Next.js for teams worldwide.",
+    "Full Stack developer from Bangladesh — WordPress, WooCommerce, React, and Next.js for teams worldwide.",
   certifications: [
     "Introduction to Programming Using HTML and CSS",
     "Best Straight To The Point WordPress Course",
@@ -45,7 +48,7 @@ export const PROFILE = {
   ],
 } as const;
 
-/** Superseded hero copy still stored in site settings    map to {@link PROFILE.bio}. */
+/** Superseded hero copy still stored in site settings — map to {@link PROFILE.bio}. */
 export const LEGACY_HERO_DESCRIPTIONS = [
   "Full Stack Developer specializing in WordPress, Shopify, React, and Next.js building modern web apps and e-commerce stores for clients worldwide.",
 ] as const;
@@ -68,11 +71,11 @@ export const PROFILE_TYPEWRITER_FALLBACK = [
   "React · Next.js · WordPress · Shopify",
 ] as const;
 
-/** Frameworks, languages, and styling    typical “stack” items */
+/** Frameworks, languages, and styling — typical “stack” items */
 export const PROFILE_STACK = [
   "React",
   "Next.js",
-  "TypeScript",
+  "JavaScript",
   "Node.js",
   "MongoDB",
   "Tailwind CSS",

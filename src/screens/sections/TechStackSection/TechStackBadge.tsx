@@ -18,22 +18,33 @@ import {
   SiWordpress,
 } from "react-icons/si";
 
-const ICON_MAP: Record<string, IconType> = {
-  SiJavascript,
-  SiReact,
-  SiNextdotjs,
-  SiVite,
-  SiTailwindcss,
-  SiShadcnui,
-  SiNodedotjs,
-  SiExpress,
-  SiWordpress,
-  SiWoo,
-  SiPhp,
-  SiMongodb,
-  SiGit,
-  SiFigma,
-  SiSupabase,
+type StackGlyph = (props: {
+  className?: string;
+  style?: React.CSSProperties;
+}) => JSX.Element;
+
+const asGlyph = (Icon: IconType): StackGlyph =>
+  function StackGlyphIcon({ className, style }) {
+    const Glyph = Icon as React.FC<{ className?: string; style?: React.CSSProperties }>;
+    return <Glyph className={className} style={style} />;
+  };
+
+const ICON_MAP: Record<string, StackGlyph> = {
+  SiJavascript: asGlyph(SiJavascript),
+  SiReact: asGlyph(SiReact),
+  SiNextdotjs: asGlyph(SiNextdotjs),
+  SiVite: asGlyph(SiVite),
+  SiTailwindcss: asGlyph(SiTailwindcss),
+  SiShadcnui: asGlyph(SiShadcnui),
+  SiNodedotjs: asGlyph(SiNodedotjs),
+  SiExpress: asGlyph(SiExpress),
+  SiWordpress: asGlyph(SiWordpress),
+  SiWoo: asGlyph(SiWoo),
+  SiPhp: asGlyph(SiPhp),
+  SiMongodb: asGlyph(SiMongodb),
+  SiGit: asGlyph(SiGit),
+  SiFigma: asGlyph(SiFigma),
+  SiSupabase: asGlyph(SiSupabase),
 };
 
 type TechStackBadgeProps = {

@@ -16,7 +16,7 @@ const faqItems = [
   {
     question: "What technologies do you specialize in?",
     answer:
-      "JavaScript, React, Next.js, TypeScript, WordPress, WooCommerce, Shopify, and Figma-to-web builds. See the Skills section above or the services page for a full breakdown.",
+      "JavaScript, React, Next.js, Node.js, WordPress, WooCommerce, Shopify, and Figma-to-web builds. See the Skills section above or the services page for a full breakdown.",
   },
   {
     question: "How long does a typical project take?",

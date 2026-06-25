@@ -8,7 +8,7 @@
       "technologies": ["React", "Next.js", "Node.js", "MongoDB", "Stripe"],
       "role": "Full Stack Developer",
       "liveUrl": "https://example-ecommerce.com",
-      "githubUrl": "https://github.com/sahincoderbd/ecommerce-platform",
+      "githubUrl": "https://github.com/sahinpro/ecommerce-platform",
       "featured": true,
       "details": "Built a scalable e-commerce platform handling 1000+ daily users with responsive design and secure payment processing."
     },
@@ -20,7 +20,7 @@
       "technologies": ["React", "Tailwind CSS", "Figma", "JavaScript"],
       "role": "Full Stack Developer & Designer",
       "liveUrl": "https://example-portfolio.com",
-      "githubUrl": "https://github.com/sahincoderbd/portfolio",
+      "githubUrl": "https://github.com/sahinpro/portfolio",
       "featured": true,
       "details": "Designed and developed a modern portfolio website with advanced animations, dark mode, and optimized performance."
     },
@@ -32,7 +32,7 @@
       "technologies": ["React", "Firebase", "Tailwind CSS", "JavaScript"],
       "role": "Full Stack Developer",
       "liveUrl": "https://example-tasks.com",
-      "githubUrl": "https://github.com/sahincoderbd/task-app",
+      "githubUrl": "https://github.com/sahinpro/task-app",
       "featured": false,
       "details": "Built a real-time task management app with Firebase backend, supporting teams and project collaboration."
     },
@@ -56,7 +56,7 @@
       "technologies": ["React", "Node.js", "Express", "MongoDB", "Stripe"],
       "role": "Full Stack Developer",
       "liveUrl": "https://example-restaurant.com",
-      "githubUrl": "https://github.com/sahincoderbd/restaurant-booking",
+      "githubUrl": "https://github.com/sahinpro/restaurant-booking",
       "featured": true,
       "details": "Created a complete restaurant booking system with real-time table management, payment processing, and admin panel."
     },
@@ -68,14 +68,14 @@
       "technologies": ["Next.js", "Node.js", "MongoDB", "Tailwind CSS"],
       "role": "Full Stack Developer",
       "liveUrl": "https://example-blog.com",
-      "githubUrl": "https://github.com/sahincoderbd/blog-platform",
+      "githubUrl": "https://github.com/sahinpro/blog-platform",
       "featured": false,
       "details": "Developed a scalable blog platform with SEO optimization, social sharing, and content management features."
     }
   ],
   "projectStats": {
     "totalProjects": 200,
-    "experience": "2+",
+    "experience": "3+",
     "satisfaction": 100,
     "technologies": 15
   },
@@ -105,53 +105,7 @@
       "skills": ["Git", "REST APIs", "SEO Optimization", "Responsive Design"]
     }
   },
-  "testimonials": [
-    {
-      "id": 1,
-      "name": "Ahmed Hassan",
-      "company": "Digital Marketing Agency",
-      "title": "CEO",
-      "image": "/avatar-32px.png",
-      "content": "Sahin delivered an exceptional e-commerce platform for our client. His attention to detail, technical expertise, and communication were outstanding. Highly recommend for any web development project!",
-      "rating": 5
-    },
-    {
-      "id": 2,
-      "name": "Fatima Khan",
-      "company": "Startup Hub",
-      "title": "Product Manager",
-      "image": "/avatar-32px.png",
-      "content": "Working with Sahin was a game-changer for our project. He understood our requirements perfectly and delivered a high-quality solution on time. His problem-solving skills are impressive.",
-      "rating": 5
-    },
-    {
-      "id": 3,
-      "name": "Muhammad Ali",
-      "company": "E-Commerce Business",
-      "title": "Owner",
-      "image": "/avatar-32px.png",
-      "content": "Sahin transformed our old website into a modern, responsive platform. Our sales increased by 40% after the redesign. He's a true professional who cares about results.",
-      "rating": 5
-    },
-    {
-      "id": 4,
-      "name": "Sophia Rodriguez",
-      "company": "Tech Consulting",
-      "title": "Project Director",
-      "image": "/avatar-32px.png",
-      "content": "Sahin's expertise in full-stack development is evident in every project. He's detail-oriented, communicative, and always delivers quality work. We've worked together on multiple projects successfully.",
-      "rating": 5
-    },
-    {
-      "id": 5,
-      "name": "James Wilson",
-      "company": "Creative Studio",
-      "title": "Creative Director",
-      "image": "/avatar-32px.png",
-      "content": "Converting our Figma designs to WordPress was seamless with Sahin. He maintained the pixel-perfect accuracy and added extra features we didn't even think about. Fantastic work!",
-      "rating": 5
-    }
-  ],
+  "testimonials": [],
   "experience": [
     {
       "id": 1,
@@ -159,7 +113,7 @@
       "position": "Full Stack Web Developer",
       "startDate": "March 2023",
       "endDate": "Present",
-      "location": "Sunamganj District, Sylhet, Bangladesh",
+      "location": "Sunamganj, Sylhet, Bangladesh",
       "description": "Built and delivered 200+ client websites using WordPress, WooCommerce, and Shopify; developed pkpayplus.com (Next.js payment gateway); converted 200+ Figma/PSD designs; and improved page load speed 40%+ through Core Web Vitals optimization.",
       "responsibilities": [
         "Deliver WordPress, WooCommerce, Shopify, membership, business, and landing page projects at scale",

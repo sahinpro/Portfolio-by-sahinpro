@@ -20,6 +20,11 @@ const SkillsSection = lazy(() =>
     default: m.SkillsSection,
   })),
 );
+const TechStackSection = lazy(() =>
+  import("@/screens/sections/TechStackSection").then((m) => ({
+    default: m.TechStackSection,
+  })),
+);
 const CareerJourneySection = lazy(() =>
   import("@/screens/sections/CareerJourneySection").then((m) => ({
     default: m.CareerJourneySection,
@@ -28,11 +33,6 @@ const CareerJourneySection = lazy(() =>
 const DevelopmentProcessSection = lazy(() =>
   import("@/screens/sections/DevelopmentProcessSection").then((m) => ({
     default: m.DevelopmentProcessSection,
-  })),
-);
-const CustomerStoriesSection = lazy(() =>
-  import("@/screens/sections/CustomerStoriesSection").then((m) => ({
-    default: m.CustomerStoriesSection,
   })),
 );
 const WhyChooseUsSection = lazy(() =>
@@ -76,6 +76,11 @@ export const HomePage = (): JSX.Element => {
           <SkillsSection />
         </Suspense>
       </LazySection>
+      <LazySection minHeight={420}>
+        <Suspense fallback={null}>
+          <TechStackSection />
+        </Suspense>
+      </LazySection>
       <LazySection minHeight={500}>
         <Suspense fallback={null}>
           <CareerJourneySection />
@@ -84,11 +89,6 @@ export const HomePage = (): JSX.Element => {
       <LazySection minHeight={400}>
         <Suspense fallback={null}>
           <DevelopmentProcessSection />
-        </Suspense>
-      </LazySection>
-      <LazySection minHeight={520}>
-        <Suspense fallback={null}>
-          <CustomerStoriesSection />
         </Suspense>
       </LazySection>
       <LazySection minHeight={480}>

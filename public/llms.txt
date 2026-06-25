@@ -5,18 +5,20 @@
 
 ## About
 
-Sahin Alam is a Full Stack Web Developer based in Dhaka, Bangladesh. He builds modern web applications, e-commerce stores, and CMS-powered websites for agencies and founders worldwide.
+Sahin Alam is a Full Stack Web Developer based in Sylhet, Bangladesh. He builds modern web applications, e-commerce stores, and CMS-powered websites for agencies and founders worldwide.
 
 ## Contact
 
 - Email: sahinweb@proton.me
 - Phone: +8801791992313
-- LinkedIn: https://www.linkedin.com/in/sahincoder
+- LinkedIn: https://linkedin.com/in/sahinpro
+- Medium: https://medium.com/@sahinpro
+- Hashnode: https://sahinpro.hashnode.dev
 - WhatsApp: https://wa.me/8801791992313
 
 ## Main pages
 
-- [Home](https://sahin.pro.bd/): Portfolio landing page with featured projects, skills, testimonials, and FAQ.
+- [Home](https://sahin.pro.bd/): Portfolio landing page with featured projects, skills, and FAQ.
 - [About](https://sahin.pro.bd/about): Professional background, career journey, certifications, and resume download.
 - [Projects](https://sahin.pro.bd/projects): Published portfolio work — WordPress, WooCommerce, Shopify, React, and Next.js builds.
 - [Services](https://sahin.pro.bd/services): Web development, e-commerce, CMS, and performance/SEO services offered.
@@ -24,7 +26,7 @@ Sahin Alam is a Full Stack Web Developer based in Dhaka, Bangladesh. He builds m
 
 ## Expertise
 
-- React, Next.js, TypeScript, Node.js
+- JavaScript, React, Next.js, Node.js
 - WordPress, WooCommerce, Shopify
 - Tailwind CSS, responsive design
 - Performance optimization and technical SEO

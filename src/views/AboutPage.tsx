@@ -62,7 +62,7 @@ const highlights: {
     icon: Zap,
     title: "React & Next.js",
     description:
-      "Modern full stack apps and platforms    including payment gateways with Next.js, TypeScript, and MongoDB.",
+      "Modern full stack apps and platforms — including payment gateways with Next.js, JavaScript, and MongoDB.",
     tag: "Full Stack",
     color: "from-yellow-500/10 to-lime-500/5",
     border: "border-yellow-500/20",
