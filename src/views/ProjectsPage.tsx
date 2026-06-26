@@ -2,7 +2,6 @@
 
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { ProjectCard } from "@/views/ProjectsPage/ProjectCard";
@@ -11,7 +10,7 @@ import {
   PROJECTS_PER_PAGE,
   ProjectsPagination,
 } from "@/views/ProjectsPage/ProjectsPagination";
-import { LayoutGroup, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Layers, Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -28,7 +27,6 @@ const fadeUp = (delay = 0) => ({
 
 export const ProjectsPage = (): JSX.Element => {
   const { projects, loading, error } = usePublishedProjects();
-  const isMobile = useIsMobile();
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -204,21 +202,11 @@ export const ProjectsPage = (): JSX.Element => {
             className="w-full scroll-mt-28 pb-28"
           >
             <div className="container mx-auto space-y-10 px-4">
-              {isMobile ? (
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                  {paginatedProjects.map((p, i) => (
-                    <ProjectCard key={p.id} project={p} index={i} />
-                  ))}
-                </div>
-              ) : (
-                <LayoutGroup>
-                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                    {paginatedProjects.map((p, i) => (
-                      <ProjectCard key={p.id} project={p} index={i} />
-                    ))}
-                  </div>
-                </LayoutGroup>
-              )}
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {paginatedProjects.map((p, i) => (
+                  <ProjectCard key={p.id} project={p} index={i} />
+                ))}
+              </div>
 
               <ProjectsPagination
                 page={page}

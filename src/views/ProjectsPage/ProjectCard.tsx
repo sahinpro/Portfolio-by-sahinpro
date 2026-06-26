@@ -1,32 +1,32 @@
 "use client";
 
-import { PublicImage } from "@/components/ui/PublicImage";
+import { ProjectCardTeaser } from "@/components/projects/ProjectCardTeaser";
+import { ProjectMorphHero } from "@/components/projects/ProjectMorphHero";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { projectCategoryLine } from "@/lib/projectMeta";
-import { projectImageAlt } from "@/lib/seoImages";
 import { scrollViewport } from "@/constants/scrollMotion";
 import { cn } from "@/lib/utils";
-import { ProjectDetailModal } from "@/views/ProjectsPage/ProjectDetailModal";
+import { ProjectExpandedContent } from "@/views/ProjectsPage/ProjectExpandedContent";
 import {
-  morphGpuLayer,
   projectCardActionBtn,
-  projectCardGlassBlur,
-  projectCardGlassGradient,
-  projectCardGlassMask,
   projectCardInnerFrame,
   projectCardShell,
+  modalShell,
 } from "@/views/ProjectsPage/projectModalStyles";
-import { useProjectMorphMotion } from "@/views/ProjectsPage/useProjectMorphMotion";
+import "@/views/ProjectsPage/projectModalMorph.css";
+import { useProjectCssMorph } from "@/views/ProjectsPage/useProjectCssMorph";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Star } from "lucide-react";
+import { ArrowUpRight, X } from "lucide-react";
 import {
   useCallback,
-  useId,
+  useEffect,
+  useRef,
   useState,
-  type ComponentPropsWithoutRef,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
 } from "react";
+import { createPortal } from "react-dom";
 
 const fadeUp = (delay = 0) => ({
   hidden: { opacity: 0, y: 24 },
@@ -48,62 +48,168 @@ export const ProjectCard = ({
   index = 0,
   animateOnView = true,
 }: ProjectCardProps): JSX.Element => {
-  const [active, setActive] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const uid = useId();
-  const layoutKey = `${project.id}-${uid}`;
-  const { transition, layoutId, useMorph, isMobile } =
-    useProjectMorphMotion(layoutKey);
-  const techPreview = project.technologies.slice(0, 4).join(" · ");
+  const cardRef = useRef<HTMLElement>(null);
+  const shellRef = useRef<HTMLElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [galleryReady, setGalleryReady] = useState(false);
+  const isMobile = useIsMobile();
+
+  const {
+    phase,
+    isOpen,
+    dataOpen,
+    morphStyle,
+    open,
+    close,
+    onShellTransitionEnd,
+  } = useProjectCssMorph(cardRef, shellRef);
+
   const categoryLine = projectCategoryLine(project);
+  const techPreview = project.technologies.slice(0, 4).join(" · ");
+  const hasGallery = project.screenshots.length > 0;
 
-  const CardShell = useMorph ? motion.article : "article";
-  const ImageShell = useMorph ? motion.div : "div";
-  const ActionBtn = useMorph ? motion.button : "button";
-  const TitleShell = useMorph ? motion.h3 : "h3";
-  const CategoryShell = useMorph ? motion.p : "p";
-
-  const morphProps = (
-    id: "project-card" | "project-image" | "project-btn" | "project-title" | "project-category",
-  ): ComponentPropsWithoutRef<typeof motion.article> =>
-    useMorph
-      ? { layoutId: layoutId(id), transition }
-      : {};
-
-  const openModal = useCallback(() => {
-    setShowModal(true);
-    setActive(true);
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
-  const closeModal = useCallback(() => {
-    setActive(false);
-  }, []);
+  useEffect(() => {
+    if (!isOpen || !hasGallery) {
+      setGalleryReady(false);
+      return;
+    }
 
-  const handleExitComplete = useCallback(() => {
-    setShowModal(false);
-  }, []);
+    if (!dataOpen) {
+      setGalleryReady(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => setGalleryReady(true), 200);
+    return () => window.clearTimeout(timer);
+  }, [isOpen, dataOpen, hasGallery]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isOpen, close]);
+
+  const openModal = useCallback(
+    (event?: ReactMouseEvent | ReactKeyboardEvent) => {
+      event?.stopPropagation();
+      if (!isOpen) open();
+    },
+    [isOpen, open],
+  );
+
+  const morphPanel =
+    isOpen && mounted ? (
+      <>
+        <div
+          className="project-morph-backdrop"
+          data-visible={phase !== "idle" ? "true" : "false"}
+          aria-hidden
+          onClick={close}
+        />
+        <article
+          ref={shellRef}
+          role="dialog"
+          aria-modal="true"
+          aria-expanded={dataOpen}
+          aria-labelledby={`project-modal-title-${project.id}`}
+          className={cn(
+            "project-morph",
+            modalShell,
+            isMobile && "project-morph--mobile",
+          )}
+          data-open={dataOpen ? "true" : "false"}
+          data-closing={phase === "closing" ? "true" : "false"}
+          style={morphStyle}
+          onTransitionEnd={onShellTransitionEnd}
+        >
+          <div className="project-morph-inner">
+            <div className="relative shrink-0">
+              <ProjectMorphHero
+                project={project}
+                galleryReady={galleryReady}
+              />
+              <div className={cn(projectCardInnerFrame, "z-20")} aria-hidden />
+
+              <button
+                type="button"
+                aria-label={`Open ${project.title}`}
+                aria-expanded={dataOpen}
+                tabIndex={-1}
+                className={cn(projectCardActionBtn, "project-morph-trigger")}
+              >
+                <ArrowUpRight className="h-4 w-4" aria-hidden />
+              </button>
+
+              <button
+                type="button"
+                aria-label={`Close ${project.title}`}
+                className={cn(projectCardActionBtn, "project-morph-close")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  close();
+                }}
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </button>
+
+              {!dataOpen ? (
+                <ProjectCardTeaser
+                  className="project-morph-teaser"
+                  title={project.title}
+                  categoryLine={categoryLine}
+                  description={project.description}
+                />
+              ) : null}
+            </div>
+
+            <div className="project-morph-body">
+              <div className="px-5 pb-2 pt-4 sm:px-8 sm:pt-6">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#00BB7D]">
+                  {categoryLine}
+                </p>
+                <h3
+                  id={`project-modal-title-${project.id}`}
+                  className="mt-1 text-xl font-bold leading-tight text-white sm:text-3xl"
+                >
+                  {project.title}
+                </h3>
+              </div>
+              <div className="px-5 pb-6 pt-2 sm:px-8 sm:pb-10">
+                <ProjectExpandedContent project={project} />
+              </div>
+            </div>
+          </div>
+        </article>
+      </>
+    ) : null;
 
   const card = (
     <>
-      {showModal ? (
-        <ProjectDetailModal
-          open={active}
-          project={project}
-          layoutKey={layoutKey}
-          categoryLine={categoryLine}
-          onClose={closeModal}
-          onExitComplete={handleExitComplete}
-        />
-      ) : null}
+      {morphPanel ? createPortal(morphPanel, document.body) : null}
 
-      <CardShell
-        {...morphProps("project-card")}
+      <article
+        ref={cardRef}
         role="button"
-        tabIndex={active ? -1 : 0}
-        aria-expanded={active}
-        onClick={() => !active && openModal()}
+        tabIndex={isOpen ? -1 : 0}
+        aria-expanded={isOpen}
+        onClick={() => !isOpen && openModal()}
         onKeyDown={(e: ReactKeyboardEvent<HTMLElement>) => {
-          if (active) return;
+          if (isOpen) return;
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             openModal();
@@ -111,96 +217,36 @@ export const ProjectCard = ({
         }}
         className={cn(
           projectCardShell,
-          "group cursor-pointer transition-[border-color] duration-300 hover:border-white/[0.12]",
-          active && "pointer-events-none",
-          active && useMorph && morphGpuLayer,
-          active && !useMorph && "invisible opacity-0",
+          "group relative cursor-pointer transition-[border-color] duration-300 hover:border-white/[0.12]",
+          isOpen && "invisible",
         )}
       >
-        <div className="relative h-[24rem] overflow-hidden">
-          <ImageShell
-            {...morphProps("project-image")}
-            className="absolute inset-0"
-          >
-            <PublicImage
-              src={project.image}
-              alt={projectImageAlt(project.title)}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03] max-md:group-hover:scale-100"
-            />
-          </ImageShell>
+        <ProjectMorphHero
+          project={project}
+          showCardGlass
+          imageClassName="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03] max-md:group-hover:scale-100"
+        />
 
-          {project.featured ? (
-            <div
-              className="pointer-events-none absolute top-4 left-4 z-[4] flex items-center gap-1.5 rounded-full
-                border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-300"
-            >
-              <Star className="h-3 w-3 fill-current" aria-hidden />
-              Featured
-            </div>
-          ) : null}
+        <button
+          type="button"
+          aria-label={`Open ${project.title}`}
+          onClick={openModal}
+          className={cn(projectCardActionBtn, "absolute top-4 right-4 z-[5]")}
+        >
+          <ArrowUpRight className="h-4 w-4" aria-hidden />
+        </button>
 
-          <ActionBtn
-            type="button"
-            {...morphProps("project-btn")}
-            aria-label={`Open ${project.title}`}
-            onClick={(e: ReactMouseEvent<HTMLButtonElement>) => {
-              e.stopPropagation();
-              openModal();
-            }}
-            className={cn(projectCardActionBtn, "absolute top-4 right-4 z-[5]")}
-          >
-            <ArrowUpRight className="h-4 w-4" aria-hidden />
-          </ActionBtn>
+        <div className={cn(projectCardInnerFrame, "z-[2]")} aria-hidden />
 
-          <div className={projectCardGlassGradient} />
-
-          <div
-            className={projectCardGlassBlur}
-            style={{
-              maskImage: projectCardGlassMask,
-              WebkitMaskImage: projectCardGlassMask,
-            }}
-          />
-
-          <div className={cn(projectCardInnerFrame, "z-[2]")} />
-
-          <div
-            className={cn(
-              "absolute inset-x-0 bottom-0 z-[3] px-5 pb-5",
-              active && useMorph && "opacity-0 transition-opacity duration-150",
-            )}
-          >
-            <TitleShell
-              {...morphProps("project-title")}
-              className="text-[1.45rem] font-bold leading-tight text-white"
-            >
-              {project.title}
-            </TitleShell>
-
-            <CategoryShell
-              {...morphProps("project-category")}
-              className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#00BB7D]"
-            >
-              {categoryLine}
-            </CategoryShell>
-
-            <p className="mt-2.5 line-clamp-2 text-[13px] leading-relaxed text-white/55">
-              {project.description}
-            </p>
-
-            {techPreview ? (
-              <p className="mt-1.5 line-clamp-1 text-[11px] leading-snug text-white/35">
-                {techPreview}
-                {project.technologies.length > 4
-                  ? ` +${project.technologies.length - 4}`
-                  : ""}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </CardShell>
+        <ProjectCardTeaser
+          className="absolute inset-x-0 bottom-0 z-[3] px-5 pb-5"
+          title={project.title}
+          categoryLine={categoryLine}
+          description={project.description}
+          techPreview={techPreview}
+          extraTechCount={Math.max(0, project.technologies.length - 4)}
+        />
+      </article>
     </>
   );
 

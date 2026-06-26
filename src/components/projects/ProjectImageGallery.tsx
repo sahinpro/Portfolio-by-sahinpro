@@ -3,7 +3,7 @@
 import Carousel, { type CarouselItem } from "@/components/ui/Carousel";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { projectImageAlt } from "@/lib/seoImages";
-import { modalHeroHeight } from "@/views/ProjectsPage/projectModalStyles";
+import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export interface ProjectImageGalleryProps {
@@ -71,7 +71,7 @@ export function ProjectImageGallery({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full ${modalHeroHeight} ${className}`.trim()}
+      className={cn("relative h-full w-full", className)}
     >
       {width > 0 ? (
         <Carousel

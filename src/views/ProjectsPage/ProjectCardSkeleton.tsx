@@ -3,6 +3,7 @@ import { PROJECTS_PER_PAGE } from "@/views/ProjectsPage/ProjectsPagination";
 import {
   projectCardInnerFrame,
   projectCardShell,
+  projectHeroHeight,
 } from "@/views/ProjectsPage/projectModalStyles";
 
 export interface ProjectCardSkeletonProps {
@@ -18,7 +19,7 @@ export function ProjectCardSkeleton({
       className={projectCardShell}
       style={{ animationDelay: `${index * 80}ms` }}
     >
-      <div className="relative h-[24rem] overflow-hidden">
+      <div className={cn("relative overflow-hidden", projectHeroHeight)}>
         <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-white/[0.06] via-white/[0.03] to-white/[0.08]" />
 
         <div className="absolute top-4 right-4 z-[5] h-9 w-9 animate-pulse rounded-full border border-white/10 bg-white/[0.06]" />
