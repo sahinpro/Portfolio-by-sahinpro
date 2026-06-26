@@ -70,7 +70,30 @@ export const heroTiming = {
   socialLinksDelay: 0.52,
   contactSocialDelay: 0.42,
   socialIconStagger: 0.045,
+  /** After hero copy + CTAs; aligns with header settle (~0.5s) */
+  codeEditorDelay: 0.58,
+  /** Defer heavy editor bundle after the shell has faded in */
+  codeEditorDeferMs: {
+    desktop: 1800,
+    mobile: 3800,
+  },
+  /** Pause before typing starts once the live editor mounts */
+  codeEditorTypingDelay: 220,
 } as const;
+
+export const heroCodeEditorReveal = {
+  hidden: { opacity: 0, y: 28, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.64,
+      delay: heroTiming.codeEditorDelay,
+      ease: sectionEase,
+    },
+  },
+};
 
 export const socialLinkStagger = (delay = 0) => ({
   hidden: {},

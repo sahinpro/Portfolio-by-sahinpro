@@ -1,10 +1,14 @@
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
-import { heroTiming } from "@/constants/scrollMotion";
-import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
+import {
+  heroCodeEditorReveal,
+  heroTiming,
+} from "@/constants/scrollMotion";
+import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { AboutCodePlaceholder } from "@/screens/sections/AboutCodeSection";
 import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
+import { motion, useReducedMotion } from "framer-motion";
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 
 const AboutCodeWindow = lazy(() =>
@@ -13,41 +17,51 @@ const AboutCodeWindow = lazy(() =>
   })),
 );
 
-const MOBILE_EDITOR_DEFER_MS = 4500;
-const DESKTOP_EDITOR_DEFER_MS = 2500;
-
 export const HeroSection = (): JSX.Element => {
   const editorRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+  const instantReveal = reduceMotion === true;
+
+  const [editorRevealed, setEditorRevealed] = useState(instantReveal);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
+  const [typingActive, setTypingActive] = useState(false);
 
   useEffect(() => {
-    const el = editorRef.current;
-    if (!el) return;
+    if (instantReveal) {
+      setEditorRevealed(true);
+    }
+  }, [instantReveal]);
 
-    let cancelDefer: (() => void) | undefined;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
+  useEffect(() => {
+    if (!editorRevealed) return;
 
-        const isMobile = window.matchMedia(
-          `(max-width: ${DESKTOP_LAYOUT_BREAKPOINT - 1}px)`,
-        ).matches;
-        const deferMs = isMobile
-          ? MOBILE_EDITOR_DEFER_MS
-          : DESKTOP_EDITOR_DEFER_MS;
+    const isMobile = window.matchMedia(
+      `(max-width: ${DESKTOP_LAYOUT_BREAKPOINT - 1}px)`,
+    ).matches;
+    const deferMs = isMobile
+      ? heroTiming.codeEditorDeferMs.mobile
+      : heroTiming.codeEditorDeferMs.desktop;
 
-        cancelDefer?.();
-        cancelDefer = deferUntilIdle(() => setShowCodeEditor(true), deferMs);
-      },
-      { rootMargin: "160px 0px", threshold: 0.01 },
+    return deferUntilIdle(() => setShowCodeEditor(true), deferMs);
+  }, [editorRevealed]);
+
+  useEffect(() => {
+    if (!showCodeEditor) {
+      setTypingActive(false);
+      return;
+    }
+
+    if (instantReveal) {
+      setTypingActive(true);
+      return;
+    }
+
+    const id = window.setTimeout(
+      () => setTypingActive(true),
+      heroTiming.codeEditorTypingDelay,
     );
-
-    observer.observe(el);
-    return () => {
-      cancelDefer?.();
-      observer.disconnect();
-    };
-  }, []);
+    return () => window.clearTimeout(id);
+  }, [showCodeEditor, instantReveal]);
 
   return (
     <section className="relative w-full overflow-hidden min-h-0 lg:min-h-screen flex items-center pt-24 sm:pt-28 pb-10">
@@ -71,21 +85,26 @@ export const HeroSection = (): JSX.Element => {
             />
           </div>
 
-          <div
+          <motion.div
             ref={editorRef}
+            initial={instantReveal ? false : "hidden"}
+            animate="visible"
+            variants={instantReveal ? undefined : heroCodeEditorReveal}
+            onAnimationComplete={() => {
+              if (!instantReveal) setEditorRevealed(true);
+            }}
             className="relative z-0 w-full min-w-0 lg:w-1/2 aspect-video max-lg:pointer-events-none max-lg:select-none max-lg:origin-top max-lg:scale-[0.98]"
           >
             {showCodeEditor ? (
               <Suspense fallback={<AboutCodePlaceholder className="w-full" />}>
-                <AboutCodeWindow startOnMount />
+                <AboutCodeWindow startOnMount={typingActive} />
               </Suspense>
             ) : (
               <AboutCodePlaceholder className="w-full" />
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
   );
 };
-
