@@ -7,7 +7,10 @@ import {
 export type AboutCodeProfile = {
   name: string;
   role: string;
+  focus: string;
+  mindset: string;
   highlights: string[];
+  certifications: string[];
   stack: string[];
   platforms: string[];
   available: boolean;
@@ -44,32 +47,27 @@ export function parseTypewriterWords(raw: string | undefined): string[] {
 }
 
 function formatStringArray(items: string[]): string {
-  return items.map((item) => `    "${item}",`).join("\n");
+  return items.map((item) => `      "${escapeJsString(item)}",`).join("\n");
 }
 
 export function buildAboutCode(profile: AboutCodeProfile): string {
-  const stackLines = formatStringArray(profile.stack);
-  const platformLines = formatStringArray(profile.platforms);
   const highlightLines = formatStringArray(profile.highlights);
+  const certificationLines = formatStringArray(profile.certifications);
 
-  return `// about.ts    a quick intro
-export const developer = {
-  name: "${escapeJsString(profile.name)}",
-  role: "${escapeJsString(profile.role)}",
-  highlights: [
+  return `class Developer {
+  constructor() {
+    this.name = "${escapeJsString(profile.name)}"
+    this.role = "${escapeJsString(profile.role)}";
+    this.focus = "${escapeJsString(profile.focus)}";
+    this.mindset = "${escapeJsString(profile.mindset)}";
+    this.highlights = [
 ${highlightLines}
-  ],
-  stack: [
-${stackLines}
-  ],
-  platforms: [
-${platformLines}
-  ],
-  available: ${profile.available},
-} as const;
-
-console.log(\`Hello, I'm \${developer.name}! 👋\`);
-console.log(developer.role);`;
+    ];
+    this.certifications = [
+${certificationLines}
+    ];
+  }
+}`;
 }
 
 export function defaultStack(): string[] {

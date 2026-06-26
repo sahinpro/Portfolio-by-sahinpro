@@ -7,28 +7,17 @@ import Header from "@/components/Header";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { PROFILE } from "@/constants/profile";
+import { scrollViewport } from "@/constants/scrollMotion";
 import { env } from "@/lib/env";
 import { loadCalendly } from "@/lib/loadCalendly";
 import { submitContactForm } from "@/lib/submitContact";
+import { cn } from "@/lib/utils";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
-import {
-  CheckIcon,
-  ChevronsUpDown,
-  Clock,
-  Mail,
-  MapPin,
-  MessageCircle,
-  Send,
-} from "lucide-react";
+import { Clock, Mail, MapPin, MessageCircle, Send } from "lucide-react";
 import type { ComponentType } from "react";
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { BsWhatsapp } from "react-icons/bs";
@@ -61,7 +50,7 @@ const contactInfo = [
     icon: BsWhatsapp,
     title: "Chat on WhatsApp",
     value: PROFILE.phone,
-    desc: "WhatsApp is the best way to get in touch with me.",
+    desc: "The fastest way to get in touch with me.",
     href: PROFILE.whatsappUrl,
     color: "text-green-400",
     bg: "bg-blue-500/10",
@@ -76,14 +65,6 @@ const contactInfo = [
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/20",
   },
-];
-
-const budgetOptions = [
-  "< $500",
-  "$500 – $1,500",
-  "$1,500 – $5,000",
-  "$5,000+",
-  "Let's discuss",
 ];
 
 const CONTACT_FORM_SUCCESS_DATE_KEY = "contact_form_success_date";
@@ -208,7 +189,6 @@ export const ContactPage = (): JSX.Element => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedJustNow, setSubmittedJustNow] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [budgetOpen, setBudgetOpen] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -220,15 +200,10 @@ export const ContactPage = (): JSX.Element => {
   const infoRef = useRef<HTMLDivElement>(null);
   const faqRef = useRef<HTMLDivElement>(null);
 
-  const inViewBlock = {
-    once: true,
-    amount: 0.2 as const,
-    margin: "0px 0px -10% 0px" as const,
-  };
-  const headerInV = useInView(headerRef, inViewBlock);
-  const formInV = useInView(formRef, inViewBlock);
-  const infoInV = useInView(infoRef, inViewBlock);
-  const faqInV = useInView(faqRef, inViewBlock);
+  const headerInV = useInView(headerRef, scrollViewport);
+  const formInV = useInView(formRef, scrollViewport);
+  const infoInV = useInView(infoRef, scrollViewport);
+  const faqInV = useInView(faqRef, scrollViewport);
 
   useEffect(() => {
     if (hasAlreadySubmittedToday()) {
@@ -328,9 +303,10 @@ export const ContactPage = (): JSX.Element => {
     applySuccess();
   };
 
-  const inputClass = `w-full px-4 py-3 sm:py-2.5 rounded-xl border border-white/10 bg-white/[0.04]
-    text-white text-base sm:text-sm placeholder-white/25 focus:outline-none focus:border-white/25
-    focus:bg-white/[0.06] transition-all duration-200 h-auto min-h-[44px]`;
+  const inputClass = cn(
+    "h-auto min-h-[44px] px-4 py-3 sm:py-2.5 rounded-xl",
+    "text-white placeholder:text-white/25",
+  );
 
   const renderFaqItem = (faq: (typeof faqs)[number], i: number) => (
     <motion.div
@@ -501,18 +477,30 @@ export const ContactPage = (): JSX.Element => {
                           className={inputClass}
                         />
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
-                          Email address
+
+                      {/* Phone */}
+
+                      <div className="space-y-1.5 w-full min-w-0">
+                        <label
+                          htmlFor="phone"
+                          className="text-xs font-semibold text-white/50 uppercase tracking-widest"
+                        >
+                          Phone number
                         </label>
-                        <Input
-                          name="email"
-                          type="email"
-                          required
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          placeholder="you@example.com"
-                          className={inputClass}
+                        <PhoneInput
+                          id="phone"
+                          value={formData.phone}
+                          onChange={(val: string | undefined) => {
+                            setFormData((p) => ({ ...p, phone: val ?? "" }));
+                            if (phoneError && val && isValidPhoneNumber(val))
+                              setPhoneError(null);
+                          }}
+                          placeholder="Enter a phone number"
+                          defaultCountry="BD"
+                          error={phoneError ?? undefined}
+                          numberInputProps={{
+                            className: "text-white placeholder:text-white/25",
+                          }}
                         />
                       </div>
                     </div>
@@ -536,99 +524,20 @@ export const ContactPage = (): JSX.Element => {
                       />
                     </div>
 
-                    {/* Phone + Budget (50% each, inline) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5 w-full min-w-0">
-                        <label
-                          htmlFor="phone"
-                          className="text-xs font-semibold text-white/50 uppercase tracking-widest"
-                        >
-                          Phone number
-                        </label>
-                        <PhoneInput
-                          id="phone"
-                          value={formData.phone}
-                          onChange={(val: string | undefined) => {
-                            setFormData((p) => ({ ...p, phone: val ?? "" }));
-                            if (phoneError && val && isValidPhoneNumber(val))
-                              setPhoneError(null);
-                          }}
-                          placeholder="Enter a phone number"
-                          defaultCountry="BD"
-                          error={phoneError ?? undefined}
-                          numberInputProps={{
-                            className:
-                              "text-white placeholder:text-white/25 focus:outline-none",
-                          }}
-                        />
-                      </div>
-                      <div className="space-y-1.5 w-full min-w-0">
-                        <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
-                          Budget range
-                        </label>
-                        <Popover open={budgetOpen} onOpenChange={setBudgetOpen}>
-                          <PopoverTrigger asChild>
-                            <button
-                              type="button"
-                              className={`${inputClass} w-full flex items-center justify-between cursor-pointer text-left`}
-                              aria-label="Budget range"
-                              aria-haspopup="listbox"
-                              aria-expanded={budgetOpen}
-                            >
-                              <span
-                                className={
-                                  formData.budget
-                                    ? "text-white"
-                                    : "text-white/40"
-                                }
-                              >
-                                {formData.budget || "Select budget"}
-                              </span>
-                              <ChevronsUpDown className="h-4 w-4 shrink-0 text-white/40" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent
-                            className="w-[var(--radix-popover-trigger-width)] min-w-[260px] max-w-[calc(100vw-2rem)] p-1 border-white/10 bg-[#0d0d0d] text-white rounded-xl shadow-xl shadow-black/40"
-                            align="start"
-                            sideOffset={4}
-                          >
-                            <ul
-                              className="max-h-[240px] overflow-y-auto py-1 touch-pan-y"
-                              role="listbox"
-                            >
-                              {budgetOptions.map((opt) => {
-                                const isSelected = formData.budget === opt;
-                                return (
-                                  <li key={opt}>
-                                    <button
-                                      type="button"
-                                      role="option"
-                                      aria-selected={isSelected}
-                                      className={`w-full flex items-center justify-between rounded-lg px-3 py-3 sm:py-2.5 text-sm text-left transition-colors min-h-[44px] sm:min-h-0
-                                        text-white/90 hover:bg-white/10 hover:text-white active:bg-white/10
-                                        ${isSelected ? "bg-white/10 text-white" : ""}`}
-                                      onClick={() => {
-                                        setFormData((p) => ({
-                                          ...p,
-                                          budget: opt,
-                                        }));
-                                        setBudgetOpen(false);
-                                      }}
-                                    >
-                                      {opt}
-                                      {isSelected && (
-                                        <CheckIcon className="h-4 w-4 shrink-0 text-violet-400" />
-                                      )}
-                                    </button>
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </PopoverContent>
-                        </Popover>
-                      </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+                        Email address
+                      </label>
+                      <Input
+                        name="email"
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="sahinweb@proton.me"
+                        className={inputClass}
+                      />
                     </div>
-
                     {/* Message */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
@@ -757,16 +666,17 @@ export const ContactPage = (): JSX.Element => {
             </motion.div>
 
             {/* Social links */}
-            <motion.div
-              initial="hidden"
-              animate={infoInV ? "visible" : "hidden"}
-              variants={fadeUp(0.35)}
-            >
-              <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-3">
+            <div>
+              <motion.p
+                initial="hidden"
+                animate={infoInV ? "visible" : "hidden"}
+                variants={fadeUp(0.35)}
+                className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-3"
+              >
                 Find me online
-              </p>
-              <SocialLinksRow size="contact" />
-            </motion.div>
+              </motion.p>
+              <SocialLinksRow size="contact" animate={infoInV} />
+            </div>
 
             {/* Quick actions */}
             <motion.div

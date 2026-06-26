@@ -4,6 +4,7 @@ import { PublicImage } from "@/components/ui/PublicImage";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { projectCategoryLine } from "@/lib/projectMeta";
 import { projectImageAlt } from "@/lib/seoImages";
+import { scrollViewport } from "@/constants/scrollMotion";
 import { cn } from "@/lib/utils";
 import { ProjectDetailModal } from "@/views/ProjectsPage/ProjectDetailModal";
 import {
@@ -26,12 +27,6 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
 } from "react";
-
-const cardViewport = {
-  once: true as const,
-  amount: 0.08,
-  margin: "80px 0px 80px 0px",
-};
 
 const fadeUp = (delay = 0) => ({
   hidden: { opacity: 0, y: 24 },
@@ -217,7 +212,7 @@ export const ProjectCard = ({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={cardViewport}
+      viewport={scrollViewport}
       variants={fadeUp(index * 0.08)}
     >
       {card}

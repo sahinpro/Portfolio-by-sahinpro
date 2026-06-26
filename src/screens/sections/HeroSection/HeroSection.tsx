@@ -1,5 +1,6 @@
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
+import { heroTiming } from "@/constants/scrollMotion";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
 import { AboutCodePlaceholder } from "@/screens/sections/AboutCodeSection";
@@ -63,7 +64,11 @@ export const HeroSection = (): JSX.Element => {
               <HeroContent />
             </div>
 
-            <SocialLinksRow size="hero" />
+            <SocialLinksRow
+              size="hero"
+              animate
+              delay={heroTiming.socialLinksDelay}
+            />
           </div>
 
           <div
@@ -83,4 +88,4 @@ export const HeroSection = (): JSX.Element => {
     </section>
   );
 };
-
+

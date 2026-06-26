@@ -23,7 +23,7 @@ export const AboutCodeWindow = ({
   const active = startOnMount || inView;
 
   const { profile, code, terminalLines, loading } = useAboutCodeProfile();
-  const [activeTab, setActiveTab] = useState<EditorTab>("about.ts");
+  const [activeTab, setActiveTab] = useState<EditorTab>("developer.js");
   const [codeComplete, setCodeComplete] = useState(instant);
 
   const markCodeComplete = useCallback(() => setCodeComplete(true), []);

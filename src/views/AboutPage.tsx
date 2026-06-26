@@ -13,6 +13,7 @@ import { PublicImage } from "@/components/ui/PublicImage";
 import { PROFILE } from "@/constants/profile";
 import {
   fadeInUp,
+  heroFadeStep,
   scrollViewport,
   sectionReveal,
 } from "@/constants/scrollMotion";
@@ -99,11 +100,6 @@ const fadeIn = (delay = 0) => ({
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.5, delay } },
 });
-const scrollReveal = {
-  once: true,
-  amount: 0.2 as const,
-  margin: "0px 0px -10% 0px" as const,
-};
 
 const heroStagger = {
   hidden: {},
@@ -128,8 +124,8 @@ export const AboutPage = (): JSX.Element => {
 
   const heroRef = useRef<HTMLDivElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
-  const heroInV = useInView(heroRef, scrollReveal);
-  const highlightInV = useInView(highlightRef, scrollReveal);
+  const heroInV = useInView(heroRef, scrollViewport);
+  const highlightInV = useInView(highlightRef, scrollViewport);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(email).then(() => {
@@ -180,9 +176,7 @@ export const AboutPage = (): JSX.Element => {
                 {PROFILE.aboutIntro}
               </motion.p>
 
-              <motion.div variants={fadeStep}>
-                <SocialLinksRow size="hero" />
-              </motion.div>
+              <SocialLinksRow size="hero" variants={heroFadeStep} />
             </div>
 
             <motion.div

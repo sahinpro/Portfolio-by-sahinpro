@@ -17,12 +17,14 @@ export const TECH_STACK_GROUPS: readonly TechStackGroup[] = [
   {
     title: "Frontend",
     items: [
+      { name: "HTML", icon: "SiHtml5", color: "#E34F26" },
+      { name: "CSS", icon: "SiCss3", color: "#1572B6" },
+      { name: "Tailwind CSS", icon: "SiTailwindcss", color: "#38BDF8" },
+      { name: "shadcn/ui", icon: "SiShadcnui", color: "#FFFFFF" },
       { name: "JavaScript", icon: "SiJavascript", color: "#F7DF1E" },
       { name: "React 18/19", icon: "SiReact", color: "#61DAFB" },
       { name: "Next.js", icon: "SiNextdotjs", color: "#FFFFFF" },
       { name: "Vite", icon: "SiVite", color: "#646CFF" },
-      { name: "Tailwind CSS", icon: "SiTailwindcss", color: "#38BDF8" },
-      { name: "shadcn/ui", icon: "SiShadcnui", color: "#FFFFFF" },
     ],
   },
   {
@@ -32,8 +34,8 @@ export const TECH_STACK_GROUPS: readonly TechStackGroup[] = [
       { name: "Express", icon: "SiExpress", color: "#FFFFFF" },
       { name: "WordPress", icon: "SiWordpress", color: "#21759B" },
       { name: "WooCommerce", icon: "SiWoo", color: "#96588A" },
-      { name: "PHP", icon: "SiPhp", color: "#777BB4" },
-      { name: "MongoDB", icon: "SiMongodb", color: "#47A248" },
+      { name: "MongoDB Atlas", icon: "SiMongodb", color: "#47A248" },
+      { name: "Supabase", icon: "SiSupabase", color: "#3ECF8E" },
     ],
   },
   {
@@ -41,10 +43,9 @@ export const TECH_STACK_GROUPS: readonly TechStackGroup[] = [
     items: [
       { name: "Git", icon: "SiGit", color: "#F05032" },
       { name: "Figma", icon: "SiFigma", color: "#F24E1E" },
-      { name: "Supabase", icon: "SiSupabase", color: "#3ECF8E" },
     ],
   },
 ] as const;
 
 export const TECH_STACK_DESCRIPTION =
-  "JavaScript-first development across modern React/Next.js frontends and WordPress/WooCommerce ecosystems — the same stack I ship for UK and international clients.";
+  "Languages, frameworks, and platforms behind the work. All projects are built with clean code and best practices.";

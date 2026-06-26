@@ -1,3 +1,4 @@
+import { scrollViewport } from "@/constants/scrollMotion";
 import { motion, useInView } from "framer-motion";
 import type { ReactNode } from "react";
 import { useRef } from "react";
@@ -12,12 +13,6 @@ const fadeUp = {
     y: 0,
     transition: { duration: 0.6, ease: [0.37, 0.04, 0.29, 1.01] },
   },
-};
-
-const scrollReveal = {
-  once: true,
-  amount: 0.2 as const,
-  margin: "0px 0px -10% 0px" as const,
 };
 
 export type LandscapePageCtaSectionProps = {
@@ -38,7 +33,7 @@ export const LandscapePageCtaSection = ({
   className,
 }: LandscapePageCtaSectionProps): JSX.Element => {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, scrollReveal);
+  const inView = useInView(ref, scrollViewport);
 
   return (
     <section className={`w-full pb-28 ${className ?? ""}`}>

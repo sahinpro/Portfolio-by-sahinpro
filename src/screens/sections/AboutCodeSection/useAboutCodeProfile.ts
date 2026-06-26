@@ -25,7 +25,10 @@ export function useAboutCodeProfile(): {
     return {
       name: settings.hero_title?.trim() || FALLBACK_NAME,
       role: FALLBACK_ROLE,
+      focus: PROFILE.codeFocus,
+      mindset: PROFILE.codeMindset,
       highlights: [...PROFILE.codeHighlights],
+      certifications: [...PROFILE.certifications],
       stack: defaultStack(),
       platforms: defaultPlatforms(),
       available: settings.availability_status !== "unavailable",

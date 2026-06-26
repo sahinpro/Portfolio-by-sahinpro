@@ -7,7 +7,7 @@ import {
 import { highlightCodeLine } from "./highlightCode";
 import { useTypewriter } from "./useTypewriter";
 
-export type EditorTab = "about.ts" | "terminal";
+export type EditorTab = "developer.js" | "terminal";
 
 type CodeEditorPanelProps = {
   code: string;
@@ -54,7 +54,7 @@ export const CodeEditorPanel = ({
           <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
         </div>
         <div className="ml-2 flex gap-1 overflow-x-auto">
-          {(["about.ts", "terminal"] as const).map((tab) => (
+          {(["developer.js", "terminal"] as const).map((tab) => (
             <button
               key={tab}
               type="button"
@@ -70,7 +70,7 @@ export const CodeEditorPanel = ({
             </button>
           ))}
         </div>
-        {!done && activeTab === "about.ts" ? (
+        {!done && activeTab === "developer.js" ? (
           <button
             type="button"
             onClick={handleSkip}
@@ -81,7 +81,7 @@ export const CodeEditorPanel = ({
         ) : null}
       </div>
 
-      {activeTab === "about.ts" ? (
+      {activeTab === "developer.js" ? (
         <div
           className={cn(
             "w-full text-left cursor-text max-md:cursor-default",
@@ -106,7 +106,7 @@ export const CodeEditorPanel = ({
                   </div>
                 ))}
                 {!done && !instant ? (
-                  <span className="inline-block w-1.5 h-3.5 ml-0.5 align-middle bg-violet-400/80 animate-pulse" />
+                  <span className="inline-block w-1.5 h-3.5 ml-0.5 align-middle bg-[#CE9178]/80 animate-pulse" />
                 ) : null}
               </code>
             )}

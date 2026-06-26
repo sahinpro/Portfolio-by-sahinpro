@@ -1,9 +1,11 @@
 import type { TechStackItem } from "@/constants/techStack";
 import type { IconType } from "react-icons";
 import {
+  SiCss3,
   SiExpress,
   SiFigma,
   SiGit,
+  SiHtml5,
   SiJavascript,
   SiMongodb,
   SiNextdotjs,
@@ -25,11 +27,16 @@ type StackGlyph = (props: {
 
 const asGlyph = (Icon: IconType): StackGlyph =>
   function StackGlyphIcon({ className, style }) {
-    const Glyph = Icon as React.FC<{ className?: string; style?: React.CSSProperties }>;
+    const Glyph = Icon as React.FC<{
+      className?: string;
+      style?: React.CSSProperties;
+    }>;
     return <Glyph className={className} style={style} />;
   };
 
 const ICON_MAP: Record<string, StackGlyph> = {
+  SiHtml5: asGlyph(SiHtml5),
+  SiCss3: asGlyph(SiCss3),
   SiJavascript: asGlyph(SiJavascript),
   SiReact: asGlyph(SiReact),
   SiNextdotjs: asGlyph(SiNextdotjs),
@@ -55,12 +62,10 @@ export function TechStackBadge({ item }: TechStackBadgeProps): JSX.Element {
   const Icon = ICON_MAP[item.icon];
 
   return (
-    <span
-      className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-sm font-medium text-white/85 transition-colors duration-200 hover:border-white/[0.14] hover:bg-white/[0.07]"
-    >
+    <span className="inline-flex items-center gap-1.5 text-base text-white/70 transition-colors duration-200 hover:text-white/90">
       {Icon ? (
         <Icon
-          className="size-4 shrink-0"
+          className="size-4.5 shrink-0"
           style={{ color: item.color }}
           aria-hidden
         />

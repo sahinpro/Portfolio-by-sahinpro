@@ -1,16 +1,16 @@
 "use client";
 
-import { CheckIcon, ChevronsUpDown, Search } from "lucide-react";
-import * as React from "react";
-import * as RPNInput from "react-phone-number-input";
-import flags from "react-phone-number-input/flags";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
+import { CheckIcon, ChevronsUpDown, Search } from "lucide-react";
+import * as React from "react";
+import * as RPNInput from "react-phone-number-input";
+import flags from "react-phone-number-input/flags";
 
 type PhoneInputProps = Omit<
   React.ComponentProps<typeof RPNInput.default>,
@@ -24,36 +24,50 @@ type PhoneInputProps = Omit<
 const PhoneInput = React.forwardRef<
   React.ElementRef<typeof RPNInput.default>,
   PhoneInputProps
->(({ className, onChange, error, id, name, onBlur, numberInputProps, ...props }, ref) => (
-  <div className="flex flex-col gap-1.5 w-full">
-    <div
-      className={cn(
-        "flex overflow-hidden rounded-xl border bg-white/[0.04] transition-colors",
-        "focus-within:border-white/25 focus-within:bg-white/[0.06]",
-        error
-          ? "border-rose-500/50 focus-within:border-rose-500/60"
-          : "border-white/10",
-        className
+>(
+  (
+    {
+      className,
+      onChange,
+      error,
+      id,
+      name,
+      onBlur,
+      numberInputProps,
+      ...props
+    },
+    ref,
+  ) => (
+    <div className="flex flex-col gap-1.5 w-full">
+      <div
+        className={cn(
+          "flex overflow-hidden rounded-xl border border-input bg-input/30 transition-colors outline-none",
+          "focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/50",
+          error
+            ? "border-destructive/60 focus-within:border-destructive focus-within:ring-4 focus-within:ring-destructive/20"
+            : null,
+          className,
+        )}
+      >
+        <RPNInput.default
+          ref={ref}
+          className="flex flex-1 min-w-0"
+          flagComponent={FlagComponent}
+          countrySelectComponent={CountrySelect}
+          inputComponent={InputComponent}
+          onChange={(value) => onChange?.(value ?? undefined)}
+          numberInputProps={{ id, name, onBlur, ...numberInputProps }}
+          {...props}
+        />
+      </div>
+      {error && (
+        <p className="text-sm text-rose-400" role="alert">
+          {error}
+        </p>
       )}
-    >
-      <RPNInput.default
-        ref={ref}
-        className="flex flex-1 min-w-0"
-        flagComponent={FlagComponent}
-        countrySelectComponent={CountrySelect}
-        inputComponent={InputComponent}
-        onChange={(value) => onChange?.(value ?? undefined)}
-        numberInputProps={{ id, name, onBlur, ...numberInputProps }}
-        {...props}
-      />
     </div>
-    {error && (
-      <p className="text-sm text-rose-400" role="alert">
-        {error}
-      </p>
-    )}
-  </div>
-));
+  ),
+);
 PhoneInput.displayName = "PhoneInput";
 
 const InputComponent = ({
@@ -63,7 +77,7 @@ const InputComponent = ({
 }: React.ComponentProps<"input">) => (
   <input
     className={cn(
-      "flex h-10 w-full min-w-0 flex-1 rounded-r-xl rounded-l-none border-0 border-l border-white/10 bg-transparent px-3 py-1 text-base text-white shadow-none transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 md:text-sm",
+      "flex h-10 w-full min-w-0 flex-1 rounded-r-xl rounded-l-none border-0 border-l border-input bg-transparent px-3 py-1 text-base text-white shadow-none transition-colors outline-none placeholder:text-muted-foreground focus-visible:ring-0 md:text-sm",
       className,
     )}
     {...props}
@@ -97,7 +111,7 @@ const CountrySelect = ({
     return list.filter(
       (o) =>
         o.label.toLowerCase().includes(q) ||
-        (o.value && RPNInput.getCountryCallingCode(o.value).includes(q))
+        (o.value && RPNInput.getCountryCallingCode(o.value).includes(q)),
     );
   }, [options, search]);
 
@@ -115,7 +129,7 @@ const CountrySelect = ({
       onChange(country);
       setOpen(false);
     },
-    [onChange]
+    [onChange],
   );
 
   return (
@@ -129,14 +143,15 @@ const CountrySelect = ({
           aria-haspopup="listbox"
           aria-expanded={open}
         >
-          {selected?.value && (() => {
-            const Flag = flags[selected.value];
-            return Flag ? (
-              <span className="flex h-5 w-6 shrink-0 overflow-hidden rounded-sm">
-                <Flag title={selected.label} />
-              </span>
-            ) : null;
-          })()}
+          {selected?.value &&
+            (() => {
+              const Flag = flags[selected.value];
+              return Flag ? (
+                <span className="flex h-5 w-6 shrink-0 overflow-hidden rounded-sm">
+                  <Flag title={selected.label} />
+                </span>
+              ) : null;
+            })()}
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
@@ -193,7 +208,7 @@ const CountrySelect = ({
                   className={cn(
                     "w-full grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 px-3 py-2 text-left text-sm rounded-md transition-colors",
                     "hover:bg-white/10 text-white/90 hover:text-white",
-                    isSelected && "bg-white/10 text-white"
+                    isSelected && "bg-white/10 text-white",
                   )}
                   onClick={() => option.value && handleSelect(option.value)}
                 >

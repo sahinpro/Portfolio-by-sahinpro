@@ -3,13 +3,9 @@
 import Header from "@/components/Header";
 import { LazySection } from "@/components/sections/LazySection";
 import { HeroSection } from "@/screens/sections/HeroSection";
+import { StatsSection } from "@/screens/sections/StatsSection";
 import { Suspense, lazy } from "react";
 
-const StatsSection = lazy(() =>
-  import("@/screens/sections/StatsSection").then((m) => ({
-    default: m.StatsSection,
-  })),
-);
 const FeaturedProjectsSection = lazy(() =>
   import("@/screens/sections/FeaturedProjectsSection/FeaturedProjectsSection").then(
     (m) => ({ default: m.FeaturedProjectsSection }),
@@ -61,11 +57,7 @@ export const HomePage = (): JSX.Element => {
     <main id="main-content" className="flex flex-col items-start relative bg-[#050505] min-h-screen w-full overflow-x-hidden">
       <Header />
       <HeroSection />
-      <LazySection minHeight={120}>
-        <Suspense fallback={null}>
-          <StatsSection />
-        </Suspense>
-      </LazySection>
+      <StatsSection />
       <LazySection minHeight={480}>
         <Suspense fallback={null}>
           <FeaturedProjectsSection />

@@ -17,7 +17,7 @@ export const careerTimeline: TimelineEntry[] = [
     year: "Mar 2023–Present",
     role: "Full Stack Web Developer",
     company: "We Next Coder",
-    desc: "Built and delivered 200+ client sites with WordPress, WooCommerce, and Shopify; developed pkpayplus.com (Next.js payment gateway); completed 200+ projects and improved load speed 40%+ via Core Web Vitals work.",
+    desc: "Built and delivered 200+ client sites with WordPress, WooCommerce, and Shopify; developed paydios front-end landing page completed 200+ projects and improved load speed 40%+ via Core Web Vitals work.",
     icon: Briefcase,
   },
   {

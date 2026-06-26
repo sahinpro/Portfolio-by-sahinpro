@@ -1,6 +1,7 @@
 "use client";
 
 import { PublicImage } from "@/components/ui/PublicImage";
+import { scrollViewport } from "@/constants/scrollMotion";
 import type { PublicProject } from "@/data/projectUiMapper";
 import { projectImageAlt } from "@/lib/seoImages";
 import { motion } from "framer-motion";
@@ -15,12 +16,6 @@ const categoryBadge: Record<string, string> = {
   "Full Stack": "bg-violet-500/20 text-violet-300 border-violet-500/30",
   Frontend: "bg-blue-500/20 text-blue-300 border-blue-500/30",
   CMS: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-};
-
-const featuredViewport = {
-  once: true as const,
-  amount: 0.08,
-  margin: "120px 0px 80px 0px",
 };
 
 const fadeUp = (delay = 0) => ({
@@ -47,7 +42,7 @@ export const FeaturedProjectCard = ({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={featuredViewport}
+      viewport={scrollViewport}
       variants={fadeUp(index * 0.1)}
     >
       <div

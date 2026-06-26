@@ -23,7 +23,10 @@ export const AboutCodePlaceholder = ({
     const code = buildAboutCode({
       name: PROFILE.name,
       role: PROFILE.role,
+      focus: PROFILE.codeFocus,
+      mindset: PROFILE.codeMindset,
       highlights: [...PROFILE.codeHighlights],
+      certifications: [...PROFILE.certifications],
       stack: [...PROFILE_STACK],
       platforms: [...PROFILE_PLATFORMS],
       available: true,
@@ -45,7 +48,7 @@ export const AboutCodePlaceholder = ({
               </div>
               <div className="ml-2 flex gap-1 overflow-x-auto">
                 <span className="rounded-md px-2.5 py-1 text-[11px] sm:text-xs font-mono bg-white/10 text-white">
-                  about.ts
+                  developer.js
                 </span>
                 <span className="rounded-md px-2.5 py-1 text-[11px] sm:text-xs font-mono text-zinc-400">
                   terminal
@@ -72,7 +75,7 @@ export const AboutCodePlaceholder = ({
                       </span>
                     </div>
                   ))}
-                  <span className="inline-block w-1.5 h-3.5 ml-0.5 align-middle bg-violet-400/80 animate-pulse" />
+                  <span className="inline-block w-1.5 h-3.5 ml-0.5 align-middle bg-[#CE9178]/80 animate-pulse" />
                 </code>
               </pre>
             </div>

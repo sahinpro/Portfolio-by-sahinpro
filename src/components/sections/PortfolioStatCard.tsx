@@ -1,4 +1,4 @@
-import { sectionEase } from "@/constants/scrollMotion";
+import { scrollViewport, sectionEase } from "@/constants/scrollMotion";
 import type { PortfolioStat } from "@/screens/sections/StatsSection/statsData";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
@@ -22,7 +22,7 @@ export const PortfolioStatCard = ({
   stat,
 }: PortfolioStatCardProps): JSX.Element => {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.45 });
+  const inView = useInView(ref, scrollViewport);
   const reduceMotion = useReducedMotion();
   const displayValue = useStatCountUp(stat.value, inView && !reduceMotion);
   const Icon = stat.icon;

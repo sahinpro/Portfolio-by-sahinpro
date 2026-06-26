@@ -22,11 +22,18 @@ export const PROFILE = {
   projectsDelivered: "200+",
   /** Outcome-focused — hero prose (left column only) */
   bio: "I'm a Full Stack Developer at We Next Coder, delivering 200+ WordPress, WooCommerce projects plus modern React & Next.js products like payment platforms.",
-  /** Bullet highlights for hero code panel — complements {@link bio}, not duplicated */
+  /** Hero code panel — {@link buildAboutCode} class properties (LinkedIn cover style) */
+  codeFocus: "JavaScript Fundamentals",
+  codeMindset: "Build. Learn. Share.",
   codeHighlights: [
     "JavaScript Fundamentals & Modern Web Development.",
     "React, Next.js, WordPress & WooCommerce.",
     "200+ projects delivered for clients worldwide under Next Coder Agency.",
+  ],
+  certifications: [
+    "Introduction to Programming Using HTML and CSS",
+    "JavaScript (Intermediate) Certification by HackerRank",
+    "Best Straight To The Point WordPress Course",
   ],
   aboutIntro:
     "Since March 2023 I've been a Full Stack Web Developer at We Next Coder, delivering 200+ WordPress, WooCommerce, and Shopify projects plus modern Next.js products like payment platforms. I also work independently for local and international clients — always focused on clean code, JavaScript fundamentals, fast performance, and outcomes you can measure.",
@@ -34,10 +41,6 @@ export const PROFILE = {
     "Three years shipping real client work — WordPress, WooCommerce, and Shopify at scale, plus Next.js products, Figma/PSD builds, and long-term support.",
   imageCaption:
     "Full Stack developer from Bangladesh — WordPress, WooCommerce, React, and Next.js for teams worldwide.",
-  certifications: [
-    "Introduction to Programming Using HTML and CSS",
-    "Best Straight To The Point WordPress Course",
-  ],
   topSkills: [
     "JavaScript",
     "React",

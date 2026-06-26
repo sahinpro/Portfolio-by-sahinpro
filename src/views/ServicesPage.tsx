@@ -95,12 +95,6 @@ const fadeUp = (delay = 0) => ({
   },
 });
 
-const scrollReveal = {
-  once: true,
-  amount: 0.2 as const,
-  margin: "0px 0px -10% 0px" as const,
-};
-
 const ServiceCard = ({
   service,
   index,
@@ -109,7 +103,7 @@ const ServiceCard = ({
   index: number;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const inV = useInView(ref, scrollReveal);
+  const inV = useInView(ref, scrollViewport);
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -184,7 +178,7 @@ const ServiceCard = ({
 
 export const ServicesPage = (): JSX.Element => {
   const headerRef = useRef<HTMLDivElement>(null);
-  const headerInV = useInView(headerRef, scrollReveal);
+  const headerInV = useInView(headerRef, scrollViewport);
 
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
