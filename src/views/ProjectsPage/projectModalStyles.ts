@@ -19,12 +19,13 @@ export const projectCardGlassBlur =
 export const projectCardActionBtn =
   "flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/60 text-white/80 transition-colors hover:border-white/25 hover:bg-black/70 hover:text-white md:bg-black/45 md:backdrop-blur-sm";
 
-/** Card image area and modal hero share one height. */
+/** Card preview image area. */
 export const projectHeroHeight = "h-[24rem]";
+
+/** Expanded modal hero — taller on desktop so cover images aren't over-cropped. */
+export const modalHeroHeight = "h-[24rem] lg:h-[32rem] shrink-0 bg-[#111]";
 
 export const modalShell = cn(
   projectCardShell,
   "isolate w-full max-w-3xl shadow-2xl shadow-black/60",
 );
-
-export const modalHeroHeight = cn(projectHeroHeight, "shrink-0 bg-[#111]");

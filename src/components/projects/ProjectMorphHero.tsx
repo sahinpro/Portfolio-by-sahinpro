@@ -9,6 +9,7 @@ import {
   projectCardGlassBlur,
   projectCardGlassGradient,
   projectCardGlassMask,
+  modalHeroHeight,
   projectHeroHeight,
 } from "@/views/ProjectsPage/projectModalStyles";
 import { Star } from "lucide-react";
@@ -18,6 +19,8 @@ export interface ProjectMorphHeroProps {
   galleryReady?: boolean;
   /** Card-only bottom glass fade for title legibility. */
   showCardGlass?: boolean;
+  /** Card uses shorter preview frame; modal uses taller hero on desktop. */
+  variant?: "card" | "modal";
   imageClassName?: string;
 }
 
@@ -25,18 +28,37 @@ export function ProjectMorphHero({
   project,
   galleryReady = false,
   showCardGlass = false,
-  imageClassName = "object-cover object-center",
+  variant = "card",
+  imageClassName,
 }: ProjectMorphHeroProps): JSX.Element {
   const hasGallery = project.screenshots.length > 0;
+  const isModal = variant === "modal";
+  const resolvedImageClassName =
+    imageClassName ??
+    (isModal
+      ? "object-cover object-top"
+      : "object-cover object-center");
 
   return (
-    <div className={cn("project-morph-hero", projectHeroHeight)}>
+    <div
+      className={cn(
+        "project-morph-hero",
+        isModal ? modalHeroHeight : projectHeroHeight,
+      )}
+    >
       <PublicImage
         src={project.image}
         alt={projectImageAlt(project.title)}
         fill
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        className={cn(imageClassName, galleryReady && hasGallery && "opacity-0")}
+        sizes={
+          isModal
+            ? "(max-width: 768px) 100vw, 768px"
+            : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        }
+        className={cn(
+          resolvedImageClassName,
+          galleryReady && hasGallery && "opacity-0",
+        )}
         priority
       />
 

@@ -29,16 +29,8 @@ export function ListPagination({
 
   if (totalItems <= pageSize) return null;
 
-  const btnBase =
-    "inline-flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition-all duration-200";
-
-  const btnIdle =
-    "border border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white";
-
-  const btnActive = "bg-white text-[#161616] shadow-lg shadow-white/10";
-
-  const btnDisabled =
-    "cursor-not-allowed border border-white/[0.06] bg-white/[0.03] text-white/25";
+  const navBtn =
+    "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.10] bg-white/[0.03] text-white/50 transition-all hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40";
 
   return (
     <nav
@@ -51,17 +43,17 @@ export function ListPagination({
           aria-label="Previous page"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className={cn(btnBase, page <= 1 ? btnDisabled : btnIdle)}
+          className={navBtn}
         >
           <ChevronLeft className="h-4 w-4" aria-hidden />
         </button>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex rounded-lg border border-white/[0.08] bg-white/[0.02] p-0.5">
           {pages.map((item, i) =>
             item === "ellipsis" ? (
               <span
                 key={`ellipsis-${i}`}
-                className="px-1 text-sm text-white/30"
+                className="flex h-8 min-w-8 items-center justify-center px-1 text-xs text-white/25"
                 aria-hidden
               >
                 …
@@ -74,9 +66,10 @@ export function ListPagination({
                 aria-current={item === page ? "page" : undefined}
                 onClick={() => onPageChange(item)}
                 className={cn(
-                  btnBase,
-                  "min-w-[2.5rem]",
-                  item === page ? btnActive : btnIdle,
+                  "flex h-8 min-w-8 items-center justify-center rounded-md px-2.5 text-xs font-medium tabular-nums transition-all",
+                  item === page
+                    ? "bg-white/[0.12] text-white shadow-sm"
+                    : "text-white/40 hover:text-white/70",
                 )}
               >
                 {item}
@@ -90,7 +83,7 @@ export function ListPagination({
           aria-label="Next page"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          className={cn(btnBase, page >= totalPages ? btnDisabled : btnIdle)}
+          className={navBtn}
         >
           <ChevronRight className="h-4 w-4" aria-hidden />
         </button>

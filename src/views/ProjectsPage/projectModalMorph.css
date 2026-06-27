@@ -14,6 +14,11 @@
   --scale-large: 0.96;
   --project-morph-max-h: min(calc(100dvh - 1.5rem), 50rem);
   --project-morph-open-w: min(48rem, calc(100vw - 1.5rem));
+  --panel-open-dur: 400ms;
+  --panel-close-dur: 350ms;
+  --panel-translate-y: 12rem;
+  --panel-blur: 2px;
+  --panel-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .project-morph-backdrop {
@@ -57,8 +62,7 @@
   max-width: 48rem;
   height: auto;
   max-height: var(--project-morph-max-h);
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   border-radius: var(--project-morph-r-open);
   transform: translate(-50%, -50%);
   transform-origin: center center;
@@ -68,6 +72,18 @@
     width var(--project-morph-open-dur) var(--project-morph-ease),
     border-radius var(--project-morph-open-dur) var(--project-morph-ease),
     transform var(--project-morph-open-dur) var(--project-morph-ease);
+}
+
+.project-morph[data-scrollable="true"] {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.project-morph[data-scrollable="true"]::-webkit-scrollbar {
+  display: none;
 }
 
 .project-morph[data-open="false"][data-closing="true"] {
@@ -87,16 +103,59 @@
   max-width: 48rem;
   height: auto;
   max-height: var(--project-morph-max-h);
-  transform: translate(-50%, -50%) scale(var(--scale-large));
+  overflow: hidden;
+  transform: translate(-50%, -50%);
   transform-origin: center center;
+  transition: none;
 }
 
-.project-morph--mobile[data-open="true"] {
-  transform: translate(-50%, -50%) scale(1);
+.project-morph--mobile[data-scrollable="true"] {
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-.project-morph--mobile[data-open="false"][data-closing="true"] {
-  transform: translate(-50%, -50%) scale(var(--scale-large));
+/* Transitions.dev — panel reveal (mobile) */
+.project-morph-panel-slide {
+  transform: translateY(var(--panel-translate-y));
+  opacity: 0;
+  filter: blur(var(--panel-blur));
+  pointer-events: none;
+  transition:
+    transform var(--panel-close-dur) var(--panel-ease),
+    opacity var(--panel-close-dur) var(--panel-ease),
+    filter var(--panel-close-dur) var(--panel-ease);
+  will-change: transform, opacity, filter;
+}
+
+.project-morph-panel-slide[data-open="true"] {
+  transform: translateY(0);
+  opacity: 1;
+  filter: blur(0);
+  pointer-events: auto;
+  transition:
+    transform var(--panel-open-dur) var(--panel-ease),
+    opacity var(--panel-open-dur) var(--panel-ease),
+    filter var(--panel-open-dur) var(--panel-ease);
+}
+
+.project-morph--mobile .project-morph-trigger {
+  display: none;
+}
+
+.project-morph--mobile .project-morph-close {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.project-morph--mobile .project-morph-teaser {
+  display: none;
+}
+
+.project-morph--mobile .project-morph-body {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
 }
 
 .project-morph-inner {
@@ -108,7 +167,6 @@
 
 .project-morph-hero {
   position: relative;
-  height: 24rem;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -190,6 +248,11 @@
   pointer-events: auto;
 }
 
+/* Modal gallery: align screenshots from the top like the cover image */
+.project-morph-hero .carousel-item-image img {
+  object-position: top center;
+}
+
 /* Modal gallery: no frosted indicator pill over the hero */
 .project-morph-hero .carousel-indicators {
   background: rgb(0 0 0 / 55%);
@@ -210,11 +273,19 @@
   .project-morph-close,
   .project-morph-teaser,
   .project-morph-body,
-  .project-morph-trigger svg {
+  .project-morph-trigger svg,
+  .project-morph-panel-slide {
     transition: none !important;
   }
 
   .project-morph--mobile {
     transform: translate(-50%, -50%);
+  }
+
+  .project-morph-panel-slide {
+    transform: none;
+    opacity: 1;
+    filter: none;
+    pointer-events: auto;
   }
 }
