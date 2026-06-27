@@ -16,6 +16,12 @@ export const SOCIAL_LINKS: SocialLink[] = [
     icon: "linkedin",
   },
   {
+    id: "x",
+    platform: "X",
+    url: PROFILE.x,
+    icon: "x",
+  },
+  {
     id: "medium",
     platform: "Medium",
     url: PROFILE.medium,
@@ -28,15 +34,9 @@ export const SOCIAL_LINKS: SocialLink[] = [
     icon: "hashnode",
   },
   {
-    id: "whatsapp",
-    platform: "WhatsApp",
-    url: PROFILE.whatsappUrl,
-    icon: "whatsapp",
-  },
-  {
-    id: "email",
-    platform: "Email",
-    url: `mailto:${PROFILE.email}`,
-    icon: "mail",
+    id: "behance",
+    platform: "Behance",
+    url: PROFILE.behance,
+    icon: "behance",
   },
 ];

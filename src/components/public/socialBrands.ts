@@ -4,7 +4,7 @@ export const SOCIAL_BRAND: Record<string, { brandColor: string; bg: string }> =
   {
     github: { brandColor: "#f0f6fc", bg: "hover:bg-white/10" },
     linkedin: { brandColor: "#0A66C2", bg: "hover:bg-[#0A66C2]/20" },
-    behance: { brandColor: "#1769FF", bg: "hover:bg-[#1769FF]/20" },
+    behance: { brandColor: "#053EFF", bg: "hover:bg-[#053EFF]/20" },
     dribbble: { brandColor: "#EA4C89", bg: "hover:bg-[#EA4C89]/20" },
     youtube: { brandColor: "#ff0000", bg: "hover:bg-red-500/20" },
     instagram: { brandColor: "#e4405f", bg: "hover:bg-pink-500/15" },
@@ -16,6 +16,9 @@ export const SOCIAL_BRAND: Record<string, { brandColor: string; bg: string }> =
     mail: { brandColor: "#a78bfa", bg: "hover:bg-violet-500/20" },
     email: { brandColor: "#a78bfa", bg: "hover:bg-violet-500/20" },
     whatsapp: { brandColor: "#25D366", bg: "hover:bg-[#25D366]/20" },
+    portfolio: { brandColor: "#e7e9ea", bg: "hover:bg-white/10" },
+    website: { brandColor: "#e7e9ea", bg: "hover:bg-white/10" },
+    globe: { brandColor: "#e7e9ea", bg: "hover:bg-white/10" },
   };
 
 function normalizeKey(value: string): string {
@@ -41,6 +44,12 @@ export function getSocialLinkIconKey(link: SocialLink): string {
 
   if (/wa\.me|whatsapp\.com/i.test(url)) return "whatsapp";
   if (platform.includes("whatsapp")) return "whatsapp";
+
+  if (/behance\.net/i.test(url)) return "behance";
+  if (platform.includes("behance")) return "behance";
+
+  if (/sahin\.pro\.bd/i.test(url)) return "portfolio";
+  if (platform.includes("portfolio") || platform.includes("website")) return "portfolio";
 
   if (/^mailto:/i.test(url)) return "mail";
 

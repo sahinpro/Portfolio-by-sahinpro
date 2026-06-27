@@ -15,13 +15,14 @@ export const PROFILE = {
   phone: "+8801791992313",
   whatsappUrl: "https://wa.me/8801791992313",
   linkedIn: "https://linkedin.com/in/sahinpro",
+  x: "https://x.com/sahinprobd",
   medium: "https://medium.com/@sahinpro",
   hashnode: "https://sahinpro.hashnode.dev",
-  portfolioUrl: "https://sahin.pro.bd/",
+  behance: "https://behance.net/sahinpro",
   yearsExperience: "3+",
   projectsDelivered: "200+",
   /** Outcome-focused — hero prose (left column only) */
-  bio: "I'm a Full Stack Developer at We Next Coder, delivering 200+ WordPress, WooCommerce projects plus modern React & Next.js products like payment platforms.",
+  bio: "I'm a Full Stack Developer at We Next Coder, delivering 200+ WordPress, WooCommerce projects plus modern React & Next.js products like agency platforms.",
   /** Hero code panel — {@link buildAboutCode} class properties (LinkedIn cover style) */
   codeFocus: "JavaScript Fundamentals",
   codeMindset: "Build. Learn. Share.",

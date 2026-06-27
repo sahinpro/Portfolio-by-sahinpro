@@ -485,7 +485,7 @@ export const ContactPage = (): JSX.Element => {
                           htmlFor="phone"
                           className="text-xs font-semibold text-white/50 uppercase tracking-widest"
                         >
-                          Phone number
+                          Phone number/Whatsapp
                         </label>
                         <PhoneInput
                           id="phone"
@@ -495,7 +495,7 @@ export const ContactPage = (): JSX.Element => {
                             if (phoneError && val && isValidPhoneNumber(val))
                               setPhoneError(null);
                           }}
-                          placeholder="Enter a phone number"
+                          placeholder=" Whatsapp number"
                           defaultCountry="BD"
                           error={phoneError ?? undefined}
                           numberInputProps={{

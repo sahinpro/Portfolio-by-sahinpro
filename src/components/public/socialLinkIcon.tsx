@@ -1,6 +1,6 @@
 import type { SocialLink } from "@/constants/socialLinks";
 import { getSocialLinkIconKey } from "@/components/public/socialBrands";
-import { Github, Link2, Linkedin, Mail, type LucideIcon } from "lucide-react";
+import { Globe, Github, Link2, Linkedin, Mail, type LucideIcon } from "lucide-react";
 import type { IconType } from "react-icons";
 import { BsBehance, BsTelegram, BsWhatsapp } from "react-icons/bs";
 import { FaXTwitter } from "react-icons/fa6";
@@ -26,6 +26,9 @@ const ICONS: Record<string, SocialGlyph> = {
   mail: asGlyph(Mail),
   email: asGlyph(Mail),
   whatsapp: asGlyph(BsWhatsapp),
+  portfolio: asGlyph(Globe),
+  website: asGlyph(Globe),
+  globe: asGlyph(Globe),
 };
 
 export function SocialLinkGlyph({
