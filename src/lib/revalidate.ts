@@ -3,10 +3,7 @@ export const REVALIDATE_SECONDS = 3600;
 
 export const CACHE_TAGS = {
   projects: "projects",
-  testimonials: "testimonials",
-  social: "social",
   settings: "settings",
-  seo: "seo",
   resume: "resume",
 } as const;
 

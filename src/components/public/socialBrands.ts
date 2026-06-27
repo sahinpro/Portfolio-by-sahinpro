@@ -1,4 +1,4 @@
-import type { SocialLinkRow } from "@/admin/types/database";
+import type { SocialLink } from "@/constants/socialLinks";
 
 export const SOCIAL_BRAND: Record<string, { brandColor: string; bg: string }> =
   {
@@ -15,13 +15,14 @@ export const SOCIAL_BRAND: Record<string, { brandColor: string; bg: string }> =
     x: { brandColor: "#e7e9ea", bg: "hover:bg-white/15" },
     mail: { brandColor: "#a78bfa", bg: "hover:bg-violet-500/20" },
     email: { brandColor: "#a78bfa", bg: "hover:bg-violet-500/20" },
+    whatsapp: { brandColor: "#25D366", bg: "hover:bg-[#25D366]/20" },
   };
 
 function normalizeKey(value: string): string {
   return value.toLowerCase().replace(/[\s_-]+/g, "");
 }
 
-export function getSocialLinkIconKey(link: SocialLinkRow): string {
+export function getSocialLinkIconKey(link: SocialLink): string {
   const raw = (link.icon ?? "").trim();
   const url = (link.url ?? "").toLowerCase();
   const platform = normalizeKey(link.platform ?? "");
@@ -38,6 +39,11 @@ export function getSocialLinkIconKey(link: SocialLinkRow): string {
   if (/hashnode\.(dev|com)/i.test(url)) return "hashnode";
   if (platform.includes("hashnode")) return "hashnode";
 
+  if (/wa\.me|whatsapp\.com/i.test(url)) return "whatsapp";
+  if (platform.includes("whatsapp")) return "whatsapp";
+
+  if (/^mailto:/i.test(url)) return "mail";
+
   if (/^https?:\/\//i.test(raw)) {
     if (/telegram|t\.me/i.test(raw)) return "telegram";
     if (/twitter|x\.com/i.test(raw)) return "twitter";
@@ -53,7 +59,7 @@ export function getSocialLinkIconKey(link: SocialLinkRow): string {
   return platform;
 }
 
-export function getSocialBrand(link: SocialLinkRow): {
+export function getSocialBrand(link: SocialLink): {
   brandColor: string;
   bg: string;
 } {

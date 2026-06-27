@@ -7,7 +7,6 @@ import { supabase } from "@/utils/supabase";
 import type { User } from "@supabase/supabase-js";
 import {
   BarChart3,
-  ChevronDown,
   ExternalLink,
   FileText,
   FolderKanban,
@@ -15,14 +14,11 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  MessageSquareQuote,
-  Search,
   Settings2,
-  Share2,
   X,
 } from "lucide-react";
 import { AdminNavLink } from "@/components/common/AdminNavLink";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { PROFILE_AVATAR } from "@/lib/seoImages";
@@ -41,25 +37,16 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
       : "text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-100 border border-transparent",
   );
 
-const subNavClass = ({ isActive }: { isActive: boolean }) =>
-  cn(
-    "flex items-center gap-2 rounded-md pl-8 pr-2.5 py-1.5 text-xs font-medium outline-none transition-colors",
-    "focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
-    isActive
-      ? "bg-white/[0.07] text-zinc-100"
-      : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300",
-  );
-
 const sectionLabel =
   "px-2.5 pt-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500";
 
 function mobileAdminTitle(pathname: string): string {
   if (pathname === "/admin" || pathname === "/admin/") return "Dashboard";
   if (pathname.startsWith("/admin/projects")) return "Projects";
-  if (pathname.startsWith("/admin/testimonials")) return "Testimonials";
   if (pathname.startsWith("/admin/media")) return "Media";
   if (pathname.startsWith("/admin/analytics")) return "Analytics";
-  if (pathname.startsWith("/admin/settings")) return "Settings";
+  if (pathname === "/admin/settings") return "Site settings";
+  if (pathname.startsWith("/admin/settings/resume")) return "Resume";
   return "Admin";
 }
 
@@ -118,13 +105,9 @@ export function AdminShell({ children }: { children: ReactNode }): JSX.Element {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [siteSettingsMenuOpen, setSiteSettingsMenuOpen] = useState(false);
-  const isSettingsRoute = pathname.startsWith("/admin/settings");
-  const siteSettingsMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setMobileNavOpen(false);
-    setSiteSettingsMenuOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -153,22 +136,6 @@ export function AdminShell({ children }: { children: ReactNode }): JSX.Element {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [mobileNavOpen]);
-
-  useEffect(() => {
-    if (!siteSettingsMenuOpen) return;
-
-    const onPointerDown = (event: MouseEvent) => {
-      if (
-        siteSettingsMenuRef.current &&
-        !siteSettingsMenuRef.current.contains(event.target as Node)
-      ) {
-        setSiteSettingsMenuOpen(false);
-      }
-    };
-
-    window.addEventListener("mousedown", onPointerDown);
-    return () => window.removeEventListener("mousedown", onPointerDown);
-  }, [siteSettingsMenuOpen]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -259,10 +226,6 @@ export function AdminShell({ children }: { children: ReactNode }): JSX.Element {
                 <FolderKanban className="h-4 w-4 shrink-0 opacity-80" />
                 Projects
               </AdminNavLink>
-              <AdminNavLink href="/admin/testimonials" className={navClass}>
-                <MessageSquareQuote className="h-4 w-4 shrink-0 opacity-80" />
-                Testimonials
-              </AdminNavLink>
               <AdminNavLink href="/admin/media" className={navClass}>
                 <ImageIcon className="h-4 w-4 shrink-0 opacity-80" />
                 Media library
@@ -271,75 +234,18 @@ export function AdminShell({ children }: { children: ReactNode }): JSX.Element {
                 <BarChart3 className="h-4 w-4 shrink-0 opacity-80" />
                 Analytics
               </AdminNavLink>
+              <AdminNavLink href="/admin/settings" className={navClass}>
+                <Settings2 className="h-4 w-4 shrink-0 opacity-80" />
+                Site settings
+              </AdminNavLink>
             </div>
 
             <p className={cn(sectionLabel, "mt-4")}>Settings</p>
-            <div
-              ref={siteSettingsMenuRef}
-              role="group"
-              aria-label="Site settings and related pages"
-              className="relative"
-            >
-              <div className="flex items-stretch gap-1">
-                <AdminNavLink
-                  href="/admin/settings"
-                  className={({ isActive }) =>
-                    cn(navClass({ isActive }), "min-w-0 flex-1")
-                  }
-                >
-                  <Settings2 className="h-4 w-4 shrink-0 opacity-80" />
-                  <span className="truncate">Site settings</span>
-                </AdminNavLink>
-                <button
-                  type="button"
-                  onClick={() => setSiteSettingsMenuOpen((open) => !open)}
-                  className={cn(
-                    navLinkBase,
-                    "w-10 justify-center px-0",
-                    isSettingsRoute || siteSettingsMenuOpen
-                      ? "bg-white/[0.09] text-white shadow-sm border border-white/[0.08]"
-                      : "text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-100 border border-transparent",
-                  )}
-                  aria-label="Open site settings menu"
-                  aria-haspopup="menu"
-                  aria-expanded={siteSettingsMenuOpen}
-                >
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 transition-transform duration-200",
-                      siteSettingsMenuOpen && "rotate-180",
-                    )}
-                  />
-                </button>
-              </div>
-              {siteSettingsMenuOpen ? (
-                <div
-                  className="mt-1 ml-2 rounded-lg border border-zinc-800/80 bg-zinc-900/95 p-1.5 text-zinc-100 shadow-2xl shadow-black/40 backdrop-blur-md"
-                  role="menu"
-                  aria-label="Site settings submenu"
-                >
-                  <div className="flex flex-col gap-0.5">
-                    <AdminNavLink
-                      href="/admin/settings/social"
-                      className={subNavClass}
-                    >
-                      <Share2 className="h-3.5 w-3.5 opacity-70 shrink-0" />
-                      Social links
-                    </AdminNavLink>
-                    <AdminNavLink href="/admin/settings/seo" className={subNavClass}>
-                      <Search className="h-3.5 w-3.5 opacity-70 shrink-0" />
-                      SEO
-                    </AdminNavLink>
-                    <AdminNavLink
-                      href="/admin/settings/resume"
-                      className={subNavClass}
-                    >
-                      <FileText className="h-3.5 w-3.5 opacity-70 shrink-0" />
-                      Resume
-                    </AdminNavLink>
-                  </div>
-                </div>
-              ) : null}
+            <div className="flex flex-col gap-0.5">
+              <AdminNavLink href="/admin/settings/resume" className={navClass}>
+                <FileText className="h-4 w-4 shrink-0 opacity-80" />
+                Resume
+              </AdminNavLink>
             </div>
           </nav>
         </ScrollArea>

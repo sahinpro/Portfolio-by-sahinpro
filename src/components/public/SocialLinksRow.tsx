@@ -1,11 +1,11 @@
 import { SocialLinkGlyph } from "@/components/public/socialLinkIcon";
 import { getSocialBrand } from "@/components/public/socialBrands";
+import { SOCIAL_LINKS } from "@/constants/socialLinks";
 import {
   scrollViewport,
   socialLinkFade,
   socialLinkStagger,
 } from "@/constants/scrollMotion";
-import { useVisibleSocialLinks } from "@/hooks/useVisibleSocialLinks";
 import { motion, useInView, type Variants } from "framer-motion";
 import { useRef } from "react";
 
@@ -56,38 +56,28 @@ export function SocialLinksRow({
 }: SocialLinksRowProps): JSX.Element | null {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, scrollViewport);
-  const { links, loading } = useVisibleSocialLinks();
   const cls = sizeClasses[size];
-  const isReady = !loading || links.length > 0;
   const shouldShow = animateProp ?? inView;
   const rowDelay = delay ?? defaultDelays[size];
   const useParentVariants = Boolean(variants);
-  const isVisible = shouldShow && isReady;
 
-  if (!loading && links.length === 0) {
+  if (SOCIAL_LINKS.length === 0) {
     return null;
-  }
-
-  if (loading && links.length === 0) {
-    return <div className={`${cls.wrap} min-h-[32px]`} aria-hidden />;
   }
 
   if (useParentVariants) {
     return (
-      <motion.div
-        ref={ref}
-        className={cls.wrap}
-        variants={variants}
-        animate={isReady ? undefined : "hidden"}
-      >
-        {links.map((link) => {
+      <motion.div ref={ref} className={cls.wrap} variants={variants}>
+        {SOCIAL_LINKS.map((link) => {
           const { brandColor, bg } = getSocialBrand(link);
+          const external = !link.url.startsWith("mailto:");
           return (
             <a
               key={link.id}
               href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
+              {...(external
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
               title={link.platform}
               aria-label={link.platform}
               className={`${cls.iconWrap} ${bg}`}
@@ -108,17 +98,19 @@ export function SocialLinksRow({
       ref={ref}
       className={cls.wrap}
       initial="hidden"
-      animate={isVisible ? "visible" : "hidden"}
+      animate={shouldShow ? "visible" : "hidden"}
       variants={socialLinkStagger(rowDelay)}
     >
-      {links.map((link) => {
+      {SOCIAL_LINKS.map((link) => {
         const { brandColor, bg } = getSocialBrand(link);
+        const external = !link.url.startsWith("mailto:");
         return (
           <motion.a
             key={link.id}
             href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            {...(external
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
             title={link.platform}
             aria-label={link.platform}
             className={`${cls.iconWrap} ${bg}`}

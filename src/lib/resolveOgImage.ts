@@ -10,7 +10,7 @@ function siteHostname(): string {
   }
 }
 
-/** Normalize admin/DB OG image values and drop known stale assets. */
+/** Normalize OG image values and drop known stale assets. */
 export function normalizeOgImagePath(raw: string | null | undefined): string | null {
   if (!raw?.trim()) return null;
 

@@ -1,10 +1,4 @@
-import type {
-  ProjectRow,
-  ResumeRow,
-  SeoSettingsRow,
-  SocialLinkRow,
-  TestimonialRow,
-} from "@/admin/types/database";
+import type { ProjectRow, ResumeRow } from "@/admin/types/database";
 import { supabase } from "@/utils/supabase";
 
 export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
@@ -17,47 +11,10 @@ export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
   return (data ?? []) as ProjectRow[];
 }
 
-export async function fetchPublishedTestimonials(): Promise<TestimonialRow[]> {
-  const { data, error } = await supabase
-    .from("testimonials")
-    .select("*")
-    .eq("status", "published")
-    .order("sort_order", { ascending: true });
-  if (error) throw error;
-  return (data ?? []) as TestimonialRow[];
-}
-
-export async function fetchVisibleSocialLinks(): Promise<SocialLinkRow[]> {
-  const { data, error } = await supabase
-    .from("social_links")
-    .select("*")
-    .eq("visible", true)
-    .order("sort_order", { ascending: true });
-  if (error) throw error;
-  const rows = (data ?? []) as SocialLinkRow[];
-  const seenUrl = new Set<string>();
-  return rows.filter((r) => {
-    const key = r.url.trim().toLowerCase();
-    if (seenUrl.has(key)) return false;
-    seenUrl.add(key);
-    return true;
-  });
-}
-
 export async function fetchSiteSettingsMap(): Promise<Record<string, string>> {
   const { data, error } = await supabase.from("site_settings").select("key, value");
   if (error) throw error;
   return Object.fromEntries((data ?? []).map((r) => [r.key, r.value ?? ""]));
-}
-
-export async function fetchSeoForPage(page: string): Promise<SeoSettingsRow | null> {
-  const { data, error } = await supabase
-    .from("seo_settings")
-    .select("*")
-    .eq("page", page)
-    .maybeSingle();
-  if (error) throw error;
-  return (data as SeoSettingsRow | null) ?? null;
 }
 
 export type PublicActiveResume = Pick<ResumeRow, "file_url" | "file_name">;

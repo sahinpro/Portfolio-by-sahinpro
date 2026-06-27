@@ -1,8 +1,8 @@
-import type { SocialLinkRow } from "@/admin/types/database";
+import type { SocialLink } from "@/constants/socialLinks";
 import { getSocialLinkIconKey } from "@/components/public/socialBrands";
 import { Github, Link2, Linkedin, Mail, type LucideIcon } from "lucide-react";
 import type { IconType } from "react-icons";
-import { BsBehance, BsTelegram } from "react-icons/bs";
+import { BsBehance, BsTelegram, BsWhatsapp } from "react-icons/bs";
 import { FaXTwitter } from "react-icons/fa6";
 import { SiHashnode, SiMedium } from "react-icons/si";
 
@@ -25,13 +25,14 @@ const ICONS: Record<string, SocialGlyph> = {
   x: asGlyph(FaXTwitter),
   mail: asGlyph(Mail),
   email: asGlyph(Mail),
+  whatsapp: asGlyph(BsWhatsapp),
 };
 
 export function SocialLinkGlyph({
   link,
   className = "w-4 h-4",
 }: {
-  link: SocialLinkRow;
+  link: SocialLink;
   className?: string;
 }): JSX.Element {
   const k = getSocialLinkIconKey(link);

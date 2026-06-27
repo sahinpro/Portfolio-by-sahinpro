@@ -15,16 +15,17 @@ export type DashboardData = {
   totalProjects: number;
   publishedProjects: number;
   draftProjects: number;
-  testimonials: number;
   viewsByDay: ViewsByDay[];
   topPages: TopPage[];
 };
+
+/** Max history kept for analytics charts and aggregates. */
+export const ANALYTICS_LOOKBACK_DAYS = 30;
 
 const emptyData: DashboardData = {
   totalProjects: 0,
   publishedProjects: 0,
   draftProjects: 0,
-  testimonials: 0,
   viewsByDay: [],
   topPages: [],
 };
@@ -68,12 +69,9 @@ export function useDashboardData(): {
 
     try {
       const since = new Date();
-      since.setDate(since.getDate() - 90);
+      since.setDate(since.getDate() - ANALYTICS_LOOKBACK_DAYS);
       const sinceIso = since.toISOString();
 
-      // Run the heavy page_views query once; run HEAD count queries sequentially so
-      // we do not open many HTTP/2 streams at once (avoids net::ERR_HTTP2_SERVER_REFUSED_STREAM
-      // against Supabase when auth recovery and the dashboard load overlap).
       const viewsPromise = supabase
         .from("page_views")
         .select("path, visited_at, user_agent")
@@ -88,17 +86,12 @@ export function useDashboardData(): {
         .from("projects")
         .select("*", { count: "exact", head: true })
         .eq("status", "published");
-      const testimonialsRes = await supabase
-        .from("testimonials")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "published");
       const viewsRes = await viewsPromise;
 
       const total = projectsTotal.count ?? 0;
       const published = projectsPublished.count ?? 0;
-      const testimonials = testimonialsRes.count ?? 0;
 
-      const dayKeys = buildLastNDaysKeys(90);
+      const dayKeys = buildLastNDaysKeys(ANALYTICS_LOOKBACK_DAYS);
       const byDayMobile = new Map<string, number>();
       const byDayDesktop = new Map<string, number>();
       for (const k of dayKeys) {
@@ -144,7 +137,6 @@ export function useDashboardData(): {
         totalProjects: total,
         publishedProjects: published,
         draftProjects: Math.max(0, total - published),
-        testimonials,
         viewsByDay,
         topPages,
       });
@@ -152,7 +144,6 @@ export function useDashboardData(): {
       const errMsg =
         projectsTotal.error?.message ||
         projectsPublished.error?.message ||
-        testimonialsRes.error?.message ||
         viewsRes.error?.message;
       if (errMsg) setError(errMsg);
     } catch (e) {

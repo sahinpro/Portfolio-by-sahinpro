@@ -1,4 +1,5 @@
 import { PROFILE } from "@/constants/profile";
+import { SOCIAL_LINKS } from "@/constants/socialLinks";
 import { getSiteUrl } from "@/constants/site";
 import { DEFAULT_META_DESCRIPTION } from "@/lib/seoDefaults";
 import { PROFILE_PORTRAIT } from "@/lib/seoImages";
@@ -47,7 +48,9 @@ export function siteStructuredDataGraph() {
           addressLocality: PROFILE.location,
           addressCountry: "BD",
         },
-        sameAs: [PROFILE.linkedIn, PROFILE.whatsappUrl].filter(Boolean),
+        sameAs: SOCIAL_LINKS.map((link) => link.url).filter(
+          (url) => !url.startsWith("mailto:"),
+        ),
       },
       {
         "@type": "ProfessionalService",

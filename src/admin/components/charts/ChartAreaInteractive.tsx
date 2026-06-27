@@ -61,7 +61,7 @@ const SERIES_STYLE = {
   },
 } as const;
 
-type RangeKey = "90d" | "30d" | "7d";
+type RangeKey = "30d" | "7d";
 
 const RANGES: {
   key: RangeKey;
@@ -69,12 +69,6 @@ const RANGES: {
   slice: number;
   description: string;
 }[] = [
-  {
-    key: "90d",
-    label: "Last 3 months",
-    slice: 90,
-    description: "Total for the last 3 months",
-  },
   {
     key: "30d",
     label: "Last 30 days",
@@ -94,6 +88,28 @@ type Props = {
   loading?: boolean;
 };
 
+function stackedMax(
+  rows: ViewsByDay[],
+  showDesktop: boolean,
+  showMobile: boolean,
+): number {
+  let max = 0;
+  for (const row of rows) {
+    const total =
+      (showDesktop ? row.desktop : 0) + (showMobile ? row.mobile : 0);
+    max = Math.max(max, total);
+  }
+  return max;
+}
+
+/** Headroom so spline/area strokes are not clipped at the chart edge. */
+function paddedYMax(rawMax: number): number {
+  if (rawMax <= 0) return 1;
+  const padded = Math.ceil(rawMax * 1.15);
+  const step = padded <= 10 ? 1 : padded <= 50 ? 5 : padded <= 200 ? 10 : 25;
+  return Math.ceil(padded / step) * step;
+}
+
 export function ChartAreaInteractive({
   data,
   loading = false,
@@ -102,7 +118,7 @@ export function ChartAreaInteractive({
   const fillDesktopId = `fillDesktop-${uid}`;
   const fillMobileId = `fillMobile-${uid}`;
 
-  const [range, setRange] = useState<RangeKey>("90d");
+  const [range, setRange] = useState<RangeKey>("30d");
   const [showDesktop, setShowDesktop] = useState(true);
   const [showMobile, setShowMobile] = useState(true);
 
@@ -114,6 +130,11 @@ export function ChartAreaInteractive({
   }, [data, meta.slice]);
 
   const hasAnyViews = chartData.some((d) => d.desktop > 0 || d.mobile > 0);
+
+  const yDomain = useMemo((): [number, number] => {
+    const max = stackedMax(chartData, showDesktop, showMobile);
+    return [0, paddedYMax(max)];
+  }, [chartData, showDesktop, showMobile]);
 
   const visibleSeries = (showDesktop ? 1 : 0) + (showMobile ? 1 : 0);
 
@@ -241,11 +262,11 @@ export function ChartAreaInteractive({
           </div>
         ) : (
           <div className="w-full min-w-0 pt-3 pb-6">
-            <div className="h-[380px] w-full min-w-0">
-              <ResponsiveContainer width="100%" height={400} minWidth={0}>
+            <div className="h-[min(420px,50vh)] min-h-[280px] w-full min-w-0">
+              <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
-                  margin={{ top: 5, right: 12, left: 0, bottom: 5 }}
+                  margin={{ top: 20, right: 12, left: 0, bottom: 8 }}
                 >
                   <defs>
                     <linearGradient
@@ -307,7 +328,8 @@ export function ChartAreaInteractive({
                     tickLine={false}
                     axisLine={false}
                     allowDecimals={false}
-                    width={30}
+                    domain={yDomain}
+                    width={36}
                   />
                   <Tooltip
                     formatter={tooltipValueFormatter}
@@ -362,14 +384,14 @@ export function ChartAreaInteractive({
                   />
                   {showMobile ? (
                     <Area
-                      type="natural"
+                      type="monotone"
                       dataKey="mobile"
                       name="mobile"
                       stackId={
                         showDesktop && showMobile ? "visitors" : undefined
                       }
                       stroke={SERIES_STYLE.mobile.stroke}
-                      strokeWidth={1}
+                      strokeWidth={1.5}
                       fill={`url(#${fillMobileId})`}
                       dot={false}
                       activeDot={{
@@ -381,14 +403,14 @@ export function ChartAreaInteractive({
                   ) : null}
                   {showDesktop ? (
                     <Area
-                      type="natural"
+                      type="monotone"
                       dataKey="desktop"
                       name="desktop"
                       stackId={
                         showDesktop && showMobile ? "visitors" : undefined
                       }
                       stroke={SERIES_STYLE.desktop.stroke}
-                      strokeWidth={1}
+                      strokeWidth={1.5}
                       fill={`url(#${fillDesktopId})`}
                       dot={false}
                       activeDot={{

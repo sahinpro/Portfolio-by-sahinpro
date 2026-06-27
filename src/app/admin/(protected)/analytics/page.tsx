@@ -1,5 +1,5 @@
-import { AdminMediaLibraryPage } from "@/admin/pages/AdminMediaLibraryPage";
+import { AdminAnalyticsPage } from "@/admin/pages/AdminAnalyticsPage";
 
 export default function Page() {
-  return <AdminMediaLibraryPage />;
+  return <AdminAnalyticsPage />;
 }

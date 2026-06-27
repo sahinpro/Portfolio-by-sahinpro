@@ -48,38 +48,6 @@ export type ProjectRow = {
   updated_at: string;
 };
 
-export type TestimonialRow = {
-  id: string;
-  author_name: string;
-  author_role: string | null;
-  author_company: string | null;
-  author_avatar: string | null;
-  quote: string;
-  highlighted_quote: string | null;
-  status: "draft" | "published";
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-};
-
-export type SocialLinkRow = {
-  id: string;
-  platform: string;
-  url: string;
-  icon: string | null;
-  visible: boolean;
-  sort_order: number;
-};
-
-export type SeoSettingsRow = {
-  page: string;
-  meta_title: string | null;
-  meta_description: string | null;
-  og_image: string | null;
-  keywords: string | null;
-  updated_at: string;
-};
-
 export type ResumeRow = {
   id: string;
   file_url: string;

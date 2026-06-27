@@ -27,7 +27,7 @@ type ImageUrlFieldProps = {
   value: string;
   onChange: (url: string) => void;
   bucket: BucketId;
-  /** Storage path prefix (no leading/trailing slash), e.g. `projects`, `testimonials`. */
+  /** Storage path prefix (no leading/trailing slash), e.g. `projects`. */
   pathPrefix: string;
   placeholder?: string;
   /** Narrow layout for table cells (no label). */

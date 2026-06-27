@@ -5,7 +5,7 @@ import {
   DEFAULT_META_TITLE,
 } from "@/lib/seoDefaults";
 
-export const SEO_ADMIN_PAGES = [
+export const SEO_PAGES = [
   "/",
   "/about",
   "/projects",
@@ -13,7 +13,7 @@ export const SEO_ADMIN_PAGES = [
   "/contact",
 ] as const;
 
-export type SeoAdminPage = (typeof SEO_ADMIN_PAGES)[number];
+export type SeoPageKey = (typeof SEO_PAGES)[number];
 
 export type SeoPageDefaults = {
   meta_title: string;
@@ -22,8 +22,8 @@ export type SeoPageDefaults = {
   keywords: string;
 };
 
-/** Recommended SEO values per route (used for admin placeholders + reset). */
-export const SEO_PAGE_DEFAULTS: Record<SeoAdminPage, SeoPageDefaults> = {
+/** Hardcoded SEO values per public route. */
+export const SEO_PAGE_DEFAULTS: Record<SeoPageKey, SeoPageDefaults> = {
   "/": {
     meta_title: DEFAULT_META_TITLE,
     meta_description: DEFAULT_META_DESCRIPTION,
@@ -80,3 +80,14 @@ export const STALE_OG_IMAGE_SUFFIXES = [
 ] as const;
 
 export const STALE_OG_HOSTS = ["sahinalam.com", "www.sahinalam.com"] as const;
+
+export function normalizeSeoPagePath(pathname: string): SeoPageKey {
+  const p = pathname.replace(/\/$/, "") || "/";
+  if ((SEO_PAGES as readonly string[]).includes(p)) return p as SeoPageKey;
+  if (p.startsWith("/projects")) return "/projects";
+  return "/";
+}
+
+export function getSeoForPath(pathname: string): SeoPageDefaults {
+  return SEO_PAGE_DEFAULTS[normalizeSeoPagePath(pathname)];
+}

@@ -1,22 +1,13 @@
-import type { SeoSettingsRow } from "@/admin/types/database";
 import { PROFILE } from "@/constants/profile";
 import { canonicalPath, getSiteUrl } from "@/constants/site";
-import { fetchSeoForPage, fetchSiteSettingsMap } from "@/data/publicSupabase.server";
+import { fetchSiteSettingsMap } from "@/data/publicSupabase.server";
 import { resolveOgImageUrl, ogImageMimeType } from "@/lib/resolveOgImage";
-import {
-  DEFAULT_KEYWORDS,
-  DEFAULT_META_DESCRIPTION,
-  DEFAULT_META_TITLE,
-} from "@/lib/seoDefaults";
 import { OG_IMAGE } from "@/lib/seoImages";
+import { getSeoForPath } from "@/lib/seoPageDefaults";
 import { isComingSoonEnabled } from "@/lib/siteMode";
 import type { Metadata } from "next";
 
 const SITE = PROFILE.name;
-
-function buildKeywords(row: SeoSettingsRow | null): string {
-  return row?.keywords?.trim() || DEFAULT_KEYWORDS;
-}
 
 function ogImageMeta(
   imageUrl: string,
@@ -34,10 +25,6 @@ function ogImageMeta(
       type,
     },
   ];
-}
-
-function resolveOgImage(row: SeoSettingsRow | null, fallback?: string): string {
-  return resolveOgImageUrl(row?.og_image, fallback);
 }
 
 function baseOpenGraph(
@@ -88,11 +75,11 @@ export async function buildPageMetadata(
   pagePath: string,
   pathname = pagePath,
 ): Promise<Metadata> {
-  const seo = await fetchSeoForPage(pagePath);
-  const title = seo?.meta_title?.trim() || DEFAULT_META_TITLE;
-  const description = seo?.meta_description?.trim() || DEFAULT_META_DESCRIPTION;
-  const keywords = buildKeywords(seo);
-  const ogImage = resolveOgImage(seo);
+  const seo = getSeoForPath(pagePath);
+  const title = seo.meta_title;
+  const description = seo.meta_description;
+  const keywords = seo.keywords;
+  const ogImage = resolveOgImageUrl(seo.og_image);
   const canonical = canonicalPath(pathname);
 
   return {
