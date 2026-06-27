@@ -496,7 +496,7 @@ export const ContactPage = (): JSX.Element => {
                               setPhoneError(null);
                           }}
                           placeholder=" Whatsapp number"
-                          defaultCountry="BD"
+                          defaultCountry="US"
                           error={phoneError ?? undefined}
                           numberInputProps={{
                             className: "text-white placeholder:text-white/25",
