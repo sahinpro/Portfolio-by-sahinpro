@@ -70,19 +70,19 @@ const PhoneInput = React.forwardRef<
 );
 PhoneInput.displayName = "PhoneInput";
 
-const InputComponent = ({
-  className,
-  ref: _ref,
-  ...props
-}: React.ComponentProps<"input">) => (
+const InputComponent = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentProps<"input">
+>(({ className, ...props }, ref) => (
   <input
+    ref={ref}
     className={cn(
       "flex h-10 w-full min-w-0 flex-1 rounded-r-xl rounded-l-none border-0 border-l border-input bg-transparent px-3 py-1 text-base text-white shadow-none transition-colors outline-none placeholder:text-muted-foreground focus-visible:ring-0 md:text-sm",
       className,
     )}
     {...props}
   />
-);
+));
 InputComponent.displayName = "InputComponent";
 
 type CountrySelectOption = { label: string; value: RPNInput.Country };
