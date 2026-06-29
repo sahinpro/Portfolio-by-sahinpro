@@ -268,12 +268,12 @@ export const ServicesPage = (): JSX.Element => {
           </div>
         }
         title="Let's figure it out together"
-        description="Book a free 30-minute discovery call. No pitch, just a real conversation about your project and goals."
+        description="Schedule a free 15-minute Google Meet. No pitch, just a real conversation about your project and goals."
         actions={
           <>
             <CTAButton href="/contact" variant="primary">
               <Zap className="w-4 h-4 mr-1.5" />
-              Free consultation
+              Schedule a free Google Meet
             </CTAButton>
             <CTAButton href="/projects" variant="secondary">
               View work

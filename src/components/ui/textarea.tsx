@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { inputFieldClassName } from "@/components/ui/input";
 
 const Textarea = React.forwardRef<
   HTMLTextAreaElement,
@@ -8,7 +9,8 @@ const Textarea = React.forwardRef<
   return (
     <textarea
       className={cn(
-        "flex min-h-[60px] w-full min-w-0 rounded-md border border-input bg-input/30 px-3 py-2 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-4 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        inputFieldClassName,
+        "h-auto min-h-[60px] py-2",
         className,
       )}
       ref={ref}

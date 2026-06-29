@@ -308,6 +308,14 @@ export const ContactPage = (): JSX.Element => {
     "text-white placeholder:text-white/25",
   );
 
+  const phoneShellClass = cn(inputClass, "p-0");
+
+  const phoneInputClass = cn(
+    "h-full min-h-0 px-4 py-0",
+    "text-white placeholder:text-white/25",
+    "border-0 rounded-none bg-transparent shadow-none focus-visible:ring-0",
+  );
+
   const renderFaqItem = (faq: (typeof faqs)[number], i: number) => (
     <motion.div
       key={faq.q}
@@ -498,9 +506,8 @@ export const ContactPage = (): JSX.Element => {
                           placeholder=" Whatsapp number"
                           defaultCountry="US"
                           error={phoneError ?? undefined}
-                          numberInputProps={{
-                            className: "text-white placeholder:text-white/25",
-                          }}
+                          className={phoneShellClass}
+                          numberInputProps={{ className: phoneInputClass }}
                         />
                       </div>
                     </div>

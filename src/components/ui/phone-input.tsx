@@ -1,6 +1,6 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
+import { Input, inputFieldShellClassName } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -41,17 +41,16 @@ const PhoneInput = React.forwardRef<
     <div className="flex flex-col gap-1.5 w-full">
       <div
         className={cn(
-          "flex overflow-hidden rounded-xl border border-input bg-input/30 transition-colors outline-none",
-          "focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/50",
+          inputFieldShellClassName,
           error
-            ? "border-destructive/60 focus-within:border-destructive focus-within:ring-4 focus-within:ring-destructive/20"
+            ? "border-destructive/60 focus-within:ring-4 focus-within:ring-destructive/20"
             : null,
           className,
         )}
       >
         <RPNInput.default
           ref={ref}
-          className="flex flex-1 min-w-0"
+          className="flex h-full flex-1 min-w-0 items-stretch"
           flagComponent={FlagComponent}
           countrySelectComponent={CountrySelect}
           inputComponent={InputComponent}
@@ -77,7 +76,7 @@ const InputComponent = React.forwardRef<
   <input
     ref={ref}
     className={cn(
-      "flex h-10 w-full min-w-0 flex-1 rounded-r-xl rounded-l-none border-0 border-l border-input bg-transparent px-3 py-1 text-base text-white shadow-none transition-colors outline-none placeholder:text-muted-foreground focus-visible:ring-0 md:text-sm",
+      "flex h-full min-h-0 w-full min-w-0 flex-1 border-0 border-l border-input bg-transparent px-3 py-0 text-base text-foreground shadow-none transition-colors outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
       className,
     )}
     {...props}
@@ -138,7 +137,7 @@ const CountrySelect = ({
         <button
           type="button"
           disabled={disabled}
-          className="flex items-center gap-1.5 rounded-l-xl rounded-r-none h-10 pl-3 pr-2 min-w-0 text-white hover:bg-white/5 focus:outline-none focus:ring-0 disabled:opacity-50"
+          className="flex h-full min-h-0 items-center gap-1.5 rounded-none pl-3 pr-2 min-w-0 text-foreground hover:bg-white/5 focus:outline-none focus:ring-0 disabled:opacity-50"
           aria-label="Country"
           aria-haspopup="listbox"
           aria-expanded={open}

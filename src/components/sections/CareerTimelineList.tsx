@@ -1,7 +1,4 @@
-import {
-  scrollViewport,
-  sectionEase,
-} from "@/constants/scrollMotion";
+import { scrollViewport, sectionEase } from "@/constants/scrollMotion";
 import type { TimelineEntry } from "@/screens/sections/CareerJourneySection/careerJourneyData";
 import { motion } from "framer-motion";
 
@@ -11,7 +8,7 @@ export const CareerTimelineList = ({
   entries: TimelineEntry[];
 }): JSX.Element => (
   <div className="relative space-y-0">
-    <div className="absolute left-5 top-2 bottom-2 w-px bg-gradient-to-b from-violet-500/60 via-violet-500/25 to-transparent" />
+    <div className="absolute left-5 top-2 bottom-2 w-px bg-gradient-to-b from-green-500/60 via-green-500/25 to-transparent" />
 
     {entries.map((item, i) => {
       const Icon = item.icon;
@@ -30,15 +27,15 @@ export const CareerTimelineList = ({
         >
           <div
             className="relative z-10 flex-shrink-0 w-10 h-10 rounded-full bg-[#0a0a0a]
-            border border-violet-500/40 flex items-center justify-center
-            shadow-[0_0_20px_rgba(139,92,246,0.15)] group-hover:border-violet-400/60
+            border border-green-500/40 flex items-center justify-center
+            shadow-[0_0_20px_rgba(139,92,246,0.15)] group-hover:border-green-400/60
             group-hover:shadow-[0_0_24px_rgba(139,92,246,0.25)] transition-all duration-300"
           >
-            <Icon className="w-4 h-4 text-violet-400" />
+            <Icon className="w-4 h-4 text-green-400" />
           </div>
 
           <div className="pt-0.5 flex-1 min-w-0">
-            <span className="inline-block text-xs font-semibold tracking-widest text-violet-400 mb-1">
+            <span className="inline-block text-xs font-semibold tracking-widest text-green-400 mb-1">
               {item.year}
             </span>
             <h3 className="text-base sm:text-lg font-semibold text-white">

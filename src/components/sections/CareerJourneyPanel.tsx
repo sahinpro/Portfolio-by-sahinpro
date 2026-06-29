@@ -1,8 +1,8 @@
-import { PROFILE } from "@/constants/profile";
-import { PROFILE_PORTRAIT } from "@/lib/seoImages";
-import { scrollViewport, sectionEase } from "@/constants/scrollMotion";
-import type { TimelineEntry } from "@/screens/sections/CareerJourneySection/careerJourneyData";
 import { PublicImage } from "@/components/ui/PublicImage";
+import { PROFILE } from "@/constants/profile";
+import { scrollViewport, sectionEase } from "@/constants/scrollMotion";
+import { PROFILE_PORTRAIT } from "@/lib/seoImages";
+import type { TimelineEntry } from "@/screens/sections/CareerJourneySection/careerJourneyData";
 import { motion } from "framer-motion";
 import { CareerTimelineList } from "./CareerTimelineList";
 
@@ -37,7 +37,7 @@ export const CareerJourneyPanel = ({
           className="relative w-full"
         >
           <div
-            className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-violet-600/20 via-purple-600/10 to-blue-600/15 blur-2xl"
+            className="pointer-events-none absolute -inset-4 rounded-full  blur-2xl"
             aria-hidden
           />
           <div className="w-full h-full relative p-1 rounded-full bg-gradient-to-br from-violet-500/30 via-white/10 to-purple-600/20">
@@ -59,10 +59,6 @@ export const CareerJourneyPanel = ({
 
     <div className="flex-1">
       <div className={timelineCardClass}>
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-violet-600/[0.04] via-transparent to-purple-600/[0.03]"
-          aria-hidden
-        />
         <div className="relative">
           <CareerTimelineList entries={entries} />
         </div>
