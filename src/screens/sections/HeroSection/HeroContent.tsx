@@ -1,9 +1,11 @@
 import { CTAButton } from "@/components/common/CTAButton";
+import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import {
-  fadeUp,
   heroCtaStagger,
   heroFadeStep,
   heroIntroStagger,
+  heroSocialLinksGate,
+  socialLinkFade,
 } from "@/constants/scrollMotion";
 import { useActiveResume } from "@/hooks/useActiveResume";
 import { triggerResumeDownload } from "@/lib/resumeDownload";
@@ -14,7 +16,8 @@ import { HeroSubtitle } from "./HeroSubtitle";
 import { HeroTitle } from "./HeroTitle";
 
 export const HeroContent = (): JSX.Element => {
-  const { data: resume } = useActiveResume({ deferMs: 4500 });
+  const { data: resume, loading: resumeLoading } = useActiveResume();
+  const showResumeCta = resumeLoading || resume != null;
 
   return (
     <motion.div
@@ -50,18 +53,17 @@ export const HeroContent = (): JSX.Element => {
             </CTAButton>
           </motion.div>
 
-          {resume ? (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp(0)}
-            >
+          {showResumeCta ? (
+            <motion.div variants={heroFadeStep}>
               <CTAButton
                 className="text-md font-semibold gap-2"
                 variant="secondary"
                 showArrow={false}
                 rightIcon={<DownloadIcon className="w-4 h-4" />}
-                onClick={() => void triggerResumeDownload(resume)}
+                disabled={resumeLoading || !resume}
+                onClick={() => {
+                  if (resume) void triggerResumeDownload(resume);
+                }}
               >
                 Download resume
               </CTAButton>
@@ -69,6 +71,12 @@ export const HeroContent = (): JSX.Element => {
           ) : null}
         </motion.div>
       </motion.div>
+
+      <SocialLinksRow
+        size="hero"
+        variants={heroSocialLinksGate}
+        itemVariants={socialLinkFade}
+      />
     </motion.div>
   );
 };

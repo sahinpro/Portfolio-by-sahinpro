@@ -67,9 +67,10 @@ export const heroCtaStagger = {
 };
 
 export const heroTiming = {
-  socialLinksDelay: 0.52,
+  /** After hero copy + both CTAs finish (~0.35 + 0.56s) */
+  socialLinksDelay: 0.92,
   contactSocialDelay: 0.42,
-  socialIconStagger: 0.045,
+  socialIconStagger: 0.055,
   /** After hero copy + CTAs; aligns with header settle (~0.5s) */
   codeEditorDelay: 0.58,
   /** Defer heavy editor bundle after the shell has faded in */
@@ -95,6 +96,16 @@ export const heroCodeEditorReveal = {
   },
 };
 
+export const heroSocialLinksGate = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: 0.62,
+      staggerChildren: heroTiming.socialIconStagger,
+    },
+  },
+};
+
 export const socialLinkStagger = (delay = 0) => ({
   hidden: {},
   visible: {
@@ -106,11 +117,10 @@ export const socialLinkStagger = (delay = 0) => ({
 });
 
 export const socialLinkFade = {
-  hidden: { opacity: 0, y: 14, scale: 0.94 },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
-    transition: { duration: 0.42, ease: sectionEase },
+    transition: { duration: 0.48, ease: sectionEase },
   },
 };

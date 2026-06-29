@@ -1,5 +1,4 @@
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
-import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
 import {
   heroCodeEditorReveal,
@@ -77,12 +76,6 @@ export const HeroSection = (): JSX.Element => {
             <div className="w-full">
               <HeroContent />
             </div>
-
-            <SocialLinksRow
-              size="hero"
-              animate
-              delay={heroTiming.socialLinksDelay}
-            />
           </div>
 
           <motion.div

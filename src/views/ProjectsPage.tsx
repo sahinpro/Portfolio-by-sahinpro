@@ -218,7 +218,7 @@ export const ProjectsPage = (): JSX.Element => {
         )}
 
         {projects.length === 0 && !loading && !error && (
-          <section className="w-full pb-28">
+          <section className="w-full pb-10">
             <div className="container mx-auto px-4 flex flex-col items-center py-20 gap-3 max-w-lg text-center">
               <Layers className="w-8 h-8 text-white/20" />
               <p className="text-white/50 text-sm leading-relaxed">

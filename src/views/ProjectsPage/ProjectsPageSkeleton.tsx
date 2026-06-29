@@ -36,7 +36,7 @@ export function ProjectsPageSkeleton(): JSX.Element {
           </div>
         </section>
 
-        <section className="w-full pb-28">
+        <section className="w-full pb-10">
           <div className="container mx-auto px-4">
             <ProjectCardSkeletonGrid />
           </div>

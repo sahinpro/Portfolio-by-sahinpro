@@ -176,7 +176,9 @@ export const AboutPage = (): JSX.Element => {
                 {PROFILE.aboutIntro}
               </motion.p>
 
-              <SocialLinksRow size="hero" variants={heroFadeStep} />
+              <div className="flex flex-col mt-4">
+                <SocialLinksRow size="hero" variants={heroFadeStep} />
+              </div>
             </div>
 
             <motion.div
@@ -332,7 +334,7 @@ export const AboutPage = (): JSX.Element => {
         }
       />
 
-      <section className="w-full pb-28">
+      <section className="w-full pb-10">
         <motion.div
           initial="hidden"
           animate="visible"
