@@ -1,8 +1,8 @@
-/** Matches Contact page scroll triggers — use for all public scroll entrances. */
+/**use for all public scroll entrances. */
 export const scrollViewport = {
   once: true,
-  amount: 0.2 as const,
-  margin: "0px 0px -10% 0px" as const,
+  amount: 0.25 as const,
+  margin: "0px 0px -5% 0px" as const,
 } as const;
 
 export const sectionEase = [0.37, 0.04, 0.29, 1.01] as const;
@@ -23,7 +23,7 @@ export const fadeInUp = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.52, ease: sectionEase },
+    transition: { duration: 0.3, ease: sectionEase },
   },
 };
 
@@ -32,7 +32,7 @@ export const fadeUp = (delay = 0) => ({
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.55, delay, ease: sectionEase },
+    transition: { duration: 0.3, delay, ease: sectionEase },
   },
 });
 
