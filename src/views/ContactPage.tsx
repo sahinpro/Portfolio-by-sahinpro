@@ -3,6 +3,7 @@
 import errorAnimationData from "@/assets/lottie/error.json";
 import successAnimationData from "@/assets/lottie/success.json";
 import { CTAButton } from "@/components/common/CTAButton";
+import { ContactHeroMap } from "@/components/contact/ContactHeroMap";
 import Header from "@/components/Header";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import { Input } from "@/components/ui/input";
@@ -311,9 +312,8 @@ export const ContactPage = (): JSX.Element => {
   const phoneShellClass = cn(inputClass, "p-0");
 
   const phoneInputClass = cn(
-    "h-full min-h-0 px-4 py-0",
+    "h-11 border-0 rounded-none bg-transparent px-4 py-0 leading-normal shadow-none focus-visible:ring-0 sm:h-full sm:min-h-0",
     "text-white placeholder:text-white/25",
-    "border-0 rounded-none bg-transparent shadow-none focus-visible:ring-0",
   );
 
   const renderFaqItem = (faq: (typeof faqs)[number], i: number) => (
@@ -361,6 +361,8 @@ export const ContactPage = (): JSX.Element => {
       <Header />
 
       <section className="w-full pt-28 sm:pt-36 lg:pt-40 pb-10 sm:pb-16 relative overflow-hidden">
+        <ContactHeroMap visible={headerInV} />
+
         <div
           className="pointer-events-none absolute -top-20 right-1/4 w-[600px] h-[400px]
           bg-gradient-to-b from-violet-600/8 to-transparent rounded-full blur-3xl"
@@ -368,7 +370,7 @@ export const ContactPage = (): JSX.Element => {
 
         <div
           ref={headerRef}
-          className="container mx-auto px-4 text-center max-w-full"
+          className="container relative z-10 mx-auto max-w-full px-4 text-center"
         >
           <motion.div
             initial="hidden"

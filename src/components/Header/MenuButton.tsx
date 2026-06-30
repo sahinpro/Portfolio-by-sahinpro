@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 
 interface MenuButtonProps {
@@ -9,17 +10,30 @@ export const MenuButton = ({ isOpen, onClick }: MenuButtonProps) => {
   return (
     <button
       onClick={onClick}
-      className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg bg-[#1c1c1c] border border-[#ffffff1a] hover:border-white/40 transition-colors"
+      className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#ffffff1a] bg-[#1c1c1c] transition-colors hover:border-white/40 lg:hidden"
       aria-label={isOpen ? "Close menu" : "Open menu"}
       aria-expanded={isOpen}
       aria-controls="mobile-primary-nav"
     >
-      <div className="relative w-5 h-5 transition-transform duration-200">
-        {isOpen ? (
-          <X className="h-5 w-5 text-white absolute inset-0" />
-        ) : (
-          <Menu className="h-5 w-5 text-white absolute inset-0" />
-        )}
+      <div className="relative h-5 w-5">
+        <Menu
+          className={cn(
+            "absolute inset-0 h-5 w-5 text-white transition-all duration-300 ease-out",
+            isOpen
+              ? "scale-75 rotate-90 opacity-0"
+              : "scale-100 rotate-0 opacity-100",
+          )}
+          aria-hidden={isOpen}
+        />
+        <X
+          className={cn(
+            "absolute inset-0 h-5 w-5 text-white transition-all duration-300 ease-out",
+            isOpen
+              ? "scale-100 rotate-0 opacity-100"
+              : "scale-75 -rotate-90 opacity-0",
+          )}
+          aria-hidden={!isOpen}
+        />
       </div>
     </button>
   );

@@ -25,7 +25,7 @@ export const PROFILE = {
   bio: "I'm a Full Stack Developer at We Next Coder, delivering 200+ WordPress, WooCommerce projects plus modern React & Next.js products like agency platforms.",
   /** Hero code panel — {@link buildAboutCode} class properties (LinkedIn cover style) */
   codeFocus: "JavaScript Fundamentals",
-  codeMindset: "Build. Learn. Share.",
+  codeMindset: "Learn.Build. Share.",
   codeHighlights: [
     "JavaScript Fundamentals & Modern Web Development.",
     "React, Next.js, WordPress & WooCommerce.",
