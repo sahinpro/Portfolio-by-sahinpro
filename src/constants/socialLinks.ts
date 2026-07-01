@@ -10,6 +10,12 @@ export type SocialLink = {
 /** Hardcoded social links shown in hero, footer, and contact. */
 export const SOCIAL_LINKS: SocialLink[] = [
   {
+    id: "github",
+    platform: "GitHub",
+    url: PROFILE.github,
+    icon: "github",
+  },
+  {
     id: "linkedin",
     platform: "LinkedIn",
     url: PROFILE.linkedIn,
@@ -20,6 +26,12 @@ export const SOCIAL_LINKS: SocialLink[] = [
     platform: "X",
     url: PROFILE.x,
     icon: "x",
+  },
+  {
+    id: "instagram",
+    platform: "Instagram",
+    url: PROFILE.instagram,
+    icon: "instagram",
   },
   {
     id: "medium",

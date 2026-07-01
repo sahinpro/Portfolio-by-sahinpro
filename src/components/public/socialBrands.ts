@@ -48,6 +48,9 @@ export function getSocialLinkIconKey(link: SocialLink): string {
   if (/behance\.net/i.test(url)) return "behance";
   if (platform.includes("behance")) return "behance";
 
+  if (/instagram\.com/i.test(url)) return "instagram";
+  if (platform.includes("instagram")) return "instagram";
+
   if (/sahin\.pro\.bd/i.test(url)) return "portfolio";
   if (platform.includes("portfolio") || platform.includes("website")) return "portfolio";
 

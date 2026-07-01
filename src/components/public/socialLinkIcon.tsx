@@ -3,7 +3,7 @@ import { getSocialLinkIconKey } from "@/components/public/socialBrands";
 import { Globe, Github, Link2, Linkedin, Mail, type LucideIcon } from "lucide-react";
 import type { IconType } from "react-icons";
 import { BsBehance, BsTelegram, BsWhatsapp } from "react-icons/bs";
-import { FaXTwitter } from "react-icons/fa6";
+import { FaInstagram, FaXTwitter } from "react-icons/fa6";
 import { SiHashnode, SiMedium } from "react-icons/si";
 
 type SocialGlyph = (props: { className?: string }) => JSX.Element;
@@ -21,6 +21,7 @@ const ICONS: Record<string, SocialGlyph> = {
   telegram: asGlyph(BsTelegram),
   medium: asGlyph(SiMedium),
   hashnode: asGlyph(SiHashnode),
+  instagram: asGlyph(FaInstagram),
   twitter: asGlyph(FaXTwitter),
   x: asGlyph(FaXTwitter),
   mail: asGlyph(Mail),
