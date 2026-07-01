@@ -13,7 +13,6 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
       id="mobile-primary-nav"
       aria-hidden={!isOpen}
       aria-label="Mobile"
-      inert={!isOpen ? true : undefined}
       className={cn(
         "overflow-hidden rounded-xl bg-black/50 backdrop-blur-sm lg:hidden",
         "transition-[max-height,opacity,margin-top,border-color] duration-300 ease-in-out",
