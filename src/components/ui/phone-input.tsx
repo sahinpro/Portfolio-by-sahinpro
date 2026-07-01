@@ -42,7 +42,7 @@ const PhoneInput = React.forwardRef<
       <div
         className={cn(
           inputFieldShellClassName,
-          "flex min-h-11 items-center sm:min-h-0",
+          "flex min-h-11 items-center",
           error
             ? "border-destructive/60 focus-within:ring-4 focus-within:ring-destructive/20"
             : null,
@@ -77,7 +77,7 @@ const InputComponent = React.forwardRef<
   <input
     ref={ref}
     className={cn(
-      "h-11 w-full min-w-0 flex-1 border-0 border-l border-input bg-transparent px-3 py-0 text-base leading-normal text-foreground shadow-none transition-colors outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 sm:h-full md:text-sm",
+      "h-[40px] w-full min-w-0 flex-1 border-0 border-l border-input bg-transparent px-3 py-0 text-base leading-normal text-foreground shadow-none transition-colors outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
       className,
     )}
     {...props}
@@ -138,7 +138,7 @@ const CountrySelect = ({
         <button
           type="button"
           disabled={disabled}
-          className="flex h-11 shrink-0 items-center gap-1.5 self-center rounded-none pl-3 pr-2 text-foreground hover:bg-white/5 focus:outline-none focus:ring-0 disabled:opacity-50 sm:h-full sm:min-h-0"
+          className="flex h-10 shrink-0 items-center gap-1.5 self-center rounded-none pl-3 pr-2 text-foreground hover:bg-white/5 focus:outline-none focus:ring-0 disabled:opacity-50"
           aria-label="Country"
           aria-haspopup="listbox"
           aria-expanded={open}

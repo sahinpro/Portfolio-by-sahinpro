@@ -305,14 +305,14 @@ export const ContactPage = (): JSX.Element => {
   };
 
   const inputClass = cn(
-    "h-auto min-h-[44px] px-4 py-3 sm:py-2.5 rounded-xl",
+    "h-auto min-h-[44px] px-4 py-2 sm:py-0 rounded-xl",
     "text-white placeholder:text-white/25",
   );
 
   const phoneShellClass = cn(inputClass, "p-0");
 
   const phoneInputClass = cn(
-    "h-11 border-0 rounded-none bg-transparent px-4 py-0 leading-normal shadow-none focus-visible:ring-0 sm:h-full sm:min-h-0",
+    "h-full border-0 rounded-none bg-transparent px-4 py-0 leading-normal shadow-none focus-visible:ring-0 sm:h-full sm:min-h-0",
     "text-white placeholder:text-white/25",
   );
 
