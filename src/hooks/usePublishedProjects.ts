@@ -1,4 +1,4 @@
-import { fetchPublishedProjects } from "@/data/publicSupabase";
+import { fetchPublishedProjects } from "@/data/publicSupabase.client";
 import {
   mapProjectRowToPublicDetail,
   type PublicProjectDetail,

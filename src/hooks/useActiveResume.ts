@@ -1,5 +1,5 @@
-import type { PublicActiveResume } from "@/data/publicSupabase";
-import { fetchActiveResume } from "@/data/publicSupabase";
+import type { PublicActiveResume } from "@/data/publicSupabase.client";
+import { fetchActiveResume } from "@/data/publicSupabase.client";
 import { usePublicData } from "@/hooks/usePublicData";
 
 type UseActiveResumeOptions = {
@@ -7,7 +7,7 @@ type UseActiveResumeOptions = {
 };
 
 /**
- * Active resume row from Supabase (admin → Resume / CV). Cached with other public reads.
+ * Active resume via cached public API (admin → Resume / CV).
  */
 export function useActiveResume(options?: UseActiveResumeOptions) {
   return usePublicData<PublicActiveResume | null>(

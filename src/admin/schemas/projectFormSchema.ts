@@ -1,8 +1,13 @@
 import {
   CMS_PLATFORM_OPTIONS,
   CUSTOM_FRAMEWORK_OPTIONS,
+  isFullStackFormCategory,
   PROJECT_CATEGORIES,
 } from "@/admin/constants/frameworkFieldConfig";
+import {
+  hasCmsBuildFieldValues,
+  hasCustomBuildFieldValues,
+} from "@/admin/lib/buildKindFieldGuards";
 import { z } from "zod";
 
 const CUSTOM_FRAMEWORK_SLUGS = CUSTOM_FRAMEWORK_OPTIONS.map((o) => o.value);
@@ -43,6 +48,21 @@ function refineProjectForm(
   }
   if (data.status === "trash") return;
 
+  if (data.build_kind === "custom" && hasCmsBuildFieldValues(data)) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Choose either Custom code or CMS — not both",
+      path: ["build_kind"],
+    });
+  }
+  if (data.build_kind === "cms" && hasCustomBuildFieldValues(data)) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Choose either Custom code or CMS — not both",
+      path: ["build_kind"],
+    });
+  }
+
   if (data.build_kind === "custom") {
     const fw = (data.custom_framework ?? "").trim();
     if (!fw) {
@@ -66,7 +86,22 @@ function refineProjectForm(
         path: ["technologies"],
       });
     }
+    if (!isFullStackFormCategory(data.category)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Custom code projects must be categorized as Full Stack",
+        path: ["category"],
+      });
+    }
     return;
+  }
+
+  if (isFullStackFormCategory(data.category)) {
+    ctx.addIssue({
+      code: "custom",
+      message: "CMS projects cannot be categorized as Full Stack",
+      path: ["category"],
+    });
   }
 
   const platform = (data.cms_platform ?? "").trim();

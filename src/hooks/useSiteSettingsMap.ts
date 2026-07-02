@@ -1,4 +1,4 @@
-import { fetchSiteSettingsMap } from "@/data/publicSupabase";
+import { fetchSiteSettingsMap } from "@/data/publicSupabase.client";
 import { usePublicData } from "@/hooks/usePublicData";
 
 export function useSiteSettingsMap(): {

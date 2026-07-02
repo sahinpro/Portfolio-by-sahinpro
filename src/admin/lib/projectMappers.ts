@@ -1,4 +1,13 @@
-import { PROJECT_CATEGORIES } from "@/admin/constants/frameworkFieldConfig";
+import {
+  categoriesForBuildKind,
+  isFullStackFormCategory,
+  PROJECT_CATEGORIES,
+} from "@/admin/constants/frameworkFieldConfig";
+import {
+  hasCmsBuildFieldValues,
+  hasCustomBuildFieldValues,
+  stripInactiveBuildFields,
+} from "@/admin/lib/buildKindFieldGuards";
 import type { ProjectFormValues } from "@/admin/schemas/projectFormSchema";
 import type { ProjectRow } from "@/admin/types/database";
 
@@ -97,25 +106,40 @@ export function frameworkRowToFormValue(
 export function projectRowToFormValues(row: ProjectRow): ProjectFormValues {
   const extensions = parseExtensions(row.cms_extensions);
   const screenshots = parseScreenshotUrls(row.screenshot_urls);
+  let category = normalizeCategory(row.category || "Web Development");
+  if (row.build_kind === "cms" && isFullStackFormCategory(category)) {
+    category = categoriesForBuildKind("cms")[0];
+  } else if (row.build_kind === "custom" && !isFullStackFormCategory(category)) {
+    category = categoriesForBuildKind("custom")[0];
+  }
 
-  return {
+  return stripInactiveBuildFields({
     title: row.title === "Untitled project" ? "" : row.title,
     description: row.description ?? "",
     image_url: row.image_url ?? "",
     screenshot_urls: screenshots,
-    technologies: row.technologies ?? [],
-    category: normalizeCategory(row.category || "Web Development"),
+    technologies: row.build_kind === "custom" ? (row.technologies ?? []) : [],
+    category,
     live_url: row.live_url ?? "",
     build_kind: row.build_kind,
-    custom_framework: frameworkRowToFormValue(row),
-    github_url: row.github_url ?? "",
-    cms_platform: (row.cms_platform ?? "") as ProjectFormValues["cms_platform"],
-    cms_theme_name: row.cms_theme_name ?? "",
-    cms_extensions: extensions.length ? extensions : [""],
+    custom_framework:
+      row.build_kind === "custom" ? frameworkRowToFormValue(row) : "",
+    github_url: row.build_kind === "custom" ? (row.github_url ?? "") : "",
+    cms_platform:
+      row.build_kind === "cms"
+        ? ((row.cms_platform ?? "") as ProjectFormValues["cms_platform"])
+        : "",
+    cms_theme_name: row.build_kind === "cms" ? (row.cms_theme_name ?? "") : "",
+    cms_extensions:
+      row.build_kind === "cms"
+        ? extensions.length
+          ? extensions
+          : [""]
+        : [""],
     featured: row.featured,
     status: row.status,
     sort_order: row.sort_order,
-  };
+  });
 }
 
 export type ProjectPayloadOptions = {
@@ -127,35 +151,38 @@ export function formValuesToProjectPayload(
   values: ProjectFormValues,
   options?: ProjectPayloadOptions,
 ): Omit<ProjectRow, "id" | "created_at" | "updated_at"> {
-  const screenshotClean = values.screenshot_urls
+  const activeValues = stripInactiveBuildFields(values);
+  const screenshotClean = activeValues.screenshot_urls
     .map((u) => u.trim())
     .filter(Boolean);
-  const techClean = values.technologies.map((t) => t.trim()).filter(Boolean);
-  const extClean = (values.cms_extensions ?? [])
+  const techClean = activeValues.technologies.map((t) => t.trim()).filter(Boolean);
+  const extClean = (activeValues.cms_extensions ?? [])
     .map((e) => (e ?? "").trim())
     .filter(Boolean);
-  const desc = values.description.trim();
+  const desc = activeValues.description.trim();
 
   const base = {
-    title: values.title.trim() || "Untitled project",
+    title: activeValues.title.trim() || "Untitled project",
     description: desc || null,
-    image_url: values.image_url.trim() || null,
+    image_url: activeValues.image_url.trim() || null,
     screenshot_urls: screenshotClean,
-    technologies: values.build_kind === "custom" ? techClean : [],
-    category: formCategoryToDbStorage(values.category),
-    live_url: values.live_url.trim() || null,
-    featured: values.featured,
-    status: values.status,
-    sort_order: values.sort_order,
+    technologies: activeValues.build_kind === "custom" ? techClean : [],
+    category: formCategoryToDbStorage(activeValues.category),
+    live_url: activeValues.live_url.trim() || null,
+    featured: activeValues.featured,
+    status: activeValues.status,
+    sort_order: activeValues.sort_order,
     stats: options?.stats ?? [],
   };
 
-  if (values.build_kind === "custom") {
+  if (activeValues.build_kind === "custom") {
     return {
       ...base,
       build_kind: "custom" as const,
-      github_url: values.github_url.trim() || null,
-      custom_framework: formCustomFrameworkToDbStorage(values.custom_framework),
+      github_url: activeValues.github_url.trim() || null,
+      custom_framework: formCustomFrameworkToDbStorage(
+        activeValues.custom_framework,
+      ),
       custom_framework_label: null,
       custom_stack_facets: null,
       cms_platform: null,
@@ -171,8 +198,8 @@ export function formValuesToProjectPayload(
     custom_framework: null,
     custom_framework_label: null,
     custom_stack_facets: null,
-    cms_platform: values.cms_platform as ProjectRow["cms_platform"],
-    cms_theme_name: (values.cms_theme_name ?? "").trim() || null,
+    cms_platform: activeValues.cms_platform as ProjectRow["cms_platform"],
+    cms_theme_name: (activeValues.cms_theme_name ?? "").trim() || null,
     cms_extensions: extClean.length ? extClean : null,
   };
 }
@@ -240,6 +267,14 @@ export function shouldPersistNewProjectDraft(
 
 /** Minimum validity for inserting a draft without full Zod validation (e.g. panel close). */
 export function canLenientDraftInsert(values: ProjectFormValues): boolean {
-  if (values.build_kind === "cms" && !values.cms_platform) return false;
+  if (values.build_kind === "cms") {
+    if (!values.cms_platform) return false;
+    if (isFullStackFormCategory(values.category)) return false;
+    if (hasCustomBuildFieldValues(values)) return false;
+  }
+  if (values.build_kind === "custom") {
+    if (!isFullStackFormCategory(values.category)) return false;
+    if (hasCmsBuildFieldValues(values)) return false;
+  }
   return true;
 }

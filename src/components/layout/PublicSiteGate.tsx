@@ -2,7 +2,7 @@
 
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
 import { SkipToContent } from "@/components/layout/SkipToContent";
-import { fetchSiteSettingsMap } from "@/data/publicSupabase";
+import { fetchSiteSettingsMap } from "@/data/publicSupabase.client";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { getCachedPublic } from "@/lib/publicDataCache";
 import { getComingSoonContent, isComingSoonEnabled } from "@/lib/siteMode";

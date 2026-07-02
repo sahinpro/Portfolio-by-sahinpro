@@ -6,9 +6,10 @@ import { ImageUrlField } from "@/admin/components/ui/ImageUrlField";
 import { TagInput } from "@/admin/components/ui/TagInput";
 import { ToggleSwitch } from "@/admin/components/ui/ToggleSwitch";
 import {
+  categoriesForBuildKind,
   CMS_PLATFORM_OPTIONS,
   CUSTOM_FRAMEWORK_OPTIONS,
-  PROJECT_CATEGORIES,
+  isFullStackFormCategory,
 } from "@/admin/constants/frameworkFieldConfig";
 import { useToast } from "@/admin/context/ToastContext";
 import {
@@ -111,6 +112,7 @@ export function AdminProjectFormPage({
   const cmsExtensions = watch("cms_extensions");
   const buildKind = useWatch({ control, name: "build_kind" });
   const status = useWatch({ control, name: "status" });
+  const categoryOptions = categoriesForBuildKind(buildKind ?? "custom");
 
   useEffect(() => {
     if (!isNewRoute) return;
@@ -156,7 +158,10 @@ export function AdminProjectFormPage({
       const raw = getValues();
       if (shouldPersistNewProjectDraft(raw)) {
         if (!canLenientDraftInsert(raw)) {
-          showToast("Select a CMS platform to save this draft.", "warning");
+          showToast(
+            "Complete required fields and choose a valid category for this build type.",
+            "warning",
+          );
           router.replace("/admin/projects");
           return;
         }
@@ -395,7 +400,7 @@ export function AdminProjectFormPage({
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent className="border-white/10 bg-[#111] text-white">
-                    {PROJECT_CATEGORIES.map((c) => (
+                    {categoryOptions.map((c) => (
                       <SelectItem
                         key={c}
                         value={c}
@@ -454,12 +459,24 @@ export function AdminProjectFormPage({
                     setValue("custom_framework", "", { shouldValidate: true });
                     setValue("github_url", "", { shouldValidate: true });
                     setValue("technologies", [], { shouldValidate: true });
+                    if (isFullStackFormCategory(getValues("category"))) {
+                      setValue("category", categoriesForBuildKind("cms")[0], {
+                        shouldValidate: true,
+                      });
+                    }
                   } else {
                     setValue("cms_platform", "", { shouldValidate: true });
                     setValue("cms_theme_name", "", { shouldValidate: true });
                     setValue("cms_extensions", [""], { shouldValidate: true });
+                    if (!isFullStackFormCategory(getValues("category"))) {
+                      setValue("category", categoriesForBuildKind("custom")[0], {
+                        shouldValidate: true,
+                      });
+                    }
                   }
                   void trigger([
+                    "build_kind",
+                    "category",
                     "custom_framework",
                     "technologies",
                     "cms_platform",
@@ -487,6 +504,7 @@ export function AdminProjectFormPage({
               </RadioGroup>
             )}
           />
+          <FieldError message={errors.build_kind?.message} />
 
           {buildKind === "custom" ? (
             <div className="space-y-4 pt-2 border-t border-white/[0.06]">

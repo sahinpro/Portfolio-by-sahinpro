@@ -1,11 +1,11 @@
-import { ALL_CACHE_TAGS } from "@/lib/revalidate";
+import { ALL_CACHE_TAGS, REVALIDATE_SECONDS } from "@/lib/revalidate";
 import { env } from "@/lib/env";
 
 /**
- * In-memory cache + single-flight deduplication for public Supabase reads.
+ * In-memory cache + single-flight deduplication for public API reads.
  * Reduces duplicate network requests when multiple components mount (e.g. hero + footer socials).
  */
-const DEFAULT_TTL_MS = 120_000;
+const DEFAULT_TTL_MS = REVALIDATE_SECONDS * 1000;
 
 type CacheEntry<T> = { data: T; storedAt: number };
 

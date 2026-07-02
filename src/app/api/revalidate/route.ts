@@ -1,4 +1,5 @@
 import { ALL_CACHE_TAGS, type CacheTag } from "@/lib/revalidate";
+import { invalidateRedisPublicCache } from "@/lib/redisPublicCache";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
   for (const tag of tags) {
     revalidateTag(tag);
   }
+  await invalidateRedisPublicCache(tags);
 
   const paths = body.paths ?? [];
   for (const path of paths) {
