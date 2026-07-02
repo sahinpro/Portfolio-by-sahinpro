@@ -39,7 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { invalidatePublicDataCache } from "@/lib/publicDataCache";
+import { invalidateProjectsPublicCache } from "@/lib/publicDataCache";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/utils/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -179,7 +179,7 @@ export function AdminProjectFormPage({
                 "error",
               );
             } else {
-              invalidatePublicDataCache();
+              void invalidateProjectsPublicCache();
               showToast("Draft saved", "success");
             }
           } finally {
@@ -208,7 +208,7 @@ export function AdminProjectFormPage({
           .update(payload)
           .eq("id", routeId);
         if (error) showToast(withRlsHint(error.message), "error");
-        else invalidatePublicDataCache();
+        else void invalidateProjectsPublicCache();
       } catch {
         /* still leave the panel */
       } finally {
@@ -270,7 +270,13 @@ export function AdminProjectFormPage({
         return;
       }
       showToast("Project saved", "success");
-      invalidatePublicDataCache();
+      const cacheOk = await invalidateProjectsPublicCache();
+      if (!cacheOk) {
+        showToast(
+          "Public site may still show old data — use “Flush site cache” on the Projects list.",
+          "warning",
+        );
+      }
       router.replace("/admin/projects");
       return;
     }
@@ -286,7 +292,13 @@ export function AdminProjectFormPage({
       return;
     }
     showToast("Project saved", "success");
-    invalidatePublicDataCache();
+    const cacheOk = await invalidateProjectsPublicCache();
+    if (!cacheOk) {
+      showToast(
+        "Public site may still show old data — use “Flush site cache” on the Projects list.",
+        "warning",
+      );
+    }
     router.replace("/admin/projects");
   };
 

@@ -1,4 +1,11 @@
-import { ALL_CACHE_TAGS, REVALIDATE_SECONDS } from "@/lib/revalidate";
+import {
+  ALL_CACHE_TAGS,
+  CACHE_TAGS,
+  PUBLIC_REVALIDATE_PATHS,
+  REVALIDATE_PATHS_BY_TAG,
+  REVALIDATE_SECONDS,
+  type CacheTag,
+} from "@/lib/revalidate";
 import { env } from "@/lib/env";
 
 /**
@@ -11,6 +18,13 @@ type CacheEntry<T> = { data: T; storedAt: number };
 
 const cache = new Map<string, CacheEntry<unknown>>();
 const inflight = new Map<string, Promise<unknown>>();
+
+/** Bumped on admin invalidation so this browser skips stale API URLs. */
+let publicApiEpoch = 0;
+
+export function getPublicApiEpoch(): number {
+  return publicApiEpoch;
+}
 
 export function getCachedPublic<T>(
   key: string,
@@ -42,26 +56,59 @@ export function getCachedPublic<T>(
   return p as Promise<T>;
 }
 
-function revalidateServerCache(): void {
-  if (typeof window === "undefined") return;
-  const token = env.analyticsIngestSecret;
-  if (!token) return;
-
-  void fetch("/api/revalidate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-revalidate-token": token,
-    },
-    body: JSON.stringify({ tags: ALL_CACHE_TAGS }),
-  }).catch(() => {
-    /* best-effort — ISR still refreshes on schedule */
-  });
+function pathsForTags(tags: CacheTag[]): string[] {
+  const paths = new Set<string>();
+  if (tags.length === ALL_CACHE_TAGS.length) {
+    for (const path of PUBLIC_REVALIDATE_PATHS) paths.add(path);
+    return [...paths];
+  }
+  for (const tag of tags) {
+    for (const path of REVALIDATE_PATHS_BY_TAG[tag]) paths.add(path);
+  }
+  return [...paths];
 }
 
-/** Clear client cache and trigger on-demand ISR revalidation for public pages. */
-export function invalidatePublicDataCache(): void {
+async function revalidateServerCache(
+  tags: CacheTag[] = [...ALL_CACHE_TAGS],
+): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  const token = env.analyticsIngestSecret;
+  if (!token) return false;
+
+  try {
+    const res = await fetch("/api/revalidate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-revalidate-token": token,
+      },
+      body: JSON.stringify({
+        tags,
+        paths: pathsForTags(tags),
+      }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/** Clear client cache and purge Redis + ISR for public data. */
+export async function invalidatePublicDataCache(
+  tags: CacheTag[] = [...ALL_CACHE_TAGS],
+): Promise<boolean> {
   cache.clear();
   inflight.clear();
-  revalidateServerCache();
+  publicApiEpoch += 1;
+  return revalidateServerCache(tags);
+}
+
+/** After project create/update/delete — refresh project lists only. */
+export async function invalidateProjectsPublicCache(): Promise<boolean> {
+  return invalidatePublicDataCache([CACHE_TAGS.projects]);
+}
+
+/** Manual admin action — flush every public cache layer. */
+export async function flushAllPublicDataCache(): Promise<boolean> {
+  return invalidatePublicDataCache([...ALL_CACHE_TAGS]);
 }

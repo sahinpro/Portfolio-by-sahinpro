@@ -21,7 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
-import { invalidatePublicDataCache } from "@/lib/publicDataCache";
+import {
+  flushAllPublicDataCache,
+  invalidateProjectsPublicCache,
+} from "@/lib/publicDataCache";
 import { supabase } from "@/utils/supabase";
 import {
   ExternalLink,
@@ -33,6 +36,7 @@ import {
   Search,
   Trash2,
   Undo2,
+  Zap,
 } from "lucide-react";
 import { Fragment, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -212,6 +216,26 @@ export function AdminProjectsListPage({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteDialog, setDeleteDialog] = useState<DeleteDialogState>(null);
   const [bulkAction, setBulkAction] = useState<BulkAction>("none");
+  const [flushingCache, setFlushingCache] = useState(false);
+
+  const refreshPublicProjects = useCallback(async () => {
+    await invalidateProjectsPublicCache();
+  }, []);
+
+  const handleFlushSiteCache = useCallback(async () => {
+    setFlushingCache(true);
+    try {
+      const ok = await flushAllPublicDataCache();
+      showToast(
+        ok
+          ? "Public site cache flushed — changes should appear immediately."
+          : "Cache flush failed. Set REVALIDATE_SECRET (or NEXT_PUBLIC_ANALYTICS_INGEST_SECRET) in Vercel, then redeploy.",
+        ok ? "success" : "error",
+      );
+    } finally {
+      setFlushingCache(false);
+    }
+  }, [showToast]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -313,7 +337,7 @@ export function AdminProjectsListPage({
       showToast(error.message, "error");
       return;
     }
-    invalidatePublicDataCache();
+    void refreshPublicProjects();
     setRows((prev) =>
       prev.map((row) =>
         selectedIds.includes(row.id) ? { ...row, status } : row,
@@ -351,7 +375,7 @@ export function AdminProjectsListPage({
       showToast(error.message, "error");
       return;
     }
-    invalidatePublicDataCache();
+    void refreshPublicProjects();
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, featured } : r)));
   };
 
@@ -364,7 +388,7 @@ export function AdminProjectsListPage({
       showToast(error.message, "error");
       return;
     }
-    invalidatePublicDataCache();
+    void refreshPublicProjects();
     setRows((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status: "draft" } : r)),
     );
@@ -384,7 +408,7 @@ export function AdminProjectsListPage({
       showToast(error.message, "error");
       return;
     }
-    invalidatePublicDataCache();
+    void refreshPublicProjects();
     if (permanent) {
       showToast(
         "Project deleted permanently",
@@ -424,7 +448,17 @@ export function AdminProjectsListPage({
             public site.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void handleFlushSiteCache()}
+            disabled={flushingCache}
+            className="inline-flex items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm font-medium text-amber-100/90 transition-all hover:bg-amber-500/15 disabled:opacity-40"
+            title="Clear Redis, CDN, and page cache for the public site"
+          >
+            <Zap className={`h-4 w-4 ${flushingCache ? "animate-pulse" : ""}`} />
+            Flush site cache
+          </button>
           <button
             type="button"
             onClick={() => void load()}

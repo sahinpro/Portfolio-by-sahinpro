@@ -1,8 +1,14 @@
 import type { ProjectRow } from "@/admin/types/database";
 import type { PublicActiveResume } from "@/data/publicSupabase";
+import { getPublicApiEpoch } from "@/lib/publicDataCache";
 
 async function fetchPublicJson<T>(path: string): Promise<T> {
-  const res = await fetch(path, { credentials: "same-origin" });
+  const epoch = getPublicApiEpoch();
+  const url = epoch > 0 ? `${path}?v=${epoch}` : path;
+  const res = await fetch(url, {
+    credentials: "same-origin",
+    cache: "no-store",
+  });
   if (!res.ok) {
     throw new Error(`Public API ${path} failed (${res.status})`);
   }
