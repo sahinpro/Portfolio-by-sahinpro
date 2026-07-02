@@ -72,20 +72,40 @@ async function revalidateServerCache(
   tags: CacheTag[] = [...ALL_CACHE_TAGS],
 ): Promise<boolean> {
   if (typeof window === "undefined") return false;
-  const token = env.analyticsIngestSecret;
-  if (!token) return false;
+
+  const body = JSON.stringify({
+    tags,
+    paths: pathsForTags(tags),
+  });
 
   try {
+    const { supabase } = await import("@/utils/supabase");
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (session?.access_token) {
+      const adminRes = await fetch("/api/admin/flush-cache", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body,
+      });
+      if (adminRes.ok) return true;
+    }
+
+    const token = env.revalidateSecret;
+    if (!token) return false;
+
     const res = await fetch("/api/revalidate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-revalidate-token": token,
       },
-      body: JSON.stringify({
-        tags,
-        paths: pathsForTags(tags),
-      }),
+      body,
     });
     return res.ok;
   } catch {

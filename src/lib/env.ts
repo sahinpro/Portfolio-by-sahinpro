@@ -24,6 +24,14 @@ export const env = {
   get analyticsIngestSecret(): string {
     return process.env.NEXT_PUBLIC_ANALYTICS_INGEST_SECRET?.trim() || "";
   },
+  /** Optional public token for `/api/revalidate` (match `REVALIDATE_SECRET` in Vercel). */
+  get revalidateSecret(): string {
+    return (
+      process.env.NEXT_PUBLIC_REVALIDATE_SECRET?.trim() ||
+      process.env.NEXT_PUBLIC_ANALYTICS_INGEST_SECRET?.trim() ||
+      ""
+    );
+  },
   get adminDisplayName(): string {
     return process.env.NEXT_PUBLIC_ADMIN_DISPLAY_NAME?.trim() || "";
   },

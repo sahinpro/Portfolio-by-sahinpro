@@ -229,7 +229,7 @@ export function AdminProjectsListPage({
       showToast(
         ok
           ? "Public site cache flushed — changes should appear immediately."
-          : "Cache flush failed. Set REVALIDATE_SECRET (or NEXT_PUBLIC_ANALYTICS_INGEST_SECRET) in Vercel, then redeploy.",
+          : "Cache flush failed. Sign in to admin again, or set REVALIDATE_SECRET in Vercel and redeploy.",
         ok ? "success" : "error",
       );
     } finally {
