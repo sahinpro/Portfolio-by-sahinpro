@@ -1,24 +1,15 @@
-/* Transitions.dev-inspired project card → modal morph (CSS only) */
+/* Project card modal — fade + zoom in / out */
 
 :root {
-  --project-morph-open-dur: 350ms;
+  --project-morph-open-dur: 300ms;
   --project-morph-close-dur: 250ms;
-  --project-morph-ease: cubic-bezier(0.34, 1.25, 0.64, 1);
+  --project-morph-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --project-morph-close-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --project-morph-r-closed: 1.75rem;
   --project-morph-r-open: 1.75rem;
-  --project-morph-fade-dur: 200ms;
-  --project-morph-slide: 40px;
-  --project-morph-rotate: 45deg;
-  --project-morph-scale: 0.97;
-  --scale-large: 0.96;
+  --project-morph-scale-closed: 0.94;
+  --project-morph-scale-open: 1;
   --project-morph-max-h: min(calc(100dvh - 1.5rem), 50rem);
   --project-morph-open-w: min(48rem, calc(100vw - 1.5rem));
-  --panel-open-dur: 400ms;
-  --panel-close-dur: 350ms;
-  --panel-translate-y: 12rem;
-  --panel-blur: 2px;
-  --panel-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .project-morph-backdrop {
@@ -28,34 +19,18 @@
   background: rgb(0 0 0 / 65%);
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--project-morph-fade-dur) var(--project-morph-close-ease);
+  transition: opacity var(--project-morph-close-dur) var(--project-morph-close-ease);
 }
 
 .project-morph-backdrop[data-visible="true"] {
   opacity: 1;
   pointer-events: auto;
+  transition: opacity var(--project-morph-open-dur) var(--project-morph-ease);
 }
 
 .project-morph {
   position: fixed;
   z-index: 120;
-  left: var(--morph-x, 0);
-  top: var(--morph-y, 0);
-  width: var(--morph-w, 100%);
-  height: var(--morph-h, 24rem);
-  overflow: hidden;
-  border-radius: var(--project-morph-r-closed);
-  transform-origin: top left;
-  transition:
-    left var(--project-morph-close-dur) var(--project-morph-close-ease),
-    top var(--project-morph-close-dur) var(--project-morph-close-ease),
-    width var(--project-morph-close-dur) var(--project-morph-close-ease),
-    height var(--project-morph-close-dur) var(--project-morph-close-ease),
-    border-radius var(--project-morph-close-dur) var(--project-morph-close-ease),
-    transform var(--project-morph-close-dur) var(--project-morph-close-ease);
-}
-
-.project-morph[data-open="true"] {
   left: 50%;
   top: 50%;
   width: var(--project-morph-open-w);
@@ -64,14 +39,35 @@
   max-height: var(--project-morph-max-h);
   overflow: hidden;
   border-radius: var(--project-morph-r-open);
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(var(--project-morph-scale-closed));
   transform-origin: center center;
+  opacity: 0;
+  pointer-events: none;
   transition:
-    left var(--project-morph-open-dur) var(--project-morph-ease),
-    top var(--project-morph-open-dur) var(--project-morph-ease),
-    width var(--project-morph-open-dur) var(--project-morph-ease),
-    border-radius var(--project-morph-open-dur) var(--project-morph-ease),
+    opacity var(--project-morph-open-dur) var(--project-morph-ease),
     transform var(--project-morph-open-dur) var(--project-morph-ease);
+  will-change: opacity, transform;
+}
+
+.project-morph[data-phase="entering"] {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(var(--project-morph-scale-closed));
+  pointer-events: none;
+}
+
+.project-morph[data-phase="open"] {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(var(--project-morph-scale-open));
+  pointer-events: auto;
+}
+
+.project-morph[data-phase="closing"] {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(var(--project-morph-scale-closed));
+  pointer-events: none;
+  transition:
+    opacity var(--project-morph-close-dur) var(--project-morph-close-ease),
+    transform var(--project-morph-close-dur) var(--project-morph-close-ease);
 }
 
 .project-morph[data-scrollable="true"] {
@@ -84,78 +80,6 @@
 
 .project-morph[data-scrollable="true"]::-webkit-scrollbar {
   display: none;
-}
-
-.project-morph[data-open="false"][data-closing="true"] {
-  max-height: none;
-  overflow: hidden;
-  top: var(--morph-y, 0);
-  left: var(--morph-x, 0);
-  width: var(--morph-w, 100%);
-  height: var(--morph-h, 24rem);
-  transform: none;
-}
-
-.project-morph--mobile {
-  left: 50%;
-  top: 50%;
-  width: var(--project-morph-open-w);
-  max-width: 48rem;
-  height: auto;
-  max-height: var(--project-morph-max-h);
-  overflow: hidden;
-  transform: translate(-50%, -50%);
-  transform-origin: center center;
-  transition: none;
-}
-
-.project-morph--mobile[data-scrollable="true"] {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-/* Transitions.dev — panel reveal (mobile) */
-.project-morph-panel-slide {
-  transform: translateY(var(--panel-translate-y));
-  opacity: 0;
-  filter: blur(var(--panel-blur));
-  pointer-events: none;
-  transition:
-    transform var(--panel-close-dur) var(--panel-ease),
-    opacity var(--panel-close-dur) var(--panel-ease),
-    filter var(--panel-close-dur) var(--panel-ease);
-  will-change: transform, opacity, filter;
-}
-
-.project-morph-panel-slide[data-open="true"] {
-  transform: translateY(0);
-  opacity: 1;
-  filter: blur(0);
-  pointer-events: auto;
-  transition:
-    transform var(--panel-open-dur) var(--panel-ease),
-    opacity var(--panel-open-dur) var(--panel-ease),
-    filter var(--panel-open-dur) var(--panel-ease);
-}
-
-.project-morph--mobile .project-morph-trigger {
-  display: none;
-}
-
-.project-morph--mobile .project-morph-close {
-  opacity: 1;
-  transform: none;
-  pointer-events: auto;
-}
-
-.project-morph--mobile .project-morph-teaser {
-  display: none;
-}
-
-.project-morph--mobile .project-morph-body {
-  opacity: 1;
-  transform: none;
-  pointer-events: auto;
 }
 
 .project-morph-inner {
@@ -171,81 +95,18 @@
   overflow: hidden;
 }
 
-.project-morph-trigger,
 .project-morph-close {
   backdrop-filter: none;
-}
-
-.project-morph-trigger {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 30;
-  transition:
-    opacity var(--project-morph-fade-dur) var(--project-morph-close-ease),
-    transform var(--project-morph-open-dur) var(--project-morph-close-ease);
-}
-
-.project-morph-trigger svg {
-  transition: transform var(--project-morph-open-dur) var(--project-morph-close-ease);
-}
-
-.project-morph[data-open="true"] .project-morph-trigger {
-  opacity: 0;
-  transform: translateX(calc(-1 * var(--project-morph-slide)));
-  pointer-events: none;
-}
-
-.project-morph[data-open="true"] .project-morph-trigger svg {
-  transform: scale(var(--project-morph-scale)) rotate(var(--project-morph-rotate));
-}
-
-.project-morph-close {
   position: absolute;
   top: 1rem;
   right: 1rem;
   z-index: 31;
-  opacity: 0;
-  transform: translateX(var(--project-morph-slide)) scale(var(--project-morph-scale));
-  pointer-events: none;
-  transition:
-    opacity var(--project-morph-fade-dur) var(--project-morph-close-ease),
-    transform var(--project-morph-open-dur) var(--project-morph-close-ease);
-}
-
-.project-morph[data-open="true"] .project-morph-close {
-  opacity: 1;
-  transform: translateX(0) scale(1);
-  pointer-events: auto;
-}
-
-.project-morph-teaser {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  z-index: 3;
-  padding: 0 1.25rem 1.25rem;
-  transition:
-    opacity var(--project-morph-fade-dur) var(--project-morph-close-ease),
-    transform var(--project-morph-open-dur) var(--project-morph-close-ease);
 }
 
 .project-morph-body {
   position: relative;
   z-index: 10;
   flex-shrink: 0;
-  opacity: 0;
-  transform: translateY(var(--project-morph-slide)) scale(var(--project-morph-scale));
-  pointer-events: none;
-  transition:
-    opacity var(--project-morph-fade-dur) var(--project-morph-close-ease),
-    transform var(--project-morph-open-dur) var(--project-morph-close-ease);
-}
-
-.project-morph[data-open="true"] .project-morph-body {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
 }
 
 /* Modal gallery: align screenshots from the top like the cover image */
@@ -268,24 +129,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .project-morph,
-  .project-morph-backdrop,
-  .project-morph-trigger,
-  .project-morph-close,
-  .project-morph-teaser,
-  .project-morph-body,
-  .project-morph-trigger svg,
-  .project-morph-panel-slide {
+  .project-morph-backdrop {
     transition: none !important;
   }
 
-  .project-morph--mobile {
-    transform: translate(-50%, -50%);
-  }
-
-  .project-morph-panel-slide {
-    transform: none;
-    opacity: 1;
-    filter: none;
-    pointer-events: auto;
+  .project-morph {
+    transform: translate(-50%, -50%) scale(1);
+    will-change: auto;
   }
 }

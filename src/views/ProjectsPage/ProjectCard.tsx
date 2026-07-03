@@ -48,9 +48,7 @@ export const ProjectCard = ({
   index = 0,
   animateOnView = true,
 }: ProjectCardProps): JSX.Element => {
-  const cardRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLElement>(null);
-  const panelSlideRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [galleryReady, setGalleryReady] = useState(false);
   const isMobile = useIsMobile();
@@ -59,14 +57,11 @@ export const ProjectCard = ({
     phase,
     isOpen,
     dataOpen,
-    morphStyle,
-    panelSlideStyle,
     scrollable,
     open,
     close,
     onShellTransitionEnd,
-    onPanelSlideTransitionEnd,
-  } = useProjectCssMorph(cardRef, shellRef, panelSlideRef);
+  } = useProjectCssMorph();
 
   const categoryLine = projectCategoryLine(project);
   const techPreview = project.technologies.slice(0, 4).join(" · ");
@@ -77,19 +72,18 @@ export const ProjectCard = ({
   }, []);
 
   useEffect(() => {
-    if (!isOpen || !hasGallery) {
+    if (phase === "idle" || !hasGallery) {
       setGalleryReady(false);
       return;
     }
 
-    if (!dataOpen) {
-      setGalleryReady(false);
+    if (phase !== "open") {
       return;
     }
 
     const timer = window.setTimeout(() => setGalleryReady(true), 200);
     return () => window.clearTimeout(timer);
-  }, [isOpen, dataOpen, hasGallery]);
+  }, [phase, hasGallery]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -121,7 +115,9 @@ export const ProjectCard = ({
       <>
         <div
           className="project-morph-backdrop"
-          data-visible={phase !== "idle" ? "true" : "false"}
+          data-visible={
+            phase === "entering" || phase === "open" ? "true" : "false"
+          }
           aria-hidden
           onClick={close}
         />
@@ -131,27 +127,12 @@ export const ProjectCard = ({
           aria-modal="true"
           aria-expanded={dataOpen}
           aria-labelledby={`project-modal-title-${project.id}`}
-          className={cn(
-            "project-morph",
-            modalShell,
-            isMobile && "project-morph--mobile",
-          )}
-          data-open={isMobile ? undefined : dataOpen ? "true" : "false"}
-          data-closing={!isMobile && phase === "closing" ? "true" : "false"}
+          className={cn("project-morph", modalShell)}
+          data-phase={phase}
           data-scrollable={scrollable ? "true" : "false"}
-          style={isMobile ? undefined : morphStyle}
-          onTransitionEnd={isMobile ? undefined : onShellTransitionEnd}
+          onTransitionEnd={onShellTransitionEnd}
         >
-          <div
-            ref={panelSlideRef}
-            className={cn(
-              "project-morph-inner",
-              isMobile && "project-morph-panel-slide",
-            )}
-            data-open={isMobile ? (dataOpen ? "true" : "false") : undefined}
-            style={isMobile ? panelSlideStyle : undefined}
-            onTransitionEnd={isMobile ? onPanelSlideTransitionEnd : undefined}
-          >
+          <div className="project-morph-inner">
             <div className="relative shrink-0">
               <ProjectMorphHero
                 project={project}
@@ -159,18 +140,6 @@ export const ProjectCard = ({
                 variant="modal"
               />
               <div className={cn(projectCardInnerFrame, "z-20")} aria-hidden />
-
-              {!isMobile ? (
-                <button
-                  type="button"
-                  aria-label={`Open ${project.title}`}
-                  aria-expanded={dataOpen}
-                  tabIndex={-1}
-                  className={cn(projectCardActionBtn, "project-morph-trigger")}
-                >
-                  <ArrowUpRight className="h-4 w-4" aria-hidden />
-                </button>
-              ) : null}
 
               <button
                 type="button"
@@ -183,15 +152,6 @@ export const ProjectCard = ({
               >
                 <X className="h-4 w-4" aria-hidden />
               </button>
-
-              {!isMobile && !dataOpen ? (
-                <ProjectCardTeaser
-                  className="project-morph-teaser"
-                  title={project.title}
-                  categoryLine={categoryLine}
-                  description={project.description}
-                />
-              ) : null}
             </div>
 
             <div className="project-morph-body">
@@ -220,7 +180,6 @@ export const ProjectCard = ({
       {morphPanel ? createPortal(morphPanel, document.body) : null}
 
       <article
-        ref={cardRef}
         role="button"
         tabIndex={isOpen ? -1 : 0}
         aria-expanded={isOpen}
@@ -235,7 +194,6 @@ export const ProjectCard = ({
         className={cn(
           projectCardShell,
           "group relative cursor-pointer transition-[border-color] duration-300 hover:border-white/[0.12]",
-          isOpen && "invisible",
         )}
       >
         <ProjectMorphHero
