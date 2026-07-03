@@ -38,8 +38,8 @@ const sizeClasses: Record<
   contact: {
     wrap: "flex gap-2",
     iconWrap:
-      "group w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center transition-colors duration-200",
-    glyph: "w-4 h-4",
+      "group w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center transition-colors duration-200",
+    glyph: "w-3.5 h-3.5",
   },
 };
 
