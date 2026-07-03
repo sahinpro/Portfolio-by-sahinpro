@@ -2,20 +2,20 @@
 
 import { ProjectCardTeaser } from "@/components/projects/ProjectCardTeaser";
 import { ProjectMorphHero } from "@/components/projects/ProjectMorphHero";
-import type { PublicProjectDetail } from "@/data/projectUiMapper";
-import { projectCategoryLine } from "@/lib/projectMeta";
 import { scrollViewport } from "@/constants/scrollMotion";
+import type { PublicProjectDetail } from "@/data/projectUiMapper";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { projectCategoryLine } from "@/lib/projectMeta";
 import { cn } from "@/lib/utils";
 import { ProjectExpandedContent } from "@/views/ProjectsPage/ProjectExpandedContent";
+import "@/views/ProjectsPage/projectModalMorph.css";
 import {
+  modalShell,
   projectCardActionBtn,
   projectCardInnerFrame,
   projectCardShell,
-  modalShell,
 } from "@/views/ProjectsPage/projectModalStyles";
-import "@/views/ProjectsPage/projectModalMorph.css";
 import { useProjectCssMorph } from "@/views/ProjectsPage/useProjectCssMorph";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import { motion } from "framer-motion";
 import { ArrowUpRight, X } from "lucide-react";
 import {
@@ -132,6 +132,18 @@ export const ProjectCard = ({
           data-scrollable={scrollable ? "true" : "false"}
           onTransitionEnd={onShellTransitionEnd}
         >
+          <button
+            type="button"
+            aria-label={`Close ${project.title}`}
+            className={cn(projectCardActionBtn, "project-morph-close")}
+            onClick={(e) => {
+              e.stopPropagation();
+              close();
+            }}
+          >
+            <X className="h-4 w-4" aria-hidden />
+          </button>
+
           <div className="project-morph-inner">
             <div className="relative shrink-0">
               <ProjectMorphHero
@@ -140,22 +152,10 @@ export const ProjectCard = ({
                 variant="modal"
               />
               <div className={cn(projectCardInnerFrame, "z-20")} aria-hidden />
-
-              <button
-                type="button"
-                aria-label={`Close ${project.title}`}
-                className={cn(projectCardActionBtn, "project-morph-close")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  close();
-                }}
-              >
-                <X className="h-4 w-4" aria-hidden />
-              </button>
             </div>
 
             <div className="project-morph-body">
-              <div className="px-5 pb-2 pt-4 sm:px-8 sm:pt-6">
+              <div className="px-3 pb-2 pt-3 sm:px-4 sm:pb-4 sm:pt-6">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#00BB7D]">
                   {categoryLine}
                 </p>
@@ -166,7 +166,7 @@ export const ProjectCard = ({
                   {project.title}
                 </h3>
               </div>
-              <div className="px-5 pb-6 pt-2 sm:px-8 sm:pb-10">
+              <div className="px-3 pb-4 pt-2 sm:px-4 sm:pb-4">
                 <ProjectExpandedContent project={project} />
               </div>
             </div>
