@@ -183,21 +183,23 @@ export const AboutPage = (): JSX.Element => {
 
             <motion.div
               variants={fadeStep}
-              className="relative w-full max-w-sm sm:max-w-md lg:max-w-[420px] xl:max-w-[480px] shrink-0 mx-auto lg:mx-0 lg:pt-8"
+              className="relative w-full max-w-sm sm:max-w-md lg:max-w-[420px] xl:max-w-[480px]  mx-auto lg:mx-0 lg:pt-8 "
             >
               <div
                 className="pointer-events-none absolute -inset-4 rounded-3xl bg-gradient-to-br from-violet-600/20 via-purple-600/10 to-blue-600/15 blur-2xl"
                 aria-hidden
               />
-              <div className="relative aspect-square overflow-hidden rounded-4xl">
-                <PublicImage
-                  src={PROFILE_DESK.path}
-                  alt={PROFILE_DESK.alt}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 90vw, 480px"
-                  className="object-cover object-center"
-                />
+              <div className="liquid-border-frame w-full">
+                <div className="liquid-border-frame__media aspect-square w-full">
+                  <PublicImage
+                    src={PROFILE_DESK.path}
+                    alt={PROFILE_DESK.alt}
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 90vw, 480px"
+                    className="object-cover object-center"
+                  />
+                </div>
               </div>
             </motion.div>
           </div>

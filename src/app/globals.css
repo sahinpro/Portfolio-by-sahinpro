@@ -236,6 +236,46 @@
     box-shadow: 0px 12px 24px var(--overlay-white-10);
   }
 
+  .liquid-border-frame {
+    --liquid-width: 5px;
+    --liquid-radius: 1.75rem;
+    position: relative;
+    padding: var(--liquid-width);
+    border-radius: var(--liquid-radius);
+    background: linear-gradient(
+      to bottom right,
+      rgba(139, 92, 246, 0.3),
+      rgba(255, 255, 255, 0.1),
+      rgba(147, 51, 234, 0.2)
+    );
+    backdrop-filter: blur(10px) saturate(1.25);
+    -webkit-backdrop-filter: blur(10px) saturate(1.25);
+    isolation: isolate;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      inset 1px 0 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+      inset -1px 0 0 rgba(0, 0, 0, 0.22),
+      0 10px 28px rgba(0, 0, 0, 0.32);
+  }
+
+  .liquid-border-frame__media {
+    position: relative;
+    overflow: hidden;
+    border-radius: calc(var(--liquid-radius) - var(--liquid-width));
+  }
+
+  .liquid-border-frame__media::after {
+    content: "";
+    position: absolute;
+    inset: var(--liquid-width);
+    border-radius: calc(var(--liquid-radius) - var(--liquid-width) * 2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    pointer-events: none;
+    z-index: 4;
+  }
+
   /* Section headings    solid white (gradients reserved for hero only) */
   .section-heading {
     @apply text-white font-semibold;

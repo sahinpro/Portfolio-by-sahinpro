@@ -3,8 +3,7 @@ import { motion, useInView } from "framer-motion";
 import type { ReactNode } from "react";
 import { useRef } from "react";
 
-export const CTA_BACKGROUND_IMAGE =
-  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&h=700&fit=crop&q=80";
+export const CTA_BACKGROUND_IMAGE = "/bgcta.avif";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
