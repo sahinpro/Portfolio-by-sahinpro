@@ -39,11 +39,11 @@ export const PROFILE = {
     "Best Straight To The Point WordPress Course",
   ],
   aboutIntro:
-    "Since March 2023 I've been a Full Stack Web Developer at We Next Coder, delivering 200+ WordPress, WooCommerce, and Shopify projects plus modern Next.js products like payment platforms. I also work independently for local and international clients — always focused on clean code, JavaScript fundamentals, fast performance, and outcomes you can measure.",
+    "Since March 2023 I've been a Full Stack Web Developer at We Next Coder, delivering 200+ WordPress, WooCommerce, and Shopify projects plus modern Next.js products like payment platforms. I also work independently for local and international clients always focused on clean code, JavaScript fundamentals, fast performance, and outcomes you can measure.",
   journeyDescription:
-    "Three years shipping real client work — WordPress, WooCommerce, and Shopify at scale, plus Next.js products, Figma/PSD builds, and long-term support.",
+    "Three years shipping real client work WordPress, WooCommerce, and Shopify at scale, plus Next.js products, Figma/PSD builds, and long-term support.",
   imageCaption:
-    "Full Stack developer from Bangladesh — WordPress, WooCommerce, React, and Next.js for teams worldwide.",
+    "Full Stack developer from Bangladesh WordPress, WooCommerce, React, and Next.js for teams worldwide.",
   topSkills: [
     "JavaScript",
     "React",

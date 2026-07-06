@@ -228,7 +228,7 @@ const CountrySelect = ({
                     <span />
                   )}
                   {isSelected ? (
-                    <CheckIcon className="h-4 w-4 shrink-0 text-violet-400" />
+                    <CheckIcon className="h-4 w-4 shrink-0 text-green-500" />
                   ) : (
                     <span className="w-4" />
                   )}

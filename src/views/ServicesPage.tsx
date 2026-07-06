@@ -204,7 +204,7 @@ export const ServicesPage = (): JSX.Element => {
             variants={fadeUp(0.05)}
             className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4"
           >
-            What I build <span className="text-violet-400">for you</span>
+            What I build <span className="text-green-500">for you</span>
           </motion.h1>
           <motion.p
             initial="hidden"
@@ -262,7 +262,7 @@ export const ServicesPage = (): JSX.Element => {
 
       <LandscapePageCtaSection
         eyebrow={
-          <div className="inline-flex items-center gap-2 text-sm text-violet-400">
+          <div className="inline-flex items-center gap-2 text-sm text-green-500">
             <Sparkles className="w-4 h-4" />
             <span>Not sure what you need?</span>
           </div>

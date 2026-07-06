@@ -31,11 +31,11 @@ export const CareerTimelineList = ({
             shadow-[0_0_20px_rgba(139,92,246,0.15)] group-hover:border-green-400/60
             group-hover:shadow-[0_0_24px_rgba(139,92,246,0.25)] transition-all duration-300"
           >
-            <Icon className="w-4 h-4 text-green-400" />
+            <Icon className="w-4 h-4 text-emerald-500" />
           </div>
 
           <div className="pt-0.5 flex-1 min-w-0">
-            <span className="inline-block text-xs font-semibold tracking-widest text-green-400 mb-1">
+            <span className="inline-block text-xs font-semibold tracking-widest text-emerald-500 mb-1">
               {item.year}
             </span>
             <h3 className="text-base sm:text-lg font-semibold text-white">

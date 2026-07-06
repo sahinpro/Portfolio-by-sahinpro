@@ -1,7 +1,7 @@
 "use client";
 
-import { FeaturedProjectCard } from "@/components/projects/FeaturedProjectCard";
 import Header from "@/components/Header";
+import { FeaturedProjectCard } from "@/components/projects/FeaturedProjectCard";
 import { Input } from "@/components/ui/input";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import { sortProjectsByUpdatedDesc } from "@/lib/projectSort";
@@ -53,8 +53,7 @@ export const ProjectsPage = (): JSX.Element => {
   }, [projects, filter, search]);
 
   const featuredProjects = useMemo(
-    () =>
-      sortProjectsByUpdatedDesc(filteredProjects.filter((p) => p.featured)),
+    () => sortProjectsByUpdatedDesc(filteredProjects.filter((p) => p.featured)),
     [filteredProjects],
   );
 
@@ -274,7 +273,7 @@ export const ProjectsPage = (): JSX.Element => {
                   setSearch("");
                   setPage(1);
                 }}
-                className="mt-2 text-sm text-violet-400 hover:text-violet-300 transition-colors"
+                className="mt-2 text-sm text-green-500 hover:text-violet-300 transition-colors"
               >
                 Clear filters
               </button>

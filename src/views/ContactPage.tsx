@@ -43,7 +43,7 @@ const contactInfo = [
     title: "Email",
     value: PROFILE.email,
     href: `mailto:${PROFILE.email}`,
-    color: "text-violet-400",
+    color: "text-green-500",
     bg: "bg-violet-500/10",
     border: "border-violet-500/20",
   },
@@ -53,7 +53,7 @@ const contactInfo = [
     value: PROFILE.phone,
     desc: "The fastest way to get in touch with me.",
     href: PROFILE.whatsappUrl,
-    color: "text-green-400",
+    color: "text-emerald-500",
     bg: "bg-blue-500/10",
     border: "border-blue-500/20",
   },
@@ -393,7 +393,7 @@ export const ContactPage = (): JSX.Element => {
             className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mb-3 sm:mb-4"
           >
             Let's build something{" "}
-            <span className="text-violet-400">amazing</span>
+            <span className="text-green-500">amazing</span>
           </motion.h1>
 
           <motion.p

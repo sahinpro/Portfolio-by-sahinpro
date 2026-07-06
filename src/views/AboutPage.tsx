@@ -166,7 +166,7 @@ export const AboutPage = (): JSX.Element => {
                 className="text-4xl lg:text-[63px] font-bold text-white tracking-tight leading-[1.05] mb-6"
               >
                 Crafting digital{" "}
-                <span className="text-violet-400">experiences</span> that matter
+                <span className="text-green-500">experiences</span> that matter
               </motion.h1>
 
               <motion.p
