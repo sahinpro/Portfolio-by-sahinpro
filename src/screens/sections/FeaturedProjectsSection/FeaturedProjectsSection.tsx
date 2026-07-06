@@ -1,5 +1,6 @@
 import { CTAButton } from "@/components/common/CTAButton";
 import { FeaturedProjectCard } from "@/components/projects/FeaturedProjectCard";
+import { FeaturedProjectsSectionSkeleton } from "@/screens/sections/FeaturedProjectsSection/FeaturedProjectsSectionSkeleton";
 import { SectionHeader } from "@/components/sections";
 import {
   sectionHeaderWrapClass,
@@ -12,6 +13,7 @@ import {
   sectionReveal,
 } from "@/constants/scrollMotion";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
+import { sortProjectsByUpdatedDesc } from "@/lib/projectSort";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
 
@@ -21,7 +23,11 @@ export const FeaturedProjectsSection = (): JSX.Element | null => {
   const { projects, loading } = usePublishedProjects();
 
   const featuredProjects = useMemo(
-    () => projects.filter((p) => p.featured).slice(0, HOMEPAGE_FEATURED_LIMIT),
+    () =>
+      sortProjectsByUpdatedDesc(projects.filter((p) => p.featured)).slice(
+        0,
+        HOMEPAGE_FEATURED_LIMIT,
+      ),
     [projects],
   );
 
@@ -29,12 +35,12 @@ export const FeaturedProjectsSection = (): JSX.Element | null => {
     return null;
   }
 
+  if (loading && featuredProjects.length === 0) {
+    return <FeaturedProjectsSectionSkeleton />;
+  }
+
   return (
-    <section
-      id="featured-work"
-      className={sectionShellClass}
-      aria-busy={loading && featuredProjects.length === 0}
-    >
+    <section id="featured-work" className={sectionShellClass}>
       <motion.div
         className={`${sectionInnerClass} items-center`}
         initial="hidden"
@@ -49,26 +55,15 @@ export const FeaturedProjectsSection = (): JSX.Element | null => {
           />
         </motion.div>
 
-        {loading && featuredProjects.length === 0 ? (
-          <div className="w-full space-y-5">
-            {Array.from({ length: HOMEPAGE_FEATURED_LIMIT }).map((_, i) => (
-              <div
-                key={i}
-                className="h-[280px] sm:h-[360px] lg:h-[480px] animate-pulse rounded-2xl border border-white/[0.08] bg-white/[0.04]"
-              />
-            ))}
-          </div>
-        ) : (
-          <motion.div variants={fadeInUp} className="w-full space-y-5">
-            {featuredProjects.map((project, index) => (
-              <FeaturedProjectCard
-                key={project.id}
-                project={project}
-                index={index}
-              />
-            ))}
-          </motion.div>
-        )}
+        <motion.div variants={fadeInUp} className="w-full space-y-5">
+          {featuredProjects.map((project, index) => (
+            <FeaturedProjectCard
+              key={project.id}
+              project={project}
+              index={index}
+            />
+          ))}
+        </motion.div>
 
         <motion.div variants={fadeInUp} className="flex justify-center">
           <CTAButton href="/projects" variant="secondary">

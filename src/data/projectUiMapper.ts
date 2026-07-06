@@ -15,6 +15,7 @@ export type PublicProject = {
   liveUrl: string | null;
   githubUrl: string | null;
   featured: boolean;
+  updatedAt: string;
   year?: string;
 };
 
@@ -51,6 +52,7 @@ export function mapProjectRowToPublic(row: ProjectRow): PublicProject {
     liveUrl: row.live_url,
     githubUrl: row.github_url,
     featured: row.featured,
+    updatedAt: row.updated_at,
   };
 }
 

@@ -1,29 +1,25 @@
 import "server-only";
 
+import * as publicSupabase from "@/data/publicSupabase";
 import { invalidateRedisPublicCache } from "@/lib/redisPublicCache";
-import {
-  ALL_CACHE_TAGS,
-  PUBLIC_REVALIDATE_PATHS,
-  type CacheTag,
-} from "@/lib/revalidate";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { ALL_CACHE_TAGS, type CacheTag } from "@/lib/revalidate";
 
-export async function runPublicRevalidation(options?: {
+export type PublicCacheFlushResult = {
+  tags: CacheTag[];
+  publishedProjectCount: number;
+};
+
+/** Flush Redis public cache keys, then verify with a direct Supabase read. */
+export async function flushPublicCache(options?: {
   tags?: CacheTag[];
-  paths?: string[];
-}): Promise<{ tags: CacheTag[]; paths: string[] }> {
+}): Promise<PublicCacheFlushResult> {
   const tags = options?.tags?.length ? options.tags : [...ALL_CACHE_TAGS];
-  for (const tag of tags) {
-    revalidateTag(tag);
-  }
   await invalidateRedisPublicCache(tags);
 
-  const paths = options?.paths?.length
-    ? options.paths
-    : [...PUBLIC_REVALIDATE_PATHS];
-  for (const path of paths) {
-    revalidatePath(path);
-  }
+  const published = await publicSupabase.fetchPublishedProjects();
 
-  return { tags, paths };
+  return { tags, publishedProjectCount: published.length };
 }
+
+/** @deprecated Use flushPublicCache */
+export const runPublicRevalidation = flushPublicCache;

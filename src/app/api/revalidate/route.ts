@@ -1,5 +1,5 @@
-import { runPublicRevalidation } from "@/lib/runPublicRevalidation";
-import { ALL_CACHE_TAGS, PUBLIC_REVALIDATE_PATHS, type CacheTag } from "@/lib/revalidate";
+import { ALL_CACHE_TAGS, type CacheTag } from "@/lib/revalidate";
+import { flushPublicCache } from "@/lib/runPublicRevalidation";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -21,9 +21,8 @@ function isAuthorized(request: Request): boolean {
   return revalidateSecrets().some((secret) => token === secret);
 }
 
-type RevalidateBody = {
+type FlushBody = {
   tags?: CacheTag[];
-  paths?: string[];
 };
 
 export async function POST(request: Request) {
@@ -31,18 +30,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: RevalidateBody = {};
+  let body: FlushBody = {};
   try {
-    body = (await request.json()) as RevalidateBody;
+    body = (await request.json()) as FlushBody;
   } catch {
-    /* empty body revalidates all public tags */
+    /* empty body flushes all public Redis keys */
   }
 
   const tags = body.tags?.length ? body.tags : ALL_CACHE_TAGS;
-  const result = await runPublicRevalidation({
-    tags,
-    paths: body.paths?.length ? body.paths : [...PUBLIC_REVALIDATE_PATHS],
-  });
+  const result = await flushPublicCache({ tags });
 
-  return NextResponse.json({ revalidated: true, ...result });
+  return NextResponse.json({ flushed: true, ...result });
 }

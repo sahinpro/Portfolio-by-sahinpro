@@ -1,8 +1,10 @@
 "use client";
 
+import { FeaturedProjectCard } from "@/components/projects/FeaturedProjectCard";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
+import { sortProjectsByUpdatedDesc } from "@/lib/projectSort";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { ProjectCard } from "@/views/ProjectsPage/ProjectCard";
 import { ProjectsPageSkeleton } from "@/views/ProjectsPage/ProjectsPageSkeleton";
@@ -38,7 +40,7 @@ export const ProjectsPage = (): JSX.Element => {
   }, [projects]);
 
   const filteredProjects = useMemo(() => {
-    const matches = projects.filter((p) => {
+    return projects.filter((p) => {
       const matchCat = filter === "All" || p.category === filter;
       const matchSearch =
         search === "" ||
@@ -48,22 +50,29 @@ export const ProjectsPage = (): JSX.Element => {
         );
       return matchCat && matchSearch;
     });
-
-    return [...matches].sort((a, b) => {
-      if (a.featured === b.featured) return 0;
-      return a.featured ? -1 : 1;
-    });
   }, [projects, filter, search]);
+
+  const featuredProjects = useMemo(
+    () =>
+      sortProjectsByUpdatedDesc(filteredProjects.filter((p) => p.featured)),
+    [filteredProjects],
+  );
+
+  const otherProjects = useMemo(
+    () =>
+      sortProjectsByUpdatedDesc(filteredProjects.filter((p) => !p.featured)),
+    [filteredProjects],
+  );
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredProjects.length / PROJECTS_PER_PAGE),
+    Math.ceil(otherProjects.length / PROJECTS_PER_PAGE),
   );
 
-  const paginatedProjects = useMemo(() => {
+  const paginatedOtherProjects = useMemo(() => {
     const start = (page - 1) * PROJECTS_PER_PAGE;
-    return filteredProjects.slice(start, start + PROJECTS_PER_PAGE);
-  }, [filteredProjects, page]);
+    return otherProjects.slice(start, start + PROJECTS_PER_PAGE);
+  }, [otherProjects, page]);
 
   useEffect(() => {
     setPage(1);
@@ -195,24 +204,45 @@ export const ProjectsPage = (): JSX.Element => {
           </div>
         </section>
 
-        {filteredProjects.length > 0 && (
+        {(featuredProjects.length > 0 || otherProjects.length > 0) && (
           <section
             ref={gridRef}
             id="projects-grid"
             className="w-full scroll-mt-28 pb-28"
           >
-            <div className="container mx-auto space-y-10 px-4">
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {paginatedProjects.map((p, i) => (
-                  <ProjectCard key={p.id} project={p} index={i} />
-                ))}
-              </div>
+            <div className="container mx-auto space-y-12 px-4">
+              {featuredProjects.length > 0 ? (
+                <div className="space-y-5">
+                  {featuredProjects.map((project, index) => (
+                    <FeaturedProjectCard
+                      key={project.id}
+                      project={project}
+                      index={index}
+                    />
+                  ))}
+                </div>
+              ) : null}
 
-              <ProjectsPagination
-                page={page}
-                totalItems={filteredProjects.length}
-                onPageChange={handlePageChange}
-              />
+              {otherProjects.length > 0 ? (
+                <>
+                  {featuredProjects.length > 0 ? (
+                    <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/45">
+                      More projects
+                    </h2>
+                  ) : null}
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                    {paginatedOtherProjects.map((p, i) => (
+                      <ProjectCard key={p.id} project={p} index={i} />
+                    ))}
+                  </div>
+
+                  <ProjectsPagination
+                    page={page}
+                    totalItems={otherProjects.length}
+                    onPageChange={handlePageChange}
+                  />
+                </>
+              ) : null}
             </div>
           </section>
         )}

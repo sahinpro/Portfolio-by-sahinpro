@@ -1,5 +1,5 @@
 import type { CacheTag } from "@/lib/revalidate";
-import { REVALIDATE_SECONDS } from "@/lib/revalidate";
+import { PUBLIC_CACHE_TTL_SECONDS } from "@/lib/revalidate";
 import { Redis } from "@upstash/redis";
 
 export const REDIS_PUBLIC_KEYS: Record<CacheTag, string> = {
@@ -36,7 +36,7 @@ export function isRedisPublicCacheEnabled(): boolean {
 export async function getRedisCached<T>(
   key: string,
   fetcher: () => Promise<T>,
-  ttlSeconds = REVALIDATE_SECONDS,
+  ttlSeconds = PUBLIC_CACHE_TTL_SECONDS,
 ): Promise<T> {
   const redis = getRedis();
   if (!redis) return fetcher();

@@ -1,4 +1,5 @@
 import { getCachedPublic } from "@/lib/publicDataCache";
+import { usePublicCacheVersion } from "@/hooks/usePublicCacheVersion";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { useEffect, useRef, useState } from "react";
 
@@ -22,6 +23,7 @@ export function usePublicData<T>(
 ): State<T> {
   const enabled = options?.enabled !== false;
   const deferMs = options?.deferMs;
+  const cacheVersion = usePublicCacheVersion();
   const [ready, setReady] = useState(!deferMs);
   const [state, setState] = useState<State<T>>({
     data: null,
@@ -60,7 +62,7 @@ export function usePublicData<T>(
     return () => {
       cancelled = true;
     };
-  }, [cacheKey, enabled, ready]);
+  }, [cacheKey, enabled, ready, cacheVersion]);
 
   return state;
 }

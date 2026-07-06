@@ -10,9 +10,6 @@ import { OG_IMAGE } from "@/lib/seoImages";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-/** ISR for public routes (1 h). Keep in sync with REVALIDATE_SECONDS in @/lib/revalidate. */
-export const revalidate = 3600;
-
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {

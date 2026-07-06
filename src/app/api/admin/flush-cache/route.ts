@@ -1,5 +1,5 @@
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
-import { runPublicRevalidation } from "@/lib/runPublicRevalidation";
+import { flushPublicCache } from "@/lib/runPublicRevalidation";
 import type { CacheTag } from "@/lib/revalidate";
 import { ALL_CACHE_TAGS } from "@/lib/revalidate";
 import { createClient } from "@supabase/supabase-js";
@@ -9,7 +9,6 @@ export const runtime = "nodejs";
 
 type FlushBody = {
   tags?: CacheTag[];
-  paths?: string[];
 };
 
 function getBearerToken(request: Request): string {
@@ -46,14 +45,11 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     body = (await request.json()) as FlushBody;
   } catch {
-    /* empty body flushes all public tags */
+    /* empty body flushes all public Redis keys */
   }
 
   const tags = body.tags?.length ? body.tags : [...ALL_CACHE_TAGS];
-  const result = await runPublicRevalidation({
-    tags,
-    paths: body.paths,
-  });
+  const result = await flushPublicCache({ tags });
 
-  return NextResponse.json({ revalidated: true, ...result });
+  return NextResponse.json({ flushed: true, ...result });
 }

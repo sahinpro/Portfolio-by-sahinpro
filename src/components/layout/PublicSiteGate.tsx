@@ -3,8 +3,11 @@
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
 import { SkipToContent } from "@/components/layout/SkipToContent";
 import { fetchSiteSettingsMap } from "@/data/publicSupabase.client";
+import { usePublicCacheVersion } from "@/hooks/usePublicCacheVersion";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
-import { getCachedPublic } from "@/lib/publicDataCache";
+import {
+  getCachedPublic,
+} from "@/lib/publicDataCache";
 import { getComingSoonContent, isComingSoonEnabled } from "@/lib/siteMode";
 import { ComingSoonPage } from "@/views/ComingSoonPage";
 import { PageSpinner } from "@/components/common/PageSpinner";
@@ -13,6 +16,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 export function PublicSiteGate({ children }: { children: ReactNode }): JSX.Element {
   const pathname = usePathname();
+  const cacheVersion = usePublicCacheVersion();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [settingsChecked, setSettingsChecked] = useState(false);
   const [adminBypass, setAdminBypass] = useState<boolean | null>(null);
@@ -28,8 +32,8 @@ export function PublicSiteGate({ children }: { children: ReactNode }): JSX.Eleme
         .catch(() => {
           setSettingsChecked(true);
         });
-    }, 3500);
-  }, []);
+    }, cacheVersion > 0 ? 0 : 3500);
+  }, [cacheVersion]);
 
   useEffect(() => {
     if (!comingSoonActive) {

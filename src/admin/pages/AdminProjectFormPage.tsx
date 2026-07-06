@@ -270,8 +270,8 @@ export function AdminProjectFormPage({
         return;
       }
       showToast("Project saved", "success");
-      const cacheOk = await invalidateProjectsPublicCache();
-      if (!cacheOk) {
+      const cacheResult = await invalidateProjectsPublicCache();
+      if (!cacheResult.ok) {
         showToast(
           "Public site may still show old data — use “Flush site cache” on the Projects list.",
           "warning",
@@ -292,8 +292,8 @@ export function AdminProjectFormPage({
       return;
     }
     showToast("Project saved", "success");
-    const cacheOk = await invalidateProjectsPublicCache();
-    if (!cacheOk) {
+    const cacheResult = await invalidateProjectsPublicCache();
+    if (!cacheResult.ok) {
       showToast(
         "Public site may still show old data — use “Flush site cache” on the Projects list.",
         "warning",
@@ -684,28 +684,17 @@ export function AdminProjectFormPage({
 
         <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
           <h2 className="text-sm font-semibold text-white">Publishing</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <div>
-              <label className={labelCls}>Sort order</label>
-              <Input
-                type="number"
-                className={field}
-                {...register("sort_order")}
+          <Controller
+            name="featured"
+            control={control}
+            render={({ field: f }) => (
+              <ToggleSwitch
+                checked={f.value}
+                onChange={f.onChange}
+                label="Featured on site"
               />
-              <FieldError message={errors.sort_order?.message} />
-            </div>
-            <Controller
-              name="featured"
-              control={control}
-              render={({ field: f }) => (
-                <ToggleSwitch
-                  checked={f.value}
-                  onChange={f.onChange}
-                  label="Featured on site"
-                />
-              )}
-            />
-          </div>
+            )}
+          />
           <div>
             <label className={labelCls}>Status</label>
             <Controller

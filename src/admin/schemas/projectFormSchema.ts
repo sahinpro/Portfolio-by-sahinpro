@@ -32,7 +32,6 @@ const baseProjectFields = {
   cms_extensions: z.array(z.string().nullable()).optional(),
   featured: z.boolean(),
   status: z.enum(["draft", "published", "trash"]),
-  sort_order: z.coerce.number().int(),
 };
 
 function refineProjectForm(

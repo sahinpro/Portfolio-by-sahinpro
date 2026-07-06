@@ -6,7 +6,7 @@ export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
     .from("projects")
     .select("*")
     .eq("status", "published")
-    .order("sort_order", { ascending: true });
+    .order("updated_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as ProjectRow[];
 }

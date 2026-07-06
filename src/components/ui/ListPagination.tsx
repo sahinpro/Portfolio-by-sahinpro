@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { LIST_PAGE_SIZE, pageRange } from "@/lib/pagination";
+import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo } from "react";
 
@@ -48,7 +48,7 @@ export function ListPagination({
           <ChevronLeft className="h-4 w-4" aria-hidden />
         </button>
 
-        <div className="flex rounded-lg border border-white/[0.08] bg-white/[0.02] p-0.5">
+        <div className="flex p-0.5">
           {pages.map((item, i) =>
             item === "ellipsis" ? (
               <span

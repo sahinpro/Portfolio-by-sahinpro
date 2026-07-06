@@ -22,7 +22,6 @@ export const PROJECT_FIELD_LABELS: Record<string, string> = {
   cms_extensions: "Plugins",
   featured: "Featured",
   status: "Status",
-  sort_order: "Sort order",
 };
 
 export function listFormErrors<T extends FieldValues>(

@@ -2,6 +2,7 @@
 
 import Header from "@/components/Header";
 import { LazySection } from "@/components/sections/LazySection";
+import { FeaturedProjectsSectionSkeleton } from "@/screens/sections/FeaturedProjectsSection/FeaturedProjectsSectionSkeleton";
 import { HeroSection } from "@/screens/sections/HeroSection";
 import { StatsSection } from "@/screens/sections/StatsSection";
 import { Suspense, lazy } from "react";
@@ -58,8 +59,11 @@ export const HomePage = (): JSX.Element => {
       <Header />
       <HeroSection />
       <StatsSection />
-      <LazySection minHeight={480}>
-        <Suspense fallback={null}>
+      <LazySection
+        minHeight={480}
+        placeholder={<FeaturedProjectsSectionSkeleton />}
+      >
+        <Suspense fallback={<FeaturedProjectsSectionSkeleton />}>
           <FeaturedProjectsSection />
         </Suspense>
       </LazySection>

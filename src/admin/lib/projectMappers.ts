@@ -138,7 +138,6 @@ export function projectRowToFormValues(row: ProjectRow): ProjectFormValues {
         : [""],
     featured: row.featured,
     status: row.status,
-    sort_order: row.sort_order,
   });
 }
 
@@ -171,7 +170,7 @@ export function formValuesToProjectPayload(
     live_url: activeValues.live_url.trim() || null,
     featured: activeValues.featured,
     status: activeValues.status,
-    sort_order: activeValues.sort_order,
+    sort_order: 0,
     stats: options?.stats ?? [],
   };
 
@@ -221,7 +220,6 @@ export function defaultEmptyProjectForm(): ProjectFormValues {
     cms_extensions: [""],
     featured: false,
     status: "draft",
-    sort_order: 0,
   };
 }
 
@@ -261,7 +259,6 @@ export function shouldPersistNewProjectDraft(
     return true;
   if (values.featured !== d.featured) return true;
   if (values.status !== d.status) return true;
-  if (values.sort_order !== d.sort_order) return true;
   return false;
 }
 

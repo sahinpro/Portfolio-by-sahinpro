@@ -4,6 +4,8 @@ type LazySectionProps = {
   children: ReactNode;
   minHeight?: number;
   className?: string;
+  /** Shown before the section enters the viewport (reserves layout + loading UI). */
+  placeholder?: ReactNode;
 };
 
 /** Defers mount until near viewport; uses div to avoid nested section tags. */
@@ -11,6 +13,7 @@ export function LazySection({
   children,
   minHeight = 400,
   className = "",
+  placeholder,
 }: LazySectionProps): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -39,7 +42,7 @@ export function LazySection({
       className={`section-lazy w-full ${className}`.trim()}
       style={{ minHeight: visible ? undefined : minHeight }}
     >
-      {visible ? children : null}
+      {visible ? children : placeholder ?? null}
     </div>
   );
 }

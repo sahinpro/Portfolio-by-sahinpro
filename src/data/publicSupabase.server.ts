@@ -1,45 +1,24 @@
 import "server-only";
 
 import type { ProjectRow, ResumeRow } from "@/admin/types/database";
-import { CACHE_TAGS, REVALIDATE_SECONDS } from "@/lib/revalidate";
-import {
-  getRedisCached,
-  REDIS_PUBLIC_KEYS,
-} from "@/lib/redisPublicCache";
-import { unstable_cache } from "next/cache";
 import * as publicSupabase from "@/data/publicSupabase";
+import { getRedisCached, REDIS_PUBLIC_KEYS } from "@/lib/redisPublicCache";
+import { PUBLIC_CACHE_TTL_SECONDS } from "@/lib/revalidate";
 
-const fetchPublishedProjectsFromDb = unstable_cache(
-  publicSupabase.fetchPublishedProjects,
-  ["published-projects"],
-  { revalidate: REVALIDATE_SECONDS, tags: [CACHE_TAGS.projects] },
-);
-
-const fetchSiteSettingsMapFromDb = unstable_cache(
-  publicSupabase.fetchSiteSettingsMap,
-  ["site-settings-map"],
-  { revalidate: REVALIDATE_SECONDS, tags: [CACHE_TAGS.settings] },
-);
-
-const fetchActiveResumeFromDb = unstable_cache(
-  publicSupabase.fetchActiveResume,
-  ["active-resume"],
-  { revalidate: REVALIDATE_SECONDS, tags: [CACHE_TAGS.resume] },
-);
-
+/** Server reads: Redis → Supabase (no Next.js Data Cache). */
 export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
   return getRedisCached(
     REDIS_PUBLIC_KEYS.projects,
-    fetchPublishedProjectsFromDb,
-    REVALIDATE_SECONDS,
+    publicSupabase.fetchPublishedProjects,
+    PUBLIC_CACHE_TTL_SECONDS,
   );
 }
 
 export async function fetchSiteSettingsMap(): Promise<Record<string, string>> {
   return getRedisCached(
     REDIS_PUBLIC_KEYS.settings,
-    fetchSiteSettingsMapFromDb,
-    REVALIDATE_SECONDS,
+    publicSupabase.fetchSiteSettingsMap,
+    PUBLIC_CACHE_TTL_SECONDS,
   );
 }
 
@@ -48,8 +27,8 @@ export async function fetchActiveResume(): Promise<
 > {
   return getRedisCached(
     REDIS_PUBLIC_KEYS.resume,
-    fetchActiveResumeFromDb,
-    REVALIDATE_SECONDS,
+    publicSupabase.fetchActiveResume,
+    PUBLIC_CACHE_TTL_SECONDS,
   );
 }
 

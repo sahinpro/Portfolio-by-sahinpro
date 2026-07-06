@@ -225,12 +225,20 @@ export function AdminProjectsListPage({
   const handleFlushSiteCache = useCallback(async () => {
     setFlushingCache(true);
     try {
-      const ok = await flushAllPublicDataCache();
+      const result = await flushAllPublicDataCache();
+      if (!result.ok) {
+        showToast(
+          "Cache flush failed. Sign in to admin again, or set REVALIDATE_SECRET in Vercel and redeploy.",
+          "error",
+        );
+        return;
+      }
+      const count = result.publishedProjectCount;
       showToast(
-        ok
-          ? "Public site cache flushed — changes should appear immediately."
-          : "Cache flush failed. Sign in to admin again, or set REVALIDATE_SECRET in Vercel and redeploy.",
-        ok ? "success" : "error",
+        typeof count === "number"
+          ? `Cache flushed. ${count} published project${count === 1 ? "" : "s"} are live now — refresh the public site.`
+          : "Cache flushed — refresh the public site to see changes.",
+        "success",
       );
     } finally {
       setFlushingCache(false);
@@ -242,7 +250,7 @@ export function AdminProjectsListPage({
     const { data, error } = await supabase
       .from("projects")
       .select("*")
-      .order("sort_order", { ascending: true });
+      .order("updated_at", { ascending: false });
     setLoading(false);
     if (error) {
       showToast(error.message, "error");
