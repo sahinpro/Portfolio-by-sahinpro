@@ -24,7 +24,9 @@ export function FeaturedProjectsSectionSkeleton(): JSX.Element {
           />
         </div>
 
-        <FeaturedProjectCardSkeletonList count={HOMEPAGE_FEATURED_LIMIT} />
+        <div className="w-full">
+          <FeaturedProjectCardSkeletonList count={HOMEPAGE_FEATURED_LIMIT} />
+        </div>
 
         <div className="flex justify-center">
           <SkeletonShimmer className="h-11 w-44" rounded="rounded-xl" />

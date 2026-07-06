@@ -13,7 +13,7 @@ export function FeaturedProjectCardSkeleton({
   return (
     <div
       aria-hidden
-      className="relative grid grid-cols-1 gap-0 overflow-hidden rounded-2xl border border-white/[0.08]
+      className="relative grid w-full grid-cols-1 gap-0 overflow-hidden rounded-2xl border border-white/[0.08]
         bg-gradient-to-br from-white/[0.03] to-transparent lg:grid-cols-2"
     >
       <div
@@ -76,7 +76,7 @@ export function FeaturedProjectCardSkeletonList({
   count = 2,
 }: FeaturedProjectCardSkeletonListProps): JSX.Element {
   return (
-    <div className="space-y-5">
+    <div className="w-full space-y-5">
       {Array.from({ length: count }).map((_, index) => (
         <FeaturedProjectCardSkeleton key={index} index={index} />
       ))}
