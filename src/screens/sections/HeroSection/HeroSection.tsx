@@ -1,9 +1,6 @@
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
+import { heroCodeEditorReveal, heroTiming } from "@/constants/scrollMotion";
 import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
-import {
-  heroCodeEditorReveal,
-  heroTiming,
-} from "@/constants/scrollMotion";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { AboutCodePlaceholder } from "@/screens/sections/AboutCodeSection";
 import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
@@ -63,7 +60,7 @@ export const HeroSection = (): JSX.Element => {
   }, [showCodeEditor, instantReveal]);
 
   return (
-    <section className="relative w-full overflow-hidden min-h-0 lg:min-h-screen flex items-center pt-24 sm:pt-28 pb-10">
+    <section className="relative w-full overflow-hidden min-h-screen flex items-center pt-24 sm:pt-28 pb-10">
       <div className="absolute inset-0 w-full h-full z-0">
         <AuroraBackground />
       </div>

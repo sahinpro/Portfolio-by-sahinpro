@@ -1,7 +1,6 @@
 "use client";
 
 import Header from "@/components/Header";
-import { FeaturedProjectCard } from "@/components/projects/FeaturedProjectCard";
 import { Input } from "@/components/ui/input";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import { sortProjectsByUpdatedDesc } from "@/lib/projectSort";
@@ -52,26 +51,20 @@ export const ProjectsPage = (): JSX.Element => {
     });
   }, [projects, filter, search]);
 
-  const featuredProjects = useMemo(
-    () => sortProjectsByUpdatedDesc(filteredProjects.filter((p) => p.featured)),
-    [filteredProjects],
-  );
-
-  const otherProjects = useMemo(
-    () =>
-      sortProjectsByUpdatedDesc(filteredProjects.filter((p) => !p.featured)),
+  const sortedProjects = useMemo(
+    () => sortProjectsByUpdatedDesc(filteredProjects),
     [filteredProjects],
   );
 
   const totalPages = Math.max(
     1,
-    Math.ceil(otherProjects.length / PROJECTS_PER_PAGE),
+    Math.ceil(sortedProjects.length / PROJECTS_PER_PAGE),
   );
 
-  const paginatedOtherProjects = useMemo(() => {
+  const paginatedProjects = useMemo(() => {
     const start = (page - 1) * PROJECTS_PER_PAGE;
-    return otherProjects.slice(start, start + PROJECTS_PER_PAGE);
-  }, [otherProjects, page]);
+    return sortedProjects.slice(start, start + PROJECTS_PER_PAGE);
+  }, [sortedProjects, page]);
 
   useEffect(() => {
     setPage(1);
@@ -203,45 +196,24 @@ export const ProjectsPage = (): JSX.Element => {
           </div>
         </section>
 
-        {(featuredProjects.length > 0 || otherProjects.length > 0) && (
+        {sortedProjects.length > 0 && (
           <section
             ref={gridRef}
             id="projects-grid"
             className="w-full scroll-mt-28 pb-28"
           >
             <div className="container mx-auto space-y-12 px-4">
-              {featuredProjects.length > 0 ? (
-                <div className="space-y-5">
-                  {featuredProjects.map((project, index) => (
-                    <FeaturedProjectCard
-                      key={project.id}
-                      project={project}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              ) : null}
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {paginatedProjects.map((p, i) => (
+                  <ProjectCard key={p.id} project={p} index={i} />
+                ))}
+              </div>
 
-              {otherProjects.length > 0 ? (
-                <>
-                  {featuredProjects.length > 0 ? (
-                    <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/45">
-                      More projects
-                    </h2>
-                  ) : null}
-                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                    {paginatedOtherProjects.map((p, i) => (
-                      <ProjectCard key={p.id} project={p} index={i} />
-                    ))}
-                  </div>
-
-                  <ProjectsPagination
-                    page={page}
-                    totalItems={otherProjects.length}
-                    onPageChange={handlePageChange}
-                  />
-                </>
-              ) : null}
+              <ProjectsPagination
+                page={page}
+                totalItems={sortedProjects.length}
+                onPageChange={handlePageChange}
+              />
             </div>
           </section>
         )}

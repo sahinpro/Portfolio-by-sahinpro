@@ -1,35 +1,19 @@
-import { FeaturedProjectCardSkeletonList } from "@/components/projects/FeaturedProjectCardSkeleton";
 import { SkeletonShimmer } from "@/components/ui/skeleton-shimmer";
 import { cn } from "@/lib/utils";
 import { PROJECTS_PER_PAGE } from "@/views/ProjectsPage/ProjectsPagination";
 import { ProjectCardSkeletonGrid } from "@/views/ProjectsPage/ProjectCardSkeleton";
 
 export type ProjectsListSkeletonProps = {
-  featuredCount?: number;
   gridCount?: number;
-  showMoreLabel?: boolean;
 };
 
-/** Matches `/projects` content: featured cards, optional label, then grid. */
+/** Matches `/projects` content: project card grid. */
 export function ProjectsListSkeleton({
-  featuredCount = 2,
   gridCount = PROJECTS_PER_PAGE,
-  showMoreLabel = true,
 }: ProjectsListSkeletonProps): JSX.Element {
   return (
-    <div className="space-y-12" aria-hidden>
-      {featuredCount > 0 ? (
-        <FeaturedProjectCardSkeletonList count={featuredCount} />
-      ) : null}
-
-      {gridCount > 0 ? (
-        <>
-          {showMoreLabel && featuredCount > 0 ? (
-            <SkeletonShimmer className="h-4 w-32" rounded="rounded" />
-          ) : null}
-          <ProjectCardSkeletonGrid count={gridCount} />
-        </>
-      ) : null}
+    <div aria-hidden>
+      <ProjectCardSkeletonGrid count={gridCount} />
     </div>
   );
 }

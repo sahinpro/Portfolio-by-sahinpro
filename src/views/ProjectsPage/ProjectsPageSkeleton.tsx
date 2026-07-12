@@ -29,7 +29,7 @@ export function ProjectsPageSkeleton(): JSX.Element {
 
         <section className="w-full scroll-mt-28 pb-28">
           <div className="container mx-auto px-4">
-            <ProjectsListSkeleton featuredCount={2} showMoreLabel />
+            <ProjectsListSkeleton />
           </div>
         </section>
 
