@@ -45,7 +45,7 @@ import { supabase } from "@/utils/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import {
   Controller,
   type FieldErrors,
@@ -86,6 +86,9 @@ export function AdminProjectFormPage({
   const { showToast } = useToast();
   const isNewRoute = !routeId || routeId === "new";
   const [loadingRow, setLoadingRow] = useState(!isNewRoute);
+  /** Sync mutex — blocks double submit / close-save before React re-renders. */
+  const mutationLockRef = useRef(false);
+  const [mutationBusy, setMutationBusy] = useState(false);
   const persistedRowFields = useRef<{ stats: unknown }>({
     stats: [],
   });
@@ -107,7 +110,20 @@ export function AdminProjectFormPage({
     trigger,
   } = form;
   const { errors, isSubmitting } = formState;
+  const saving = mutationBusy || isSubmitting;
   const validationIssues = listFormErrors(errors);
+
+  const beginMutation = useCallback((): boolean => {
+    if (mutationLockRef.current) return false;
+    mutationLockRef.current = true;
+    setMutationBusy(true);
+    return true;
+  }, []);
+
+  const endMutation = useCallback(() => {
+    mutationLockRef.current = false;
+    setMutationBusy(false);
+  }, []);
 
   const cmsExtensions = watch("cms_extensions");
   const buildKind = useWatch({ control, name: "build_kind" });
@@ -149,6 +165,8 @@ export function AdminProjectFormPage({
   }, [isNewRoute, routeId, router.replace, reset, showToast]);
 
   const closePanel = useCallback(() => {
+    if (mutationLockRef.current) return;
+
     if (loadingRow) {
       router.replace("/admin/projects");
       return;
@@ -165,6 +183,7 @@ export function AdminProjectFormPage({
           router.replace("/admin/projects");
           return;
         }
+        if (!beginMutation()) return;
         void (async () => {
           try {
             const payload = formValuesToProjectPayload(raw, {
@@ -178,11 +197,14 @@ export function AdminProjectFormPage({
                 ),
                 "error",
               );
-            } else {
-              void invalidateProjectsPublicCache();
-              showToast("Draft saved", "success");
+              endMutation();
+              return;
             }
-          } finally {
+            void invalidateProjectsPublicCache();
+            showToast("Draft saved", "success");
+            router.replace("/admin/projects");
+          } catch {
+            endMutation();
             router.replace("/admin/projects");
           }
         })();
@@ -197,6 +219,7 @@ export function AdminProjectFormPage({
       return;
     }
 
+    if (!beginMutation()) return;
     void (async () => {
       try {
         const values = getValues();
@@ -215,7 +238,16 @@ export function AdminProjectFormPage({
         router.replace("/admin/projects");
       }
     })();
-  }, [getValues, isNewRoute, loadingRow, router.replace, routeId, showToast]);
+  }, [
+    beginMutation,
+    endMutation,
+    getValues,
+    isNewRoute,
+    loadingRow,
+    router.replace,
+    routeId,
+    showToast,
+  ]);
 
   const scrollToFirstFieldError = useCallback((fieldKeys: string[]) => {
     requestAnimationFrame(() => {
@@ -234,6 +266,7 @@ export function AdminProjectFormPage({
 
   const onInvalid = useCallback(
     (fieldErrors: FieldErrors<ProjectFormValues>) => {
+      endMutation();
       const issues = listFormErrors(fieldErrors);
       if (issues.length === 0) {
         showToast("Fix the highlighted fields below", "error");
@@ -248,28 +281,63 @@ export function AdminProjectFormPage({
       showToast(summary, "error");
       scrollToFirstFieldError(issues.map((i) => i.field));
     },
-    [scrollToFirstFieldError, showToast],
+    [endMutation, scrollToFirstFieldError, showToast],
   );
 
   const onSubmit = async (values: ProjectFormValues) => {
-    if (values.status === "published" && !values.live_url?.trim()) {
-      showToast(
-        "Published without a live URL    add one when you can.",
-        "warning",
-      );
-    }
+    // Lock is already held by the form submit gate.
+    try {
+      if (values.status === "published" && !values.live_url?.trim()) {
+        showToast(
+          "Published without a live URL — add one when you can.",
+          "warning",
+        );
+      }
 
-    const payload = formValuesToProjectPayload(values, {
-      stats: isNewRoute ? [] : persistedRowFields.current.stats,
-    });
+      const payload = formValuesToProjectPayload(values, {
+        stats: isNewRoute ? [] : persistedRowFields.current.stats,
+      });
 
-    if (isNewRoute) {
-      const { error } = await supabase.from("projects").insert(payload);
-      if (error) {
-        showToast(withRlsHint(formatSupabaseUserMessage(error)), "error");
+      if (isNewRoute) {
+        const { error } = await supabase.from("projects").insert(payload);
+        if (error) {
+          showToast(withRlsHint(formatSupabaseUserMessage(error)), "error");
+          endMutation();
+          return;
+        }
+        showToast(
+          values.status === "published" ? "Project published" : "Draft saved",
+          "success",
+        );
+        const cacheResult = await invalidateProjectsPublicCache();
+        if (!cacheResult.ok) {
+          showToast(
+            "Public site may still show old data — use “Flush site cache” on the Projects list.",
+            "warning",
+          );
+        }
+        router.replace("/admin/projects");
         return;
       }
-      showToast("Project saved", "success");
+
+      if (!routeId) {
+        endMutation();
+        return;
+      }
+
+      const { error } = await supabase
+        .from("projects")
+        .update(payload)
+        .eq("id", routeId);
+      if (error) {
+        showToast(withRlsHint(error.message), "error");
+        endMutation();
+        return;
+      }
+      showToast(
+        values.status === "published" ? "Project published" : "Draft saved",
+        "success",
+      );
       const cacheResult = await invalidateProjectsPublicCache();
       if (!cacheResult.ok) {
         showToast(
@@ -278,28 +346,16 @@ export function AdminProjectFormPage({
         );
       }
       router.replace("/admin/projects");
-      return;
+    } catch {
+      showToast("Could not save project. Try again.", "error");
+      endMutation();
     }
+  };
 
-    if (!routeId) return;
-
-    const { error } = await supabase
-      .from("projects")
-      .update(payload)
-      .eq("id", routeId);
-    if (error) {
-      showToast(withRlsHint(error.message), "error");
-      return;
-    }
-    showToast("Project saved", "success");
-    const cacheResult = await invalidateProjectsPublicCache();
-    if (!cacheResult.ok) {
-      showToast(
-        "Public site may still show old data — use “Flush site cache” on the Projects list.",
-        "warning",
-      );
-    }
-    router.replace("/admin/projects");
+  const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!beginMutation()) return;
+    void handleSubmit(onSubmit, onInvalid)(event);
   };
 
   if (loadingRow) {
@@ -308,6 +364,7 @@ export function AdminProjectFormPage({
         title="Edit project"
         description="Loading project…"
         onClose={closePanel}
+        busy={saving}
       >
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-white/50">
           <Loader2 className="h-5 w-5 animate-spin" />
@@ -326,9 +383,10 @@ export function AdminProjectFormPage({
           : "Save changes when ready. Featured image is required to publish."
       }
       onClose={closePanel}
+      busy={saving}
     >
       <form
-        onSubmit={handleSubmit(onSubmit, onInvalid)}
+        onSubmit={onFormSubmit}
         className="mx-auto max-w-3xl space-y-8 pb-20"
         noValidate
       >
@@ -481,9 +539,13 @@ export function AdminProjectFormPage({
                     setValue("cms_theme_name", "", { shouldValidate: true });
                     setValue("cms_extensions", [""], { shouldValidate: true });
                     if (!isFullStackFormCategory(getValues("category"))) {
-                      setValue("category", categoriesForBuildKind("custom")[0], {
-                        shouldValidate: true,
-                      });
+                      setValue(
+                        "category",
+                        categoriesForBuildKind("custom")[0],
+                        {
+                          shouldValidate: true,
+                        },
+                      );
                     }
                   }
                   void trigger([
@@ -761,19 +823,26 @@ export function AdminProjectFormPage({
         <div className="flex flex-wrap gap-3">
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90 disabled:opacity-50"
+            disabled={saving}
+            aria-busy={saving}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90 disabled:pointer-events-none disabled:opacity-50"
           >
-            {isSubmitting
-              ? "Saving…"
-              : isNewRoute
-                ? "Save project"
-                : "Save changes"}
+            {saving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                {status === "published" ? "Publishing…" : "Saving…"}
+              </>
+            ) : isNewRoute ? (
+              "Save project"
+            ) : (
+              "Save changes"
+            )}
           </button>
           <button
             type="button"
             onClick={closePanel}
-            className="rounded-lg border border-white/15 px-5 py-2.5 text-sm font-medium text-white/80 hover:bg-white/[0.06]"
+            disabled={saving}
+            className="rounded-lg border border-white/15 px-5 py-2.5 text-sm font-medium text-white/80 hover:bg-white/[0.06] disabled:pointer-events-none disabled:opacity-50"
           >
             Cancel
           </button>
