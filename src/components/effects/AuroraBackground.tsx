@@ -24,7 +24,7 @@ function AuroraBackgroundCss({
 }: AuroraBackgroundProps): JSX.Element {
   return (
     <div
-      className={`absolute inset-0 w-full h-full overflow-hidden pointer-events-none ${className}`.trim()}
+      className={`aurora-css absolute inset-0 w-full h-full overflow-hidden pointer-events-none ${className}`.trim()}
       style={{ opacity, ...CSS_AURORA_STYLE }}
       aria-hidden
     />

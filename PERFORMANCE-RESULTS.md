@@ -1,267 +1,197 @@
 # Performance Verification Results
 
-Date: 2026-08-22  
-Production: `next start` on `http://127.0.0.1:3001` (Next.js 15.5.19)  
-Method: production build output, homepage HTML inspection, static chunk analysis, source leak/hydration review.
+Date: 2026-08-22 (Redmi 5 Plus pass)  
+Production: `npm run build` (Next.js 15.5.19)  
+Method: source runtime map, capability-mode implementation, production bundle. **No Redmi 5 Plus, no Chrome Performance panel in this environment.**
+
+Do not treat localhost timings as field Core Web Vitals or FPS.
 
 ---
 
-## Environment
+## Redmi 5 Plus Findings
 
-| Item | Value |
-|---|---|
-| OS | Windows 10 (dev machine) |
-| Node | v24.14.0 |
-| Server | `npm run build` then `npx next start -p 3001` |
-| Chrome / Lighthouse | Lighthouse CLI 13.4.1 present; **no Chrome installation** (`No Chrome installations found`) |
-| Physical phones | **Not available in this environment** |
-| Device A (mid-range Android) | Not measured |
-| Device B (low-end Android) | Not measured |
-| Device C (iPhone Safari) | Not measured |
+The previous pass already skipped WebGL, particles, typewriter, count-up, and pointer systems on all touch devices. The phone was still laggy because **those skips were not the remaining cost**.
 
-Do not treat localhost timings as field Core Web Vitals.
+Redmi 5 Plus class hardware (Snapdragon 625, Adreno 506, typically 3–4 GB RAM) still executed:
+
+1. **Large `backdrop-filter` while scrolling** — header `backdrop-blur-md` (fixed), editor `backdrop-blur-xl`, stats `backdrop-blur-sm`, `.glass-card` 8px. Adreno 506 re-blurs whatever sits behind those layers on every frame of scroll.
+2. **Framer Motion stagger trees on every section enter** — `whileInView` + `staggerChildren` on Hero, Stats (4 cards), and later lazy sections. Projection + style updates hitch on a 2018 CPU.
+3. **A scroll listener on phones that never needed it** — Header appearance on `<lg` does not use `isScrolled`. The listener still scheduled rAF and a `setState` updater on every coalesced scroll.
+
+`deviceMemory` on Chrome/Mi Browser for a 4 GB Redmi 5 Plus reports **4**, which now maps to **LOW**. iPhone (no `deviceMemory`) maps to **MEDIUM** and keeps reduced glass. Desktop fine pointer maps to **HIGH**.
 
 ---
 
-## Baseline
+## Root Cause
 
-From the previous pass (`PERFORMANCE-AUDIT.md`):
+**Compositing + motion on the main/render thread during scroll**, not Three.js and not first-load JS size.
 
-| Metric | Baseline |
-|---|---|
-| Home route size | 7.66 kB |
-| Home First Load JS | 194 kB |
-| Shared JS | 102 kB |
-| Three.js async chunk | 655 kB |
-| Aurora desktop wrapper | 5.3 kB |
+Homepage First Load JS is unchanged at **194 kB** / shared **102 kB**. Three.js remains an async desktop chunk. Settings fetch, analytics, and page-view ingest remain deferred.
 
-This phase’s production build matched that baseline exactly before the MagicBento cleanup (see Bundle Findings).
+If this were “too much JS,” the previous pass would have fixed the phone. The user still saw hitching, which matches **backdrop-filter + section-enter motion** on Adreno 506.
 
 ---
 
-## Mobile Results
+## Evidence
 
-**Not measured in this environment.** No physical Android device and no headless Chrome.
-
-Code + production HTML checks that apply to the mobile/simple path:
-
-| Check | Result |
-|---|---|
-| Homepage HTML includes Three.js / `b536a0f1` chunk | **No** (mobile UA and desktop UA) |
-| Homepage HTML includes Aurora desktop chunk `4512` | **No** |
-| `Group 24.png` in homepage HTML | **No** (replaced by `/bgcta.avif`, requested only when CTA section mounts) |
-| `usePerformanceMode` uses UA sniffing | **No** — `hover`, `pointer: fine`, `prefers-reduced-motion`, `min-width: 1024`, `deviceMemory` |
-| SSR/hydration for capabilities | `useSyncExternalStore` + conservative server snapshot (`simpleVisuals: true`, `richDesktopEffects: false`) |
-| MagicBento on touch | Lite grid; no particles, spotlight, or liquid blur |
-| ChromaGrid on touch | Static cards; no backdrop masks / pointer rAF |
-| Header / glass / editor chrome | Mobile glass restored (`backdrop-blur-md` header, `backdrop-blur-sm` stats, `backdrop-blur-xl` editor). `.glass-card` uses 8px blur ≤1023px instead of 46px |
-| Hero typing | Instant when `simpleVisuals` |
-
----
-
-## Desktop Results
-
-**Not measured in this environment** (no Chrome, no interactive session).
-
-Intended desktop path (code + split points):
-
-| Check | Evidence |
-|---|---|
-| CSS aurora first | `AuroraBackground` renders CSS until `richDesktopEffects` |
-| WebGL is a separate chunk | `AuroraBackground.tsx -> ./AuroraBackgroundDesktop` → `4512.*.js` (5.3 kB) then `-> three` → `b536a0f1.*.js` (655 kB / 670,127 bytes on disk) |
-| First-load JS contains `WebGLRenderer` | **No** in `page`, `layout`, or shared first-load chunks |
-| ChromaGrid spotlight | Interactive branch only when `simpleVisuals` is false; rAF + CSS vars |
-| Featured pointer follow | Starts `false`; enabled in `useEffect` for fine pointer + hover |
-| Header glass | Desktop `lg:backdrop-blur-md`; mobile glass matches original (`max-lg:backdrop-blur-md`) |
-
----
-
-## Core Web Vitals
-
-```text
-LCP  — Not measured in this environment.
-INP  — Not measured in this environment.
-CLS  — Not measured in this environment.
-FCP  — Not measured in this environment.
-TTFB — Localhost only: 17 ms (time_starttransfer to 127.0.0.1:3001). Not a field TTFB.
-```
-
-Targets (LCP < 2.5s, INP < 200ms, CLS < 0.1) are **not claimed**.
-
----
-
-## Frame / Long Task Findings
-
-Chrome Performance panel was **not available**.
-
-Static classification of remaining homepage work:
-
-| Component | Trigger | Main thread | Rendering | Frequency | Device | Evidence | Recommended fix |
-|---|---|---|---|---|---|---|---|
-| `useScrollPosition` | scroll | boolean `setState` via rAF | none | ≤1/frame, only when threshold crosses | all | `src/hooks/useScrollPosition.ts` | Keep |
-| `useStatCountUp` | in-view | rAF `setState` | text | ~1.4s | desktop only (`simpleVisuals` skips) | `PortfolioStatCard` | Keep |
-| `useTypewriter` | hero editor | `setState` ~18ms | highlight | until done | desktop only | `HeroSection` + `simpleVisuals` | Keep |
-| ChromaGrid spotlight | pointermove | 1 layout read + rAF | backdrop masks | desktop hover | desktop | `ChromaGridInteractive` | Keep (desktop quality) |
-| Aurora WebGL | rAF | GPU shader | canvas | 60fps while visible | desktop after idle | `AuroraBackgroundDesktop` | Keep |
-| MagicBento particles/spotlight | — | — | — | — | not on homepage Skills | `disableAnimations` + lite on touch | Keep |
-
-No new P0 frame-time issue was measured.
-
----
-
-## Network Findings
-
-Production `GET /` (67,062 bytes HTML):
-
-**Initial scripts (17):** shared + app layout + home page. No `4512` / `b536a0f1` (Three.js).
-
-**Preloads:**
-
-- Logo: `sahin.jpg` via `next/image` with `imageSizes="45px"` (srcset includes 3840w as fallback `src`; browser should pick ~48–96w).
-- Webpack runtime (low priority).
-
-**Measured asset responses:**
-
-| URL | Status | Bytes |
+| Claim | Evidence | Measured on device? |
 |---|---|---|
-| `/_next/image?url=%2Fsahin.jpg&w=96&q=75` | 200 | 2,064 |
-| `/bgcta.avif` | 200 | 80,838 |
-| `/Group 24.png` | 200 | 412,334 (file still in `/public`; **not referenced** by homepage HTML) |
-| `/_next/static/chunks/b536a0f1.*.js` (Three) | 200 | 670,127 (available, **not linked** from `/`) |
-| `/_next/static/chunks/4512.*.js` | 200 | 5,373 |
+| Header glass still on mobile after previous pass | `Header.tsx` `max-lg:backdrop-blur-md` | Code |
+| Editor chrome still `backdrop-blur-xl` | `aboutCodeLayout.ts` | Code |
+| Stats still `backdrop-blur-sm` + `blur-xl` orb | `PortfolioStatCard.tsx` | Code |
+| `.glass-card` still 8px blur ≤1023px | `globals.css` | Code |
+| Scroll listener ran on all viewports | `useScrollPosition.ts` (pre-fix) attached `scroll` always | Code |
+| Header `isScrolled` only changes `lg:` classes | `Header.tsx` | Code |
+| Homepage is a client tree with many `whileInView` staggers | `HomePage.tsx`, `scrollMotion.ts`, section files | Code |
+| Redmi 5 Plus → LOW via RAM, not UA | `deviceMemory <= 4` + coarse pointer; no `userAgent` | Code |
+| FPS / long tasks on the phone | — | **Not measured** |
+| Chrome Performance panel | No Chrome in this environment | **Not measured** |
 
-**Deferred after idle (not in first HTML):** site settings fetch, page-view ingest, Vercel analytics.
+### Runtime map (homepage, while scrolling)
 
-**Third-party on first HTML:** none observed in the document.
+| Component | Event | Frequency | React render? | Layout? | Paint? | On mobile? |
+|---|---|---|---|---|---|---|
+| `useScrollPosition` (before) | scroll → rAF → `setState` updater | ≤1/frame while finger moves | Bail-out if boolean unchanged; **rAF still ran** | `scrollY` read | No | Yes |
+| `useScrollPosition` (after) | none below 1024px | — | No | No | No | **No listener** |
+| Header `backdrop-filter` (before) | scroll (browser) | every frame | No | No | **Yes, expensive** | Yes |
+| Header (LOW after) | scroll | compositor only | No | No | Solid fill | Yes |
+| Framer Motion `whileInView` | intersection | once per section | Yes (animation frames) | Possible | Yes | Yes, until LOW `MotionConfig` |
+| `useTypewriter` | timeout | ~18ms | Yes | No | Yes | Skipped (`simpleVisuals`) |
+| `useStatCountUp` | rAF | ~1.4s | Yes | No | text | Skipped |
+| ChromaGrid rAF | pointermove | desktop | No (CSS vars) | `getBoundingClientRect` | masks | No (`simpleVisuals`) |
+| Aurora WebGL | rAF | 60 | No | resize | canvas | No (`richDesktopEffects`) |
+| MagicBento lite | none | — | No | No | static cards | Lite grid |
+| `PublicSiteGate` settings | idle 3.5s | once | Yes | No | No | Deferred (verified in source) |
+| Analytics / pageview | idle 4–4.5s | once | No | No | No | Deferred |
 
----
+### `whileInView` table
 
-## Bundle Findings
-
-`next build` (this phase, before MagicBento leak fix — same as baseline):
-
-```text
-/          7.66 kB    First Load JS 194 kB
-Shared                  102 kB
-  chunks/1255-*.js       45.7 kB
-  chunks/4bd1b696-*.js   54.2 kB
-Contact                196 kB route / 397 kB first load (Lottie — unchanged)
-```
-
-```text
-Three chunk = out of mobile initial/request path
-```
-
-No mobile First Load JS regression vs 194 kB / 102 kB.
-
----
-
-## Memory / Cleanup Findings
-
-Reviewed `addEventListener`, rAF, observers, timers on homepage effects.
-
-| Area | Cleanup |
-|---|---|
-| `usePerformanceMode` | media `change` listeners removed |
-| `useScrollPosition` | scroll + rAF cancelled |
-| `LazySection` | IntersectionObserver disconnect |
-| `AuroraBackgroundDesktop` | rAF cancel, ResizeObserver disconnect, geometry/material/renderer dispose, `loseContext`, canvas remove |
-| `ChromaGridInteractive` | rAF cancelled on unmount |
-| `FeaturedProjectCard` | hint rAF cancelled |
-| `ParticleCard` / `GlobalSpotlight` | listeners removed (not mounted on homepage Skills) |
-| MagicBento non-star cards | **Was a leak:** callback `ref` added `mousemove`/`mouseleave`/`click` with **no** `removeEventListener`. Homepage Skills uses `disableAnimations`, so the leak was dormant. **Fixed** with `InteractiveBentoCard` + `useEffect` cleanup. |
+| Component | Animated children | Type | LOW | MEDIUM | HIGH |
+|---|---|---|---|---|---|
+| HeroContent | title, subtitle, desc, 2 CTAs, 7 social icons | stagger opacity/y | static (`MotionConfig always` + instant hero) | reduced stagger | full |
+| StatsSection | 4 cards + icon scale | stagger + scale | static, no blur | cards animate, no count-up | full + count-up |
+| FeaturedProjects | per-card fade | opacity/y | instant visible | fade | fade + pointer follow |
+| Skills / MagicBento | 0 motion nodes (lite) | static | static | static lite | liquid + spotlight |
+| TechStack / Career / Process / FAQ / CTA | section stagger | opacity/y | instant | stagger | stagger |
+| WhyChoose / ChromaGrid | static cards on touch | — | static | static | spotlight |
+| Footer TextEffect | char/word spans | stagger | **plain text** | word fade | word/char |
+| About / Services pages | same patterns | opacity/y | instant | stagger | stagger |
 
 ---
 
-## Issues Found
+## Experiments
 
-### P0
+Mandatory A/B/C/D comparison **was not run on a Redmi 5 Plus**. No Chrome, no physical device.
 
-None newly measured.
-
-### P1
-
-None newly measured (no Chrome/device FPS).
-
-### P2 — MagicBento callback-ref listener leak (fixed)
-
-**Before:** `ref={(el) => { el.addEventListener(...) }}` with no unmount cleanup.  
-**Evidence:** `MagicBento.tsx` listener attach without `removeEventListener`.  
-**Change:** `InteractiveBentoCard` uses `useEffect` and removes listeners; skips binding when tilt/magnetism/click are off.  
-**After:** No leaked listeners on remount. Homepage Skills still has animations off (same visuals).  
-**Measured impact:** Not measured (no Chrome heap snapshot).
-
-### P3 (left unchanged)
-
-- Unused `@react-three/*`, `ogl` packages (not in app graph).
-- Dead `/public/Group 24.png` (412 kB) still on disk; not requested by home HTML.
-- Contact First Load JS 397 kB (Lottie).
-- `ecommerce.jpg` 245 kB source (served via `next/image` when Skills mounts).
-- No Chrome in CI/dev sandbox → no Lighthouse JSON.
-
----
-
-## Fixes Applied
-
-### MagicBento pointer listener cleanup
-
-```text
-Before: callback ref added mousemove/mouseleave/click with no removeEventListener
-Evidence: source inspection of MagicBento.tsx (section 17 leak checklist)
-Change: InteractiveBentoCard + useEffect cleanup; no bind when interactions are disabled
-After: type-check / lint / build (see validation)
-Measured impact: Not measured in this environment
-```
-
-No other code changes in this phase. Previous-pass mobile/desktop splits were left intact.
-
----
-
-## Before vs After
-
-| Item | Previous pass | This verification |
+| Profile | What it would isolate | Result here |
 |---|---|---|
-| Home First Load JS | 194 kB | 194 kB (no regression) |
-| Shared JS | 102 kB | 102 kB |
-| Three in `GET /` HTML | not claimed via HTML fetch | **Confirmed absent** |
-| Three first-load chunks | not in page/layout | **Confirmed** (`WebGLRenderer` count = 0) |
-| CTA 404 | `/Group 24.png` unused in markup | `/bgcta.avif` 200; Group 24 not in HTML |
-| Device FPS / CWV | not measured | still not measured |
-| MagicBento leak | dormant | cleaned up |
+| A Current (previous mobile path) | glass + FM staggers | Baseline in code |
+| B No blur | compositing | Implemented as LOW CSS (`data-perf=low`) |
+| C No decorative motion | FM hitching | Implemented as `MotionConfig reducedMotion="always"` on LOW |
+| D LOW mode | B + C + no phone scroll listener + static aurora | **This pass** |
+
+If the phone is smooth after D, the cause was animation/compositing (predicted). If it is still laggy, next suspects are hydration of the full `HomePage` client tree, DOM size of the code editor, and image decode. **Not measured.**
+
+To force a profile in DevTools: set `document.documentElement.dataset.perf` after load (HIGH/MEDIUM ignore it until hydrate; LOW CSS keys off the attribute immediately via the boot script).
 
 ---
 
-## Remaining Risks
+## Final Fixes
 
-1. **Real-device FPS is still unknown.** Mid-range Android / iPhone must be checked with `npm run start` (not `next dev`).
-2. Desktop WebGL upgrade, ChromaGrid spotlight, and featured pointer-follow need a **manual** desktop pass.
-3. Hydration is designed around `useSyncExternalStore`; React DevTools hydration warnings were **not observed** here because no browser was attached.
-4. Localhost TTFB does not represent Vercel/edge TTFB.
+| Problem | Evidence | Fix | Measured effect |
+|---|---|---|---|
+| Touch, 4 GB RAM, and 8-core SD625 all looked like one “simple” path | `simpleVisuals` treated every phone the same | `HIGH` / `MEDIUM` / `LOW` from hover, pointer, width, `deviceMemory`, `hardwareConcurrency`, `saveData`, reduced motion. **No UA string.** | Not measured |
+| First paint blur on LOW | CSS applied after hydrate | Blocking `<head>` boot script sets `data-perf` | Not measured |
+| Header/editor/stats/CTA blur on weak GPU | class list + `globals.css` | LOW: `backdrop-filter: none`, solid header, 1-stop aurora. MEDIUM: 8px instead of 12–46px. HIGH: unchanged | Not measured |
+| Scroll → rAF on phones | `useScrollPosition` | Listener only at `min-width: 1024px` | Not measured |
+| Section-enter hitching | many `whileInView` trees | LOW: `MotionConfig reducedMotion="always"`; TextEffect renders static text | Not measured |
+| Stats icons stayed `opacity: 0` until IO | `animate={inView ? … : hidden}` | LOW/reduced-motion: always visible | Not measured |
+| Continuous CSS aurora cost | 4 full-viewport gradients | LOW: single radial | Not measured |
+
+Desktop HIGH path is unchanged: WebGL aurora, ChromaGrid spotlight, liquid bento, pointer follow, header shrink.
+
+---
+
+## Before / After
+
+| Item | Previous mobile path | This pass |
+|---|---|---|
+| Modes | `simpleVisuals` boolean | `high` / `medium` / `low` |
+| Redmi 5 Plus (4 GB Chrome) | same as iPhone (glass + FM) | **LOW** |
+| iPhone (no `deviceMemory`) | glass + reduced FX | **MEDIUM** (8px glass, no WebGL) |
+| Desktop mouse | full FX | **HIGH** |
+| Header blur on LOW | `backdrop-blur-md` | none, `rgba(10,10,10,0.94)` |
+| Phone scroll listener | yes | no |
+| Home First Load JS | 194 kB | **194 kB** |
+| Home route | 7.66 kB | **7.51 kB** |
+| Shared JS | 102 kB | **102 kB** |
+| Three.js on `/` | not in HTML | still not in HTML |
+| Type-check / lint / build | pass | pass (lint: 0 errors, existing admin warnings) |
+| Device FPS | Not measured | **Not measured** |
+
+---
+
+## Remaining Bottlenecks
+
+1. **Whole public tree still hydrates** (`PublicLayoutShell` + `HomePage` are client). Not rewritten; islands would be a later pass.
+2. **Hero code editor DOM** (line numbers × highlighted spans) is still large. LOW skips typing but still mounts the static highlighted tree.
+3. **Contact route** 397 kB First Load (Lottie) — off homepage.
+4. **`Group 24.png` 412 kB source** — served through `next/image` when Get Started mounts (below fold).
+5. Real **Redmi 5 Plus FPS / INP** — **Not measured**.
+
+---
+
+## Desktop Regression Check
+
+| Check | Status |
+|---|---|
+| `richDesktopEffects` still requires desktop + hover + fine pointer | Yes |
+| WebGL still `next/dynamic` + `import("three")` | Yes |
+| ChromaGrid interactive only when `simpleVisuals === false` | Yes |
+| MagicBento lite only when `simpleVisuals` | Yes |
+| Header shrink still `lg:` + scroll threshold | Yes, listener desktop-only |
+| LOW CSS gated on `html[data-perf="low"]` | Yes — HIGH does not match |
+
+Visual desktop check in a browser: **Not measured** here.
 
 ---
 
 ## Final Recommendation
 
-Stop further speculative optimization.
+The Redmi 5 Plus target should now take the **LOW** path automatically in Chromium (4 GB `deviceMemory`). That is the device test:
 
-The previous pass already removed the main mobile costs (blur, WebGL, particles, char typing, pointer systems). This pass confirmed:
+1. `npm run start` (not `next dev`).
+2. Confirm `document.documentElement.dataset.perf === "low"`.
+3. Confirm no Three.js chunk on the network log.
+4. Scroll Hero → Stats → Skills. Header must stay a solid bar, code window already filled, no blur smear.
 
-- production bundle did not regress,
-- Three.js is not on the homepage critical path,
-- capability detection is hydration-safe,
-- one real listener leak is fixed.
-
-**Next step (human):** on a mid-range Android, run `npm run start`, DevTools Network (confirm no `b536a0f1` / three chunk), then scroll Hero → Stats → Skills → Why choose → CTA/Footer. Only reopen this work if that session shows stutter, a Three.js request, or a console/hydration error.
+If that session is still hitchy, the next evidence-backed cut is **homepage client-island split** (Hero/Stats static server markup), not more blur tweaks.
 
 ---
 
-## Validation commands
+## Acceptance (code)
 
-```text
-npm run type-check
-npm run lint
-npm run build
-npx next start -p 3001
-```
+- [x] No Three.js on LOW/MEDIUM (`richDesktopEffects` false)
+- [x] No large mobile blur on LOW
+- [x] No pointer effects on touch (`simpleVisuals`)
+- [x] No continuous decorative animation on LOW (aurora static, no pulse/shimmer)
+- [x] No per-frame React scroll updates on phones
+- [x] Scroll listener cleaned up; no new leaks
+- [x] No layout reads on phone scroll
+- [x] Hydration: `useSyncExternalStore` + boot script (warnings **Not measured** in a browser)
+- [x] Production build / type-check / lint pass
+- [ ] Redmi 5 Plus “noticeably smoother” — **device experience not measured in this environment**
 
-Production server: Ready in 645ms on port 3001. Homepage HTTP 200.
+---
+
+## Previous pass baseline (kept)
+
+| Metric | Value |
+|---|---|
+| Home First Load JS | 194 kB |
+| Shared JS | 102 kB |
+| Three.js async | ~655 kB, not in `/` HTML |
+| Settings / analytics | `deferUntilIdle` |
+| MagicBento listener leak | fixed earlier |
+
+LCP / INP / CLS: **Not measured**.

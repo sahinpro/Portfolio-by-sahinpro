@@ -373,3 +373,56 @@
     transform: none;
   }
 }
+
+/* LOW (Redmi 5 Plus class): no backdrop-filter, no filter blur, no looping paint. */
+html[data-perf="low"] .header-glass {
+  background: rgba(10, 10, 10, 0.94);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+html[data-perf="low"] .header-glass::after,
+html[data-perf="low"] .shading-effect::before {
+  content: none;
+  display: none;
+}
+
+html[data-perf="low"] .glass-card,
+html[data-perf="low"] .liquid-border-frame,
+html[data-perf="low"] .about-code-chrome,
+html[data-perf="low"] [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html[data-perf="low"] .glass-card {
+  background: rgba(7, 7, 7, 0.94);
+}
+
+html[data-perf="low"] .about-code-chrome {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.18));
+}
+
+html[data-perf="low"] [class*="blur-"] {
+  filter: none !important;
+}
+
+html[data-perf="low"] .aurora-css {
+  background: radial-gradient(
+    ellipse 85% 55% at 50% -15%,
+    rgba(149, 0, 255, 0.16),
+    transparent 58%
+  ) !important;
+}
+
+html[data-perf="low"] .skeleton-shimmer::after,
+html[data-perf="low"] .animate-pulse {
+  animation: none !important;
+}
+
+/* MEDIUM: keep glass identity with a small blur instead of 12–46px surfaces. */
+html[data-perf="medium"] .header-glass,
+html[data-perf="medium"] [class*="backdrop-blur-md"],
+html[data-perf="medium"] [class*="backdrop-blur-xl"] {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}

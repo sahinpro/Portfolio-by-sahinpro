@@ -25,8 +25,9 @@ export const PortfolioStatCard = ({
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, scrollViewport);
   const reduceMotion = useReducedMotion();
-  const { simpleVisuals } = usePerformanceMode();
+  const { simpleVisuals, level } = usePerformanceMode();
   const skipCount = reduceMotion || simpleVisuals;
+  const staticCard = reduceMotion || level === "low";
   const displayValue = useStatCountUp(stat.value, inView && !skipCount);
   const Icon = stat.icon;
 
@@ -40,9 +41,11 @@ export const PortfolioStatCard = ({
     >
       <motion.div
         className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center"
-        initial={reduceMotion ? false : { scale: 0.85, opacity: 0 }}
+        initial={staticCard ? false : { scale: 0.85, opacity: 0 }}
         animate={
-          inView ? { scale: 1, opacity: 1 } : { scale: 0.85, opacity: 0 }
+          staticCard || inView
+            ? { scale: 1, opacity: 1 }
+            : { scale: 0.85, opacity: 0 }
         }
         transition={{ duration: 0.4, delay: 0.15, ease: sectionEase }}
       >
