@@ -1,5 +1,6 @@
 import { CTAButton } from "@/components/common/CTAButton";
 import { Card, CardContent } from "@/components/ui/card";
+import { PublicImage } from "@/components/ui/PublicImage";
 import { navItems } from "@/constants/navigation";
 import {
   fadeInUp,
@@ -22,11 +23,10 @@ export const GetStartedSection = (): JSX.Element => {
         variants={sectionReveal}
       >
         <Card className="relative w-full rounded-[20px] overflow-hidden border border-[#ffffff1a] glass-card">
-          <img
-            className="absolute bottom-0 left-0 lg:left-[77px] w-[1158px] h-[480px] lg:h-[454px] pointer-events-none object-cover"
-            alt="Get Started"
-            src="/Group 24.png"
-            aria-hidden
+          <PublicImage
+            className="absolute bottom-0 left-0 lg:left-[77px] w-[1158px] max-w-none h-[480px] lg:h-[454px] pointer-events-none object-cover"
+            alt=""
+            src="/bgcta.avif"
             width={1158}
             height={454}
           />

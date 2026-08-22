@@ -3,6 +3,7 @@ import { useInView, useReducedMotion } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 import { CodeEditorPanel, type EditorTab } from "./CodeEditorPanel";
 import { TerminalPanel } from "./TerminalPanel";
+import { aboutCodeChromeClass } from "./aboutCodeLayout";
 import { useAboutCodeProfile } from "./useAboutCodeProfile";
 
 type AboutCodeWindowProps = {
@@ -45,7 +46,7 @@ export const AboutCodeWindow = ({
 
   return (
     <div ref={windowRef} className={className}>
-      <div className="relative w-full rounded-[25px] lg:rounded-[28px] border border-white/10 backdrop-blur-xl bg-gradient-to-b from-white/30 to-white/50 p-2 lg:p-2.5">
+      <div className={aboutCodeChromeClass}>
         <div className="pointer-events-none z-[9999] absolute inset-x-0 bottom-0 h-[150px] w-[96%] mx-auto scale-[1.05] bg-gradient-to-b from-transparent via-black/45 to-black rounded-b-[25px]" />
         <div className="relative rounded-[16px] lg:rounded-[19px] bg-[#0f0f0f] overflow-hidden">
           <CodeEditorPanel

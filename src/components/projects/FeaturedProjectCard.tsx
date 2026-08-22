@@ -45,8 +45,10 @@ export const FeaturedProjectCard = ({
   const even = index % 2 === 0;
   const cardRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
-  const [followPointer, setFollowPointer] = useState(true);
+  const [followPointer, setFollowPointer] = useState(false);
   const [pointerHint, setPointerHint] = useState(project.title);
+  const hintRaf = useRef(0);
+  const pendingHint = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     setPointerHint(project.title);
@@ -65,23 +67,35 @@ export const FeaturedProjectCard = ({
 
   const handlePointerMove = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      const node = cardRef.current;
-      if (!node) return;
-      const rect = node.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return;
-      const xRatio = (event.clientX - rect.left) / rect.width;
-      const yRatio = (event.clientY - rect.top) / rect.height;
-      setPointerHint(featuredProjectPointerHint(project, xRatio, yRatio));
+      pendingHint.current = { x: event.clientX, y: event.clientY };
+      if (hintRaf.current) return;
+      hintRaf.current = requestAnimationFrame(() => {
+        hintRaf.current = 0;
+        const node = cardRef.current;
+        if (!node) return;
+        const rect = node.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
+        const { x, y } = pendingHint.current;
+        const xRatio = (x - rect.left) / rect.width;
+        const yRatio = (y - rect.top) / rect.height;
+        setPointerHint(featuredProjectPointerHint(project, xRatio, yRatio));
+      });
     },
     [project],
   );
+
+  useEffect(() => {
+    return () => {
+      if (hintRaf.current) cancelAnimationFrame(hintRaf.current);
+    };
+  }, []);
 
   const card = (
     <div
       ref={cardRef}
       onMouseMove={followPointer ? handlePointerMove : undefined}
       className="group relative grid grid-cols-1 gap-0 overflow-hidden rounded-2xl border border-white/[0.08]
-        bg-gradient-to-br from-white/[0.03] to-transparent transition-all duration-500
+        bg-gradient-to-br from-white/[0.03] to-transparent transition-[border-color] duration-500
         hover:border-white/[0.14] lg:grid-cols-2"
     >
       <div

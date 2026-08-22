@@ -29,13 +29,13 @@ const Header = () => {
   return (
     <header
       role="banner"
-      className={`fixed font-sans after:content-[''] after:absolute after:top-0 after:bottom-0 after:bg-gradient-to-b after:from-black/70 after:to-transparent container mx-auto top-2 left-0 right-0 z-50 flex justify-center pt-4 sm:pt-8 px-4 rounded-xl transition-all duration-500 ease-out ${
+      className={`fixed font-sans after:content-[''] after:absolute after:inset-x-0 after:top-0 after:bottom-0 after:bg-gradient-to-b after:from-[#050505] after:to-transparent container mx-auto top-0 left-0 right-0 z-50 flex justify-center pt-6 sm:pt-10 px-4 rounded-xl transition-opacity duration-500 ease-out ${
         mounted ? "opacity-100 translate-y-0" : "opacity-100 -translate-y-5"
       }`}
     >
       <div
         className={cn(
-          "px-2 rounded-2xl transition-all ease-in-out relative z-[100]",
+          "px-2 rounded-2xl relative z-[100] transition-[width,transform,background-color,border-color,box-shadow] ease-in-out",
           mobileGlassBarClasses,
           isScrolled
             ? cn(

@@ -1,4 +1,5 @@
 "use client";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
@@ -88,19 +89,35 @@ export function TextEffect({
 }: TextEffectProps) {
   const containerRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(trigger);
+  const { simpleVisuals, reducedMotion } = usePerformanceMode();
+  const motionPer: PerType =
+    simpleVisuals && per === "char" ? "word" : per;
+  const motionPreset: PresetType =
+    simpleVisuals && (preset === "blur" || preset === "fade-in-blur")
+      ? "slide"
+      : preset;
 
   useEffect(() => {
     setIsVisible(trigger);
   }, [trigger]);
 
-  const segments = splitText(children, per);
-  const wordSegments = per === "char" ? splitWordsWithSpaces(children) : null;
   const Tag = as as keyof JSX.IntrinsicElements;
 
-  const stagger = defaultStaggerTimes[per] / speedReveal;
-  const duration = 0.3 / speedSegment;
-  const from = getPresetAnimation(preset);
-  const to = getPresetTo(preset);
+  if (reducedMotion) {
+    return (
+      <Tag ref={containerRef} className={className} style={style}>
+        {children}
+      </Tag>
+    );
+  }
+
+  const segments = splitText(children, motionPer);
+  const wordSegments = motionPer === "char" ? splitWordsWithSpaces(children) : null;
+
+  const stagger = defaultStaggerTimes[motionPer] / speedReveal;
+  const duration = (simpleVisuals ? 0.22 : 0.3) / speedSegment;
+  const from = getPresetAnimation(motionPreset);
+  const to = getPresetTo(motionPreset);
 
   const containerVariants = {
     hidden: {},
@@ -123,7 +140,7 @@ export function TextEffect({
     },
   };
 
-  if (per === "char" && wordSegments) {
+  if (motionPer === "char" && wordSegments) {
     let charIndex = 0;
     return (
       <Tag ref={containerRef} className={className} style={style}>
@@ -191,17 +208,17 @@ export function TextEffect({
 
   return (
     <Tag ref={containerRef} className={className} style={style}>
-      {per !== "line" && <span className="sr-only">{children}</span>}
+      {motionPer !== "line" && <span className="sr-only">{children}</span>}
       <motion.span
         initial="hidden"
         animate={isVisible ? "visible" : "hidden"}
         variants={containerVariants}
         onAnimationStart={onAnimationStart}
         onAnimationComplete={onAnimationComplete}
-        className={per === "line" ? "block" : "inline"}
+        className={motionPer === "line" ? "block" : "inline"}
       >
         {segments.map((segment, index) => {
-          if (per === "line") {
+          if (motionPer === "line") {
             return (
               <motion.span
                 key={`line-${index}-${segment}`}

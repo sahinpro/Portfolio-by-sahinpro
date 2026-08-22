@@ -1,6 +1,6 @@
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
 import { heroCodeEditorReveal, heroTiming } from "@/constants/scrollMotion";
-import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { AboutCodePlaceholder } from "@/screens/sections/AboutCodeSection";
 import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
@@ -16,7 +16,8 @@ const AboutCodeWindow = lazy(() =>
 export const HeroSection = (): JSX.Element => {
   const editorRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
-  const instantReveal = reduceMotion === true;
+  const { simpleVisuals } = usePerformanceMode();
+  const instantReveal = reduceMotion === true || simpleVisuals;
 
   const [editorRevealed, setEditorRevealed] = useState(instantReveal);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
@@ -31,15 +32,12 @@ export const HeroSection = (): JSX.Element => {
   useEffect(() => {
     if (!editorRevealed) return;
 
-    const isMobile = window.matchMedia(
-      `(max-width: ${DESKTOP_LAYOUT_BREAKPOINT - 1}px)`,
-    ).matches;
-    const deferMs = isMobile
+    const deferMs = simpleVisuals
       ? heroTiming.codeEditorDeferMs.mobile
       : heroTiming.codeEditorDeferMs.desktop;
 
     return deferUntilIdle(() => setShowCodeEditor(true), deferMs);
-  }, [editorRevealed]);
+  }, [editorRevealed, simpleVisuals]);
 
   useEffect(() => {
     if (!showCodeEditor) {

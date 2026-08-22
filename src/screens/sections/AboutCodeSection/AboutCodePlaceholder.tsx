@@ -6,6 +6,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import {
+  aboutCodeChromeClass,
   aboutCodePaneClass,
   aboutCodePanePassScrollClass,
 } from "./aboutCodeLayout";
@@ -36,7 +37,7 @@ export const AboutCodePlaceholder = ({
 
   return (
     <div className={className} aria-busy="true" aria-label="Loading code editor">
-      <div className="relative w-full rounded-[25px] lg:rounded-[28px] border border-white/10 backdrop-blur-xl bg-gradient-to-b from-white/30 to-white/50 p-2 lg:p-2.5">
+      <div className={aboutCodeChromeClass}>
         <div className="pointer-events-none z-[9999] absolute inset-x-0 bottom-0 h-[150px] w-[96%] mx-auto scale-[1.05] bg-gradient-to-b from-transparent via-black/45 to-black rounded-b-[25px]" />
         <div className="relative rounded-[16px] lg:rounded-[19px] bg-[#0f0f0f] overflow-hidden">
           <div className="relative bg-[#0a0a0a] z-10">

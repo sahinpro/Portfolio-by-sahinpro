@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import nextPlugin from "@next/eslint-plugin-next";
 import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -13,6 +14,7 @@ export default tseslint.config(
       "tailwind.config.js",
       "postcss.config.js",
       "scripts/**/*.mjs",
+      "next-env.d.ts",
     ],
   },
   js.configs.recommended,
@@ -26,9 +28,11 @@ export default tseslint.config(
     },
     plugins: {
       "react-hooks": reactHooks,
+      "@next/next": nextPlugin,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      ...nextPlugin.configs.recommended.rules,
       "@typescript-eslint/no-unused-vars": [
         "error",
         {

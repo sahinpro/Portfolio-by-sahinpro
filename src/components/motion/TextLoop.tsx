@@ -1,4 +1,5 @@
 'use client';
+import { usePerformanceMode } from '@/hooks/usePerformanceMode';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { Children, useEffect, useState } from 'react';
@@ -20,9 +21,10 @@ export function TextLoop({
 }: TextLoopProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const items = Children.toArray(children);
+  const { reducedMotion } = usePerformanceMode();
 
   useEffect(() => {
-    if (!trigger) return;
+    if (!trigger || reducedMotion || items.length <= 1) return;
 
     const intervalMs = interval * 1000;
     const timer = setInterval(() => {
@@ -33,7 +35,7 @@ export function TextLoop({
       });
     }, intervalMs);
     return () => clearInterval(timer);
-  }, [items.length, interval, onIndexChange, trigger]);
+  }, [items.length, interval, onIndexChange, trigger, reducedMotion]);
 
   const textVariants = {
     hidden: { y: 20, opacity: 0 },
