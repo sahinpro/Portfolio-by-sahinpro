@@ -52,7 +52,7 @@ export const LandscapePageCtaSection = ({
             src={backgroundImage}
             alt=""
             fill
-            sizes="100vw"
+            sizes="(max-width: 1023px) 100vw, 1200px"
             className="object-cover object-center"
           />
           <div

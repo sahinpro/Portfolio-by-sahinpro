@@ -23,13 +23,18 @@ export const GetStartedSection = (): JSX.Element => {
         variants={sectionReveal}
       >
         <Card className="relative w-full rounded-[20px] overflow-hidden border border-[#ffffff1a] glass-card">
-          <PublicImage
-            className="absolute bottom-0 left-0 lg:left-[77px] w-[1158px] max-w-none h-[480px] lg:h-[454px] pointer-events-none object-cover"
-            alt=""
-            src="/bgcta.avif"
-            width={1158}
-            height={454}
-          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute bottom-0 left-0 h-[480px] w-full lg:left-[77px] lg:h-[454px] lg:w-[1158px]"
+          >
+            <PublicImage
+              className="object-cover object-left-bottom"
+              alt=""
+              src="/Group 24.png"
+              fill
+              sizes="(max-width: 1023px) 100vw, 1158px"
+            />
+          </div>
 
           <CardContent className="flex flex-col items-center justify-center gap-8 px-8 md:px-20 py-[100px] relative">
             <motion.div

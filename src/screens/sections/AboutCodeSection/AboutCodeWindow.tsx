@@ -1,4 +1,5 @@
 import { scrollViewport } from "@/constants/scrollMotion";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 import { useInView, useReducedMotion } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 import { CodeEditorPanel, type EditorTab } from "./CodeEditorPanel";
@@ -19,7 +20,8 @@ export const AboutCodeWindow = ({
   const windowRef = useRef<HTMLDivElement>(null);
   const inView = useInView(windowRef, scrollViewport);
   const reduceMotion = useReducedMotion();
-  const instant = reduceMotion === true;
+  const { simpleVisuals } = usePerformanceMode();
+  const instant = reduceMotion === true || simpleVisuals;
 
   const active = startOnMount || inView;
 
