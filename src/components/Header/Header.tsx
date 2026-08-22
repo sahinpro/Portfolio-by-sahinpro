@@ -35,7 +35,7 @@ const Header = () => {
     >
       <div
         className={cn(
-          "px-2 rounded-2xl relative z-[100] transition-[width,transform,background-color,border-color,box-shadow] ease-in-out",
+          "header-glass px-2 rounded-2xl relative z-[100] transition-[width,transform,background-color,border-color,box-shadow] ease-in-out",
           mobileGlassBarClasses,
           isScrolled
             ? cn(

@@ -89,7 +89,8 @@ export function TextEffect({
 }: TextEffectProps) {
   const containerRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(trigger);
-  const { simpleVisuals, reducedMotion } = usePerformanceMode();
+  const { simpleVisuals, reducedMotion, level } = usePerformanceMode();
+  const freezeMotion = reducedMotion || level === "low";
   const motionPer: PerType =
     simpleVisuals && per === "char" ? "word" : per;
   const motionPreset: PresetType =
@@ -103,7 +104,7 @@ export function TextEffect({
 
   const Tag = as as keyof JSX.IntrinsicElements;
 
-  if (reducedMotion) {
+  if (freezeMotion) {
     return (
       <Tag ref={containerRef} className={className} style={style}>
         {children}
