@@ -1,8 +1,8 @@
 "use client";
 
 import { SCROLL_THRESHOLD } from "@/constants/styles";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export const useScrollPosition = (): boolean => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -16,15 +16,27 @@ export const useScrollPosition = (): boolean => {
 
   useEffect(() => {
     setIsMounted(true);
+    let frame = 0;
 
     const checkScroll = () => {
-      setIsScrolled(window.scrollY > SCROLL_THRESHOLD);
+      const next = window.scrollY > SCROLL_THRESHOLD;
+      setIsScrolled((prev) => (prev === next ? prev : next));
+    };
+
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        checkScroll();
+      });
     };
 
     checkScroll();
-
-    window.addEventListener("scroll", checkScroll, { passive: true });
-    return () => window.removeEventListener("scroll", checkScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [pathname]);
 
   return isMounted ? isScrolled : false;

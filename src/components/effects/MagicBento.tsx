@@ -1,5 +1,7 @@
+import { PublicImage } from "@/components/ui/PublicImage";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 import { animate, AnimationPlaybackControls } from "framer-motion";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 export interface BentoCardProps {
   color?: string;
@@ -30,7 +32,72 @@ export interface BentoProps {
 const DEFAULT_PARTICLE_COUNT = 12;
 const DEFAULT_SPOTLIGHT_RADIUS = 300;
 const DEFAULT_GLOW_COLOR = "132, 0, 255";
-const MOBILE_BREAKPOINT = 768;
+
+const BENTO_LAYOUT_CSS = `
+  .card-responsive {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    margin: 0 auto;
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .card-responsive {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      padding: 0rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .card-responsive {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      padding: 0;
+    }
+
+    .card-responsive .card:nth-child(3) {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .card-responsive .card:nth-child(4) {
+      grid-column: 1 / span 2;
+      grid-row: 2 / span 2;
+    }
+
+    .card-responsive .card:nth-child(6) {
+      grid-column: 4;
+      grid-row: 3;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .card-responsive .card {
+      min-height: 200px;
+      aspect-ratio: auto;
+    }
+  }
+
+  .text-clamp-1 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .text-clamp-2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
 
 const cardData: BentoCardProps[] = [
   {
@@ -523,19 +590,196 @@ const BentoCardGrid: React.FC<{
   </div>
 );
 
-const useMobileDetection = () => {
-  const [isMobile, setIsMobile] = useState(false);
+function BentoCardMedia({
+  image,
+  title,
+}: {
+  image?: string;
+  title?: string;
+}): JSX.Element | null {
+  if (!image) return null;
+  return (
+    <>
+      <div className="absolute inset-0">
+        <PublicImage
+          src={image}
+          alt={title ?? ""}
+          fill
+          sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
+          className="object-cover opacity-40"
+        />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+    </>
+  );
+}
+
+function MagicBentoLite({
+  cards,
+  textAutoHide,
+}: {
+  cards: BentoCardProps[];
+  textAutoHide: boolean;
+}): JSX.Element {
+  return (
+    <>
+      <style>{BENTO_LAYOUT_CSS}</style>
+      <BentoCardGrid>
+        <div className="card-responsive p-0 lg:p-4 grid gap-2">
+          {cards.map((card, index) => (
+            <div
+              key={`${card.title ?? "card"}-${index}`}
+              className="card flex flex-col justify-between relative aspect-[4/3] min-h-[200px] w-full max-w-full lg:p-5 p-3 rounded-[20px] border border-solid border-white/[0.08] font-light overflow-hidden"
+              style={{
+                backgroundColor: card.color || "var(--background-dark)",
+                color: "var(--white)",
+              }}
+            >
+              <BentoCardMedia image={card.image} title={card.title} />
+              <div className="card__header flex justify-between gap-3 relative text-white z-10">
+                {card.label ? (
+                  <span className="card__label inline-flex items-center rounded-md border border-white/20 bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-white/90">
+                    {card.label}
+                  </span>
+                ) : null}
+              </div>
+              <div className="card__content flex flex-col relative text-white z-10">
+                <h3
+                  className={`card__title font-bold text-xl lg:text-2xl m-0 mb-3 tracking-tight ${textAutoHide ? "text-clamp-1" : ""} text-white`}
+                >
+                  {card.title}
+                </h3>
+                <p
+                  className={`card__description text-sm md:text-base leading-6 opacity-95 ${textAutoHide ? "text-clamp-2" : ""}`}
+                >
+                  {card.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </BentoCardGrid>
+    </>
+  );
+}
+
+function InteractiveBentoCard({
+  className,
+  style,
+  children,
+  disabled,
+  enableTilt,
+  enableMagnetism,
+  clickEffect,
+  glowColor,
+}: {
+  className: string;
+  style: React.CSSProperties;
+  children: React.ReactNode;
+  disabled: boolean;
+  enableTilt: boolean;
+  enableMagnetism: boolean;
+  clickEffect: boolean;
+  glowColor: string;
+}): JSX.Element {
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkMobile = () =>
-      setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+    const el = ref.current;
+    if (!el || disabled) return;
+    if (!enableTilt && !enableMagnetism && !clickEffect) return;
 
-  return isMobile;
-};
+    let magnetCtrl: AnimationPlaybackControls | null = null;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      if (enableTilt) {
+        animate(
+          el,
+          {
+            rotateX: ((y - centerY) / centerY) * -10,
+            rotateY: ((x - centerX) / centerX) * 10,
+          },
+          { duration: 0.1, ease: "easeOut" },
+        );
+      }
+
+      if (enableMagnetism) {
+        magnetCtrl?.stop();
+        magnetCtrl = animate(
+          el,
+          { x: (x - centerX) * 0.05, y: (y - centerY) * 0.05 },
+          { duration: 0.3, ease: "easeOut" },
+        );
+      }
+    };
+
+    const handleMouseLeave = () => {
+      if (enableTilt) {
+        animate(el, { rotateX: 0, rotateY: 0 }, { duration: 0.3, ease: "easeOut" });
+      }
+      if (enableMagnetism) {
+        animate(el, { x: 0, y: 0 }, { duration: 0.3, ease: "easeOut" });
+      }
+    };
+
+    const handleClick = (e: MouseEvent) => {
+      if (!clickEffect) return;
+
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const maxDistance = Math.max(
+        Math.hypot(x, y),
+        Math.hypot(x - rect.width, y),
+        Math.hypot(x, y - rect.height),
+        Math.hypot(x - rect.width, y - rect.height),
+      );
+
+      const ripple = document.createElement("div");
+      ripple.style.cssText = `
+        position: absolute;
+        width: ${maxDistance * 2}px;
+        height: ${maxDistance * 2}px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(${glowColor}, 0.4) 0%, rgba(${glowColor}, 0.2) 30%, transparent 70%);
+        left: ${x - maxDistance}px;
+        top: ${y - maxDistance}px;
+        pointer-events: none;
+        z-index: 1000;
+      `;
+      el.appendChild(ripple);
+
+      animate(
+        ripple,
+        { scale: [0, 1], opacity: [1, 0] },
+        { duration: 0.8, ease: "easeOut" },
+      ).then(() => ripple.remove());
+    };
+
+    el.addEventListener("mousemove", handleMouseMove);
+    el.addEventListener("mouseleave", handleMouseLeave);
+    el.addEventListener("click", handleClick);
+
+    return () => {
+      magnetCtrl?.stop();
+      el.removeEventListener("mousemove", handleMouseMove);
+      el.removeEventListener("mouseleave", handleMouseLeave);
+      el.removeEventListener("click", handleClick);
+    };
+  }, [disabled, enableTilt, enableMagnetism, clickEffect, glowColor]);
+
+  return (
+    <div ref={ref} className={className} style={style}>
+      {children}
+    </div>
+  );
+}
 
 const MagicBento: React.FC<BentoProps> = ({
   textAutoHide = true,
@@ -553,8 +797,12 @@ const MagicBento: React.FC<BentoProps> = ({
   cards = cardData,
 }) => {
   const gridRef = useRef<HTMLDivElement>(null);
-  const isMobile = useMobileDetection();
-  const shouldDisableAnimations = disableAnimations || isMobile;
+  const { simpleVisuals } = usePerformanceMode();
+  const shouldDisableAnimations = disableAnimations || simpleVisuals;
+
+  if (simpleVisuals) {
+    return <MagicBentoLite cards={cards} textAutoHide={textAutoHide} />;
+  }
 
   return (
     <>
@@ -755,14 +1003,7 @@ const MagicBento: React.FC<BentoProps> = ({
                   clickEffect={clickEffect}
                 >
                   {card.image && (
-                    <>
-                      <img
-                        src={card.image}
-                        alt={card.title}
-                        className="absolute inset-0 w-full h-full object-cover opacity-40"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-                    </>
+                    <BentoCardMedia image={card.image} title={card.title} />
                   )}
                   <div className="card__header flex justify-between gap-3 relative text-white z-10">
                     {card.label ? (
@@ -788,113 +1029,18 @@ const MagicBento: React.FC<BentoProps> = ({
             }
 
             return (
-              <div
+              <InteractiveBentoCard
                 key={index}
                 className={baseClassName}
                 style={cardStyle}
-                ref={(el) => {
-                  if (!el) return;
-
-                  let magnetCtrl: AnimationPlaybackControls | null = null;
-
-                  const handleMouseMove = (e: MouseEvent) => {
-                    const rect = el.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-
-                    if (shouldDisableAnimations) return;
-
-                    if (enableTilt) {
-                      animate(
-                        el,
-                        {
-                          rotateX: ((y - centerY) / centerY) * -10,
-                          rotateY: ((x - centerX) / centerX) * 10,
-                        },
-                        { duration: 0.1, ease: "easeOut" },
-                      );
-                    }
-
-                    if (enableMagnetism) {
-                      magnetCtrl?.stop();
-                      magnetCtrl = animate(
-                        el,
-                        { x: (x - centerX) * 0.05, y: (y - centerY) * 0.05 },
-                        { duration: 0.3, ease: "easeOut" },
-                      );
-                    }
-                  };
-
-                  const handleMouseLeave = () => {
-                    if (shouldDisableAnimations) return;
-
-                    if (enableTilt) {
-                      animate(
-                        el,
-                        { rotateX: 0, rotateY: 0 },
-                        { duration: 0.3, ease: "easeOut" },
-                      );
-                    }
-                    if (enableMagnetism) {
-                      animate(
-                        el,
-                        { x: 0, y: 0 },
-                        { duration: 0.3, ease: "easeOut" },
-                      );
-                    }
-                  };
-
-                  const handleClick = (e: MouseEvent) => {
-                    if (!clickEffect || shouldDisableAnimations) return;
-
-                    const rect = el.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-
-                    const maxDistance = Math.max(
-                      Math.hypot(x, y),
-                      Math.hypot(x - rect.width, y),
-                      Math.hypot(x, y - rect.height),
-                      Math.hypot(x - rect.width, y - rect.height),
-                    );
-
-                    const ripple = document.createElement("div");
-                    ripple.style.cssText = `
-                      position: absolute;
-                      width: ${maxDistance * 2}px;
-                      height: ${maxDistance * 2}px;
-                      border-radius: 50%;
-                      background: radial-gradient(circle, rgba(${glowColor}, 0.4) 0%, rgba(${glowColor}, 0.2) 30%, transparent 70%);
-                      left: ${x - maxDistance}px;
-                      top: ${y - maxDistance}px;
-                      pointer-events: none;
-                      z-index: 1000;
-                    `;
-                    el.appendChild(ripple);
-
-                    animate(
-                      ripple,
-                      { scale: [0, 1], opacity: [1, 0] },
-                      { duration: 0.8, ease: "easeOut" },
-                    ).then(() => ripple.remove());
-                  };
-
-                  el.addEventListener("mousemove", handleMouseMove);
-                  el.addEventListener("mouseleave", handleMouseLeave);
-                  el.addEventListener("click", handleClick);
-                }}
+                disabled={shouldDisableAnimations}
+                enableTilt={enableTilt}
+                enableMagnetism={enableMagnetism}
+                clickEffect={clickEffect}
+                glowColor={glowColor}
               >
                 {card.image && (
-                  <>
-                    <img
-                      src={card.image}
-                      alt={card.title}
-                      className="absolute inset-0 w-full h-full object-cover opacity-40"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-                  </>
+                  <BentoCardMedia image={card.image} title={card.title} />
                 )}
                 <div className="card__header flex justify-between gap-3 relative text-white z-10">
                   {card.label ? (
@@ -915,7 +1061,7 @@ const MagicBento: React.FC<BentoProps> = ({
                     {card.description}
                   </p>
                 </div>
-              </div>
+              </InteractiveBentoCard>
             );
           })}
         </div>

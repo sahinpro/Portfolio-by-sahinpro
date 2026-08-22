@@ -227,7 +227,7 @@
   }
 
   .glass-card-hover {
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
   }
 
   .glass-card-hover:hover {
@@ -343,5 +343,33 @@
   .section-hero-subtitle {
     font-size: 2.25rem;
     line-height: 2.5rem;
+  }
+}
+
+@media screen and (max-width: 1023px) {
+  .glass-card {
+    background: rgba(7, 7, 7, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .liquid-border-frame {
+    backdrop-filter: blur(6px) saturate(1.15);
+    -webkit-backdrop-filter: blur(6px) saturate(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after {
+    animation: none;
+    transform: none;
+  }
+
+  .glass-card-hover {
+    transition: none;
+  }
+
+  .glass-card-hover:hover {
+    transform: none;
   }
 }

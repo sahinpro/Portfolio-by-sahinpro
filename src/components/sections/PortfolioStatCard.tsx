@@ -1,4 +1,5 @@
 import { scrollViewport, sectionEase } from "@/constants/scrollMotion";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 import type { PortfolioStat } from "@/screens/sections/StatsSection/statsData";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
@@ -24,7 +25,9 @@ export const PortfolioStatCard = ({
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, scrollViewport);
   const reduceMotion = useReducedMotion();
-  const displayValue = useStatCountUp(stat.value, inView && !reduceMotion);
+  const { simpleVisuals } = usePerformanceMode();
+  const skipCount = reduceMotion || simpleVisuals;
+  const displayValue = useStatCountUp(stat.value, inView && !skipCount);
   const Icon = stat.icon;
 
   return (
@@ -46,7 +49,7 @@ export const PortfolioStatCard = ({
         <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white/80" />
       </motion.div>
       <p className="text-3xl sm:text-4xl font-bold text-white tracking-tight tabular-nums">
-        {reduceMotion ? stat.value : displayValue}
+        {skipCount ? stat.value : displayValue}
       </p>
       <p className="text-xs sm:text-sm text-zinc-400 text-center leading-tight">
         {stat.label}

@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { PublicImage } from "@/components/ui/PublicImage";
 import {
   fadeInUp,
   scrollViewport,
@@ -69,11 +70,15 @@ export const DevelopmentProcessSection = (): JSX.Element => {
               className="min-w-0 w-full"
             >
               <Card className="flex flex-col w-full min-w-0 h-[300px] sm:h-[400px] md:h-[460px] max-w-[400px] mx-auto md:max-w-none items-start relative bg-[#0d0d0d] rounded-[10.87px] overflow-hidden border-[none] before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[10.87px] before:[background:linear-gradient(173deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.12)_100%)] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none">
-                <img
-                  className="relative w-full h-full min-w-0 object-cover"
-                  alt={`${step.title} visual`}
-                  src={step.maskUrl}
-                />
+                <div className="absolute inset-0">
+                  <PublicImage
+                    className="object-cover"
+                    alt={`${step.title} visual`}
+                    src={step.maskUrl}
+                    fill
+                    sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                  />
+                </div>
 
                 {/* Dark overlay gradient for text readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pointer-events-none z-[2]" />

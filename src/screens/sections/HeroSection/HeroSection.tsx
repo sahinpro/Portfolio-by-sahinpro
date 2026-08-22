@@ -1,11 +1,10 @@
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
-import { heroCodeEditorReveal, heroTiming } from "@/constants/scrollMotion";
-import { DESKTOP_LAYOUT_BREAKPOINT } from "@/constants/styles";
-import { deferUntilIdle } from "@/lib/deferUntilIdle";
+import { heroCodeEditorReveal } from "@/constants/scrollMotion";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 import { AboutCodePlaceholder } from "@/screens/sections/AboutCodeSection";
 import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
 import { motion, useReducedMotion } from "framer-motion";
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useRef } from "react";
 
 const AboutCodeWindow = lazy(() =>
   import("@/screens/sections/AboutCodeSection/AboutCodeWindow").then((m) => ({
@@ -16,48 +15,8 @@ const AboutCodeWindow = lazy(() =>
 export const HeroSection = (): JSX.Element => {
   const editorRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
-  const instantReveal = reduceMotion === true;
-
-  const [editorRevealed, setEditorRevealed] = useState(instantReveal);
-  const [showCodeEditor, setShowCodeEditor] = useState(false);
-  const [typingActive, setTypingActive] = useState(false);
-
-  useEffect(() => {
-    if (instantReveal) {
-      setEditorRevealed(true);
-    }
-  }, [instantReveal]);
-
-  useEffect(() => {
-    if (!editorRevealed) return;
-
-    const isMobile = window.matchMedia(
-      `(max-width: ${DESKTOP_LAYOUT_BREAKPOINT - 1}px)`,
-    ).matches;
-    const deferMs = isMobile
-      ? heroTiming.codeEditorDeferMs.mobile
-      : heroTiming.codeEditorDeferMs.desktop;
-
-    return deferUntilIdle(() => setShowCodeEditor(true), deferMs);
-  }, [editorRevealed]);
-
-  useEffect(() => {
-    if (!showCodeEditor) {
-      setTypingActive(false);
-      return;
-    }
-
-    if (instantReveal) {
-      setTypingActive(true);
-      return;
-    }
-
-    const id = window.setTimeout(
-      () => setTypingActive(true),
-      heroTiming.codeEditorTypingDelay,
-    );
-    return () => window.clearTimeout(id);
-  }, [showCodeEditor, instantReveal]);
+  const { simpleVisuals } = usePerformanceMode();
+  const instantReveal = reduceMotion === true || simpleVisuals;
 
   return (
     <section className="relative w-full overflow-hidden min-h-screen flex items-center pt-24 sm:pt-28 pb-10">
@@ -80,18 +39,11 @@ export const HeroSection = (): JSX.Element => {
             initial={instantReveal ? false : "hidden"}
             animate="visible"
             variants={instantReveal ? undefined : heroCodeEditorReveal}
-            onAnimationComplete={() => {
-              if (!instantReveal) setEditorRevealed(true);
-            }}
             className="relative z-0 w-full min-w-0 lg:w-1/2 aspect-video max-lg:pointer-events-none max-lg:select-none max-lg:origin-top max-lg:scale-[0.98]"
           >
-            {showCodeEditor ? (
-              <Suspense fallback={<AboutCodePlaceholder className="w-full" />}>
-                <AboutCodeWindow startOnMount={typingActive} />
-              </Suspense>
-            ) : (
-              <AboutCodePlaceholder className="w-full" />
-            )}
+            <Suspense fallback={<AboutCodePlaceholder className="w-full" />}>
+              <AboutCodeWindow startOnMount />
+            </Suspense>
           </motion.div>
         </div>
       </div>

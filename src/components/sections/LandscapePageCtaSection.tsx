@@ -1,3 +1,4 @@
+import { PublicImage } from "@/components/ui/PublicImage";
 import { scrollViewport } from "@/constants/scrollMotion";
 import { motion, useInView } from "framer-motion";
 import type { ReactNode } from "react";
@@ -47,12 +48,12 @@ export const LandscapePageCtaSection = ({
           className="relative rounded-3xl border border-white/[0.08] p-10 md:p-14 overflow-hidden flex flex-col
             justify-center gap-8 min-h-[400px]"
         >
-          <img
+          <PublicImage
             src={backgroundImage}
             alt=""
-            aria-hidden
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            fill
+            sizes="(max-width: 1023px) 100vw, 1200px"
+            className="object-cover object-center"
           />
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#050505]/95 via-[#050505]/75 to-[#050505]/45"

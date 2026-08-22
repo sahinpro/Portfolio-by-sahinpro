@@ -73,13 +73,6 @@ export const heroTiming = {
   socialIconStagger: 0.055,
   /** After hero copy + CTAs; aligns with header settle (~0.5s) */
   codeEditorDelay: 0.58,
-  /** Defer heavy editor bundle after the shell has faded in */
-  codeEditorDeferMs: {
-    desktop: 1800,
-    mobile: 3800,
-  },
-  /** Pause before typing starts once the live editor mounts */
-  codeEditorTypingDelay: 220,
 } as const;
 
 export const heroCodeEditorReveal = {
