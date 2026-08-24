@@ -15,17 +15,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useState, type ComponentProps, type FC } from "react";
 import type { TooltipContentProps, TooltipProps } from "recharts";
 import {
   Area,
   AreaChart,
   CartesianGrid,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
+import { ResponsiveContainer as ResponsiveContainerBase } from "recharts";
+
+const ResponsiveContainer = ResponsiveContainerBase as unknown as FC<
+  ComponentProps<typeof ResponsiveContainerBase>
+>;
 
 const tooltipValueFormatter: NonNullable<TooltipProps["formatter"]> = (
   value,
@@ -333,7 +337,7 @@ export function ChartAreaInteractive({
                   />
                   <Tooltip
                     formatter={tooltipValueFormatter}
-                    content={(props: TooltipContentProps) => {
+                    content={(props: TooltipContentProps): JSX.Element | null => {
                       const { active, payload, label } = props;
                       if (!active || !payload?.length) return null;
                       const filtered = payload.filter((p) => {

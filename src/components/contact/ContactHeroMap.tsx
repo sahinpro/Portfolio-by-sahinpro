@@ -2,6 +2,7 @@
 
 import { PROFILE } from "@/constants/profile";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 /** Sylhet, Bangladesh on Simplemaps world.svg (2000×857 viewBox). */
 const MARKER_LEFT_PERCENT = 75.5;
@@ -30,10 +31,13 @@ export function ContactHeroMap({ visible }: ContactHeroMapProps): JSX.Element {
       aria-hidden
     >
       <div className="relative mx-auto aspect-[2000/857] w-full max-h-[200px] sm:max-h-[280px] lg:max-h-[360px]">
-        <img
+        <Image
           src="/world.svg"
           alt=""
-          className="absolute inset-0 h-full w-full object-contain opacity-[0.22] sm:opacity-[0.28] lg:opacity-[0.32]"
+          fill
+          sizes="(min-width: 1024px) 1152px, 100vw"
+          className="object-contain opacity-[0.22] sm:opacity-[0.28] lg:opacity-[0.32]"
+          priority={false}
         />
 
         {/* Radial vignette — spotlight on center */}
