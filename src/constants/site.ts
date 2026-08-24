@@ -5,7 +5,7 @@ export const DEFAULT_OG_IMAGE_PATH = "/sahin.jpg";
 
 export const PROFILE_AVATAR_PATH = "/sahin.jpg";
 
-export const PROFILE_DESK_IMAGE_PATH = "/sahin-alam-full-stack-developer.png";
+export const PROFILE_DESK_IMAGE_PATH = "/sahin-studio.png";
 
 export function getSiteUrl(): string {
   return SITE_URL;

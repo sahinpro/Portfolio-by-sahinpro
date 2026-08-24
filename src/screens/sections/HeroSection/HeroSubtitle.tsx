@@ -2,7 +2,7 @@ import { PROFILE } from "@/constants/profile";
 
 export const HeroSubtitle = (): JSX.Element => {
   return (
-    <div className="flex w-full flex-col items-center gap-2 text-center lg:items-start lg:gap-2.5 lg:text-left">
+    <div className="flex w-full flex-col items-center gap-0 text-center lg:items-start lg:gap-2.5 lg:text-left">
       {PROFILE.heroSubtitleLines.map((text) => (
         <p
           key={text}
