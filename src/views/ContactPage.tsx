@@ -1,7 +1,5 @@
 "use client";
 
-import errorAnimationData from "@/assets/lottie/error.json";
-import successAnimationData from "@/assets/lottie/success.json";
 import { CTAButton } from "@/components/common/CTAButton";
 import { ContactHeroMap } from "@/components/contact/ContactHeroMap";
 import Header from "@/components/Header";
@@ -17,13 +15,25 @@ import { submitContactForm } from "@/lib/submitContact";
 import { cn } from "@/lib/utils";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { motion, useInView } from "framer-motion";
-import Lottie, { type LottieRefCurrentProps } from "lottie-react";
 import { Clock, Mail, MapPin, MessageCircle, Send } from "lucide-react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import type { ComponentType } from "react";
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { BsWhatsapp } from "react-icons/bs";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import Turnstile from "react-turnstile";
+
+// lottie-react + JSON payloads (~45 kB) only ship after a submit attempt,
+// not in the Contact route's first-load JS.
+const SuccessLottie = dynamic(
+  () => import("@/components/contact/ContactLottie").then((m) => m.SuccessLottie),
+  { ssr: false },
+);
+const ErrorLottie = dynamic(
+  () => import("@/components/contact/ContactLottie").then((m) => m.ErrorLottie),
+  { ssr: false },
+);
 
 const CALENDLY_POPUP_URL =
   "https://calendly.com/sahinhub/15-min-one-by-one-meeting?hide_landing_page_details=1&background_color=1a1a1a&text_color=ffffff";
@@ -131,51 +141,6 @@ const fadeUp = (delay = 0) => ({
     transition: { duration: 0.55, delay, ease: [0.37, 0.04, 0.29, 1.01] },
   },
 });
-
-const SUCCESS_SPEED = 1;
-const ERROR_SPEED = 1;
-const SUCCESS_SEGMENT: [number, number] = [0, 354];
-const ERROR_SEGMENT: [number, number] = [0, 21];
-
-function SuccessLottie() {
-  const lottieRef = useRef<LottieRefCurrentProps | null>(null);
-  return (
-    <div className="w-[180px] h-[180px] shrink-0 flex items-center justify-center">
-      <Lottie
-        lottieRef={lottieRef}
-        animationData={successAnimationData}
-        loop={false}
-        autoplay
-        initialSegment={SUCCESS_SEGMENT}
-        onDOMLoaded={() => {
-          lottieRef.current?.setSpeed(SUCCESS_SPEED);
-          lottieRef.current?.play();
-        }}
-        style={{ width: 180, height: 180 }}
-      />
-    </div>
-  );
-}
-
-function ErrorLottie() {
-  const lottieRef = useRef<LottieRefCurrentProps | null>(null);
-  return (
-    <div className="w-[100px] h-[100px] shrink-0 flex items-center justify-center mx-auto">
-      <Lottie
-        lottieRef={lottieRef}
-        animationData={errorAnimationData}
-        loop={false}
-        autoplay
-        initialSegment={ERROR_SEGMENT}
-        onDOMLoaded={() => {
-          lottieRef.current?.setSpeed(ERROR_SPEED);
-          lottieRef.current?.play();
-        }}
-        style={{ width: 100, height: 100 }}
-      />
-    </div>
-  );
-}
 
 export const ContactPage = (): JSX.Element => {
   const [formData, setFormData] = useState<FormData>({
@@ -696,9 +661,11 @@ export const ContactPage = (): JSX.Element => {
                 bg-gradient-to-br from-violet-500/8 to-transparent"
             >
               <div className="flex items-center gap-3 mb-3">
-                <img
+                <Image
                   src="https://upload.wikimedia.org/wikipedia/commons/9/9b/Google_Meet_icon_%282020%29.svg"
                   alt="Google Meet"
+                  width={20}
+                  height={20}
                   className="w-5 h-5 object-contain"
                 />
                 <span className="text-sm font-semibold text-white">

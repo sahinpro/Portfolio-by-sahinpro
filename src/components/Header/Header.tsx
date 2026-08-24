@@ -51,7 +51,7 @@ const Header = () => {
         <div className="absolute bottom-0 left-0 right-0 h-px [background:radial-gradient(50%_50%_at_50%_50%,rgba(224,224,224,.2)_0%,rgba(225,225,225,0)_100%)] transition-all duration-[400ms]" />
 
         <div className="px-0 lg:px-1 rounded-2xl w-full relative z-[100] ">
-          <div className="flex items-center justify-between h-16 w-full">
+          <div className="flex items-center justify-between h-14 w-full">
             <div
               className={`transition-opacity duration-500 ease-out delay-100 ${
                 mounted ? "opacity-100" : "opacity-0"
