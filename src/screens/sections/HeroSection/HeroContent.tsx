@@ -1,11 +1,10 @@
 import { CTAButton } from "@/components/common/CTAButton";
 import { SocialLinksRow } from "@/components/public/SocialLinksRow";
 import {
+  heroCopyColumn,
   heroCtaStagger,
   heroFadeStep,
-  heroIntroStagger,
-  heroSocialLinksGate,
-  socialLinkFade,
+  heroItem,
 } from "@/constants/scrollMotion";
 import { useActiveResume } from "@/hooks/useActiveResume";
 import { triggerResumeDownload } from "@/lib/resumeDownload";
@@ -21,31 +20,29 @@ export const HeroContent = (): JSX.Element => {
 
   return (
     <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={heroIntroStagger}
+      variants={heroCopyColumn}
       className="flex flex-col items-center lg:items-start gap-7 w-full max-w-xl lg:max-w-2xl"
     >
-      <motion.div
-        variants={heroFadeStep}
-        className="flex flex-col items-center lg:items-start gap-5 w-full"
-      >
+      <motion.div variants={heroItem} className="w-full">
         <HeroTitle />
+      </motion.div>
+
+      <motion.div variants={heroItem} className="w-full">
         <HeroSubtitle />
       </motion.div>
 
-      <motion.div variants={heroFadeStep}>
+      <motion.div variants={heroItem}>
         <HeroDescription />
       </motion.div>
 
-      <motion.div variants={heroFadeStep}>
+      <motion.div variants={heroItem}>
         <motion.div
           variants={heroCtaStagger}
-          className="inline-flex items-center gap-3 flex-wrap justify-center lg:justify-start min-h-10"
+          className="inline-flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-nowrap justify-center lg:justify-start min-h-10"
         >
           <motion.div variants={heroFadeStep}>
             <CTAButton
-              className="text-md font-medium"
+              className="px-2.5 sm:px-3.5 text-sm lg:text-md font-medium"
               href="/projects"
               variant="primary"
             >
@@ -56,7 +53,7 @@ export const HeroContent = (): JSX.Element => {
           {showResumeCta ? (
             <motion.div variants={heroFadeStep}>
               <CTAButton
-                className="text-md font-semibold gap-2"
+                className="px-2.5 sm:px-4 text-sm lg:text-md font-semibold gap-1.5 sm:gap-2 [&_svg]:size-3.5 sm:[&_svg]:size-4"
                 variant="secondary"
                 showArrow={false}
                 rightIcon={<DownloadIcon className="w-4 h-4" />}
@@ -72,11 +69,7 @@ export const HeroContent = (): JSX.Element => {
         </motion.div>
       </motion.div>
 
-      <SocialLinksRow
-        size="hero"
-        variants={heroSocialLinksGate}
-        itemVariants={socialLinkFade}
-      />
+      <SocialLinksRow size="hero" variants={heroItem} />
     </motion.div>
   );
 };

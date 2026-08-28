@@ -36,25 +36,62 @@ export const fadeUp = (delay = 0) => ({
   },
 });
 
-/** Home hero — mount sequence for above-the-fold copy and actions */
-export const heroIntroStagger = {
+const heroEase = [0.22, 1, 0.36, 1] as const;
+
+/** Home hero — single parent orchestrates copy then editor */
+export const heroContainer = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.072,
-      delayChildren: 0.1,
+      delayChildren: 0.15,
+      staggerChildren: 0.18,
     },
   },
 };
 
-export const heroFadeStep = {
-  hidden: { opacity: 0, y: 20 },
+/** Left column: staggers name → heading → description → CTAs → social */
+export const heroCopyColumn = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: 0.15,
+      staggerChildren: 0.18,
+    },
+  },
+};
+
+export const heroItem = {
+  hidden: {
+    opacity: 0,
+    y: 24,
+  },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.56, ease: sectionEase },
+    transition: {
+      duration: 0.65,
+      ease: heroEase,
+    },
   },
 };
+
+/** Editor last: fade in after the hero copy sequence */
+export const editorItem = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.9,
+      delay: 0.15 + 5 * 0.18 + 0.12,
+      ease: heroEase,
+    },
+  },
+};
+
+export const heroIntroStagger = heroContainer;
+
+/** Shared fade step (about page + nested CTA buttons) */
+export const heroFadeStep = heroItem;
 
 export const heroCtaStagger = {
   hidden: {},
@@ -67,33 +104,19 @@ export const heroCtaStagger = {
 };
 
 export const heroTiming = {
-  /** After hero copy + both CTAs finish (~0.35 + 0.56s) */
   socialLinksDelay: 0.92,
   contactSocialDelay: 0.42,
   socialIconStagger: 0.055,
-  /** After hero copy + CTAs; aligns with header settle (~0.5s) */
-  codeEditorDelay: 0.58,
+  codeEditorDelay: 0.15 + 5 * 0.18 + 0.12,
 } as const;
 
-export const heroCodeEditorReveal = {
-  hidden: { opacity: 0, y: 28, scale: 0.97 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.64,
-      delay: heroTiming.codeEditorDelay,
-      ease: sectionEase,
-    },
-  },
-};
+export const heroCodeEditorReveal = editorItem;
 
 export const heroSocialLinksGate = {
   hidden: {},
   visible: {
     transition: {
-      delayChildren: 0.62,
+      delayChildren: 0,
       staggerChildren: heroTiming.socialIconStagger,
     },
   },

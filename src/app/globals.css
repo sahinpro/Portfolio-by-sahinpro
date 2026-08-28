@@ -227,7 +227,10 @@
   }
 
   .glass-card-hover {
-    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    transition:
+      border-color 0.3s ease,
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
   }
 
   .glass-card-hover:hover {
@@ -305,7 +308,7 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     color: transparent;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   /* Radial gradient utility for Glow component */
@@ -337,12 +340,6 @@
     100% {
       transform: translateX(100%);
     }
-  }
-}
-@media screen and (max-width: 768px) {
-  .section-hero-subtitle {
-    font-size: 2.25rem;
-    line-height: 2.5rem;
   }
 }
 
@@ -399,7 +396,11 @@ html[data-perf="low"] .glass-card {
 }
 
 html[data-perf="low"] .about-code-chrome {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.18));
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.18)
+  );
 }
 
 html[data-perf="low"] [class*="blur-"] {

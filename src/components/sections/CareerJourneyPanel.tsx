@@ -8,7 +8,7 @@ import { CareerTimelineList } from "./CareerTimelineList";
 
 const PROFILE_IMAGE = PROFILE_PORTRAIT.path;
 
-const timelineCardClass = "  p-6 sm:p-8 overflow-hidden relative h-full";
+const timelineCardClass = "p-0 lg:p-6 sm:p-8 overflow-hidden relative h-full";
 
 export const CareerJourneyPanel = ({
   entries,

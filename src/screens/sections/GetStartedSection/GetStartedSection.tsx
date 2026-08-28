@@ -36,7 +36,7 @@ export const GetStartedSection = (): JSX.Element => {
             />
           </div>
 
-          <CardContent className="flex flex-col items-center justify-center gap-8 px-8 md:px-20 py-[100px] relative">
+          <CardContent className="flex flex-col items-center justify-center gap-8 px-8 md:px-20 lg:py-[100px] py-10 relative">
             <motion.div
               variants={fadeInUp}
               className="flex flex-col items-center gap-3 relative w-full"
@@ -53,9 +53,13 @@ export const GetStartedSection = (): JSX.Element => {
 
             <motion.div
               variants={fadeInUp}
-              className="inline-flex items-start gap-3 relative flex-wrap justify-center"
+              className="inline-flex items-start gap-2 sm:gap-3 relative flex-nowrap justify-center"
             >
-              <CTAButton href="/projects" variant="primary">
+              <CTAButton
+                href="/projects"
+                variant="primary"
+                className="px-2.5 sm:px-3.5 text-sm"
+              >
                 View My Work
               </CTAButton>
 
@@ -63,6 +67,7 @@ export const GetStartedSection = (): JSX.Element => {
                 href={contactHref}
                 variant="secondary"
                 showArrow={true}
+                className="px-2.5 sm:px-4 text-sm gap-1.5 sm:gap-2 [&_svg]:size-3.5 sm:[&_svg]:size-4"
               >
                 Get In Touch
               </CTAButton>
