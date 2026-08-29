@@ -175,4 +175,4 @@ MIT use freely for your own portfolio.
 **Sahin Alam**
 
 - Email: [sahinweb@proton.me](mailto:sahinweb@proton.me)
-- GitHub: [@sahinhub](https://github.com/sahinhub)
+- GitHub: [@sahinhub](https://github.com/sahinpro)
