@@ -3,7 +3,6 @@ export type ContactPayload = {
   email: string;
   subject: string;
   phone: string;
-  budget: string;
   message: string;
   turnstileToken: string | null;
 };
@@ -27,7 +26,6 @@ export async function submitContactForm(
     email: payload.email.trim(),
     subject: payload.subject.trim() || undefined,
     phone: payload.phone.trim() || undefined,
-    budget: payload.budget.trim(),
     message: payload.message.trim(),
     turnstileToken: payload.turnstileToken ?? undefined,
   };

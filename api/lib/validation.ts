@@ -6,7 +6,6 @@ const LIMITS = {
   email: 254,
   subject: 200,
   phone: 40,
-  budget: 80,
   message: 4000,
 } as const;
 
@@ -24,10 +23,9 @@ export function parseContactBody(
   | { ok: false; error: string } {
   const name = body.name?.trim();
   const email = body.email?.trim().toLowerCase();
-  const budget = body.budget?.trim();
   const message = body.message?.trim();
 
-  if (!name || !email || !budget || !message) {
+  if (!name || !email || !message) {
     return { ok: false, error: "Missing required fields" };
   }
 
@@ -46,7 +44,6 @@ export function parseContactBody(
       phone: body.phone?.trim()
         ? clip(body.phone.trim(), LIMITS.phone)
         : null,
-      budget: clip(budget, LIMITS.budget),
       message: clip(message, LIMITS.message),
     },
   };
@@ -60,7 +57,6 @@ export async function createSubmissionIdempotencyKey(
     submission.email,
     submission.name,
     submission.message,
-    submission.budget,
     String(bucket),
   ].join("|");
   const digest = await crypto.subtle.digest(

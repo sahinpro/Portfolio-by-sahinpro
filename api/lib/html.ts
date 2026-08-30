@@ -29,7 +29,6 @@ export function buildContactPlainText(submission: ContactSubmission): string {
     `Name: ${submission.name}`,
     `Email: ${submission.email}`,
     `Phone: ${submission.phone ?? "Not provided"}`,
-    `Budget: ${submission.budget}`,
     `Subject: ${submission.subject ?? "Not provided"}`,
     "",
     "Message:",
@@ -108,15 +107,9 @@ export function buildContactHtml(submission: ContactSubmission): string {
                         </td>
                       </tr>
                       <tr>
-                        <td style="padding:14px 18px;border-bottom:1px solid #e5e7eb;">
+                        <td style="padding:14px 18px;">
                           <img src="${ICON_BASE}/phone.svg" alt="" width="18" height="18" style="vertical-align:middle;margin-right:8px;" />
                           <strong>Phone:</strong> ${escapeHtml(submission.phone ?? "Not provided")}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="padding:14px 18px;">
-                          <img src="${ICON_BASE}/budget.svg" alt="" width="18" height="18" style="vertical-align:middle;margin-right:8px;" />
-                          <strong>Budget:</strong> ${escapeHtml(submission.budget)}
                         </td>
                       </tr>
                     </table>
@@ -151,7 +144,6 @@ export function buildTemplateVariables(submission: ContactSubmission): Record<st
     CLIENT_EMAIL: submission.email,
     CLIENT_PHONE: submission.phone ?? "Not provided",
     INQUIRY_SUBJECT: submission.subject?.trim() || "General inquiry",
-    BUDGET: submission.budget,
     MESSAGE: nl2br(submission.message),
     PREVIEW_TEXT: submission.subject?.trim()
       ? `${submission.name} sent a new inquiry about "${submission.subject.trim()}".`

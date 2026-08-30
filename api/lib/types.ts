@@ -5,7 +5,6 @@ export type ContactSubmission = {
   email: string;
   subject: string | null;
   phone: string | null;
-  budget: string;
   message: string;
 };
 

@@ -43,7 +43,6 @@ interface FormData {
   email: string;
   subject: string;
   phone: string;
-  budget: string;
   message: string;
 }
 
@@ -148,7 +147,6 @@ export const ContactPage = (): JSX.Element => {
     email: "",
     subject: "",
     phone: "",
-    budget: "",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -179,7 +177,7 @@ export const ContactPage = (): JSX.Element => {
   }, []);
 
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -193,7 +191,6 @@ export const ContactPage = (): JSX.Element => {
     const missing = [];
     if (!formData.name.trim()) missing.push("Full name");
     if (!formData.email.trim()) missing.push("Email");
-    if (!formData.budget.trim()) missing.push("Budget range");
     if (!formData.message.trim()) missing.push("Message");
     if (missing.length) {
       setSubmitError(`Please fill in: ${missing.join(", ")}`);
@@ -222,7 +219,6 @@ export const ContactPage = (): JSX.Element => {
         email: "",
         subject: "",
         phone: "",
-        budget: "",
         message: "",
       });
       markSubmittedToday();
@@ -236,7 +232,6 @@ export const ContactPage = (): JSX.Element => {
       email: formData.email,
       subject: formData.subject,
       phone: formData.phone,
-      budget: formData.budget,
       message: formData.message,
       turnstileToken,
     });
