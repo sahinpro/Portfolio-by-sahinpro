@@ -52,7 +52,7 @@ Create a `.env` file in the project root (values are not committed).
 | `VITE_TURNSTILE_SITE_KEY`                                           | Optional        | Cloudflare Turnstile on contact form (public site key)                               |
 | `RESEND_API_KEY`                                                    | For contact     | Resend API key **server-only**, do not prefix with `VITE_`                           |
 | `CONTACT_NOTIFICATION_TO_EMAIL`                                     | Optional        | Inbox for form submissions (defaults to `sahinweb@proton.me`)                        |
-| `CONTACT_NOTIFICATION_FROM_EMAIL`                                   | Optional        | Sender (defaults to `Sahin Alam <contact@sahin.pro.bd>`)                             |
+| `CONTACT_NOTIFICATION_FROM_EMAIL`                                   | Optional        | Sender (defaults to `Sahin Alam <contact@sahinpro.me>`)                              |
 | `RESEND_CONTACT_TEMPLATE_ID`                                        | Optional        | Published Resend template ID when set, sends via template + variables                |
 | `TURNSTILE_SECRET_KEY`                                              | Recommended     | Pairs with `VITE_TURNSTILE_SITE_KEY` for bot protection (server-only)                |
 | `CONTACT_RATE_LIMIT_PER_MINUTE`                                     | Optional        | Per-IP API limit (default `6`) helps under traffic spikes                            |
@@ -67,7 +67,7 @@ Add to your root `.env` for local dev (`npm run dev` serves `/api/contact` via V
 ```env
 RESEND_API_KEY=re_xxxxxxxx
 CONTACT_NOTIFICATION_TO_EMAIL=sahinweb@proton.me
-CONTACT_NOTIFICATION_FROM_EMAIL=Sahin Alam <contact@sahin.pro.bd>
+CONTACT_NOTIFICATION_FROM_EMAIL=Sahin Alam <contact@sahinpro.me>
 # Optional published Resend template:
 # RESEND_CONTACT_TEMPLATE_ID=re_xxxxxxxx
 # Bot protection (recommended in production):
@@ -84,7 +84,7 @@ For **Vercel production**, add the same server variables in **Project → Settin
 - Uses the official Resend `/emails` API with `Idempotency-Key`, `html` + `text`, `reply_to`, and `tags`.
 - Retries Resend `429` / `5xx` responses using the `retry-after` header (per Resend rate-limit docs).
 - Resend team rate limit is **5 requests/second** by default a burst of thousands of simultaneous submissions will queue/fail at Resend; Turnstile + per-IP rate limiting reduce abuse.
-- After domain verification, send from `contact@sahin.pro.bd` via `CONTACT_NOTIFICATION_FROM_EMAIL`.
+- After domain verification, send from `contact@sahinpro.me` via `CONTACT_NOTIFICATION_FROM_EMAIL`.
 - Replies go to the visitor’s email via `reply_to`.
 
 ## Scripts

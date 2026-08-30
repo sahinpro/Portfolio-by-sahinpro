@@ -87,7 +87,7 @@ export default function RootLayout({
             <p>
               Full Stack Developer from Bangladesh specializing in React,
               Next.js, WordPress, WooCommerce, and Shopify. Explore the
-              portfolio at <a href="https://sahin.pro.bd/">sahin.pro.bd</a>.
+              portfolio at <a href="https://www.sahinpro.me/">www.sahinpro.me</a>.
             </p>
             <nav aria-label="Primary">
               <ul>

@@ -1,7 +1,7 @@
 import type { ContactSubmission } from "./types";
 
-const LOGO_URL = "https://sahin.pro.bd/sahin.jpg";
-const ICON_BASE = "https://sahin.pro.bd/email/icons";
+const LOGO_URL = "https://www.sahinpro.me/sahin.jpg";
+const ICON_BASE = "https://www.sahinpro.me/email/icons";
 
 export function escapeHtml(value: string): string {
   return value
@@ -35,7 +35,7 @@ export function buildContactPlainText(submission: ContactSubmission): string {
     "Message:",
     submission.message,
     "",
-    "Source: sahin.pro.bd/contact",
+    "Source: www.sahinpro.me/contact",
   ].join("\n");
 }
 
@@ -70,7 +70,7 @@ export function buildContactHtml(submission: ContactSubmission): string {
                   </td>
                   <td valign="middle">
                     <p style="margin:0;font-size:18px;font-weight:700;color:#111827;">Sahin Alam</p>
-                    <p style="margin:3px 0 0;font-size:12px;color:#6b7280;">Full Stack Developer · sahin.pro.bd</p>
+                    <p style="margin:3px 0 0;font-size:12px;color:#6b7280;">Full Stack Developer · www.sahinpro.me</p>
                   </td>
                 </tr>
               </table>

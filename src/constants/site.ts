@@ -1,5 +1,5 @@
 /** Canonical production origin (no trailing slash). */
-export const SITE_URL = "https://sahin.pro.bd";
+export const SITE_URL = "https://www.sahinpro.me";
 
 export const DEFAULT_OG_IMAGE_PATH = "/sahin.jpg";
 

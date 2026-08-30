@@ -79,7 +79,14 @@ export const STALE_OG_IMAGE_SUFFIXES = [
   "/logo.svg",
 ] as const;
 
-export const STALE_OG_HOSTS = ["sahinalam.com", "www.sahinalam.com"] as const;
+export const STALE_OG_HOSTS = [
+  "sahinalam.com",
+  "www.sahinalam.com",
+  "sahin.pro.bd",
+  "www.sahin.pro.bd",
+  "sahinpro.me",
+  "sahincoder.vercel.app",
+] as const;
 
 export function normalizeSeoPagePath(pathname: string): SeoPageKey {
   const p = pathname.replace(/\/$/, "") || "/";
