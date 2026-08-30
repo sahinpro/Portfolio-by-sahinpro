@@ -1,4 +1,4 @@
-# Portfolio (Sahinhub)
+# Portfolio (Sahinpro)
 
 A modern portfolio site with a **Supabase-backed CMS**: public pages read published projects, testimonials, hero copy, SEO metadata, social links, and site settings. An authenticated **admin** area manages content, inbox, analytics, resume uploads, and more.
 
@@ -175,4 +175,4 @@ MIT use freely for your own portfolio.
 **Sahin Alam**
 
 - Email: [sahinweb@proton.me](mailto:sahinweb@proton.me)
-- GitHub: [@sahinhub](https://github.com/sahinhub)
+- GitHub: [@sahinhub](https://github.com/sahinpro)
