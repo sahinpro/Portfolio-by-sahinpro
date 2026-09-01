@@ -10,7 +10,7 @@ export function deferAfterPaint(
 
   let cancelled = false;
   let idleId: number | undefined;
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  let timeoutId: number | undefined;
   let raf2 = 0;
 
   const raf1 = window.requestAnimationFrame(() => {
