@@ -1,4 +1,3 @@
-export { LazySection } from "./LazySection";
 export { SectionShell } from "./SectionShell";
 export { CareerJourneyPanel } from "./CareerJourneyPanel";
 export {

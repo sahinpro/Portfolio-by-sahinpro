@@ -1,4 +1,44 @@
 /**
+ * After first paint + idle. Does not wait for `window.load`.
+ * Use for below-fold UI that should start soon without blocking the hero.
+ */
+export function deferAfterPaint(
+  callback: () => void,
+  timeoutMs = 400,
+): () => void {
+  if (typeof window === "undefined") return () => {};
+
+  let cancelled = false;
+  let idleId: number | undefined;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  let raf2 = 0;
+
+  const raf1 = window.requestAnimationFrame(() => {
+    raf2 = window.requestAnimationFrame(() => {
+      if (cancelled) return;
+
+      const run = (): void => {
+        if (!cancelled) callback();
+      };
+
+      if (typeof window.requestIdleCallback === "function") {
+        idleId = window.requestIdleCallback(run, { timeout: timeoutMs });
+      } else {
+        timeoutId = window.setTimeout(run, timeoutMs);
+      }
+    });
+  });
+
+  return () => {
+    cancelled = true;
+    window.cancelAnimationFrame(raf1);
+    window.cancelAnimationFrame(raf2);
+    if (idleId !== undefined) window.cancelIdleCallback(idleId);
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+  };
+}
+
+/**
  * Runs `callback` after window load + idle time so Lighthouse metrics stay clean.
  */
 export function deferUntilIdle(
