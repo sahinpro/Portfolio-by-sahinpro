@@ -1,5 +1,4 @@
 import { PublicImage } from "@/components/ui/PublicImage";
-import { PROFILE } from "@/constants/profile";
 import { scrollViewport, sectionEase } from "@/constants/scrollMotion";
 import { PROFILE_PORTRAIT } from "@/lib/seoImages";
 import type { TimelineEntry } from "@/screens/sections/CareerJourneySection/careerJourneyData";
@@ -13,12 +12,9 @@ const timelineCardClass = "p-0 lg:p-6 sm:p-8 overflow-hidden relative h-full";
 export const CareerJourneyPanel = ({
   entries,
   showImage = true,
-  imageCaption = PROFILE.imageCaption,
 }: {
   entries: TimelineEntry[];
   showImage?: boolean;
-  showMilestonesLabel?: boolean;
-  imageCaption?: string;
 }): JSX.Element => (
   <div
     className={
@@ -46,14 +42,11 @@ export const CareerJourneyPanel = ({
               alt={PROFILE_PORTRAIT.alt}
               width={PROFILE_PORTRAIT.width}
               height={PROFILE_PORTRAIT.height}
-              sizes="(max-width: 1024px) 80vw, 33vw"
+              sizes="(max-width: 900px) 50vw, 25vw"
               className="relative w-full h-full object-cover rounded-full border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
             />
           </div>
         </motion.div>
-        <p className="mt-5 text-center text-sm text-zinc-400 max-w-[480px] leading-relaxed">
-          {imageCaption}
-        </p>
       </div>
     ) : null}
 

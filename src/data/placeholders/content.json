@@ -82,7 +82,14 @@
   "skills": {
     "frontend": {
       "category": "Frontend Development",
-      "skills": ["HTML", "CSS", "Tailwind CSS", "JavaScript", "React", "Next.js"]
+      "skills": [
+        "HTML",
+        "CSS",
+        "Tailwind CSS",
+        "JavaScript",
+        "React",
+        "Next.js"
+      ]
     },
     "backend": {
       "category": "Backend Development",
@@ -139,15 +146,7 @@
       ]
     }
   ],
-  "education": [
-    {
-      "id": 1,
-      "institution": "Rotargoan High School & College",
-      "field": "SSC, Science",
-      "year": "2018–2020",
-      "details": "Secondary School Certificate in science"
-    }
-  ],
+
   "services": [
     {
       "id": 1,

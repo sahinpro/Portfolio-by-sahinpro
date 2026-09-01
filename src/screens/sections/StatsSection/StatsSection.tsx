@@ -7,7 +7,7 @@ export const StatsSection = (): JSX.Element => {
   return (
     <section
       id="stats"
-      className="container mx-auto w-full px-4 pb-6 sm:pb-10 -mt-4 sm:-mt-8 relative z-10"
+      className="container relative z-10 mx-auto w-full shrink-0 px-4 pb-8 pt-2 sm:pb-12"
     >
       <motion.div
         className="w-full max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"

@@ -16,7 +16,7 @@ export const HeroSection = (): JSX.Element => {
 
   return (
     <motion.section
-      className="relative w-full overflow-hidden min-h-screen flex items-center pt-24 sm:pt-28 pb-10"
+      className="relative flex w-full flex-1 items-center overflow-hidden pt-24 sm:pt-28 pb-6 sm:pb-8"
       variants={heroContainer}
       initial={shouldReduceMotion ? false : "hidden"}
       animate="visible"

@@ -11,7 +11,7 @@ export const PROFILE = {
   ],
   location: "Sylhet, Bangladesh",
   workLocation: "Sunamganj, Sylhet, Bangladesh",
-  email: "sahinweb@proton.me",
+  email: "hello.sahinpro@gmail.com",
   phone: "+8801791992313",
   whatsappUrl: "https://wa.me/8801791992313",
   linkedIn: "https://linkedin.com/in/sahinpro",

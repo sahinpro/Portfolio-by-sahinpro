@@ -55,9 +55,14 @@ const FooterSection = lazy(() =>
 
 export const HomePage = (): JSX.Element => {
   return (
-    <main id="main-content" className="flex flex-col items-start relative bg-[#050505] min-h-screen w-full overflow-x-hidden">
+    <main
+      id="main-content"
+      className="flex flex-col items-start relative bg-[#050505] min-h-screen w-full overflow-x-hidden"
+    >
       <Header />
-      <HeroSection />
+      <div className="flex min-h-dvh w-full flex-col">
+        <HeroSection />
+      </div>
       <StatsSection />
       <LazySection
         minHeight={480}

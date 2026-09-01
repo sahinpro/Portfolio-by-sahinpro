@@ -1,6 +1,6 @@
 import { PROFILE } from "@/constants/profile";
 import type { LucideIcon } from "lucide-react";
-import { Briefcase, GraduationCap, Rocket } from "lucide-react";
+import { Briefcase, Rocket } from "lucide-react";
 
 export type TimelineEntry = {
   year: string;
@@ -26,12 +26,5 @@ export const careerTimeline: TimelineEntry[] = [
     company: "Self-employed",
     desc: "WordPress, WooCommerce, and Shopify for local and international clients    custom stores, landing pages, theme customization, on-page SEO, and full project lifecycle from scoping to post-launch support.",
     icon: Rocket,
-  },
-  {
-    year: "2018–2020",
-    role: "SSC, Science",
-    company: "Rotargoan High School & College",
-    desc: "Completed secondary education in science before focusing on web development and client work.",
-    icon: GraduationCap,
   },
 ];

@@ -1,8 +1,8 @@
-/**use for all public scroll entrances. */
+/** Public scroll entrances — `some` so tall sections reveal as they enter. */
 export const scrollViewport = {
   once: true,
-  amount: 0.25 as const,
-  margin: "0px 0px -5% 0px" as const,
+  amount: "some" as const,
+  margin: "0px 0px -8% 0px" as const,
 } as const;
 
 export const sectionEase = [0.37, 0.04, 0.29, 1.01] as const;

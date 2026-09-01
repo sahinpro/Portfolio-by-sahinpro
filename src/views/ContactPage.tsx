@@ -27,7 +27,8 @@ import Turnstile from "react-turnstile";
 // lottie-react + JSON payloads (~45 kB) only ship after a submit attempt,
 // not in the Contact route's first-load JS.
 const SuccessLottie = dynamic(
-  () => import("@/components/contact/ContactLottie").then((m) => m.SuccessLottie),
+  () =>
+    import("@/components/contact/ContactLottie").then((m) => m.SuccessLottie),
   { ssr: false },
 );
 const ErrorLottie = dynamic(
@@ -503,7 +504,7 @@ export const ContactPage = (): JSX.Element => {
                         required
                         value={formData.email}
                         onChange={handleInputChange}
-                        placeholder="sahinweb@proton.me"
+                        placeholder="hello.sahinpro@gmail.com"
                         className={inputClass}
                       />
                     </div>
@@ -515,11 +516,17 @@ export const ContactPage = (): JSX.Element => {
                       <Textarea
                         name="message"
                         required
+                        style={{
+                          paddingTop: "10px",
+                        }}
                         value={formData.message}
                         onChange={handleInputChange}
                         placeholder="Describe your project, goals, and any specific requirements…"
                         rows={5}
-                        className={`${inputClass} resize-none min-h-[120px] sm:min-h-0`}
+                        className={cn(
+                          inputClass,
+                          "resize-none min-h-[120px] sm:min-h-0",
+                        )}
                       />
                     </div>
 

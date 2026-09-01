@@ -2,11 +2,10 @@
 
 import { PROFILE } from "@/constants/profile";
 import { motion } from "framer-motion";
-import Image from "next/image";
 
-/** Sylhet, Bangladesh on Simplemaps world.svg (2000×857 viewBox). */
-const MARKER_LEFT_PERCENT = 75.5;
-const MARKER_TOP_PERCENT = 36.2;
+const MAP_VIEWBOX = "0 0 2000 857";
+const SYLHET_X = 1493;
+const SYLHET_Y = 343;
 
 const mapReveal = {
   hidden: { opacity: 0, y: 24 },
@@ -27,18 +26,46 @@ export function ContactHeroMap({ visible }: ContactHeroMapProps): JSX.Element {
       initial="hidden"
       animate={visible ? "visible" : "hidden"}
       variants={mapReveal}
-      className="pointer-events-none absolute inset-x-0 top-[4.5rem] sm:top-8 mx-auto w-full max-w-6xl px-4"
+      className="pointer-events-none absolute inset-x-0 top-[4.5rem] sm:top-8 mx-auto w-full max-w-container px-1 lg:px-4"
       aria-hidden
     >
-      <div className="relative mx-auto aspect-[2000/857] w-full max-h-[200px] sm:max-h-[280px] lg:max-h-[360px]">
-        <Image
-          src="/world.svg"
-          alt=""
-          fill
-          sizes="(min-width: 1024px) 1152px, 100vw"
-          className="object-contain opacity-[0.22] sm:opacity-[0.28] lg:opacity-[0.32]"
-          priority={false}
-        />
+      <div className="relative mx-auto aspect-[2000/857] w-full max-h-[600px]  lg:max-h-[700px]">
+        {/* Layer 1 — the faded map artwork */}
+        <svg
+          viewBox={MAP_VIEWBOX}
+          preserveAspectRatio="xMidYMid meet"
+          className="absolute inset-0 h-full w-full opacity-[0.22] sm:opacity-[0.28] lg:opacity-[0.32]"
+        >
+          <image href="/world.svg" x={0} y={0} width={2000} height={857} />
+        </svg>
+
+        {/* Layer 2 — the marker, same viewBox/mapping so it's pixel-locked
+            to layer 1, but with full independent opacity — never inherits
+            or gets clamped by the map's faded look. */}
+        <svg
+          viewBox={MAP_VIEWBOX}
+          preserveAspectRatio="xMidYMid meet"
+          className="absolute inset-0 h-full w-full overflow-visible"
+        >
+          <circle
+            cx={SYLHET_X}
+            cy={SYLHET_Y}
+            r={9}
+            className="animate-ping fill-emerald-400"
+            style={{
+              transformBox: "fill-box",
+              transformOrigin: "center",
+              opacity: 0.7,
+            }}
+          />
+          <circle
+            cx={SYLHET_X}
+            cy={SYLHET_Y}
+            r={7}
+            className="fill-emerald-400"
+            style={{ filter: "drop-shadow(0 0 8px rgba(52,211,153,0.95))" }}
+          />
+        </svg>
 
         {/* Radial vignette — spotlight on center */}
         <div
@@ -58,21 +85,7 @@ export function ContactHeroMap({ visible }: ContactHeroMapProps): JSX.Element {
         {/* Top fade under nav */}
         <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-[#050505]/60 to-transparent" />
 
-        {/* Location marker — Bangladesh */}
-        <div
-          className="absolute z-10"
-          style={{
-            left: `${MARKER_LEFT_PERCENT}%`,
-            top: `${MARKER_TOP_PERCENT}%`,
-            transform: "translate(-50%, -50%)",
-          }}
-        >
-          <span className="sr-only">{PROFILE.location}</span>
-          <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)] sm:h-3 sm:w-3" />
-          </span>
-        </div>
+        <span className="sr-only">{PROFILE.location}</span>
       </div>
     </motion.div>
   );
