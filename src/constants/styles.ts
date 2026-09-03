@@ -1,7 +1,7 @@
 import { colors } from '@/theme/colors';
 
 export const SCROLL_THRESHOLD = 50;
-export const HEADER_ANIMATION_DURATION = 0.4;
+export const HEADER_ANIMATION_DURATION = 0.55;
 export const MOBILE_BREAKPOINT = 640;
 /** Layout breakpoint for deferring heavy visuals (bento, chroma grid). */
 export const MOBILE_LAYOUT_BREAKPOINT = 768;

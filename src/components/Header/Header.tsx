@@ -35,14 +35,16 @@ const Header = () => {
     >
       <div
         className={cn(
-          "header-glass mx-auto px-2 rounded-2xl relative z-[100] transition-[max-width,transform,background-color,border-color,box-shadow] ease-in-out",
+          "header-glass mx-auto px-2 rounded-2xl relative z-[100] w-full",
+          "transition-[max-width,transform,background-color,border-color,box-shadow]",
+          "ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
           mobileGlassBarClasses,
           isScrolled
             ? cn(
-                "lg:max-w-[min(800px,calc(100%-0.5rem))] lg:w-full lg:translate-y-0",
+                "lg:max-w-[min(800px,calc(100%-0.5rem))] lg:translate-y-0",
                 desktopGlassBarClasses,
               )
-            : "lg:max-w-none lg:w-full lg:-translate-y-5 lg:backdrop-blur-md lg:border lg:border-white/10",
+            : "lg:max-w-[min(1400px,calc(100%-0.5rem))] lg:-translate-y-5 lg:backdrop-blur-md lg:border lg:border-white/10",
         )}
         style={{
           transitionDuration: `${HEADER_ANIMATION_DURATION}s`,
