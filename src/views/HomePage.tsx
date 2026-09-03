@@ -91,7 +91,7 @@ export const HomePage = (): JSX.Element => {
   return (
     <main
       id="main-content"
-      className="flex flex-col items-start relative bg-[#050505] min-h-screen w-full overflow-x-hidden"
+      className="flex flex-col items-start relative bg-[#050505] min-h-screen w-full overflow-x-clip"
     >
       <Header />
       <div className="flex min-h-dvh w-full flex-col">

@@ -75,14 +75,14 @@ export const heroItem = {
   },
 };
 
-/** Editor last: fade in after the hero copy sequence */
+/** Editor: short fade, not gated on the copy sequence */
 export const editorItem = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      duration: 0.9,
-      delay: 0.15 + 5 * 0.18 + 0.12,
+      duration: 0.4,
+      delay: 0.12,
       ease: heroEase,
     },
   },
@@ -107,7 +107,7 @@ export const heroTiming = {
   socialLinksDelay: 0.92,
   contactSocialDelay: 0.42,
   socialIconStagger: 0.055,
-  codeEditorDelay: 0.15 + 5 * 0.18 + 0.12,
+  codeEditorDelay: 0.12,
 } as const;
 
 export const heroCodeEditorReveal = editorItem;

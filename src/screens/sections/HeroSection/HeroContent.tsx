@@ -7,7 +7,7 @@ import {
   heroItem,
 } from "@/constants/scrollMotion";
 import { useActiveResume } from "@/hooks/useActiveResume";
-import { triggerResumeDownload } from "@/lib/resumeDownload";
+import { useResumeDownload } from "@/hooks/useResumeDownload";
 import { motion } from "framer-motion";
 import { DownloadIcon } from "lucide-react";
 import { HeroDescription } from "./HeroDescription";
@@ -16,6 +16,7 @@ import { HeroTitle } from "./HeroTitle";
 
 export const HeroContent = (): JSX.Element => {
   const { data: resume, loading: resumeLoading } = useActiveResume();
+  const { download, downloading, error: downloadError } = useResumeDownload();
   const showResumeCta = resumeLoading || resume != null;
 
   return (
@@ -57,16 +58,21 @@ export const HeroContent = (): JSX.Element => {
                 variant="secondary"
                 showArrow={false}
                 rightIcon={<DownloadIcon className="w-4 h-4" />}
-                disabled={resumeLoading || !resume}
+                disabled={resumeLoading || !resume || downloading}
                 onClick={() => {
-                  if (resume) void triggerResumeDownload(resume);
+                  if (resume) void download(resume);
                 }}
               >
-                Download resume
+                {downloading ? "Downloading…" : "Download resume"}
               </CTAButton>
             </motion.div>
           ) : null}
         </motion.div>
+        {downloadError ? (
+          <p role="status" className="mt-2 text-xs text-red-400/90 text-center lg:text-left">
+            {downloadError}
+          </p>
+        ) : null}
       </motion.div>
 
       <SocialLinksRow size="hero" variants={heroItem} />

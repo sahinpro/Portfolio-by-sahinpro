@@ -14,7 +14,7 @@ const contactHref =
 
 export const GetStartedSection = (): JSX.Element => {
   return (
-    <section className="flex flex-col container items-center gap-20 px-4 py-10 lg:py-14 relative mx-auto">
+    <section className="scroll-section flex flex-col container items-center gap-20 px-4 py-10 lg:py-14 relative mx-auto">
       <motion.div
         className="relative z-10 w-full"
         initial="hidden"

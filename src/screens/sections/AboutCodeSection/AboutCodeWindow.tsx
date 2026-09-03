@@ -1,7 +1,6 @@
 import { scrollViewport } from "@/constants/scrollMotion";
-import { usePerformanceMode } from "@/hooks/usePerformanceMode";
-import { useInView, useReducedMotion } from "framer-motion";
-import { useCallback, useRef, useState } from "react";
+import { useInView } from "framer-motion";
+import { useRef, useState } from "react";
 import { CodeEditorPanel, type EditorTab } from "./CodeEditorPanel";
 import { TerminalPanel } from "./TerminalPanel";
 import { aboutCodeChromeClass } from "./aboutCodeLayout";
@@ -9,7 +8,7 @@ import { useAboutCodeProfile } from "./useAboutCodeProfile";
 
 type AboutCodeWindowProps = {
   className?: string;
-  /** When true, typing/terminal animate as soon as mounted (hero). When false, waits for scroll into view. */
+  /** When true, content is ready as soon as mounted (hero). When false, waits for scroll into view. */
   startOnMount?: boolean;
 };
 
@@ -19,31 +18,13 @@ export const AboutCodeWindow = ({
 }: AboutCodeWindowProps): JSX.Element => {
   const windowRef = useRef<HTMLDivElement>(null);
   const inView = useInView(windowRef, scrollViewport);
-  const reduceMotion = useReducedMotion();
-  const { simpleVisuals } = usePerformanceMode();
-  const instant = reduceMotion === true || simpleVisuals;
-
   const active = startOnMount || inView;
 
-  const { profile, code, terminalLines, loading } = useAboutCodeProfile();
+  const { profile, code, terminalLines } = useAboutCodeProfile();
   const [activeTab, setActiveTab] = useState<EditorTab>("developer.js");
-  const [codeComplete, setCodeComplete] = useState(instant);
-
-  const markCodeComplete = useCallback(() => setCodeComplete(true), []);
-
-  const handleTabChange = (tab: EditorTab) => {
-    setActiveTab(tab);
-    if (tab === "terminal") markCodeComplete();
-  };
-
-  const terminalActive = active && (codeComplete || instant);
 
   const terminal = (
-    <TerminalPanel
-      lines={terminalLines}
-      active={terminalActive}
-      instant={instant}
-    />
+    <TerminalPanel lines={terminalLines} active={active} instant />
   );
 
   return (
@@ -54,12 +35,11 @@ export const AboutCodeWindow = ({
           <CodeEditorPanel
             code={code}
             active={active}
-            instant={instant}
-            loading={loading}
+            instant
             activeTab={activeTab}
-            onTabChange={handleTabChange}
-            onSkip={markCodeComplete}
-            onTypingComplete={markCodeComplete}
+            onTabChange={setActiveTab}
+            onSkip={() => undefined}
+            onTypingComplete={() => undefined}
             terminal={terminal}
           />
         </div>

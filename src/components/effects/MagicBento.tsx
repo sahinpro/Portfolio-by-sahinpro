@@ -564,12 +564,13 @@ const GlobalSpotlight: React.FC<{
       }
     };
 
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseleave", handleMouseLeave);
+    const section = gridRef.current.closest(".bento-section") ?? gridRef.current;
+    section.addEventListener("mousemove", handleMouseMove);
+    section.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseleave", handleMouseLeave);
+      section.removeEventListener("mousemove", handleMouseMove);
+      section.removeEventListener("mouseleave", handleMouseLeave);
       spotlightRef.current?.parentNode?.removeChild(spotlightRef.current);
     };
   }, [gridRef, disableAnimations, enabled, spotlightRadius, glowColor]);

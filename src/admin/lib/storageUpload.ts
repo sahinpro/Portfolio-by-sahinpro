@@ -1,4 +1,5 @@
 import { guessImageMimeFromName } from "@/admin/lib/imageFileAccept";
+import { isPublicFileReachable } from "@/lib/publicFileReachable";
 import { supabase } from "@/utils/supabase";
 
 export function storageUploadErrorMessage(err: unknown): string {
@@ -39,16 +40,9 @@ async function sha256Hex(buf: ArrayBuffer): Promise<string> {
     .join("");
 }
 
-async function storageObjectExists(bucket: string, storagePath: string): Promise<boolean> {
-  const lastSlash = storagePath.lastIndexOf("/");
-  const parent = lastSlash > 0 ? storagePath.slice(0, lastSlash) : "";
-  const fileName = lastSlash >= 0 ? storagePath.slice(lastSlash + 1) : storagePath;
-  const { data, error } = await supabase.storage.from(bucket).list(parent, {
-    limit: 100,
-    search: fileName,
-  });
-  if (error) return false;
-  return (data ?? []).some((o) => o.name === fileName);
+function fileExtension(fileName: string): string {
+  const ext = fileName.match(/\.([a-zA-Z0-9]+)$/)?.[1];
+  return ext ? `.${ext.toLowerCase()}` : "";
 }
 
 export type ContentAddressedUploadResult = {
@@ -60,29 +54,30 @@ export type ContentAddressedUploadResult = {
 };
 
 /**
- * Uploads `file` to `{pathPrefix}/{sha256}` (no filename extension) so identical bytes always
- * map to one object, regardless of original extension. Content-Type is set from the file.
- * If that object already exists, returns its public URL without uploading again.
+ * Uploads `file` to `{pathPrefix}/{sha256}` so identical bytes always map to one object.
+ * Pass `keepExtension` for documents (e.g. `.pdf`) so browsers treat the public URL as a file.
+ * Skip is based on a public Range GET, not storage list (list can be stale after deletes).
  */
 export async function uploadPublicFileContentAddressed(
   bucket: string,
   pathPrefix: string,
   file: File,
   metadata?: Record<string, string>,
+  options?: { keepExtension?: boolean },
 ): Promise<ContentAddressedUploadResult> {
   const prefix = normalizeStoragePrefix(pathPrefix);
   if (!prefix) throw new Error("Storage path prefix is required");
 
   const buf = await file.arrayBuffer();
   const hash = await sha256Hex(buf);
-  const path = `${prefix}/${hash}`;
+  const ext = options?.keepExtension ? fileExtension(file.name) : "";
+  const path = `${prefix}/${hash}${ext}`;
   const contentType = resolveContentType(file) || "application/octet-stream";
 
   const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
   const publicUrl = urlData.publicUrl;
 
-  const exists = await storageObjectExists(bucket, path);
-  if (exists) {
+  if (await isPublicFileReachable(publicUrl)) {
     return { publicUrl, storagePath: path, skippedUpload: true };
   }
 

@@ -120,6 +120,8 @@ interface AuroraBackgroundDesktopProps {
   opacity?: number;
 }
 
+const SCROLL_PAUSE_MS = 140;
+
 /** Desktop-only WebGL aurora. Dynamically imported so mobile never downloads Three.js. */
 export default function AuroraBackgroundDesktop({
   className = "",
@@ -128,7 +130,10 @@ export default function AuroraBackgroundDesktop({
   const containerRef = useRef<HTMLDivElement>(null);
   const [shouldInit, setShouldInit] = useState(false);
   const [webglReady, setWebglReady] = useState(false);
-  const cleanupRef = useRef<(() => void) | null>(null);
+  const inViewRef = useRef(true);
+  const scrollingRef = useRef(false);
+  const didInitRef = useRef(false);
+  const resumeRef = useRef<() => void>(() => undefined);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -137,22 +142,44 @@ export default function AuroraBackgroundDesktop({
     let cancelDefer: (() => void) | undefined;
     const observer = new IntersectionObserver(
       ([entry]) => {
+        inViewRef.current = entry.isIntersecting;
         if (!entry.isIntersecting) {
-          cancelDefer?.();
-          cancelDefer = undefined;
-          setShouldInit(false);
+          if (!didInitRef.current) cancelDefer?.();
           return;
         }
-        cancelDefer?.();
-        cancelDefer = deferUntilIdle(() => setShouldInit(true), WEBGL_DEFER_MS);
+        if (!didInitRef.current) {
+          cancelDefer?.();
+          cancelDefer = deferUntilIdle(() => {
+            didInitRef.current = true;
+            setShouldInit(true);
+          }, WEBGL_DEFER_MS);
+        }
+        resumeRef.current();
       },
-      { rootMargin: "80px 0px", threshold: 0.01 },
+      { rootMargin: "40px 0px", threshold: 0 },
     );
 
     observer.observe(container);
     return () => {
       cancelDefer?.();
       observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    let idle = 0;
+    const onScroll = (): void => {
+      scrollingRef.current = true;
+      window.clearTimeout(idle);
+      idle = window.setTimeout(() => {
+        scrollingRef.current = false;
+        resumeRef.current();
+      }, SCROLL_PAUSE_MS);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(idle);
     };
   }, []);
 
@@ -220,24 +247,42 @@ export default function AuroraBackgroundDesktop({
         );
       };
 
+      const canDraw = (): boolean =>
+        inViewRef.current &&
+        !scrollingRef.current &&
+        document.visibilityState === "visible";
+
       let lastFrame = 0;
       const animate = (time: number) => {
         if (cancelled) return;
-        if (document.visibilityState === "visible") {
-          const delta = lastFrame ? (time - lastFrame) / 1000 : 0.016;
-          lastFrame = time;
-          material.uniforms.iTime.value += Math.min(delta, 0.05);
-          renderer.render(scene, camera);
+        if (!canDraw()) {
+          animationId = 0;
+          lastFrame = 0;
+          return;
         }
+        const delta = lastFrame ? (time - lastFrame) / 1000 : 0.016;
+        lastFrame = time;
+        material.uniforms.iTime.value += Math.min(delta, 0.05);
+        renderer.render(scene, camera);
         animationId = requestAnimationFrame(animate);
       };
+
+      const resume = (): void => {
+        if (cancelled || animationId || !canDraw()) return;
+        animationId = requestAnimationFrame(animate);
+      };
+      resumeRef.current = resume;
+
+      const onVisibility = (): void => resume();
+      document.addEventListener("visibilitychange", onVisibility);
 
       const resizeObserver = new ResizeObserver(updateSize);
       resizeObserver.observe(container);
       updateSize();
-      animationId = requestAnimationFrame(animate);
+      resume();
 
-      cleanupRef.current = () => {
+      return () => {
+        document.removeEventListener("visibilitychange", onVisibility);
         cancelAnimationFrame(animationId);
         resizeObserver.disconnect();
         material.dispose();
@@ -249,12 +294,21 @@ export default function AuroraBackgroundDesktop({
       };
     };
 
-    void run();
+    let dispose: (() => void) | undefined;
+    void run()
+      .then((next) => {
+        if (cancelled) {
+          next?.();
+          return;
+        }
+        dispose = next;
+      })
+      .catch(() => undefined);
 
     return () => {
       cancelled = true;
-      cleanupRef.current?.();
-      cleanupRef.current = null;
+      resumeRef.current = () => undefined;
+      dispose?.();
     };
   }, [shouldInit]);
 

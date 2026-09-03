@@ -1,12 +1,13 @@
 "use client";
 
-import { useDuplicateUploadConfirm } from "@/admin/context/DuplicateUploadConfirmContext";
 import { useToast } from "@/admin/context/ToastContext";
 import { withRlsHint } from "@/admin/lib/formatAdminError";
 import { uploadPublicFileContentAddressed } from "@/admin/lib/storageUpload";
 import type { ResumeRow } from "@/admin/types/database";
 import { Input } from "@/components/ui/input";
+import { isPublicFileReachable } from "@/lib/publicFileReachable";
 import { invalidatePublicDataCache } from "@/lib/publicDataCache";
+import { latestStoredResume } from "@/lib/resumeStorage";
 import { supabase } from "@/utils/supabase";
 import { Copy, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -16,10 +17,11 @@ const field =
 
 export function AdminResumePage(): JSX.Element {
   const { showToast } = useToast();
-  const { openPrompt } = useDuplicateUploadConfirm();
   const [rows, setRows] = useState<ResumeRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [fileMissing, setFileMissing] = useState(false);
+  const [repairing, setRepairing] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
@@ -42,6 +44,45 @@ export function AdminResumePage(): JSX.Element {
 
   const active = rows.find((r) => r.is_active);
 
+  useEffect(() => {
+    if (!active?.file_url) {
+      setFileMissing(false);
+      return;
+    }
+    let cancelled = false;
+    void isPublicFileReachable(active.file_url).then((ok) => {
+      if (!cancelled) setFileMissing(!ok);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [active?.file_url]);
+
+  const repairActiveFromStorage = async () => {
+    if (!active) return;
+    setRepairing(true);
+    try {
+      const stored = await latestStoredResume();
+      if (!stored) {
+        showToast("No CV file found in storage. Upload a PDF.", "error");
+        return;
+      }
+      const { error } = await supabase
+        .from("resume")
+        .update({ file_url: stored.file_url })
+        .eq("id", active.id);
+      if (error) throw new Error(error.message);
+      invalidatePublicDataCache();
+      showToast("Resume link restored");
+      void load();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Could not restore resume";
+      showToast(withRlsHint(msg), "error");
+    } finally {
+      setRepairing(false);
+    }
+  };
+
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target;
     const files = Array.from(input.files ?? []);
@@ -54,20 +95,27 @@ export function AdminResumePage(): JSX.Element {
         "documents",
         "cv",
         file,
+        undefined,
+        { keepExtension: true },
       );
+      if (!(await isPublicFileReachable(url))) {
+        throw new Error(
+          "Upload finished but the file is not publicly reachable. Confirm the documents bucket is public.",
+        );
+      }
       const { data: sameFile } = await supabase.from("resume").select("id").eq("file_url", url).maybeSingle();
       if (sameFile) {
-        await openPrompt({
-          variant: "acknowledge",
-          title: "Resume already on file",
-          message: (
-            <>
-              This file is already in your resume list (same stored document). Open the list below to
-              activate it or remove older versions.
-            </>
-          ),
-          confirmLabel: "OK",
-        });
+        const { data: existing } = await supabase.from("resume").select("id");
+        for (const ex of existing ?? []) {
+          await supabase.from("resume").update({ is_active: false }).eq("id", ex.id);
+        }
+        const { error } = await supabase
+          .from("resume")
+          .update({ is_active: true })
+          .eq("id", sameFile.id);
+        if (error) throw new Error(error.message);
+        invalidatePublicDataCache();
+        showToast("This resume is already on file — set as active");
         void load();
         return;
       }
@@ -143,6 +191,22 @@ export function AdminResumePage(): JSX.Element {
             <p className="text-xs text-white/35">
               Uploaded {new Date(active.uploaded_at).toLocaleString()}
             </p>
+            {fileMissing ? (
+              <div className="rounded-lg border border-amber-400/25 bg-amber-400/10 px-3 py-2 space-y-2">
+                <p className="text-xs text-amber-100/90">
+                  The stored file is missing from storage, so the public download button is broken.
+                  Restore the file still in the CV folder, or upload a new PDF.
+                </p>
+                <button
+                  type="button"
+                  disabled={repairing}
+                  onClick={() => void repairActiveFromStorage()}
+                  className="text-xs font-medium text-amber-200 hover:underline disabled:opacity-50"
+                >
+                  {repairing ? "Restoring…" : "Restore link from storage"}
+                </button>
+              </div>
+            ) : null}
           </div>
         ) : (
           <p className="text-sm text-white/45">No active resume yet.</p>

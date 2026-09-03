@@ -2,7 +2,7 @@
 
 export const heroContainerClass = "container mx-auto w-full px-4";
 
-export const sectionShellClass = "relative w-full py-10 sm:py-14";
+export const sectionShellClass = "scroll-section relative w-full py-10 sm:py-14";
 
 export const sectionInnerClass =
   "container mx-auto w-full px-4 flex flex-col gap-12 relative z-10";

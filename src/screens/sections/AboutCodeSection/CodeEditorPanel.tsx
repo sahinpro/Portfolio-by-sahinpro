@@ -13,7 +13,6 @@ type CodeEditorPanelProps = {
   code: string;
   active: boolean;
   instant: boolean;
-  loading: boolean;
   activeTab: EditorTab;
   onTabChange: (tab: EditorTab) => void;
   onSkip: () => void;
@@ -25,7 +24,6 @@ export const CodeEditorPanel = ({
   code,
   active,
   instant,
-  loading,
   activeTab,
   onTabChange,
   onSkip,
@@ -91,25 +89,21 @@ export const CodeEditorPanel = ({
           aria-label="Profile code preview"
         >
           <pre className="m-0 block w-full min-w-0 max-w-full px-3 py-3 sm:px-4 sm:py-3 font-mono text-[11px] sm:text-xs leading-[1.55] overflow-x-hidden">
-            {loading ? (
-              <span className="text-zinc-400">Loading profile…</span>
-            ) : (
-              <code>
-                {lines.map((line, index) => (
-                  <div key={`line-${index}`} className="flex items-start gap-0">
-                    <span className="select-none w-6 sm:w-7 shrink-0 text-right pr-2 sm:pr-3 pt-px text-zinc-400 tabular-nums leading-[1.55]">
-                      {index + 1}
-                    </span>
-                    <span className="min-w-0 flex-1 whitespace-pre-wrap break-words leading-[1.55]">
-                      {highlightCodeLine(line, `l-${index}`)}
-                    </span>
-                  </div>
-                ))}
-                {!done && !instant ? (
-                  <span className="inline-block w-1.5 h-3.5 ml-0.5 align-middle bg-[#CE9178]/80 animate-pulse" />
-                ) : null}
-              </code>
-            )}
+            <code>
+              {lines.map((line, index) => (
+                <div key={`line-${index}`} className="flex items-start gap-0">
+                  <span className="select-none w-6 sm:w-7 shrink-0 text-right pr-2 sm:pr-3 pt-px text-zinc-400 tabular-nums leading-[1.55]">
+                    {index + 1}
+                  </span>
+                  <span className="min-w-0 flex-1 whitespace-pre-wrap break-words leading-[1.55]">
+                    {highlightCodeLine(line, `l-${index}`)}
+                  </span>
+                </div>
+              ))}
+              {!done && !instant ? (
+                <span className="inline-block w-1.5 h-3.5 ml-0.5 align-middle bg-[#CE9178]/80 animate-pulse" />
+              ) : null}
+            </code>
           </pre>
         </div>
       ) : (

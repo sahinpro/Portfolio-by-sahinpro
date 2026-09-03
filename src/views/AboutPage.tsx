@@ -18,7 +18,7 @@ import {
   sectionReveal,
 } from "@/constants/scrollMotion";
 import { useActiveResume } from "@/hooks/useActiveResume";
-import { triggerResumeDownload } from "@/lib/resumeDownload";
+import { useResumeDownload } from "@/hooks/useResumeDownload";
 import { PROFILE_DESK } from "@/lib/seoImages";
 import {
   careerTimeline,
@@ -121,6 +121,11 @@ export const AboutPage = (): JSX.Element => {
   const [copied, setCopied] = useState(false);
   const email = PROFILE.email;
   const { data: activeResume, loading: resumeLoading } = useActiveResume();
+  const {
+    download: downloadResume,
+    downloading: resumeDownloading,
+    error: resumeDownloadError,
+  } = useResumeDownload();
 
   const heroRef = useRef<HTMLDivElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
@@ -135,7 +140,7 @@ export const AboutPage = (): JSX.Element => {
   };
 
   const handleResumeClick = () => {
-    if (activeResume) void triggerResumeDownload(activeResume);
+    if (activeResume) void downloadResume(activeResume);
   };
 
   return (
@@ -304,9 +309,10 @@ export const AboutPage = (): JSX.Element => {
                 onClick={handleResumeClick}
                 variant="primary"
                 showArrow={false}
+                disabled={resumeDownloading}
               >
                 <Download className="w-4 h-4 mr-1.5" />
-                Resume
+                {resumeDownloading ? "Downloading…" : "Resume"}
               </CTAButton>
             ) : null}
             <CTAButton
@@ -332,6 +338,11 @@ export const AboutPage = (): JSX.Element => {
             >
               Schedule Call
             </CTAButton>
+            {resumeDownloadError ? (
+              <p role="status" className="basis-full text-xs text-red-400/90">
+                {resumeDownloadError}
+              </p>
+            ) : null}
           </>
         }
       />

@@ -17,9 +17,8 @@ export function useAboutCodeProfile(): {
   profile: AboutCodeProfile;
   code: string;
   terminalLines: TerminalLine[];
-  loading: boolean;
 } {
-  const { settings, loading: settingsLoading } = useSiteSettingsMap();
+  const { settings } = useSiteSettingsMap();
 
   const profile = useMemo<AboutCodeProfile>(() => {
     return {
@@ -42,6 +41,5 @@ export function useAboutCodeProfile(): {
     profile,
     code,
     terminalLines,
-    loading: settingsLoading,
   };
 }

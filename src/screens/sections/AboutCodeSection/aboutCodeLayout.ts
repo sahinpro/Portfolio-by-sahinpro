@@ -1,6 +1,6 @@
-/** Grows with code/terminal content; scrolls only past viewport cap on desktop. */
+/** Fixed-height preview; clip overflow so the pane never steals page wheel scroll. */
 export const aboutCodePaneClass =
-  "about-code-pane w-full overflow-x-hidden h-[470px] max-md:overflow-y-hidden md:overflow-y-auto md:overscroll-contain";
+  "about-code-pane w-full overflow-x-clip overflow-y-clip h-[470px]";
 
 /** Lets vertical swipes reach the page on mobile instead of trapping in the pane. */
 export const aboutCodePanePassScrollClass =

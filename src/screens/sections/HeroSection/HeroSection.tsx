@@ -1,15 +1,8 @@
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
 import { editorItem, heroContainer } from "@/constants/scrollMotion";
-import { AboutCodePlaceholder } from "@/screens/sections/AboutCodeSection";
+import { AboutCodeWindow } from "@/screens/sections/AboutCodeSection";
 import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
 import { motion, useReducedMotion } from "framer-motion";
-import { Suspense, lazy } from "react";
-
-const AboutCodeWindow = lazy(() =>
-  import("@/screens/sections/AboutCodeSection/AboutCodeWindow").then((m) => ({
-    default: m.AboutCodeWindow,
-  })),
-);
 
 export const HeroSection = (): JSX.Element => {
   const shouldReduceMotion = useReducedMotion();
@@ -37,9 +30,7 @@ export const HeroSection = (): JSX.Element => {
             variants={editorItem}
             className="order-2 relative z-0 w-full min-w-0 lg:w-1/2 aspect-video max-lg:pointer-events-none max-lg:select-none max-lg:origin-top max-lg:scale-[0.98]"
           >
-            <Suspense fallback={<AboutCodePlaceholder className="w-full" />}>
-              <AboutCodeWindow startOnMount />
-            </Suspense>
+            <AboutCodeWindow startOnMount />
           </motion.div>
         </div>
       </div>
