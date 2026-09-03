@@ -75,18 +75,8 @@ export const SkillsSection = (): JSX.Element => {
         </motion.div>
         <motion.div variants={fadeInUp} className={sectionContentClass}>
           <MagicBento
-            textAutoHide={true}
-            enableStars={false}
-            enableSpotlight={false}
-            enableBorderGlow={false}
-            enableLiquidBorder={true}
-            glowColor="149, 0, 255"
-            enableTilt={false}
-            enableMagnetism={false}
-            clickEffect={false}
-            spotlightRadius={200}
-            particleCount={0}
-            disableAnimations={true}
+            textAutoHide
+            enableLiquidBorder
             cards={skillsCards}
           />
         </motion.div>
