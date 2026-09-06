@@ -5,11 +5,13 @@ import { useEffect, useRef, useState } from "react";
 
 type State<T> = { data: T | null; error: Error | null; loading: boolean };
 
-type UsePublicDataOptions = {
+type UsePublicDataOptions<T> = {
   /** Wait until idle before fetching (keeps Supabase off the critical path). */
   deferMs?: number;
   /** When false, skip fetching entirely. */
   enabled?: boolean;
+  /** SSR payload so crawlers see content before the client fetch. */
+  initialData?: T | null;
 };
 
 /**
@@ -19,16 +21,17 @@ type UsePublicDataOptions = {
 export function usePublicData<T>(
   cacheKey: string,
   fetcher: () => Promise<T>,
-  options?: UsePublicDataOptions,
+  options?: UsePublicDataOptions<T>,
 ): State<T> {
   const enabled = options?.enabled !== false;
   const deferMs = options?.deferMs;
+  const initialData = options?.initialData ?? null;
   const cacheVersion = usePublicCacheVersion();
   const [ready, setReady] = useState(!deferMs);
   const [state, setState] = useState<State<T>>({
-    data: null,
+    data: initialData,
     error: null,
-    loading: enabled && !deferMs,
+    loading: enabled && !deferMs && initialData == null,
   });
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
@@ -40,23 +43,23 @@ export function usePublicData<T>(
 
   useEffect(() => {
     if (!enabled || !ready) {
-      setState({ data: null, error: null, loading: false });
+      setState((s) => ({ ...s, loading: false }));
       return;
     }
 
     let cancelled = false;
-    setState((s) => ({ ...s, loading: true }));
+    setState((s) => ({ ...s, loading: s.data == null }));
     getCachedPublic(cacheKey, () => fetcherRef.current())
       .then((data) => {
         if (!cancelled) setState({ data, error: null, loading: false });
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setState({
-            data: null,
+          setState((s) => ({
+            data: s.data,
             error: err instanceof Error ? err : new Error(String(err)),
             loading: false,
-          });
+          }));
         }
       });
     return () => {

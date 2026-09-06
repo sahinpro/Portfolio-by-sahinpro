@@ -26,7 +26,7 @@ export const CareerJourneyPanel = ({
     {showImage ? (
       <div className="lg:w-1/3 w-full flex flex-col items-center justify-center ">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 1, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={scrollViewport}
           transition={{ duration: 0.6, ease: sectionEase }}

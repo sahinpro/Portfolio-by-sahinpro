@@ -1,5 +1,6 @@
 "use client";
 
+import type { ProjectRow } from "@/admin/types/database";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
@@ -18,7 +19,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 export type { PublicProject as Project } from "@/data/projectUiMapper";
 
 const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 1, y: 24 },
   visible: {
     opacity: 1,
     y: 0,
@@ -26,8 +27,12 @@ const fadeUp = (delay = 0) => ({
   },
 });
 
-export const ProjectsPage = (): JSX.Element => {
-  const { projects, loading, error } = usePublishedProjects();
+export const ProjectsPage = ({
+  initialProjects = [],
+}: {
+  initialProjects?: ProjectRow[];
+}): JSX.Element => {
+  const { projects, loading, error } = usePublishedProjects(initialProjects);
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);

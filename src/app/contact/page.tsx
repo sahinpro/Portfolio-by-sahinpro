@@ -1,9 +1,8 @@
 import { ContactPage } from "@/views/ContactPage";
-import { buildPublicMetadata } from "@/lib/metadata";
+import { buildPageMetadata } from "@/lib/metadata";
 
-export async function generateMetadata() {
-  return buildPublicMetadata("/contact", "/contact");
-}
+export const metadata = buildPageMetadata("/contact", "/contact");
+export const revalidate = 3600;
 
 export default function Page() {
   return <ContactPage />;

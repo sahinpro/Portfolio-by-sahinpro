@@ -19,5 +19,8 @@ export function absoluteUrl(pathOrUrl: string): string {
 
 export function canonicalPath(pathname: string, search = ""): string {
   const path = pathname.replace(/\/$/, "") || "/";
+  if (path === "/") {
+    return `${getSiteUrl()}/${search}`;
+  }
   return absoluteUrl(`${path}${search}`);
 }

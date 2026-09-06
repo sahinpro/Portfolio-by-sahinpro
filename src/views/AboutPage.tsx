@@ -89,7 +89,7 @@ const highlights: {
 ];
 
 const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 1, y: 24 },
   visible: {
     opacity: 1,
     y: 0,
@@ -97,7 +97,7 @@ const fadeUp = (delay = 0) => ({
   },
 });
 const fadeIn = (delay = 0) => ({
-  hidden: { opacity: 0 },
+  hidden: { opacity: 1 },
   visible: { opacity: 1, transition: { duration: 0.5, delay } },
 });
 
@@ -109,7 +109,7 @@ const heroStagger = {
 };
 
 const fadeStep = {
-  hidden: { opacity: 0, y: 22 },
+  hidden: { opacity: 1, y: 22 },
   visible: {
     opacity: 1,
     y: 0,

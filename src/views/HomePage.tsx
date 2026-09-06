@@ -1,11 +1,11 @@
 "use client";
 
+import type { ProjectRow } from "@/admin/types/database";
 import Header from "@/components/Header";
 import { FeaturedProjectsSectionSkeleton } from "@/screens/sections/FeaturedProjectsSection/FeaturedProjectsSectionSkeleton";
 import { HeroSection } from "@/screens/sections/HeroSection";
 import { StatsSection } from "@/screens/sections/StatsSection";
-import { deferAfterPaint } from "@/lib/deferUntilIdle";
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy } from "react";
 
 const FeaturedProjectsSection = lazy(() =>
   import("@/screens/sections/FeaturedProjectsSection/FeaturedProjectsSection").then(
@@ -77,17 +77,11 @@ const FooterSection = lazy(() =>
   })),
 );
 
-function useAfterPaint(timeoutMs = 400): boolean {
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => deferAfterPaint(() => setReady(true), timeoutMs), [timeoutMs]);
-
-  return ready;
-}
-
-export const HomePage = (): JSX.Element => {
-  const belowFoldReady = useAfterPaint();
-
+export const HomePage = ({
+  initialProjects = [],
+}: {
+  initialProjects?: ProjectRow[];
+}): JSX.Element => {
   return (
     <main
       id="main-content"
@@ -99,36 +93,32 @@ export const HomePage = (): JSX.Element => {
       </div>
       <StatsSection />
       <Suspense fallback={<FeaturedProjectsSectionSkeleton />}>
-        <FeaturedProjectsSection />
+        <FeaturedProjectsSection initialProjects={initialProjects} />
       </Suspense>
-      {belowFoldReady ? (
-        <>
-          <Suspense fallback={<div className="w-full min-h-[600px]" aria-hidden />}>
-            <SkillsSection />
-          </Suspense>
-          <Suspense fallback={<div className="w-full min-h-[420px]" aria-hidden />}>
-            <TechStackSection />
-          </Suspense>
-          <Suspense fallback={<div className="w-full min-h-[500px]" aria-hidden />}>
-            <CareerJourneySection />
-          </Suspense>
-          <Suspense fallback={<div className="w-full min-h-[400px]" aria-hidden />}>
-            <DevelopmentProcessSection />
-          </Suspense>
-          <Suspense fallback={<div className="w-full min-h-[480px]" aria-hidden />}>
-            <WhyChooseUsSection />
-          </Suspense>
-          <Suspense fallback={<div className="w-full min-h-[400px]" aria-hidden />}>
-            <FAQSection />
-          </Suspense>
-          <Suspense fallback={<div className="w-full min-h-[320px]" aria-hidden />}>
-            <GetStartedSection />
-          </Suspense>
-          <Suspense fallback={<div className="w-full min-h-[280px]" aria-hidden />}>
-            <FooterSection />
-          </Suspense>
-        </>
-      ) : null}
+      <Suspense fallback={<div className="w-full min-h-[600px]" aria-hidden />}>
+        <SkillsSection />
+      </Suspense>
+      <Suspense fallback={<div className="w-full min-h-[420px]" aria-hidden />}>
+        <TechStackSection />
+      </Suspense>
+      <Suspense fallback={<div className="w-full min-h-[500px]" aria-hidden />}>
+        <CareerJourneySection />
+      </Suspense>
+      <Suspense fallback={<div className="w-full min-h-[400px]" aria-hidden />}>
+        <DevelopmentProcessSection />
+      </Suspense>
+      <Suspense fallback={<div className="w-full min-h-[480px]" aria-hidden />}>
+        <WhyChooseUsSection />
+      </Suspense>
+      <Suspense fallback={<div className="w-full min-h-[400px]" aria-hidden />}>
+        <FAQSection />
+      </Suspense>
+      <Suspense fallback={<div className="w-full min-h-[320px]" aria-hidden />}>
+        <GetStartedSection />
+      </Suspense>
+      <Suspense fallback={<div className="w-full min-h-[280px]" aria-hidden />}>
+        <FooterSection />
+      </Suspense>
     </main>
   );
 };

@@ -18,8 +18,12 @@ export const sectionReveal = {
   },
 };
 
+/**
+ * Keep copy opaque in the SSR HTML. Google treats opacity:0 as hidden content
+ * and Search Console can report "Page indexed without content".
+ */
 export const fadeInUp = {
-  hidden: { opacity: 0, y: 22 },
+  hidden: { opacity: 1, y: 22 },
   visible: {
     opacity: 1,
     y: 0,
@@ -28,7 +32,7 @@ export const fadeInUp = {
 };
 
 export const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 1, y: 24 },
   visible: {
     opacity: 1,
     y: 0,
@@ -62,7 +66,7 @@ export const heroCopyColumn = {
 
 export const heroItem = {
   hidden: {
-    opacity: 0,
+    opacity: 1,
     y: 24,
   },
   visible: {
@@ -77,7 +81,7 @@ export const heroItem = {
 
 /** Editor: short fade, not gated on the copy sequence */
 export const editorItem = {
-  hidden: { opacity: 0 },
+  hidden: { opacity: 1 },
   visible: {
     opacity: 1,
     transition: {
@@ -133,7 +137,7 @@ export const socialLinkStagger = (delay = 0) => ({
 });
 
 export const socialLinkFade = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 1, y: 12 },
   visible: {
     opacity: 1,
     y: 0,

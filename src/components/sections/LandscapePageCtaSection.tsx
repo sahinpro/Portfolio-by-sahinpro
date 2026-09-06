@@ -7,7 +7,7 @@ import { useRef } from "react";
 export const CTA_BACKGROUND_IMAGE = "/bgcta.avif";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 1, y: 24 },
   visible: {
     opacity: 1,
     y: 0,

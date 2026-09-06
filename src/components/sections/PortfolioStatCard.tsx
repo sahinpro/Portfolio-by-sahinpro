@@ -6,7 +6,7 @@ import { useRef } from "react";
 import { useStatCountUp } from "./useStatCountUp";
 
 const statCardVariants = {
-  hidden: { opacity: 0, y: 28, scale: 0.94 },
+  hidden: { opacity: 1, y: 28, scale: 0.94 },
   visible: {
     opacity: 1,
     y: 0,
@@ -41,11 +41,11 @@ export const PortfolioStatCard = ({
     >
       <motion.div
         className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center"
-        initial={staticCard ? false : { scale: 0.85, opacity: 0 }}
+        initial={staticCard ? false : { scale: 0.85, opacity: 1 }}
         animate={
           staticCard || inView
             ? { scale: 1, opacity: 1 }
-            : { scale: 0.85, opacity: 0 }
+            : { scale: 0.85, opacity: 1 }
         }
         transition={{ duration: 0.4, delay: 0.15, ease: sectionEase }}
       >

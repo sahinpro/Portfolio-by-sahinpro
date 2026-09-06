@@ -147,8 +147,8 @@ const CountrySelect = ({
             (() => {
               const Flag = flags[selected.value];
               return Flag ? (
-                <span className="flex h-5 w-6 shrink-0 overflow-hidden rounded-sm">
-                  <Flag title={selected.label} />
+                <span className="flex h-5 w-6 shrink-0 overflow-hidden rounded-sm" aria-hidden>
+                  <Flag title="" />
                 </span>
               ) : null;
             })()}
@@ -213,8 +213,8 @@ const CountrySelect = ({
                   onClick={() => option.value && handleSelect(option.value)}
                 >
                   {Flag ? (
-                    <span className="flex h-5 w-6 shrink-0 overflow-hidden rounded-sm place-self-center">
-                      <Flag title={option.label} />
+                    <span className="flex h-5 w-6 shrink-0 overflow-hidden rounded-sm place-self-center" aria-hidden>
+                      <Flag title="" />
                     </span>
                   ) : (
                     <span className="w-6" />
@@ -242,11 +242,11 @@ const CountrySelect = ({
   );
 };
 
-const FlagComponent = ({ country, countryName }: RPNInput.FlagProps) => {
+const FlagComponent = ({ country }: RPNInput.FlagProps) => {
   const Flag = flags[country];
   return (
-    <span className="flex h-4 w-4 overflow-hidden rounded-sm">
-      {Flag && <Flag title={countryName} />}
+    <span className="flex h-4 w-4 overflow-hidden rounded-sm" aria-hidden>
+      {Flag && <Flag title="" />}
     </span>
   );
 };

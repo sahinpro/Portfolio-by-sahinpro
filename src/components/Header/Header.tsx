@@ -54,11 +54,7 @@ const Header = () => {
 
         <div className="px-0 lg:px-1 rounded-2xl w-full relative z-[100] ">
           <div className="flex items-center justify-between h-[55px] lg:h-16 w-full">
-            <div
-              className={`transition-opacity duration-500 ease-out delay-100 ${
-                mounted ? "opacity-100" : "opacity-0"
-              }`}
-            >
+            <div className="transition-opacity duration-500 ease-out delay-100 opacity-100">
               <HeaderLogo />
             </div>
 

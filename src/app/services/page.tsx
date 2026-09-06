@@ -1,9 +1,8 @@
 import { ServicesPage } from "@/views/ServicesPage";
-import { buildPublicMetadata } from "@/lib/metadata";
+import { buildPageMetadata } from "@/lib/metadata";
 
-export async function generateMetadata() {
-  return buildPublicMetadata("/services", "/services");
-}
+export const metadata = buildPageMetadata("/services", "/services");
+export const revalidate = 3600;
 
 export default function Page() {
   return <ServicesPage />;

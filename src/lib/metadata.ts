@@ -1,10 +1,8 @@
 import { PROFILE } from "@/constants/profile";
 import { canonicalPath, getSiteUrl } from "@/constants/site";
-import { fetchSiteSettingsMap } from "@/data/publicSupabase.server";
 import { resolveOgImageUrl, ogImageMimeType } from "@/lib/resolveOgImage";
 import { OG_IMAGE } from "@/lib/seoImages";
 import { getSeoForPath } from "@/lib/seoPageDefaults";
-import { isComingSoonEnabled } from "@/lib/siteMode";
 import type { Metadata } from "next";
 
 const SITE = PROFILE.name;
@@ -60,21 +58,15 @@ function baseTwitter(
   };
 }
 
-export async function buildPublicMetadata(
+/**
+ * Public SEO tags. Kept synchronous so Next.js emits title/canonical/robots in
+ * the initial `<head>` — async generateMetadata streams them after `</head>`,
+ * which is why Search Console reported "User-declared canonical: None".
+ */
+export function buildPageMetadata(
   pagePath: string,
   pathname = pagePath,
-): Promise<Metadata> {
-  const settings = await fetchSiteSettingsMap();
-  if (isComingSoonEnabled(settings)) {
-    return comingSoonMetadata;
-  }
-  return buildPageMetadata(pagePath, pathname);
-}
-
-export async function buildPageMetadata(
-  pagePath: string,
-  pathname = pagePath,
-): Promise<Metadata> {
+): Metadata {
   const seo = getSeoForPath(pagePath);
   const title = seo.meta_title;
   const description = seo.meta_description;
@@ -90,9 +82,13 @@ export async function buildPageMetadata(
     robots: {
       index: true,
       follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
     },
     alternates: {
       canonical,
@@ -103,6 +99,14 @@ export async function buildPageMetadata(
     openGraph: baseOpenGraph(title, description, canonical, ogImage),
     twitter: baseTwitter(title, description, canonical, ogImage),
   };
+}
+
+/** @deprecated Use buildPageMetadata — kept so existing imports keep working. */
+export function buildPublicMetadata(
+  pagePath: string,
+  pathname = pagePath,
+): Metadata {
+  return buildPageMetadata(pagePath, pathname);
 }
 
 export const adminMetadata: Metadata = {

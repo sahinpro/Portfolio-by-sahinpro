@@ -8,7 +8,7 @@ const SYLHET_X = 1493;
 const SYLHET_Y = 343;
 
 const mapReveal = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 1, y: 24 },
   visible: {
     opacity: 1,
     y: 0,

@@ -15,7 +15,7 @@ export const CareerTimelineList = ({
       return (
         <motion.div
           key={item.year}
-          initial={{ opacity: 0, x: 12 }}
+          initial={{ opacity: 1, x: 12 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={scrollViewport}
           transition={{

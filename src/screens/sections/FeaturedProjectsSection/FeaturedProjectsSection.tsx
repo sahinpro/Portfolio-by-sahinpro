@@ -1,3 +1,5 @@
+"use client";
+
 import { CTAButton } from "@/components/common/CTAButton";
 import { FeaturedProjectCard } from "@/components/projects/FeaturedProjectCard";
 import { FeaturedProjectsSectionSkeleton } from "@/screens/sections/FeaturedProjectsSection/FeaturedProjectsSectionSkeleton";
@@ -12,6 +14,7 @@ import {
   scrollViewport,
   sectionReveal,
 } from "@/constants/scrollMotion";
+import type { ProjectRow } from "@/admin/types/database";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import { sortProjectsByUpdatedDesc } from "@/lib/projectSort";
 import { motion } from "framer-motion";
@@ -19,8 +22,12 @@ import { useMemo } from "react";
 
 const HOMEPAGE_FEATURED_LIMIT = 3;
 
-export const FeaturedProjectsSection = (): JSX.Element | null => {
-  const { projects, loading } = usePublishedProjects();
+export const FeaturedProjectsSection = ({
+  initialProjects = [],
+}: {
+  initialProjects?: ProjectRow[];
+}): JSX.Element | null => {
+  const { projects, loading } = usePublishedProjects(initialProjects);
 
   const featuredProjects = useMemo(
     () =>

@@ -21,7 +21,7 @@ export function TechStackGitTree({
         {groups.map((group, index) => (
           <motion.div
             key={group.title}
-            initial={{ opacity: 0, x: -8 }}
+            initial={{ opacity: 1, x: -8 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={scrollViewport}
             transition={{
