@@ -8,11 +8,11 @@ const SYLHET_X = 1493;
 const SYLHET_Y = 343;
 
 const mapReveal = {
-  hidden: { opacity: 1, y: 24 },
+  hidden: { opacity: 1, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.55, ease: [0.37, 0.04, 0.29, 1.01] as const },
+    transition: { duration: 0.35, ease: [0.37, 0.04, 0.29, 1.01] as const },
   },
 };
 

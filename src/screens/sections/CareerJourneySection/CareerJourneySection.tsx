@@ -33,9 +33,9 @@ export const CareerJourneySection = (): JSX.Element => {
           />
         </motion.div>
 
-        <motion.div variants={fadeInUp} className={sectionContentClass}>
+        <div className={sectionContentClass}>
           <CareerJourneyPanel entries={careerTimeline} />
-        </motion.div>
+        </div>
       </motion.div>
     </SectionShell>
   );

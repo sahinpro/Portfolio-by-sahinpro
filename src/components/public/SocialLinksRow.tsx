@@ -44,9 +44,9 @@ const sizeClasses: Record<
 };
 
 const defaultDelays: Record<Size, number> = {
-  hero: 0.92,
-  footer: 0.08,
-  contact: 0.42,
+  hero: 0,
+  footer: 0,
+  contact: 0,
 };
 
 export function SocialLinksRow({

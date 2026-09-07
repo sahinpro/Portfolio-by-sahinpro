@@ -1,5 +1,5 @@
 import { PublicImage } from "@/components/ui/PublicImage";
-import { scrollViewport, sectionEase } from "@/constants/scrollMotion";
+import { fadeInUp, scrollViewport } from "@/constants/scrollMotion";
 import { PROFILE_PORTRAIT } from "@/lib/seoImages";
 import type { TimelineEntry } from "@/screens/sections/CareerJourneySection/careerJourneyData";
 import { motion } from "framer-motion";
@@ -19,18 +19,18 @@ export const CareerJourneyPanel = ({
   <div
     className={
       showImage
-        ? "w-full flex flex-col lg:flex-row gap-10 lg:gap-14 items-center"
+        ? "w-full flex flex-col lg:flex-row gap-10 lg:gap-14 items-center lg:items-start"
         : "w-full"
     }
   >
     {showImage ? (
-      <div className="lg:w-1/3 w-full flex flex-col items-center justify-center ">
+      <div className="lg:w-1/3 w-full flex flex-col items-center justify-center lg:sticky lg:top-28">
         <motion.div
-          initial={{ opacity: 1, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial="hidden"
+          whileInView="visible"
           viewport={scrollViewport}
-          transition={{ duration: 0.6, ease: sectionEase }}
-          className="relative w-full"
+          variants={fadeInUp}
+          className="relative w-full max-w-sm lg:max-w-none"
         >
           <div
             className="pointer-events-none absolute -inset-4 rounded-full  blur-2xl"

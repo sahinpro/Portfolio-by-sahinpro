@@ -6,12 +6,12 @@ import { useRef } from "react";
 import { useStatCountUp } from "./useStatCountUp";
 
 const statCardVariants = {
-  hidden: { opacity: 1, y: 28, scale: 0.94 },
+  hidden: { opacity: 1, y: 16, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.55, ease: sectionEase },
+    transition: { duration: 0.35, ease: sectionEase },
   },
 };
 
@@ -47,7 +47,7 @@ export const PortfolioStatCard = ({
             ? { scale: 1, opacity: 1 }
             : { scale: 0.85, opacity: 1 }
         }
-        transition={{ duration: 0.4, delay: 0.15, ease: sectionEase }}
+        transition={{ duration: 0.35, delay: 0, ease: sectionEase }}
       >
         <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white/80" />
       </motion.div>

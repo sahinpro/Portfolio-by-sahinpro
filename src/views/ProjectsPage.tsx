@@ -3,6 +3,7 @@
 import type { ProjectRow } from "@/admin/types/database";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
+import { pageHeroItem, pageHeroReveal } from "@/constants/scrollMotion";
 import { usePublishedProjects } from "@/hooks/usePublishedProjects";
 import { sortProjectsByUpdatedDesc } from "@/lib/projectSort";
 import { FooterSection } from "@/screens/sections/FooterSection";
@@ -17,15 +18,6 @@ import { Layers, Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export type { PublicProject as Project } from "@/data/projectUiMapper";
-
-const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 1, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, delay, ease: [0.37, 0.04, 0.29, 1.01] },
-  },
-});
 
 export const ProjectsPage = ({
   initialProjects = [],
@@ -127,8 +119,13 @@ export const ProjectsPage = ({
           bg-gradient-to-b from-blue-600/8 via-violet-600/5 to-transparent rounded-full blur-3xl"
           />
 
-          <div className="container mx-auto px-4">
-            <motion.div initial="hidden" animate="visible" variants={fadeUp(0)}>
+          <motion.div
+            className="container mx-auto px-4"
+            initial="hidden"
+            animate="visible"
+            variants={pageHeroReveal}
+          >
+            <motion.div variants={pageHeroItem}>
               <span
                 className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
               tracking-widest uppercase bg-white/5 border border-white/10 text-white/50 mb-4"
@@ -139,18 +136,14 @@ export const ProjectsPage = ({
             </motion.div>
 
             <motion.h1
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp(0.05)}
+              variants={pageHeroItem}
               className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4"
             >
               My Projects
             </motion.h1>
 
             <motion.p
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp(0.1)}
+              variants={pageHeroItem}
               className="text-lg text-white/50 max-w-xl mb-10"
             >
               A curated selection of work from full-stack applications to
@@ -158,9 +151,7 @@ export const ProjectsPage = ({
             </motion.p>
 
             <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp(0.15)}
+              variants={pageHeroItem}
               className="flex flex-col sm:flex-row gap-3"
             >
               <div className="flex flex-wrap gap-2">
@@ -198,7 +189,7 @@ export const ProjectsPage = ({
                 />
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         </section>
 
         {sortedProjects.length > 0 && (

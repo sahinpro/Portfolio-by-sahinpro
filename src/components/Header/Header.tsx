@@ -29,7 +29,7 @@ const Header = () => {
   return (
     <header
       role="banner"
-      className={`fixed font-sans after:content-[''] after:absolute after:inset-x-0 after:top-0 after:bottom-0 after:bg-gradient-to-b after:from-[#050505] after:to-transparent container mx-auto top-0 left-0 right-0 z-50 flex justify-center pt-6 sm:pt-10 px-4 rounded-xl transition-opacity duration-500 ease-out ${
+      className={`fixed font-sans after:content-[''] after:absolute after:inset-x-0 after:top-0 after:bottom-0 after:bg-gradient-to-b after:from-[#050505] after:to-transparent container mx-auto top-0 left-0 right-0 z-50 flex justify-center pt-6 sm:pt-10 px-4 rounded-xl transition-[opacity,transform] duration-300 ease-out ${
         mounted ? "opacity-100 translate-y-0" : "opacity-100 -translate-y-5"
       }`}
     >
@@ -54,7 +54,7 @@ const Header = () => {
 
         <div className="px-0 lg:px-1 rounded-2xl w-full relative z-[100] ">
           <div className="flex items-center justify-between h-[55px] lg:h-16 w-full">
-            <div className="transition-opacity duration-500 ease-out delay-100 opacity-100">
+            <div className="opacity-100">
               <HeaderLogo />
             </div>
 
@@ -67,7 +67,7 @@ const Header = () => {
 
             <div className="flex items-center space-x-4 m-0">
               <div
-                className={`transition-all duration-400 ease-out delay-[400ms] ${
+                className={`transition-all duration-300 ease-out ${
                   mounted
                     ? "opacity-100 translate-x-0"
                     : "opacity-0 translate-x-5"
@@ -83,7 +83,7 @@ const Header = () => {
               </div>
 
               <div
-                className={`lg:hidden transition-all duration-400 ease-out delay-[480ms] ${
+                className={`lg:hidden transition-all duration-300 ease-out ${
                   mounted ? "opacity-100 scale-100" : "opacity-0 scale-90"
                 }`}
               >

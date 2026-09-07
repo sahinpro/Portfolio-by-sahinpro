@@ -2,7 +2,7 @@
 
 import { ProjectCardTeaser } from "@/components/projects/ProjectCardTeaser";
 import { ProjectMorphHero } from "@/components/projects/ProjectMorphHero";
-import { scrollViewport } from "@/constants/scrollMotion";
+import { fadeUp, itemStagger, scrollViewport } from "@/constants/scrollMotion";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { projectCategoryLine } from "@/lib/projectMeta";
@@ -27,15 +27,6 @@ import {
   type MouseEvent as ReactMouseEvent,
 } from "react";
 import { createPortal } from "react-dom";
-
-const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 1, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, delay, ease: [0.37, 0.04, 0.29, 1.01] },
-  },
-});
 
 export interface ProjectCardProps {
   project: PublicProjectDetail;
@@ -235,7 +226,7 @@ export const ProjectCard = ({
       initial="hidden"
       whileInView="visible"
       viewport={scrollViewport}
-      variants={fadeUp(index * 0.08)}
+      variants={fadeUp(index * itemStagger)}
     >
       {card}
     </motion.div>

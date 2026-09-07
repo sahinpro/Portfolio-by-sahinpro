@@ -1,19 +1,10 @@
 import { PublicImage } from "@/components/ui/PublicImage";
-import { scrollViewport } from "@/constants/scrollMotion";
+import { fadeInUp, scrollViewport } from "@/constants/scrollMotion";
 import { motion, useInView } from "framer-motion";
 import type { ReactNode } from "react";
 import { useRef } from "react";
 
 export const CTA_BACKGROUND_IMAGE = "/bgcta.avif";
-
-const fadeUp = {
-  hidden: { opacity: 1, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.37, 0.04, 0.29, 1.01] },
-  },
-};
 
 export type LandscapePageCtaSectionProps = {
   title: string;
@@ -41,7 +32,7 @@ export const LandscapePageCtaSection = ({
         ref={ref}
         initial="hidden"
         animate={inView ? "visible" : "hidden"}
-        variants={fadeUp}
+        variants={fadeInUp}
         className="container mx-auto px-4"
       >
         <div

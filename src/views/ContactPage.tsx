@@ -8,7 +8,13 @@ import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { Textarea } from "@/components/ui/textarea";
 import { PROFILE } from "@/constants/profile";
-import { scrollViewport } from "@/constants/scrollMotion";
+import {
+  fadeInUp,
+  pageHeroItem,
+  pageHeroReveal,
+  scrollViewport,
+  sectionReveal,
+} from "@/constants/scrollMotion";
 import { env } from "@/lib/env";
 import { loadCalendly } from "@/lib/loadCalendly";
 import { submitContactForm } from "@/lib/submitContact";
@@ -133,15 +139,6 @@ const faqs = [
   },
 ];
 
-const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 1, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, delay, ease: [0.37, 0.04, 0.29, 1.01] },
-  },
-});
-
 export const ContactPage = (): JSX.Element => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -160,12 +157,10 @@ export const ContactPage = (): JSX.Element => {
 
   const turnstileSiteKey = env.turnstileSiteKey || undefined;
 
-  const headerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const faqRef = useRef<HTMLDivElement>(null);
 
-  const headerInV = useInView(headerRef, scrollViewport);
   const formInV = useInView(formRef, scrollViewport);
   const infoInV = useInView(infoRef, scrollViewport);
   const faqInV = useInView(faqRef, scrollViewport);
@@ -280,9 +275,7 @@ export const ContactPage = (): JSX.Element => {
   const renderFaqItem = (faq: (typeof faqs)[number], i: number) => (
     <motion.div
       key={faq.q}
-      initial="hidden"
-      animate={faqInV ? "visible" : "hidden"}
-      variants={fadeUp(i * 0.08)}
+      variants={fadeInUp}
       className="rounded-xl border border-white/[0.07] bg-white/[0.02] overflow-hidden"
     >
       <button
@@ -322,22 +315,20 @@ export const ContactPage = (): JSX.Element => {
       <Header />
 
       <section className="w-full pt-28 sm:pt-36 lg:pt-40 pb-10 sm:pb-16 relative overflow-hidden">
-        <ContactHeroMap visible={headerInV} />
+        <ContactHeroMap visible />
 
         <div
           className="pointer-events-none absolute -top-20 right-1/4 w-[600px] h-[400px]
           bg-gradient-to-b from-violet-600/8 to-transparent rounded-full blur-3xl"
         />
 
-        <div
-          ref={headerRef}
+        <motion.div
           className="container relative z-10 mx-auto max-w-full px-4 text-center"
+          initial="hidden"
+          animate="visible"
+          variants={pageHeroReveal}
         >
-          <motion.div
-            initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
-            variants={fadeUp(0)}
-          >
+          <motion.div variants={pageHeroItem}>
             <span
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
               tracking-widest uppercase bg-white/5 border border-white/10 text-white/50 mb-4"
@@ -348,9 +339,7 @@ export const ContactPage = (): JSX.Element => {
           </motion.div>
 
           <motion.h1
-            initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
-            variants={fadeUp(0.05)}
+            variants={pageHeroItem}
             className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mb-3 sm:mb-4"
           >
             Let's build something{" "}
@@ -358,9 +347,7 @@ export const ContactPage = (): JSX.Element => {
           </motion.h1>
 
           <motion.p
-            initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
-            variants={fadeUp(0.1)}
+            variants={pageHeroItem}
             className="text-base sm:text-lg text-white/50 max-w-lg mx-auto mb-6 sm:mb-8 px-1"
           >
             Have a project in mind? Tell me about it I typically respond within
@@ -368,9 +355,7 @@ export const ContactPage = (): JSX.Element => {
           </motion.p>
 
           <motion.div
-            initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
-            variants={fadeUp(0.15)}
+            variants={pageHeroItem}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full
               bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium"
           >
@@ -380,7 +365,7 @@ export const ContactPage = (): JSX.Element => {
             </span>
             Available for new projects
           </motion.div>
-        </div>
+        </motion.div>
       </section>
 
       <section className="container mx-auto px-3 lg:px-4 pb-16 sm:pb-24">
@@ -391,7 +376,7 @@ export const ContactPage = (): JSX.Element => {
             ref={formRef}
             initial="hidden"
             animate={formInV ? "visible" : "hidden"}
-            variants={fadeUp(0)}
+            variants={fadeInUp}
             className="min-w-0"
           >
             <div
@@ -585,20 +570,18 @@ export const ContactPage = (): JSX.Element => {
             ref={infoRef}
             initial="hidden"
             animate={infoInV ? "visible" : "hidden"}
-            variants={fadeUp(0.1)}
+            variants={sectionReveal}
             className="space-y-4 sm:space-y-5 min-w-0 lg:max-w-[380px]"
           >
             {/* Contact methods */}
             <div className="space-y-4">
-              {contactInfo.map((info, i) => {
+              {contactInfo.map((info) => {
                 const Icon = info.icon as ComponentType<{ className?: string }>;
                 return (
                   <motion.a
                     key={info.title}
                     href={info.href}
-                    initial="hidden"
-                    animate={infoInV ? "visible" : "hidden"}
-                    variants={fadeUp(0.1 + i * 0.07)}
+                    variants={fadeInUp}
                     className={`flex items-start gap-3 p-3 rounded-xl border ${info.border}
                       bg-gradient-to-br from-white/[0.02] to-transparent
                       hover:border-white/20 hover:bg-white/[0.04] transition-all duration-200 group min-h-[44px] sm:min-h-0`}
@@ -625,9 +608,7 @@ export const ContactPage = (): JSX.Element => {
 
             {/* Response time card */}
             <motion.div
-              initial="hidden"
-              animate={infoInV ? "visible" : "hidden"}
-              variants={fadeUp(0.3)}
+              variants={fadeInUp}
               className="p-5 rounded-xl border border-white/[0.07] bg-white/[0.02]"
             >
               <div className="flex items-center gap-2 mb-3">
@@ -646,9 +627,7 @@ export const ContactPage = (): JSX.Element => {
             {/* Social links */}
             <div>
               <motion.p
-                initial="hidden"
-                animate={infoInV ? "visible" : "hidden"}
-                variants={fadeUp(0.35)}
+                variants={fadeInUp}
                 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-3"
               >
                 Find me online
@@ -658,9 +637,7 @@ export const ContactPage = (): JSX.Element => {
 
             {/* Quick actions */}
             <motion.div
-              initial="hidden"
-              animate={infoInV ? "visible" : "hidden"}
-              variants={fadeUp(0.4)}
+              variants={fadeInUp}
               className="p-5 rounded-xl border border-violet-500/20
                 bg-gradient-to-br from-violet-500/8 to-transparent"
             >
@@ -700,13 +677,14 @@ export const ContactPage = (): JSX.Element => {
       </section>
 
       <section className="w-full pb-28">
-        <div ref={faqRef} className="container mx-auto px-3 lg:px-4">
-          <motion.div
-            initial="hidden"
-            animate={faqInV ? "visible" : "hidden"}
-            variants={fadeUp(0)}
-            className="text-center mb-8"
-          >
+        <motion.div
+          ref={faqRef}
+          className="container mx-auto px-3 lg:px-4"
+          initial="hidden"
+          animate={faqInV ? "visible" : "hidden"}
+          variants={sectionReveal}
+        >
+          <motion.div variants={fadeInUp} className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white tracking-tight">
               Common questions
             </h2>
@@ -725,7 +703,7 @@ export const ContactPage = (): JSX.Element => {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       <FooterSection />

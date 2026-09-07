@@ -6,7 +6,7 @@ import {
   FollowerPointerCard,
 } from "@/components/ui/following-pointer";
 import { PublicImage } from "@/components/ui/PublicImage";
-import { scrollViewport } from "@/constants/scrollMotion";
+import { fadeUp, itemStagger, scrollViewport } from "@/constants/scrollMotion";
 import type { PublicProject } from "@/data/projectUiMapper";
 import { projectImageAlt } from "@/lib/seoImages";
 import { motion, useReducedMotion } from "framer-motion";
@@ -23,15 +23,6 @@ const categoryBadge: Record<string, string> = {
   Frontend: "bg-blue-500/20 text-blue-300 border-blue-500/30",
   CMS: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
 };
-
-const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 1, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, delay, ease: [0.37, 0.04, 0.29, 1.01] },
-  },
-});
 
 export interface FeaturedProjectCardProps {
   project: PublicProject;
@@ -189,7 +180,7 @@ export const FeaturedProjectCard = ({
       initial="hidden"
       whileInView="visible"
       viewport={scrollViewport}
-      variants={fadeUp(index * 0.1)}
+      variants={fadeUp(index * itemStagger)}
     >
       {followPointer ? (
         <FollowerPointerCard

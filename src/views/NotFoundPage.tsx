@@ -3,63 +3,18 @@
 import { CTAButton } from "@/components/common/CTAButton";
 import Header from "@/components/Header";
 import FuzzyText from "@/components/ui/FuzzyText";
+import {
+  fadeInUp,
+  pageHeroItem,
+  pageHeroReveal,
+} from "@/constants/scrollMotion";
 import { FooterSection } from "@/screens/sections/FooterSection";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { Home } from "lucide-react";
-import { useRef } from "react";
 import { useRouter } from "next/navigation";
 
 export const NotFoundPage = (): JSX.Element => {
   const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const messageRef = useRef<HTMLDivElement>(null);
-  const buttonsRef = useRef<HTMLDivElement>(null);
-
-  const containerInView = useInView(containerRef, {
-    once: true,
-    margin: "-10%",
-  });
-  const titleInView = useInView(titleRef, { once: true, margin: "-10%" });
-  const messageInView = useInView(messageRef, { once: true, margin: "-10%" });
-  const buttonsInView = useInView(buttonsRef, { once: true, margin: "-10%" });
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: [0.37, 0.04, 0.29, 1.01] },
-    },
-  };
-
-  const titleVariants = {
-    hidden: { opacity: 0, scale: 0.9, y: 20 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: { duration: 0.8, delay: 0.1, ease: [0.37, 0.04, 0.29, 1.01] },
-    },
-  };
-
-  const messageVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.7, delay: 0.3, ease: [0.37, 0.04, 0.29, 1.01] },
-    },
-  };
-
-  const buttonsVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.7, delay: 0.5, ease: [0.37, 0.04, 0.29, 1.01] },
-    },
-  };
 
   const handleGoHome = () => {
     router.push("/");
@@ -74,20 +29,12 @@ export const NotFoundPage = (): JSX.Element => {
       <Header />
       <div className="flex items-center justify-center w-full min-h-screen px-4 sm:px-6 lg:px-8 py-32">
         <motion.div
-          ref={containerRef}
           initial="hidden"
-          animate={containerInView ? "visible" : "hidden"}
-          variants={containerVariants}
+          animate="visible"
+          variants={pageHeroReveal}
           className="text-center space-y-8 max-w-2xl w-full"
         >
-          {/* Fuzzy 404 Text */}
-          <motion.div
-            ref={titleRef}
-            initial="hidden"
-            animate={titleInView ? "visible" : "hidden"}
-            variants={titleVariants}
-            className="mb-8"
-          >
+          <motion.div variants={pageHeroItem} className="mb-8">
             <FuzzyText
               baseIntensity={0.2}
               hoverIntensity={0.5}
@@ -98,14 +45,7 @@ export const NotFoundPage = (): JSX.Element => {
             </FuzzyText>
           </motion.div>
 
-          {/* Error Message */}
-          <motion.div
-            ref={messageRef}
-            initial="hidden"
-            animate={messageInView ? "visible" : "hidden"}
-            variants={messageVariants}
-            className="space-y-4"
-          >
+          <motion.div variants={pageHeroItem} className="space-y-4">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
               Page Not Found
             </h1>
@@ -115,12 +55,8 @@ export const NotFoundPage = (): JSX.Element => {
             </p>
           </motion.div>
 
-          {/* Action Buttons */}
           <motion.div
-            ref={buttonsRef}
-            initial="hidden"
-            animate={buttonsInView ? "visible" : "hidden"}
-            variants={buttonsVariants}
+            variants={fadeInUp}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
           >
             <CTAButton

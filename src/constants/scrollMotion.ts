@@ -1,19 +1,24 @@
-/** Public scroll entrances — `some` so tall sections reveal as they enter. */
+/** Public scroll entrances — fire as soon as any pixel is on screen. */
 export const scrollViewport = {
   once: true,
   amount: "some" as const,
-  margin: "0px 0px -8% 0px" as const,
+  margin: "0px" as const,
 } as const;
 
 export const sectionEase = [0.37, 0.04, 0.29, 1.01] as const;
+
+const heroEase = [0.22, 1, 0.36, 1] as const;
+
+/** 40ms between sibling items — starts with the parent, no extra wait. */
+export const itemStagger = 0.04;
 
 /** Parent: orchestrates direct children in sequence */
 export const sectionReveal = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.085,
-      delayChildren: 0.045,
+      staggerChildren: itemStagger,
+      delayChildren: 0,
     },
   },
 };
@@ -23,32 +28,43 @@ export const sectionReveal = {
  * and Search Console can report "Page indexed without content".
  */
 export const fadeInUp = {
-  hidden: { opacity: 1, y: 22 },
+  hidden: { opacity: 1, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3, ease: sectionEase },
+    transition: { duration: 0.35, ease: sectionEase },
   },
 };
 
 export const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 1, y: 24 },
+  hidden: { opacity: 1, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3, delay, ease: sectionEase },
+    transition: { duration: 0.35, delay, ease: sectionEase },
   },
 });
 
-const heroEase = [0.22, 1, 0.36, 1] as const;
+/** Above-the-fold page heroes — play on mount, aligned with first paint. */
+export const pageHeroReveal = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0,
+    },
+  },
+};
+
+export const pageHeroItem = fadeInUp;
 
 /** Home hero — single parent orchestrates copy then editor */
 export const heroContainer = {
   hidden: {},
   visible: {
     transition: {
-      delayChildren: 0.15,
-      staggerChildren: 0.18,
+      delayChildren: 0,
+      staggerChildren: 0.08,
     },
   },
 };
@@ -58,8 +74,8 @@ export const heroCopyColumn = {
   hidden: {},
   visible: {
     transition: {
-      delayChildren: 0.15,
-      staggerChildren: 0.18,
+      delayChildren: 0,
+      staggerChildren: 0.07,
     },
   },
 };
@@ -67,13 +83,13 @@ export const heroCopyColumn = {
 export const heroItem = {
   hidden: {
     opacity: 1,
-    y: 24,
+    y: 16,
   },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.65,
+      duration: 0.4,
       ease: heroEase,
     },
   },
@@ -85,8 +101,8 @@ export const editorItem = {
   visible: {
     opacity: 1,
     transition: {
-      duration: 0.4,
-      delay: 0.12,
+      duration: 0.35,
+      delay: 0,
       ease: heroEase,
     },
   },
@@ -101,17 +117,17 @@ export const heroCtaStagger = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.065,
-      delayChildren: 0.04,
+      staggerChildren: itemStagger,
+      delayChildren: 0,
     },
   },
 };
 
 export const heroTiming = {
-  socialLinksDelay: 0.92,
-  contactSocialDelay: 0.42,
-  socialIconStagger: 0.055,
-  codeEditorDelay: 0.12,
+  socialLinksDelay: 0,
+  contactSocialDelay: 0,
+  socialIconStagger: itemStagger,
+  codeEditorDelay: 0,
 } as const;
 
 export const heroCodeEditorReveal = editorItem;
@@ -137,10 +153,10 @@ export const socialLinkStagger = (delay = 0) => ({
 });
 
 export const socialLinkFade = {
-  hidden: { opacity: 1, y: 12 },
+  hidden: { opacity: 1, y: 8 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.48, ease: sectionEase },
+    transition: { duration: 0.32, ease: sectionEase },
   },
 };

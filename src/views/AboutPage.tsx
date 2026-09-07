@@ -14,6 +14,8 @@ import { PROFILE } from "@/constants/profile";
 import {
   fadeInUp,
   heroFadeStep,
+  pageHeroItem,
+  pageHeroReveal,
   scrollViewport,
   sectionReveal,
 } from "@/constants/scrollMotion";
@@ -26,7 +28,7 @@ import {
 } from "@/screens/sections/CareerJourneySection/careerJourneyData";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { portfolioStats } from "@/screens/sections/StatsSection/statsData";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
   Award,
@@ -40,7 +42,7 @@ import {
   Rocket,
   Zap,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 const highlights: {
   icon: LucideIcon;
@@ -88,35 +90,6 @@ const highlights: {
   },
 ];
 
-const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 1, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, delay, ease: [0.37, 0.04, 0.29, 1.01] },
-  },
-});
-const fadeIn = (delay = 0) => ({
-  hidden: { opacity: 1 },
-  visible: { opacity: 1, transition: { duration: 0.5, delay } },
-});
-
-const heroStagger = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.055, delayChildren: 0.04 },
-  },
-};
-
-const fadeStep = {
-  hidden: { opacity: 1, y: 22 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: [0.37, 0.04, 0.29, 1.01] },
-  },
-};
-
 export const AboutPage = (): JSX.Element => {
   const [copied, setCopied] = useState(false);
   const email = PROFILE.email;
@@ -126,11 +99,6 @@ export const AboutPage = (): JSX.Element => {
     downloading: resumeDownloading,
     error: resumeDownloadError,
   } = useResumeDownload();
-
-  const heroRef = useRef<HTMLDivElement>(null);
-  const highlightRef = useRef<HTMLDivElement>(null);
-  const heroInV = useInView(heroRef, scrollViewport);
-  const highlightInV = useInView(highlightRef, scrollViewport);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(email).then(() => {
@@ -158,16 +126,15 @@ export const AboutPage = (): JSX.Element => {
         />
 
         <motion.div
-          ref={heroRef}
           initial="hidden"
-          animate={heroInV ? "visible" : "hidden"}
-          variants={heroStagger}
+          animate="visible"
+          variants={pageHeroReveal}
           className="container mx-auto px-4"
         >
-          <div className="flex flex-col lg:flex-row items-center lg:justify-between gap-10 lg:gap-10">
+          <div className="flex flex-col lg:flex-row items-center lg:items-start lg:justify-between gap-10 lg:gap-10">
             <div className="flex-1 min-w-0 max-w-2xl">
               <motion.h1
-                variants={fadeStep}
+                variants={pageHeroItem}
                 className="text-4xl lg:text-[63px] font-bold text-white tracking-tight leading-[1.05] mb-6"
               >
                 Crafting digital{" "}
@@ -175,20 +142,20 @@ export const AboutPage = (): JSX.Element => {
               </motion.h1>
 
               <motion.p
-                variants={fadeStep}
+                variants={pageHeroItem}
                 className="text-lg text-white/60 leading-relaxed"
               >
                 {PROFILE.aboutIntro}
               </motion.p>
 
-              <div className="flex flex-col mt-4">
+              <motion.div variants={pageHeroItem} className="flex flex-col mt-4">
                 <SocialLinksRow size="hero" variants={heroFadeStep} />
-              </div>
+              </motion.div>
             </div>
 
             <motion.div
-              variants={fadeStep}
-              className="relative w-full max-w-sm sm:max-w-md lg:max-w-[420px] xl:max-w-[480px]  mx-auto lg:mx-0 lg:pt-8 "
+              variants={pageHeroItem}
+              className="relative w-full max-w-sm sm:max-w-md lg:max-w-[420px] xl:max-w-[480px]  mx-auto lg:mx-0"
             >
               <div
                 className="pointer-events-none absolute -inset-4 rounded-3xl bg-gradient-to-br from-violet-600/20 via-purple-600/10 to-blue-600/15 blur-2xl"
@@ -226,13 +193,14 @@ export const AboutPage = (): JSX.Element => {
       </section>
 
       <section className="w-full pb-24">
-        <div ref={highlightRef} className="container mx-auto px-4">
-          <motion.div
-            initial="hidden"
-            animate={highlightInV ? "visible" : "hidden"}
-            variants={fadeUp(0)}
-            className="mb-10 max-w-3xl"
-          >
+        <motion.div
+          className="container mx-auto px-4"
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+          variants={sectionReveal}
+        >
+          <motion.div variants={fadeInUp} className="mb-10 max-w-3xl">
             <SectionHeader
               label="What I Do"
               title="Core strengths"
@@ -240,15 +208,16 @@ export const AboutPage = (): JSX.Element => {
             />
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {highlights.map((h, i) => {
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+            variants={sectionReveal}
+          >
+            {highlights.map((h) => {
               const Icon = h.icon;
               return (
                 <motion.div
                   key={h.title}
-                  initial="hidden"
-                  animate={highlightInV ? "visible" : "hidden"}
-                  variants={fadeUp(i * 0.08)}
+                  variants={fadeInUp}
                   className={`relative flex flex-col gap-4 p-6 rounded-2xl border bg-gradient-to-br ${h.color} ${h.border}
                   backdrop-blur-sm hover:-translate-y-1 transition-transform duration-300 group overflow-hidden`}
                 >
@@ -273,8 +242,8 @@ export const AboutPage = (): JSX.Element => {
                 </motion.div>
               );
             })}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       <section className="w-full pb-24">
@@ -293,9 +262,9 @@ export const AboutPage = (): JSX.Element => {
             />
           </motion.div>
 
-          <motion.div variants={fadeInUp} className="w-full">
+          <div className="w-full">
             <CareerJourneyPanel entries={careerTimeline} />
-          </motion.div>
+          </div>
         </motion.div>
       </section>
 
@@ -351,7 +320,7 @@ export const AboutPage = (): JSX.Element => {
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={fadeIn(0)}
+          variants={fadeInUp}
           className="container mx-auto px-4"
         >
           <div className="flex flex-wrap gap-3 justify-center">

@@ -13,11 +13,13 @@ import Glow from "@/components/ui/glow";
 import { SERVICE_DEFINITIONS } from "@/constants/expertise";
 import {
   fadeInUp,
+  pageHeroItem,
+  pageHeroReveal,
   scrollViewport,
   sectionReveal,
 } from "@/constants/scrollMotion";
 import { FooterSection } from "@/screens/sections/FooterSection";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
   Check,
@@ -33,7 +35,7 @@ import {
   Wrench,
   Zap,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 const SERVICE_ICONS: Record<string, LucideIcon> = {
   "ui-ux": Palette,
@@ -86,35 +88,19 @@ const processSteps: WorkProcessStep[] = [
   },
 ];
 
-const fadeUp = (delay = 0) => ({
-  hidden: { opacity: 1, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, delay, ease: [0.37, 0.04, 0.29, 1.01] },
-  },
-});
-
 const ServiceCard = ({
   service,
-  index,
 }: {
   service: Service;
-  index: number;
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const inV = useInView(ref, scrollViewport);
   const [hovered, setHovered] = useState(false);
 
   return (
     <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={inV ? "visible" : "hidden"}
-      variants={fadeUp(index * 0.07)}
+      variants={fadeInUp}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      whileHover={{ y: -6, transition: { duration: 0.3 } }}
+      whileHover={{ y: -6, transition: { duration: 0.25 } }}
       className="h-full"
     >
       <div
@@ -177,9 +163,6 @@ const ServiceCard = ({
 };
 
 export const ServicesPage = (): JSX.Element => {
-  const headerRef = useRef<HTMLDivElement>(null);
-  const headerInV = useInView(headerRef, scrollViewport);
-
   return (
     <div className="flex flex-col items-start relative bg-[#050505] w-full min-h-screen shading-effect">
       <Header />
@@ -190,42 +173,43 @@ export const ServicesPage = (): JSX.Element => {
           bg-gradient-to-b from-violet-600/8 via-purple-600/4 to-transparent rounded-full blur-3xl"
         />
 
-        <div ref={headerRef} className="container mx-auto px-4">
-          <motion.div
-            initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
-            variants={fadeUp(0)}
-          >
+        <motion.div
+          className="container mx-auto px-4"
+          initial="hidden"
+          animate="visible"
+          variants={pageHeroReveal}
+        >
+          <motion.div variants={pageHeroItem}>
             <SectionLabel className="mb-4">Services</SectionLabel>
           </motion.div>
           <motion.h1
-            initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
-            variants={fadeUp(0.05)}
+            variants={pageHeroItem}
             className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-4"
           >
             What I build <span className="text-green-500">for you</span>
           </motion.h1>
           <motion.p
-            initial="hidden"
-            animate={headerInV ? "visible" : "hidden"}
-            variants={fadeUp(0.1)}
+            variants={pageHeroItem}
             className="text-lg text-white/50 max-w-xl"
           >
             Comprehensive web development services from concept to launch
             crafted with precision and purpose.
           </motion.p>
-        </div>
+        </motion.div>
       </section>
 
       <section className="w-full pb-24">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {services.map((s, i) => (
-              <ServiceCard key={s.id} service={s} index={i} />
-            ))}
-          </div>
-        </div>
+        <motion.div
+          className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+          variants={sectionReveal}
+        >
+          {services.map((s) => (
+            <ServiceCard key={s.id} service={s} />
+          ))}
+        </motion.div>
       </section>
 
       <section className="w-full pb-24 relative overflow-hidden">
