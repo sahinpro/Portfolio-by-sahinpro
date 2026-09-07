@@ -55,9 +55,11 @@ const PhoneInput = React.forwardRef<
           flagComponent={FlagComponent}
           countrySelectComponent={CountrySelect}
           inputComponent={InputComponent}
+          {...props}
+          international
+          countryCallingCodeEditable={false}
           onChange={(value) => onChange?.(value ?? undefined)}
           numberInputProps={{ id, name, onBlur, ...numberInputProps }}
-          {...props}
         />
       </div>
       {error && (
@@ -139,7 +141,11 @@ const CountrySelect = ({
           type="button"
           disabled={disabled}
           className="flex h-10 shrink-0 items-center gap-1.5 self-center rounded-none pl-3 pr-2 text-foreground hover:bg-white/5 focus:outline-none focus:ring-0 disabled:opacity-50"
-          aria-label="Country"
+          aria-label={
+            selected?.value
+              ? `Country, ${selected.label}, +${RPNInput.getCountryCallingCode(selected.value)}`
+              : "Country"
+          }
           aria-haspopup="listbox"
           aria-expanded={open}
         >

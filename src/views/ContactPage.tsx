@@ -466,8 +466,10 @@ export const ContactPage = (): JSX.Element => {
                             if (phoneError && val && isValidPhoneNumber(val))
                               setPhoneError(null);
                           }}
-                          placeholder=" Whatsapp number"
+                          placeholder="WhatsApp number"
                           defaultCountry="US"
+                          international
+                          countryCallingCodeEditable={false}
                           error={phoneError ?? undefined}
                           className={phoneShellClass}
                           numberInputProps={{ className: phoneInputClass }}
