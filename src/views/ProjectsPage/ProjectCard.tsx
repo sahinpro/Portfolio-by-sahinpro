@@ -49,7 +49,7 @@ export const ProjectCard = ({
         )}
         aria-hidden
       />
-      <div className="relative aspect-[18/17] w-full self-center overflow-hidden bg-[#111]">
+      <div className="relative aspect-[4/3] w-full self-center overflow-hidden bg-[#111]">
         <PublicImage
           src={project.image}
           alt={projectImageAlt(project.title)}
@@ -69,7 +69,7 @@ export const ProjectCard = ({
         ) : null}
       </div>
 
-      <div className="relative flex  min-h-[16.5rem] flex-col">
+      <div className="relative flex min-h-[10rem] lg:min-h-[13.5rem] flex-col">
         <ProjectCardTeaser
           className="relative z-[3] px-5 py-5 sm:px-6 sm:py-6"
           title={project.title}

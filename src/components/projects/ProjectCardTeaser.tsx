@@ -25,7 +25,6 @@ export function ProjectCardTeaser({
   description,
   roleLabel,
   caseStudy,
-  testimonial,
   techPreview,
   extraTechCount = 0,
   className,
@@ -45,30 +44,14 @@ export function ProjectCardTeaser({
       {roleLabel ? (
         <p className="mt-1.5 text-sm text-white/45">{roleLabel}</p>
       ) : null}
-      {outcome ? (
-        <p className={descriptionClassName}>
-          {caseStudy?.result?.trim() ? (
-            <>
-              <span className="text-white/35">Result: </span>
-              {caseStudy.result}
-            </>
-          ) : (
-            outcome
-          )}
-        </p>
-      ) : null}
-      {testimonial?.quote ? (
-        <p className="mt-2.5 line-clamp-2 text-[13px] italic leading-relaxed text-white/45">
-          {testimonial.quote}
-        </p>
-      ) : null}
+      {outcome ? <p className={descriptionClassName}>{description}</p> : null}
       {techPreview ? (
         <p className="mt-2.5 line-clamp-1 text-[11px] leading-snug text-white/35">
           {techPreview}
           {extraTechCount > 0 ? ` +${extraTechCount}` : ""}
         </p>
       ) : null}
-      <span className="mt-4 inline-flex min-h-8 items-center gap-1 text-sm font-medium text-white/70 transition-colors group-hover:text-white border border-white/10 rounded-lg px-3 py-2 hover:bg-white/5 max-w-40">
+      <span className="mt-4 inline-flex min-h-8 items-center justify-center gap-1 text-sm font-medium text-white/70 transition-colors bg-black group-hover:text-white border border-white/10 rounded-lg px-3 pt-2 pb-2.5 hover:bg-white/5 max-w-full lg:max-w-40">
         View case study
         <ArrowUpRight className="h-4 w-4" aria-hidden />
       </span>

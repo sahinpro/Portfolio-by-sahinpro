@@ -255,7 +255,7 @@ export function ProjectDetailPage({
                 >
                   More projects
                 </h2>
-                <div className="mt-5 grid grid-cols-2 gap-5">
+                <div className="mt-5 grid lg:grid-cols-2 grid-cols-1 gap-5">
                   {relatedProjects.map((related, index) => (
                     <ProjectCard
                       key={related.id}
