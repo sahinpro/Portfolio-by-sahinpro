@@ -59,7 +59,7 @@ export function ProjectExpandedContent({
             className="inline-flex items-center gap-1 text-[#00BB7D]/90 transition-colors hover:text-[#00BB7D]"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            Live demo
+            Live url
           </a>
         ) : null}
         {project.githubUrl ? (

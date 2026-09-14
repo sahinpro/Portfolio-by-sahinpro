@@ -110,7 +110,7 @@ export function ProjectDetailPage({
                   {project.liveUrl ? (
                     <CTAButton href={project.liveUrl} variant="primary">
                       <ExternalLink className="h-4 w-4" aria-hidden />
-                      Live demo
+                      Live url
                     </CTAButton>
                   ) : null}
                   {project.githubUrl ? (

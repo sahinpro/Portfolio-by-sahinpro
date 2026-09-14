@@ -119,7 +119,7 @@ export const FeaturedProjectCard = ({
                 font-semibold text-[#161616] transition-colors duration-200 hover:bg-white/90"
             >
               <ExternalLink className="h-4 w-4" />
-              Live Demo
+              Live url
             </a>
           ) : null}
           {project.githubUrl ? (
