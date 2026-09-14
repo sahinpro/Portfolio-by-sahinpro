@@ -28,7 +28,7 @@ export function ProjectsPageSkeleton(): JSX.Element {
         </section>
 
         <section className="w-full scroll-mt-28 pb-28">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto space-y-12 px-4">
             <ProjectsListSkeleton />
           </div>
         </section>

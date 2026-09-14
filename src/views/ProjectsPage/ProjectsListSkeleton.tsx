@@ -26,10 +26,10 @@ export function ProjectsPageHeroSkeleton({
   filterCount = 4,
 }: ProjectsPageHeroSkeletonProps): JSX.Element {
   return (
-    <div className="space-y-6" aria-hidden>
-      <SkeletonShimmer className="h-7 w-28" rounded="rounded-full" />
-      <SkeletonShimmer className="h-14 max-w-md rounded-lg md:h-16" />
-      <SkeletonShimmer className="h-5 max-w-xl" />
+    <div aria-hidden>
+      <SkeletonShimmer className="mb-4 h-7 w-28" rounded="rounded-full" />
+      <SkeletonShimmer className="mb-4 h-12 max-w-xs rounded-lg md:h-16 md:max-w-md" />
+      <SkeletonShimmer className="mb-10 h-6 max-w-xl" />
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="flex flex-wrap gap-2">

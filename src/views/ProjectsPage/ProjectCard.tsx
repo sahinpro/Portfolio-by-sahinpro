@@ -45,18 +45,18 @@ export const ProjectCard = ({
       <div
         className={cn(
           projectCardInnerFrame,
-          "z-[2] hidden sm:col-span-2 sm:block",
+          "z-[2] hidden sm:col-span-2 sm:block ",
         )}
         aria-hidden
       />
-      <div className="relative aspect-[16/11] min-h-[15rem] overflow-hidden sm:aspect-auto ">
+      <div className="relative aspect-[18/17] w-full self-center overflow-hidden bg-[#111]">
         <PublicImage
           src={project.image}
           alt={projectImageAlt(project.title)}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1280px) 40vw, 22vw"
           priority={index < 2}
-          className="object-cover object-top transition-transform duration-700  motion-reduce:transition-none "
+          className="object-cover"
         />
         {project.featured ? (
           <div
@@ -69,7 +69,7 @@ export const ProjectCard = ({
         ) : null}
       </div>
 
-      <div className="relative flex min-h-[16.5rem] flex-col">
+      <div className="relative flex  min-h-[16.5rem] flex-col">
         <ProjectCardTeaser
           className="relative z-[3] px-5 py-5 sm:px-6 sm:py-6"
           title={project.title}

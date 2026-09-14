@@ -10,6 +10,7 @@ export type ProjectCardSkeletonProps = {
   index?: number;
 };
 
+/** Mirrors `ProjectCard` + `ProjectCardTeaser` so loading does not shift layout. */
 export function ProjectCardSkeleton({
   index = 0,
 }: ProjectCardSkeletonProps): JSX.Element {
@@ -18,27 +19,36 @@ export function ProjectCardSkeleton({
       aria-hidden
       className={cn(
         projectCardShell,
-        "grid grid-cols-1 sm:grid-cols-[minmax(11rem,42%)_minmax(0,1fr)]",
+        "grid grid-cols-1 overflow-hidden sm:grid-cols-[minmax(11rem,42%)_minmax(0,1fr)]",
       )}
       style={{ animationDelay: `${index * 80}ms` }}
     >
-      <div className="relative aspect-[16/11] min-h-[11rem] overflow-hidden sm:aspect-auto sm:min-h-[13.5rem]">
+      <div
+        className={cn(
+          projectCardInnerFrame,
+          "z-[2] hidden sm:col-span-2 sm:block",
+        )}
+      />
+
+      <div className="relative aspect-[3/2] w-full self-center overflow-hidden">
         <SkeletonShimmer rounded="rounded-none" className="absolute inset-0" />
       </div>
 
-      <div className="relative flex flex-col justify-center space-y-2.5 px-5 py-5 sm:px-6 sm:py-6">
-        <div className={cn(projectCardInnerFrame, "hidden sm:block")} />
-        <SkeletonShimmer className="h-3 w-24" rounded="rounded" />
-        <SkeletonShimmer
-          className="h-7 w-3/4 max-w-[220px]"
-          rounded="rounded-md"
-        />
-        <SkeletonShimmer className="h-4 w-40" rounded="rounded" />
-        <div className="space-y-1.5 pt-1">
-          <SkeletonShimmer className="h-3.5 w-full" />
-          <SkeletonShimmer className="h-3.5 w-4/5" />
+      <div className="relative flex min-h-[16.5rem] flex-col">
+        <div className="relative z-[3] flex h-full min-w-0 flex-col justify-center px-5 py-5 sm:px-6 sm:py-6">
+          <SkeletonShimmer className="h-3 w-24" rounded="rounded" />
+          <SkeletonShimmer
+            className="mt-1.5 h-7 w-3/4 max-w-[260px] sm:h-8"
+            rounded="rounded-md"
+          />
+          <SkeletonShimmer className="mt-1.5 h-4 w-36" rounded="rounded" />
+          <div className="mt-3 space-y-1.5">
+            <SkeletonShimmer className="h-3.5 w-full" />
+            <SkeletonShimmer className="h-3.5 w-4/5" />
+          </div>
+          <SkeletonShimmer className="mt-2.5 h-3 w-48" rounded="rounded" />
+          <SkeletonShimmer className="mt-4 h-8 w-40" rounded="rounded-lg" />
         </div>
-        <SkeletonShimmer className="mt-2 h-4 w-28" rounded="rounded" />
       </div>
     </article>
   );

@@ -20,7 +20,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 export type { PublicProject as Project } from "@/data/projectUiMapper";
 
 export const ProjectsPage = ({
-  initialProjects = [],
+  initialProjects,
 }: {
   initialProjects?: ProjectRow[];
 }): JSX.Element => {
