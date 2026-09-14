@@ -1,6 +1,6 @@
 import { PROFILE } from "@/constants/profile";
 import type { LucideIcon } from "lucide-react";
-import { Briefcase, Handshake, Rocket } from "lucide-react";
+import { Briefcase, Handshake } from "lucide-react";
 
 export type TimelineEntry = {
   year: string;
@@ -17,15 +17,8 @@ export const careerTimeline: TimelineEntry[] = [
     year: "Mar 2023–Present",
     role: "Full Stack Web Developer",
     company: "We Next Coder",
-    desc: "Built and delivered 200+ client sites with WordPress, WooCommerce, and Shopify; developed paydios front-end landing page completed 200+ projects and improved load speed 40%+ via Core Web Vitals work.",
+    desc: "Built and delivered 200+ production client sites with WordPress and WooCommerce, with recent projects developed in React and Next.js, including the Paydios payment platform frontend; improved page-load speed 40%+ via Core Web Vitals optimisation.",
     icon: Briefcase,
-  },
-  {
-    year: "Feb 2023–Present",
-    role: "WordPress Developer",
-    company: "Self-employed",
-    desc: "WordPress, WooCommerce, and Shopify for local and international clients    custom stores, landing pages, theme customization, on-page SEO, and full project lifecycle from scoping to post-launch support.",
-    icon: Rocket,
   },
   {
     year: "Feb 2023–May 2024",

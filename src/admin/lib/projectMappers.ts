@@ -9,7 +9,11 @@ import {
   stripInactiveBuildFields,
 } from "@/admin/lib/buildKindFieldGuards";
 import type { ProjectFormValues } from "@/admin/schemas/projectFormSchema";
-import type { ProjectRow } from "@/admin/types/database";
+import type {
+  ProjectCaseStudy,
+  ProjectRow,
+  ProjectTestimonial,
+} from "@/admin/types/database";
 
 export function parseStats(raw: unknown): { label: string; value: string }[] {
   if (!Array.isArray(raw)) return [];
@@ -36,6 +40,44 @@ export function parseScreenshotUrls(raw: unknown): string[] {
   return raw.filter(
     (x): x is string => typeof x === "string" && x.trim().length > 0,
   );
+}
+
+function readTrimmedString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export function parseCaseStudy(raw: unknown): ProjectCaseStudy | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const obj = raw as Record<string, unknown>;
+  const problem = readTrimmedString(obj.problem);
+  const solution = readTrimmedString(obj.solution);
+  const result = readTrimmedString(obj.result);
+  if (!problem && !solution && !result) return null;
+  return { problem, solution, result };
+}
+
+export function parseTestimonial(raw: unknown): ProjectTestimonial | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const obj = raw as Record<string, unknown>;
+  const quote = readTrimmedString(obj.quote);
+  const client_name = readTrimmedString(obj.client_name);
+  const client_role = readTrimmedString(obj.client_role);
+  const client_photo =
+    readTrimmedString(obj.client_photo) ||
+    readTrimmedString(obj.client_avatar);
+  if (!quote) return null;
+  return {
+    quote,
+    client_name,
+    ...(client_role ? { client_role } : {}),
+    ...(client_photo ? { client_photo } : {}),
+  };
+}
+
+function caseStudyToPayload(
+  values: ProjectFormValues["case_study"],
+): ProjectCaseStudy | null {
+  return parseCaseStudy(values);
 }
 
 const LEGACY_CATEGORY_MAP: Record<string, ProjectFormValues["category"]> = {
@@ -113,9 +155,17 @@ export function projectRowToFormValues(row: ProjectRow): ProjectFormValues {
     category = categoriesForBuildKind("custom")[0];
   }
 
+  const caseStudy = parseCaseStudy(row.case_study);
+
   return stripInactiveBuildFields({
     title: row.title === "Untitled project" ? "" : row.title,
     description: row.description ?? "",
+    role_label: row.role_label ?? "",
+    case_study: {
+      problem: caseStudy?.problem ?? "",
+      solution: caseStudy?.solution ?? "",
+      result: caseStudy?.result ?? "",
+    },
     image_url: row.image_url ?? "",
     screenshot_urls: screenshots,
     technologies: row.build_kind === "custom" ? (row.technologies ?? []) : [],
@@ -163,6 +213,8 @@ export function formValuesToProjectPayload(
   const base = {
     title: activeValues.title.trim() || "Untitled project",
     description: desc || null,
+    role_label: activeValues.role_label.trim() || null,
+    case_study: caseStudyToPayload(activeValues.case_study),
     image_url: activeValues.image_url.trim() || null,
     screenshot_urls: screenshotClean,
     technologies: activeValues.build_kind === "custom" ? techClean : [],
@@ -207,6 +259,8 @@ export function defaultEmptyProjectForm(): ProjectFormValues {
   return {
     title: "",
     description: "",
+    role_label: "",
+    case_study: { problem: "", solution: "", result: "" },
     image_url: "",
     screenshot_urls: [],
     technologies: [],
@@ -231,6 +285,10 @@ export function shouldPersistNewProjectDraft(
   const t = (s: string) => s.trim();
   if (t(values.title) !== t(d.title)) return true;
   if (t(values.description) !== t(d.description)) return true;
+  if (t(values.role_label) !== t(d.role_label)) return true;
+  if (t(values.case_study.problem) !== t(d.case_study.problem)) return true;
+  if (t(values.case_study.solution) !== t(d.case_study.solution)) return true;
+  if (t(values.case_study.result) !== t(d.case_study.result)) return true;
   if (t(values.image_url) !== t(d.image_url)) return true;
   if (values.screenshot_urls.length !== d.screenshot_urls.length) return true;
   if (

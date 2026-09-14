@@ -32,14 +32,14 @@ const skillsCards: BentoCardProps[] = [
     color: "#0d0d0d",
     title: "WordPress & CMS Development",
     description:
-      "Professional WordPress and Shopify development    custom themes, store setup, plugins, and optimization for performance and SEO.",
+      "Professional WordPress and   development    custom themes, store setup, plugins, and optimization for performance and SEO.",
     image: "/bentocardImage/wordpress.webp",
   },
   {
     color: "#0d0d0d",
     title: "E-Commerce Solutions",
     description:
-      "Complete e-commerce implementation with WooCommerce, Shopify, and custom shopping experiences with payment integration.",
+      "Complete e-commerce implementation with WooCommerce,  , and custom shopping experiences with payment integration.",
     image: "/bentocardImage/ecommerce.jpg",
   },
   {
@@ -74,11 +74,7 @@ export const SkillsSection = (): JSX.Element => {
           />
         </motion.div>
         <motion.div variants={fadeInUp} className={sectionContentClass}>
-          <MagicBento
-            textAutoHide
-            enableLiquidBorder
-            cards={skillsCards}
-          />
+          <MagicBento textAutoHide enableLiquidBorder cards={skillsCards} />
         </motion.div>
       </motion.div>
     </SectionShell>

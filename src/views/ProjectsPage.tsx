@@ -147,7 +147,7 @@ export const ProjectsPage = ({
               className="text-lg text-white/50 max-w-xl mb-10"
             >
               A curated selection of work from full-stack applications to
-              WordPress, Shopify, and WooCommerce builds.
+              WordPress, , and WooCommerce builds.
             </motion.p>
 
             <motion.div
@@ -199,7 +199,7 @@ export const ProjectsPage = ({
             className="w-full scroll-mt-28 pb-28"
           >
             <div className="container mx-auto space-y-12 px-4">
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
                 {paginatedProjects.map((p, i) => (
                   <ProjectCard key={p.id} project={p} index={i} />
                 ))}

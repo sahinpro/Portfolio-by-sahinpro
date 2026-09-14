@@ -21,10 +21,42 @@ export type ProjectCustomFrameworkDbSlug =
   | "other"
   | null;
 
+export type ProjectCaseStudy = {
+  problem: string;
+  solution: string;
+  result: string;
+};
+
+export type ProjectTestimonial = {
+  quote: string;
+  client_name: string;
+  client_role?: string;
+  client_photo?: string;
+};
+
+export type TestimonialRow = {
+  id: string;
+  quote: string;
+  client_name: string;
+  client_role: string | null;
+  client_photo: string | null;
+  project_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ProjectRow = {
   id: string;
   title: string;
   description: string | null;
+  /** Short attribution, e.g. sole developer vs independent freelance client. */
+  role_label?: string | null;
+  case_study?: ProjectCaseStudy | null;
+  /**
+   * Resolved from `testimonials.project_id` (or legacy JSON) when loading
+   * public/admin views — not a column on `projects`.
+   */
+  testimonial?: ProjectTestimonial | TestimonialRow | null;
   image_url: string | null;
   technologies: string[];
   /** Display label; legacy rows may still use old bucket names until migrated. */

@@ -6,10 +6,10 @@ import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { projectImageAlt } from "@/lib/seoImages";
 import { cn } from "@/lib/utils";
 import {
+  modalHeroHeight,
   projectCardGlassBlur,
   projectCardGlassGradient,
   projectCardGlassMask,
-  modalHeroHeight,
   projectHeroHeight,
 } from "@/views/ProjectsPage/projectModalStyles";
 import { Star } from "lucide-react";
@@ -34,10 +34,7 @@ export function ProjectMorphHero({
   const hasGallery = project.screenshots.length > 0;
   const isModal = variant === "modal";
   const resolvedImageClassName =
-    imageClassName ??
-    (isModal
-      ? "object-cover object-top"
-      : "object-cover object-center");
+    imageClassName ?? "object-cover object-center";
 
   return (
     <div
@@ -46,21 +43,35 @@ export function ProjectMorphHero({
         isModal ? modalHeroHeight : projectHeroHeight,
       )}
     >
-      <PublicImage
-        src={project.image}
-        alt={projectImageAlt(project.title)}
-        fill
-        sizes={
-          isModal
-            ? "(max-width: 768px) 100vw, 768px"
-            : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        }
-        className={cn(
-          resolvedImageClassName,
-          galleryReady && hasGallery && "opacity-0",
-        )}
-        priority
-      />
+      {isModal ? (
+        <PublicImage
+          src={project.image}
+          alt={projectImageAlt(project.title)}
+          width={1920}
+          height={1200}
+          sizes="(max-width: 768px) 100vw, 1120px"
+          className={cn(
+            "block h-auto w-full",
+            galleryReady && hasGallery && "opacity-0",
+          )}
+          style={{ width: "100%", height: "auto", aspectRatio: "auto" }}
+          priority
+        />
+      ) : (
+        <PublicImage
+          src={project.image}
+          alt={projectImageAlt(project.title)}
+          fill
+          sizes={
+            "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          }
+          className={cn(
+            resolvedImageClassName,
+            galleryReady && hasGallery && "opacity-0",
+          )}
+          priority
+        />
+      )}
 
       {hasGallery && galleryReady ? (
         <div className="absolute inset-0">

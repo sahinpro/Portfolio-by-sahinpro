@@ -25,7 +25,7 @@ export const EXPERTISE_CATEGORIES: ExpertiseCategory[] = [
   {
     category: "CMS & E-commerce",
     iconKey: "cms",
-    skills: ["WordPress", "Wix", "Shopify", "WooCommerce"],
+    skills: ["WordPress", "Wix", " ", "WooCommerce"],
   },
   {
     category: "Design Tools",
@@ -104,14 +104,14 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
     id: "ecommerce",
     title: "E-Commerce Solutions",
     description:
-      "Complete e-commerce with WooCommerce or Shopify    from product pages to checkout and beyond.",
+      "Complete e-commerce with WooCommerce or      from product pages to checkout and beyond.",
     tag: "E-Commerce",
     accent: "from-emerald-500/10 to-teal-500/5",
     border: "border-emerald-500/20",
     buttonAccent:
       "bg-emerald-500/20 border-emerald-500/30 hover:bg-emerald-500/30",
     features: [
-      "WooCommerce & Shopify",
+      "WooCommerce &  ",
       "Payment Integration",
       "Inventory Management",
       "Order Automation",
@@ -172,8 +172,8 @@ export const WHY_CHOOSE_PROOF_CARDS: ProofCard[] = [
     iconKey: "delivery",
     title: "200+ sites shipped",
     description:
-      "WordPress, WooCommerce, Shopify, and React builds delivered for agencies and direct clients.",
-    badges: ["WordPress", "Shopify", "React"],
+      "WordPress, WooCommerce,  , and React builds delivered for agencies and direct clients.",
+    badges: ["WordPress", " ", "React"],
   },
   {
     iconKey: "speed",

@@ -7,6 +7,7 @@ export const REVALIDATE_SECONDS = PUBLIC_CACHE_TTL_SECONDS;
 /** Logical cache keys flushed via Redis invalidation. */
 export const CACHE_TAGS = {
   projects: "projects",
+  testimonials: "testimonials",
   settings: "settings",
   resume: "resume",
 } as const;

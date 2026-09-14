@@ -51,7 +51,7 @@ Create a `.env` file in the project root (values are not committed).
 | `VITE_ADMIN_EMAIL`                                                  | Optional        | If set, only this email may use admin login UI (allowlist still required for writes) |
 | `VITE_TURNSTILE_SITE_KEY`                                           | Optional        | Cloudflare Turnstile on contact form (public site key)                               |
 | `RESEND_API_KEY`                                                    | For contact     | Resend API key **server-only**, do not prefix with `VITE_`                           |
-| `CONTACT_NOTIFICATION_TO_EMAIL`                                     | Optional        | Inbox for form submissions (defaults to `sahinweb@proton.me`)                        |
+| `CONTACT_NOTIFICATION_TO_EMAIL`                                     | Optional        | Inbox for form submissions (defaults to ` contact@sahinpro.me`)                      |
 | `CONTACT_NOTIFICATION_FROM_EMAIL`                                   | Optional        | Sender (defaults to `Sahin Alam <contact@sahinpro.me>`)                              |
 | `RESEND_CONTACT_TEMPLATE_ID`                                        | Optional        | Published Resend template ID when set, sends via template + variables                |
 | `TURNSTILE_SECRET_KEY`                                              | Recommended     | Pairs with `VITE_TURNSTILE_SITE_KEY` for bot protection (server-only)                |
@@ -66,7 +66,7 @@ Add to your root `.env` for local dev (`npm run dev` serves `/api/contact` via V
 
 ```env
 RESEND_API_KEY=re_xxxxxxxx
-CONTACT_NOTIFICATION_TO_EMAIL=sahinweb@proton.me
+CONTACT_NOTIFICATION_TO_EMAIL= contact@sahinpro.me
 CONTACT_NOTIFICATION_FROM_EMAIL=Sahin Alam <contact@sahinpro.me>
 # Optional published Resend template:
 # RESEND_CONTACT_TEMPLATE_ID=re_xxxxxxxx
@@ -174,5 +174,5 @@ MIT use freely for your own portfolio.
 
 **Sahin Alam**
 
-- Email: [sahinweb@proton.me](mailto:sahinweb@proton.me)
+- Email: [ contact@sahinpro.me](mailto: contact@sahinpro.me)
 - GitHub: [@sahinhub](https://github.com/sahinpro)

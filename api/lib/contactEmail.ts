@@ -7,7 +7,7 @@ import {
 import { sendViaResend } from "./resendClient";
 import type { ContactSubmission } from "./types";
 
-const DEFAULT_TO_EMAIL = "sahinweb@proton.me";
+const DEFAULT_TO_EMAIL = " contact@sahinpro.me";
 const DEFAULT_FROM_EMAIL = "Sahin Alam <contact@sahinpro.me>";
 
 export async function sendContactEmail(

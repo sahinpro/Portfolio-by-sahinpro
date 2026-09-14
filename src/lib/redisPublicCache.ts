@@ -4,6 +4,7 @@ import { Redis } from "@upstash/redis";
 
 export const REDIS_PUBLIC_KEYS: Record<CacheTag, string> = {
   projects: "portfolio:public:projects",
+  testimonials: "portfolio:public:testimonials",
   settings: "portfolio:public:settings",
   resume: "portfolio:public:resume",
 };

@@ -54,9 +54,9 @@ const highlights: {
 }[] = [
   {
     icon: Paintbrush,
-    title: "WordPress, Shopify & WooCommerce",
+    title: "WordPress,   & WooCommerce",
     description:
-      "200+ delivered sites and stores    WordPress themes, WooCommerce and Shopify builds, Elementor, and on-page SEO for international clients.",
+      "200+ delivered sites and stores    WordPress themes, WooCommerce and   builds, Elementor, and on-page SEO for international clients.",
     tag: "CMS",
     color: "from-orange-500/10 to-amber-500/5",
     border: "border-orange-500/20",
@@ -148,7 +148,10 @@ export const AboutPage = (): JSX.Element => {
                 {PROFILE.aboutIntro}
               </motion.p>
 
-              <motion.div variants={pageHeroItem} className="flex flex-col mt-4">
+              <motion.div
+                variants={pageHeroItem}
+                className="flex flex-col mt-4"
+              >
                 <SocialLinksRow size="hero" variants={heroFadeStep} />
               </motion.div>
             </div>

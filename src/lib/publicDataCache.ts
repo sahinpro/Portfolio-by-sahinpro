@@ -135,6 +135,17 @@ export async function invalidateProjectsPublicCache(): Promise<{
   return invalidatePublicDataCache([CACHE_TAGS.projects]);
 }
 
+/** After testimonial create/update/delete — refresh homepage slider and project pages. */
+export async function invalidateTestimonialsPublicCache(): Promise<{
+  ok: boolean;
+  publishedProjectCount?: number;
+}> {
+  return invalidatePublicDataCache([
+    CACHE_TAGS.testimonials,
+    CACHE_TAGS.projects,
+  ]);
+}
+
 /** Manual admin action — flush every public cache layer. */
 export async function flushAllPublicDataCache(): Promise<{
   ok: boolean;

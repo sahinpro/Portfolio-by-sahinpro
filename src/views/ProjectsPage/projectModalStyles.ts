@@ -5,7 +5,7 @@ export const projectCardShell =
   "relative overflow-hidden rounded-[1.75rem] border border-white/[0.08] bg-[#111]";
 
 export const projectCardInnerFrame =
-  "pointer-events-none absolute inset-[7px] z-20 rounded-[1.35rem] border border-white/10";
+  "pointer-events-none absolute inset-[5px] z-20 rounded-[1.35rem] border border-white/10";
 
 export const projectCardGlassMask =
   "linear-gradient(to top, black 0%, black 55%, rgba(0, 0, 0, 0.6) 72%, transparent 100%)";
@@ -19,11 +19,14 @@ export const projectCardGlassBlur =
 export const projectCardActionBtn =
   "flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/60 text-white/80 transition-colors hover:border-white/25 hover:bg-black/70 hover:text-white md:bg-black/45 md:backdrop-blur-sm";
 
-/** Card preview image area. */
-export const projectHeroHeight = "h-[24rem]";
+/** Card preview image area (used with `fill` images — needs an explicit height). */
+export const projectHeroHeight = "relative h-[24rem]";
 
-/** Expanded modal hero — taller on desktop so cover images aren't over-cropped. */
-export const modalHeroHeight = "h-[24rem] lg:h-[32rem] shrink-0 bg-[#111]";
+/**
+ * Detail / expanded hero. Height comes from the in-flow cover image
+ * (`w-full h-auto`) so screenshots keep their original aspect ratio.
+ */
+export const modalHeroHeight = "relative w-full shrink-0 bg-[#111]";
 
 export const modalShell = cn(
   projectCardShell,

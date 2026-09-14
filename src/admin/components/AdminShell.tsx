@@ -11,6 +11,7 @@ import {
   FileText,
   FolderKanban,
   ImageIcon,
+  Quote,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -43,6 +44,7 @@ const sectionLabel =
 function mobileAdminTitle(pathname: string): string {
   if (pathname === "/admin" || pathname === "/admin/") return "Dashboard";
   if (pathname.startsWith("/admin/projects")) return "Projects";
+  if (pathname.startsWith("/admin/testimonials")) return "Testimonials";
   if (pathname.startsWith("/admin/media")) return "Media";
   if (pathname.startsWith("/admin/analytics")) return "Analytics";
   if (pathname === "/admin/settings") return "Site settings";
@@ -225,6 +227,10 @@ export function AdminShell({ children }: { children: ReactNode }): JSX.Element {
               <AdminNavLink href="/admin/projects" className={navClass}>
                 <FolderKanban className="h-4 w-4 shrink-0 opacity-80" />
                 Projects
+              </AdminNavLink>
+              <AdminNavLink href="/admin/testimonials" className={navClass}>
+                <Quote className="h-4 w-4 shrink-0 opacity-80" />
+                Testimonials
               </AdminNavLink>
               <AdminNavLink href="/admin/media" className={navClass}>
                 <ImageIcon className="h-4 w-4 shrink-0 opacity-80" />

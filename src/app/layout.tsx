@@ -1,8 +1,8 @@
 import { PublicLayoutShell } from "@/components/layout/PublicLayoutShell";
 import { SiteStructuredDataScript } from "@/components/public/SiteStructuredDataScript";
 import { getSiteUrl } from "@/constants/site";
-import { PERF_BOOT_SCRIPT } from "@/lib/performanceLevel";
 import { inter, monteCarlo } from "@/lib/fonts";
+import { PERF_BOOT_SCRIPT } from "@/lib/performanceLevel";
 import {
   DEFAULT_META_DESCRIPTION,
   DEFAULT_META_TITLE,
@@ -64,6 +64,9 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  verification: {
+    google: "KjNY2S0tQzG56aBy0wehwOu_UTBUZpzmus98P0crQqo",
+  },
 };
 
 export const viewport: Viewport = {
@@ -78,7 +81,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${monteCarlo.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${monteCarlo.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: PERF_BOOT_SCRIPT }} />
         <SiteStructuredDataScript />
@@ -97,8 +104,8 @@ export default function RootLayout({
             <h1>Sahin Alam — Full Stack Developer</h1>
             <p>
               Full Stack Developer from Bangladesh specializing in React,
-              Next.js, WordPress, WooCommerce, and Shopify. Explore the
-              portfolio at <a href="https://www.sahinpro.me/">www.sahinpro.me</a>.
+              Next.js, WordPress, WooCommerce, and . Explore the portfolio at{" "}
+              <a href="https://www.sahinpro.me/">www.sahinpro.me</a>.
             </p>
             <nav aria-label="Primary">
               <ul>

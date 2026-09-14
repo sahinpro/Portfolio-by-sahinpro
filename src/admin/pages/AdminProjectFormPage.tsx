@@ -28,7 +28,7 @@ import {
   projectFormSchema,
   type ProjectFormValues,
 } from "@/admin/schemas/projectFormSchema";
-import type { ProjectRow } from "@/admin/types/database";
+import type { ProjectRow, TestimonialRow } from "@/admin/types/database";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -39,18 +39,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ProjectTestimonialCard } from "@/components/projects/ProjectTestimonialCard";
 import { invalidateProjectsPublicCache } from "@/lib/publicDataCache";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/utils/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import {
   Controller,
-  type FieldErrors,
   useForm,
   useWatch,
+  type FieldErrors,
 } from "react-hook-form";
 
 const field =
@@ -86,6 +94,8 @@ export function AdminProjectFormPage({
   const { showToast } = useToast();
   const isNewRoute = !routeId || routeId === "new";
   const [loadingRow, setLoadingRow] = useState(!isNewRoute);
+  const [assignedTestimonial, setAssignedTestimonial] =
+    useState<TestimonialRow | null>(null);
   /** Sync mutex — blocks double submit / close-save before React re-renders. */
   const mutationLockRef = useRef(false);
   const [mutationBusy, setMutationBusy] = useState(false);
@@ -134,6 +144,7 @@ export function AdminProjectFormPage({
     if (!isNewRoute) return;
     persistedRowFields.current = { stats: [] };
     reset(defaultEmptyProjectForm());
+    setAssignedTestimonial(null);
   }, [isNewRoute, reset]);
 
   useEffect(() => {
@@ -141,11 +152,14 @@ export function AdminProjectFormPage({
     let cancelled = false;
     setLoadingRow(true);
     (async () => {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("id", routeId)
-        .single();
+      const [{ data, error }, testimonialRes] = await Promise.all([
+        supabase.from("projects").select("*").eq("id", routeId).single(),
+        supabase
+          .from("testimonials")
+          .select("*")
+          .eq("project_id", routeId)
+          .maybeSingle(),
+      ]);
       if (cancelled) return;
       setLoadingRow(false);
       if (error || !data) {
@@ -158,6 +172,11 @@ export function AdminProjectFormPage({
         stats: row.stats ?? [],
       };
       reset(projectRowToFormValues(row));
+      setAssignedTestimonial(
+        testimonialRes.error
+          ? null
+          : ((testimonialRes.data as TestimonialRow | null) ?? null),
+      );
     })();
     return () => {
       cancelled = true;
@@ -428,6 +447,22 @@ export function AdminProjectFormPage({
             />
             <FieldError message={errors.description?.message} />
           </div>
+          <div data-field="role_label">
+            <label className={labelCls} htmlFor="project-role-label">
+              Role attribution (optional)
+            </label>
+            <Input
+              id="project-role-label"
+              className={field}
+              aria-invalid={Boolean(errors.role_label)}
+              {...register("role_label")}
+            />
+            <p className="mt-1 text-[11px] text-white/35">
+              e.g. &apos;Sole Developer — built while employed at We Next
+              Coder&apos; or &apos;Independent Client (via Fiverr)&apos;
+            </p>
+            <FieldError message={errors.role_label?.message} />
+          </div>
           <div
             data-field="image_url"
             className={cn(
@@ -513,6 +548,89 @@ export function AdminProjectFormPage({
             />
             <FieldError message={errors.live_url?.message} />
           </div>
+        </section>
+
+        <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
+          <h2 className="text-sm font-semibold text-white">Case Study</h2>
+          <p className="text-[11px] text-white/35">
+            Optional. When filled, these replace the short description on the
+            public site.
+          </p>
+          <div data-field="case_study">
+            <label className={labelCls} htmlFor="project-case-problem">
+              Problem
+            </label>
+            <Textarea
+              id="project-case-problem"
+              className={`${field} min-h-[80px]`}
+              aria-invalid={Boolean(errors.case_study?.problem)}
+              {...register("case_study.problem")}
+            />
+            <FieldError message={errors.case_study?.problem?.message} />
+          </div>
+          <div>
+            <label className={labelCls} htmlFor="project-case-solution">
+              Solution
+            </label>
+            <Textarea
+              id="project-case-solution"
+              className={`${field} min-h-[80px]`}
+              aria-invalid={Boolean(errors.case_study?.solution)}
+              {...register("case_study.solution")}
+            />
+            <FieldError message={errors.case_study?.solution?.message} />
+          </div>
+          <div>
+            <label className={labelCls} htmlFor="project-case-result">
+              Result
+            </label>
+            <Textarea
+              id="project-case-result"
+              className={`${field} min-h-[80px]`}
+              aria-invalid={Boolean(errors.case_study?.result)}
+              {...register("case_study.result")}
+            />
+            <FieldError message={errors.case_study?.result?.message} />
+          </div>
+        </section>
+
+        <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
+          <h2 className="text-sm font-semibold text-white">Testimonial</h2>
+          <p className="text-[11px] text-white/35">
+            Client quotes are managed in Testimonials. Assign one to this
+            project there so it appears on the public case-study page.
+          </p>
+          {assignedTestimonial?.quote ? (
+            <div className="space-y-3">
+              <ProjectTestimonialCard
+                className="md:pl-0"
+                testimonial={{
+                  quote: assignedTestimonial.quote,
+                  clientName: assignedTestimonial.client_name,
+                  clientRole: assignedTestimonial.client_role ?? undefined,
+                  clientPhoto: assignedTestimonial.client_photo ?? undefined,
+                }}
+              />
+              <Link
+                href={`/admin/testimonials/${assignedTestimonial.id}`}
+                className="inline-flex text-xs font-medium text-[#00BB7D] hover:text-[#00d68a]"
+              >
+                Edit assigned testimonial
+              </Link>
+            </div>
+          ) : (
+            <p className="text-sm text-white/45">
+              {isNewRoute
+                ? "Save this project first, then assign a testimonial to it."
+                : "No testimonial assigned yet."}
+            </p>
+          )}
+          <Link
+            href="/admin/testimonials"
+            className="inline-flex text-xs font-medium text-white/55 underline-offset-2 hover:text-white hover:underline"
+          >
+            Manage testimonials
+          </Link>
         </section>
 
         <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">

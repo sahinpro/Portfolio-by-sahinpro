@@ -21,9 +21,11 @@ export function frameworkLabel(
   return "";
 }
 
-export function cmsPlatformLabel(p: PublicProjectDetail["cmsPlatform"]): string {
+export function cmsPlatformLabel(
+  p: PublicProjectDetail["cmsPlatform"],
+): string {
   if (p === "wordpress") return "WordPress";
-  if (p === "shopify") return "Shopify";
+  if (p === " ") return " ";
   if (p === "wix") return "Wix";
   return "";
 }

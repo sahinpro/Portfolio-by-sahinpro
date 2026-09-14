@@ -6,7 +6,7 @@ export const PROFILE = {
   tagline: "Building fast, modern web experiences",
   /** Hero gradient lines — stack/role only; tagline is separate plain text */
   heroSubtitleLines: [
-    "Full Stack Developer",
+    "Full Stack Web Developer",
     "React · Next.js · WordPress & WooCommerce",
   ],
   location: "Sylhet, Bangladesh",
@@ -24,7 +24,7 @@ export const PROFILE = {
   yearsExperience: "3+",
   projectsDelivered: "200+",
   /** Outcome-focused — hero prose (left column only) */
-  bio: "I'm a Full Stack Developer at We Next Coder, delivering 200+ WordPress, WooCommerce projects plus modern React & Next.js products like agency platforms.",
+  bio: "I'm a Full Stack Web Developer at We Next Coder, delivering 200+ production websites — primarily WordPress and WooCommerce, with recent projects in React and Next.js.",
   /** Hero code panel — {@link buildAboutCode} class properties (LinkedIn cover style) */
   codeFocus: "JavaScript Fundamentals",
   codeMindset: "Learn.Build. Share.",
@@ -39,9 +39,9 @@ export const PROFILE = {
     "Best Straight To The Point WordPress Course",
   ],
   aboutIntro:
-    "Since March 2023 I've been a Full Stack Web Developer at We Next Coder, delivering 200+ WordPress, WooCommerce, and Shopify projects plus modern Next.js products like payment platforms. I also work independently for local and international clients always focused on clean code, JavaScript fundamentals, fast performance, and outcomes you can measure.",
+    "Since March 2023 I've been a Full Stack Web Developer at We Next Coder, delivering 200+ WordPress and WooCommerce projects plus modern Next.js products like payment platforms. I also work independently for local and international clients always focused on clean code, JavaScript fundamentals, fast performance, and outcomes you can measure.",
   journeyDescription:
-    "Three years shipping real client work WordPress, WooCommerce, and Shopify at scale, plus Next.js products, Figma/PSD builds, and long-term support.",
+    "Three years shipping real client work WordPress and WooCommerce at scale, plus Next.js products, Figma/PSD builds, and long-term support.",
   imageCaption:
     "Full Stack developer from Bangladesh WordPress, WooCommerce, React, and Next.js for teams worldwide.",
   topSkills: [
@@ -56,7 +56,7 @@ export const PROFILE = {
 
 /** Superseded hero copy still stored in site settings — map to {@link PROFILE.bio}. */
 export const LEGACY_HERO_DESCRIPTIONS = [
-  "Full Stack Developer specializing in WordPress, Shopify, React, and Next.js building modern web apps and e-commerce stores for clients worldwide.",
+  "Full Stack Developer specializing in WordPress, React, and Next.js building modern web apps and e-commerce stores for clients worldwide.",
 ] as const;
 
 export function resolveHeroDescription(stored: string | undefined): string {
@@ -74,7 +74,7 @@ export function resolveHeroDescription(stored: string | undefined): string {
 
 export const PROFILE_TYPEWRITER_FALLBACK = [
   "Full Stack Developer",
-  "React · Next.js · WordPress · Shopify",
+  "React · Next.js · WordPress · WooCommerce",
 ] as const;
 
 /** Frameworks, languages, and styling — typical “stack” items */
@@ -88,8 +88,4 @@ export const PROFILE_STACK = [
 ] as const;
 
 /** CMS / e-commerce platforms (not a stack, but core to your work) */
-export const PROFILE_PLATFORMS = [
-  "WordPress",
-  "WooCommerce",
-  "Shopify",
-] as const;
+export const PROFILE_PLATFORMS = ["WordPress", "WooCommerce"] as const;

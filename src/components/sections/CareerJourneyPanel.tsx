@@ -30,13 +30,13 @@ export const CareerJourneyPanel = ({
           whileInView="visible"
           viewport={scrollViewport}
           variants={fadeInUp}
-          className="relative w-full max-w-sm lg:max-w-none"
+          className="relative w-full max-w-sm"
         >
           <div
             className="pointer-events-none absolute -inset-4 rounded-full  blur-2xl"
             aria-hidden
           />
-          <div className="w-full h-full relative p-1 rounded-full bg-gradient-to-br from-violet-500/30 via-white/10 to-purple-600/20">
+          <div className="w-full h-f relative p-1 rounded-full bg-gradient-to-br from-violet-500/30 via-white/10 to-purple-600/20">
             <PublicImage
               src={PROFILE_IMAGE}
               alt={PROFILE_PORTRAIT.alt}

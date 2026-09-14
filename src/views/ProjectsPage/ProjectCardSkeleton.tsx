@@ -4,7 +4,6 @@ import { PROJECTS_PER_PAGE } from "@/views/ProjectsPage/ProjectsPagination";
 import {
   projectCardInnerFrame,
   projectCardShell,
-  projectHeroHeight,
 } from "@/views/ProjectsPage/projectModalStyles";
 
 export type ProjectCardSkeletonProps = {
@@ -17,27 +16,29 @@ export function ProjectCardSkeleton({
   return (
     <article
       aria-hidden
-      className={projectCardShell}
+      className={cn(
+        projectCardShell,
+        "grid grid-cols-1 sm:grid-cols-[minmax(11rem,42%)_minmax(0,1fr)]",
+      )}
       style={{ animationDelay: `${index * 80}ms` }}
     >
-      <div className={cn("relative overflow-hidden", projectHeroHeight)}>
+      <div className="relative aspect-[16/11] min-h-[11rem] overflow-hidden sm:aspect-auto sm:min-h-[13.5rem]">
         <SkeletonShimmer rounded="rounded-none" className="absolute inset-0" />
+      </div>
 
-        <div className="absolute top-4 right-4 z-[5]">
-          <SkeletonShimmer className="h-9 w-9" rounded="rounded-full" />
+      <div className="relative flex flex-col justify-center space-y-2.5 px-5 py-5 sm:px-6 sm:py-6">
+        <div className={cn(projectCardInnerFrame, "hidden sm:block")} />
+        <SkeletonShimmer className="h-3 w-24" rounded="rounded" />
+        <SkeletonShimmer
+          className="h-7 w-3/4 max-w-[220px]"
+          rounded="rounded-md"
+        />
+        <SkeletonShimmer className="h-4 w-40" rounded="rounded" />
+        <div className="space-y-1.5 pt-1">
+          <SkeletonShimmer className="h-3.5 w-full" />
+          <SkeletonShimmer className="h-3.5 w-4/5" />
         </div>
-
-        <div className={cn(projectCardInnerFrame, "z-[2]")} />
-
-        <div className="absolute inset-x-0 bottom-0 z-[3] space-y-2.5 px-5 pb-5">
-          <SkeletonShimmer className="h-7 w-3/4 max-w-[220px]" rounded="rounded-md" />
-          <SkeletonShimmer className="h-3 w-28" rounded="rounded" />
-          <div className="space-y-1.5 pt-0.5">
-            <SkeletonShimmer className="h-3.5 w-full" />
-            <SkeletonShimmer className="h-3.5 w-4/5" />
-          </div>
-          <SkeletonShimmer className="h-3 w-2/3 max-w-[180px]" />
-        </div>
+        <SkeletonShimmer className="mt-2 h-4 w-28" rounded="rounded" />
       </div>
     </article>
   );
@@ -51,7 +52,7 @@ export function ProjectCardSkeletonGrid({
   count = PROJECTS_PER_PAGE,
 }: ProjectCardSkeletonGridProps): JSX.Element {
   return (
-    <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
       {Array.from({ length: count }).map((_, i) => (
         <ProjectCardSkeleton key={i} index={i} />
       ))}

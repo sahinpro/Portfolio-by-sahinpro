@@ -16,6 +16,12 @@ const CMS_PLATFORM_SLUGS = CMS_PLATFORM_OPTIONS.map((o) => o.value);
 const baseProjectFields = {
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Short description is required"),
+  role_label: z.string(),
+  case_study: z.object({
+    problem: z.string(),
+    solution: z.string(),
+    result: z.string(),
+  }),
   image_url: z.string(),
   screenshot_urls: z.array(z.string()),
   category: z.enum(PROJECT_CATEGORIES),

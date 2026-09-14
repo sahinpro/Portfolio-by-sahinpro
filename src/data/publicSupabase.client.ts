@@ -1,4 +1,4 @@
-import type { ProjectRow } from "@/admin/types/database";
+import type { ProjectRow, TestimonialRow } from "@/admin/types/database";
 import type { PublicActiveResume } from "@/data/publicSupabase";
 import { getPublicApiEpoch } from "@/lib/publicDataCache";
 
@@ -18,6 +18,10 @@ async function fetchPublicJson<T>(path: string): Promise<T> {
 /** Browser-safe reads via cached `/api/public/*` routes (not direct Supabase). */
 export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
   return fetchPublicJson<ProjectRow[]>("/api/public/projects");
+}
+
+export async function fetchTestimonials(): Promise<TestimonialRow[]> {
+  return fetchPublicJson<TestimonialRow[]>("/api/public/testimonials");
 }
 
 export async function fetchSiteSettingsMap(): Promise<Record<string, string>> {

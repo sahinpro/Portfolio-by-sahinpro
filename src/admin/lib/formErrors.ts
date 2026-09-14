@@ -9,6 +9,8 @@ export type ListedFormError = {
 export const PROJECT_FIELD_LABELS: Record<string, string> = {
   title: "Title",
   description: "Short description",
+  role_label: "Role attribution",
+  case_study: "Case study",
   image_url: "Featured image",
   screenshot_urls: "Screenshot gallery",
   category: "Category",

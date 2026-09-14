@@ -1,7 +1,25 @@
-import { parseScreenshotUrls } from "@/admin/lib/projectMappers";
-import type { ProjectRow } from "@/admin/types/database";
+import {
+  parseCaseStudy,
+  parseScreenshotUrls,
+  parseTestimonial,
+} from "@/admin/lib/projectMappers";
+import type {
+  ProjectCaseStudy,
+  ProjectRow,
+  TestimonialRow,
+} from "@/admin/types/database";
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
 import { projectSlugFromTitle } from "@/lib/projectPaths";
+
+export type PublicCaseStudy = ProjectCaseStudy;
+
+export type PublicTestimonial = {
+  id?: string;
+  quote: string;
+  clientName: string;
+  clientRole?: string;
+  clientPhoto?: string;
+};
 
 /** Shape used by `ProjectsPage` cards (public site). */
 export type PublicProject = {
@@ -9,6 +27,9 @@ export type PublicProject = {
   slug: string;
   title: string;
   description: string;
+  roleLabel: string | null;
+  caseStudy: PublicCaseStudy | null;
+  testimonial: PublicTestimonial | null;
   image: string;
   technologies: string[];
   category: string;
@@ -40,12 +61,37 @@ function parseCmsExtensions(raw: unknown): string[] {
   );
 }
 
+export function mapTestimonial(raw: unknown): PublicTestimonial | null {
+  const parsed = parseTestimonial(raw);
+  if (!parsed) return null;
+  const id =
+    raw && typeof raw === "object" && "id" in raw && typeof raw.id === "string"
+      ? raw.id
+      : undefined;
+  return {
+    ...(id ? { id } : {}),
+    quote: parsed.quote,
+    clientName: parsed.client_name,
+    ...(parsed.client_role ? { clientRole: parsed.client_role } : {}),
+    ...(parsed.client_photo ? { clientPhoto: parsed.client_photo } : {}),
+  };
+}
+
+export function mapTestimonialRowToPublic(
+  row: TestimonialRow,
+): PublicTestimonial | null {
+  return mapTestimonial(row);
+}
+
 export function mapProjectRowToPublic(row: ProjectRow): PublicProject {
   return {
     id: row.id,
     slug: projectSlugFromTitle(row.title),
     title: row.title,
     description: row.description ?? "",
+    roleLabel: row.role_label?.trim() ? row.role_label.trim() : null,
+    caseStudy: parseCaseStudy(row.case_study),
+    testimonial: mapTestimonial(row.testimonial),
     image: row.image_url?.trim() ? row.image_url : PROJECT_IMAGE_PLACEHOLDER,
     technologies: row.technologies ?? [],
     category: row.category || "Web Development",

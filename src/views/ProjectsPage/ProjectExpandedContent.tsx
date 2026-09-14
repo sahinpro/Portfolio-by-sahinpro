@@ -1,5 +1,7 @@
+import { ProjectCaseStudyCopy } from "@/components/projects/ProjectCaseStudyCopy";
+import { ProjectTestimonialCard } from "@/components/projects/ProjectTestimonialCard";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
-import { bodyParagraphs, projectBuildLabel } from "@/lib/projectMeta";
+import { projectBuildLabel } from "@/lib/projectMeta";
 import { ExternalLink, Github } from "lucide-react";
 
 export function ProjectExpandedContent({
@@ -7,14 +9,19 @@ export function ProjectExpandedContent({
 }: {
   project: PublicProjectDetail;
 }): JSX.Element {
-  const paragraphs = bodyParagraphs(project.description || "");
   const buildLabel = projectBuildLabel(project);
 
   return (
     <div className="space-y-6 text-sm leading-relaxed text-white/60">
-      {paragraphs.map((para, i) => (
-        <p key={i}>{para}</p>
-      ))}
+      <ProjectCaseStudyCopy
+        caseStudy={project.caseStudy}
+        description={project.description || ""}
+        className={project.caseStudy ? undefined : "space-y-6"}
+        lineClassName="text-sm leading-relaxed text-white/60"
+        labelClassName="font-medium text-white/45"
+      />
+
+      <ProjectTestimonialCard testimonial={project.testimonial} />
 
       {project.technologies.length > 0 ? (
         <div>

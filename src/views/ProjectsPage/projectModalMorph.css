@@ -112,8 +112,9 @@
   flex-shrink: 0;
 }
 
-/* Modal gallery: align screenshots from the top like the cover image */
+/* Detail gallery: show full screenshot (no crop) inside the cover's natural box */
 .project-morph-hero .carousel-item-image img {
+  object-fit: contain;
   object-position: top center;
 }
 

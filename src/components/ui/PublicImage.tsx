@@ -7,6 +7,7 @@ type PublicImageProps = {
   className?: string;
   priority?: boolean;
   sizes?: string;
+  style?: ImageProps["style"];
 } & (
   | { fill: true; width?: never; height?: never }
   | { fill?: false; width: number; height: number }
@@ -18,16 +19,21 @@ export function PublicImage({
   className,
   priority = false,
   sizes,
+  style,
   fill,
   width,
   height,
 }: PublicImageProps): JSX.Element {
-  const shared: Pick<ImageProps, "src" | "alt" | "priority" | "sizes" | "className"> = {
+  const shared: Pick<
+    ImageProps,
+    "src" | "alt" | "priority" | "sizes" | "className" | "style"
+  > = {
     src,
     alt,
     priority,
     sizes,
     className: cn(className),
+    style,
   };
 
   if (fill) {

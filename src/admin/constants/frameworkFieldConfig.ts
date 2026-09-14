@@ -13,9 +13,7 @@ export const FULL_STACK_FORM_CATEGORIES = [
   "SaaS Platform",
 ] as const satisfies readonly ProjectCategory[];
 
-export function isFullStackFormCategory(
-  category: ProjectCategory,
-): boolean {
+export function isFullStackFormCategory(category: ProjectCategory): boolean {
   return (FULL_STACK_FORM_CATEGORIES as readonly string[]).includes(category);
 }
 
@@ -35,11 +33,12 @@ export const CUSTOM_FRAMEWORK_OPTIONS = [
   { value: "vanilla_js", label: "Vanilla JS" },
 ] as const;
 
-export type CustomFrameworkSlug = (typeof CUSTOM_FRAMEWORK_OPTIONS)[number]["value"];
+export type CustomFrameworkSlug =
+  (typeof CUSTOM_FRAMEWORK_OPTIONS)[number]["value"];
 
 export const CMS_PLATFORM_OPTIONS = [
   { value: "wordpress", label: "WordPress" },
-  { value: "shopify", label: "Shopify" },
+  { value: " ", label: " " },
   { value: "wix", label: "Wix" },
 ] as const;
 

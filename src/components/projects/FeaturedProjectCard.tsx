@@ -1,6 +1,5 @@
 "use client";
 
-import { featuredProjectPointerHint } from "@/components/projects/featuredProjectPointerHint";
 import {
   CLAUDE_BRAND_COLOR,
   FollowerPointerCard,
@@ -12,7 +11,7 @@ import { projectImageAlt } from "@/lib/seoImages";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, ExternalLink, Github, Tag } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const categoryBadge: Record<string, string> = {
   "Web Development": "bg-violet-500/20 text-violet-300 border-violet-500/30",
@@ -34,16 +33,8 @@ export const FeaturedProjectCard = ({
   index,
 }: FeaturedProjectCardProps): JSX.Element => {
   const even = index % 2 === 0;
-  const cardRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const [followPointer, setFollowPointer] = useState(false);
-  const [pointerHint, setPointerHint] = useState(project.title);
-  const hintRaf = useRef(0);
-  const pendingHint = useRef({ x: 0, y: 0 });
-
-  useEffect(() => {
-    setPointerHint(project.title);
-  }, [project.title]);
 
   useEffect(() => {
     if (reduceMotion) {
@@ -56,35 +47,8 @@ export const FeaturedProjectCard = ({
     setFollowPointer(!coarse && !noHover);
   }, [reduceMotion]);
 
-  const handlePointerMove = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      pendingHint.current = { x: event.clientX, y: event.clientY };
-      if (hintRaf.current) return;
-      hintRaf.current = requestAnimationFrame(() => {
-        hintRaf.current = 0;
-        const node = cardRef.current;
-        if (!node) return;
-        const rect = node.getBoundingClientRect();
-        if (rect.width <= 0 || rect.height <= 0) return;
-        const { x, y } = pendingHint.current;
-        const xRatio = (x - rect.left) / rect.width;
-        const yRatio = (y - rect.top) / rect.height;
-        setPointerHint(featuredProjectPointerHint(project, xRatio, yRatio));
-      });
-    },
-    [project],
-  );
-
-  useEffect(() => {
-    return () => {
-      if (hintRaf.current) cancelAnimationFrame(hintRaf.current);
-    };
-  }, []);
-
   const card = (
     <div
-      ref={cardRef}
-      onMouseMove={followPointer ? handlePointerMove : undefined}
       className="group relative grid grid-cols-1 gap-0 overflow-hidden rounded-2xl border border-white/[0.08]
         bg-gradient-to-br from-white/[0.03] to-transparent transition-[border-color] duration-500
         hover:border-white/[0.14] lg:grid-cols-2"
@@ -104,7 +68,7 @@ export const FeaturedProjectCard = ({
       </div>
 
       <div
-        className={`flex flex-col justify-center p-6 sm:p-8 md:p-10 ${even ? "lg:order-2" : "lg:order-1"}`}
+        className={`flex flex-col justify-center p-3 sm:p-8 md:p-10 ${even ? "lg:order-2" : "lg:order-1"}`}
       >
         <div className="mb-4 flex items-center gap-2">
           <span
@@ -140,7 +104,7 @@ export const FeaturedProjectCard = ({
         <div className="flex flex-wrap gap-3">
           <Link
             href="/projects"
-            className="inline-flex items-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/15
+            className="inline-flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/15
               px-4 py-2 text-sm font-semibold text-violet-200 transition-all duration-200 hover:bg-violet-500/25"
           >
             View all projects
@@ -151,7 +115,7 @@ export const FeaturedProjectCard = ({
               href={project.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm
                 font-semibold text-[#161616] transition-colors duration-200 hover:bg-white/90"
             >
               <ExternalLink className="h-4 w-4" />
@@ -185,7 +149,7 @@ export const FeaturedProjectCard = ({
       {followPointer ? (
         <FollowerPointerCard
           accentColor={CLAUDE_BRAND_COLOR}
-          title={pointerHint}
+          title={project.title}
         >
           {card}
         </FollowerPointerCard>

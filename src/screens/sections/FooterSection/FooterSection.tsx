@@ -10,7 +10,7 @@ export const FooterSection = (): JSX.Element => {
     settings.copyright_year?.trim() || String(new Date().getFullYear());
 
   return (
-    <footer className="flex flex-col container mx-auto items-center justify-center gap-[62px] pt-14 pb-12 px-4 md:px-[154px] relative  ">
+    <footer className="flex flex-col container mx-auto items-center justify-center gap-[62px] pt-6 pb-12 px-4 md:px-[154px] relative  ">
       <div className="flex flex-col container mx-auto  items-center justify-center gap-2">
         <TextEffect
           per="char"

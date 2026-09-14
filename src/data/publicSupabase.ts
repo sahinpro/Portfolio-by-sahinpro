@@ -1,7 +1,27 @@
-import type { ProjectRow, ResumeRow } from "@/admin/types/database";
+import type {
+  ProjectRow,
+  ResumeRow,
+  TestimonialRow,
+} from "@/admin/types/database";
+import { parseTestimonial } from "@/admin/lib/projectMappers";
 import { isPublicFileReachable } from "@/lib/publicFileReachable";
 import { latestStoredResume } from "@/lib/resumeStorage";
 import { supabase } from "@/utils/supabase";
+
+function attachTestimonials(
+  projects: ProjectRow[],
+  testimonials: TestimonialRow[],
+): ProjectRow[] {
+  const byProject = new Map<string, TestimonialRow>();
+  for (const row of testimonials) {
+    if (row.project_id) byProject.set(row.project_id, row);
+  }
+  return projects.map((project) => ({
+    ...project,
+    testimonial:
+      byProject.get(project.id) ?? parseTestimonial(project.testimonial),
+  }));
+}
 
 export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
   const { data, error } = await supabase
@@ -10,7 +30,33 @@ export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
     .eq("status", "published")
     .order("updated_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as ProjectRow[];
+  const projects = (data ?? []) as ProjectRow[];
+
+  const { data: testimonialData, error: testimonialError } = await supabase
+    .from("testimonials")
+    .select("*");
+  if (testimonialError) {
+    return projects.map((project) => ({
+      ...project,
+      testimonial: parseTestimonial(project.testimonial),
+    }));
+  }
+
+  return attachTestimonials(
+    projects,
+    (testimonialData ?? []) as TestimonialRow[],
+  );
+}
+
+export async function fetchTestimonials(): Promise<TestimonialRow[]> {
+  const { data, error } = await supabase
+    .from("testimonials")
+    .select("*")
+    .order("updated_at", { ascending: false });
+  if (error) return [];
+  return ((data ?? []) as TestimonialRow[]).filter(
+    (row) => row.quote.trim().length > 0,
+  );
 }
 
 export async function fetchSiteSettingsMap(): Promise<Record<string, string>> {

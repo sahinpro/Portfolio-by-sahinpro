@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { ProjectRow, ResumeRow } from "@/admin/types/database";
+import type { ProjectRow, ResumeRow, TestimonialRow } from "@/admin/types/database";
 import * as publicSupabase from "@/data/publicSupabase";
 import { isPublicFileReachable } from "@/lib/publicFileReachable";
 import {
@@ -15,6 +15,14 @@ export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
   return getRedisCached(
     REDIS_PUBLIC_KEYS.projects,
     publicSupabase.fetchPublishedProjects,
+    PUBLIC_CACHE_TTL_SECONDS,
+  );
+}
+
+export async function fetchTestimonials(): Promise<TestimonialRow[]> {
+  return getRedisCached(
+    REDIS_PUBLIC_KEYS.testimonials,
+    publicSupabase.fetchTestimonials,
     PUBLIC_CACHE_TTL_SECONDS,
   );
 }
@@ -51,4 +59,4 @@ export async function fetchActiveResume(): Promise<
 }
 
 export type { PublicActiveResume } from "@/data/publicSupabase";
-export type { ProjectRow, ResumeRow };
+export type { ProjectRow, ResumeRow, TestimonialRow };

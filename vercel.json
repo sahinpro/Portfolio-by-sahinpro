@@ -1,4 +1,30 @@
 {
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "sahin.pro.bd" }],
+      "destination": "https://www.sahinpro.me/",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "sahin.pro.bd" }],
+      "destination": "https://www.sahinpro.me/:path*",
+      "statusCode": 301
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.sahin.pro.bd" }],
+      "destination": "https://www.sahinpro.me/",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.sahin.pro.bd" }],
+      "destination": "https://www.sahinpro.me/:path*",
+      "statusCode": 301
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
