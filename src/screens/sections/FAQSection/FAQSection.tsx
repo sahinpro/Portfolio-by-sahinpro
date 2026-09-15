@@ -53,7 +53,7 @@ export const FAQSection = (): JSX.Element => {
       className="relative flex flex-col container mx-auto items-center gap-12 px-4 py-10 sm:py-14"
     >
       <motion.div
-        className="flex flex-col items-center gap-10 relative z-10"
+        className="flex flex-col w-full items-center gap-10 relative z-10"
         initial="hidden"
         whileInView="visible"
         viewport={scrollViewport}
