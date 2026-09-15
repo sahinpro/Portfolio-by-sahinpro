@@ -1,6 +1,6 @@
 import { AuroraBackground } from "@/components/effects/AuroraBackground";
+import { PublicImage } from "@/components/ui/PublicImage";
 import { editorItem, heroContainer } from "@/constants/scrollMotion";
-import { AboutCodeWindow } from "@/screens/sections/AboutCodeSection";
 import { HeroContent } from "@/screens/sections/HeroSection/HeroContent";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -22,15 +22,23 @@ export const HeroSection = (): JSX.Element => {
 
       <div className="relative z-[2] container mx-auto px-1 lg:px-4 pt-5">
         <div className="relative flex flex-col lg:flex-row gap-0 lg:gap-12 xl:gap-16 justify-between items-center max-lg:items-stretch max-lg:pt-2 max-lg:pb-4">
-          <div className="order-1 relative z-10 flex flex-col items-center lg:items-start text-center lg:text-left w-full lg:w-auto max-lg:px-1 mb-10 lg:mb-0">
+          <div className="order-2 lg:order-1 relative z-10 flex flex-col items-center lg:items-start text-center lg:text-left w-full lg:w-auto max-lg:px-1 mb-10 lg:mb-0">
             <HeroContent />
           </div>
 
           <motion.div
             variants={editorItem}
-            className="order-2 relative z-0 w-full min-w-0 lg:w-1/2 aspect-video max-lg:pointer-events-none max-lg:select-none max-lg:origin-top max-lg:scale-[0.98]"
+            className="order-1 lg:order-2 relative z-0 w-full min-w-0 lg:w-1/2"
           >
-            <AboutCodeWindow startOnMount />
+            <PublicImage
+              src="/hero.png"
+              alt="Isometric illustration of a customer, integrator platform, and connected business apps"
+              width={758}
+              height={538}
+              priority
+              sizes="(max-width: 1024px) 94vw, 50vw"
+              className="h-auto w-full object-contain pointer-events-none select-none origin-center"
+            />
           </motion.div>
         </div>
       </div>
