@@ -42,7 +42,7 @@ export function ProjectCardTeaser({
       </p>
       <h3 className={titleClassName}>{title}</h3>
       {roleLabel ? (
-        <p className="mt-1.5 text-sm text-white/45">
+        <p className="mt-1.5 text-xs text-white/45">
           {roleLabel ? roleLabel : "Built while employed at We Next Coder"}
         </p>
       ) : null}

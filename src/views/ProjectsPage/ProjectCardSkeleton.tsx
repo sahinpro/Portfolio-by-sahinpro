@@ -4,7 +4,7 @@ import { PROJECTS_PER_PAGE } from "@/views/ProjectsPage/ProjectsPagination";
 import {
   projectCardInnerFrame,
   projectCardShell,
-} from "@/views/ProjectsPage/projectModalStyles";
+} from "@/views/ProjectsPage/projectCardStyles";
 
 export type ProjectCardSkeletonProps = {
   index?: number;

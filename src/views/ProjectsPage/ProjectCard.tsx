@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import {
   projectCardInnerFrame,
   projectCardShell,
-} from "@/views/ProjectsPage/projectModalStyles";
+} from "@/views/ProjectsPage/projectCardStyles";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import Link from "next/link";

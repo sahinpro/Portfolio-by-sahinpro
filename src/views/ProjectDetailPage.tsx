@@ -2,7 +2,7 @@
 
 import { CTAButton } from "@/components/common/CTAButton";
 import Header from "@/components/Header";
-import { ProjectMorphHero } from "@/components/projects/ProjectMorphHero";
+import { ProjectDetailHero } from "@/components/projects/ProjectDetailHero";
 import { ProjectTestimonialCard } from "@/components/projects/ProjectTestimonialCard";
 import {
   fadeInUp,
@@ -92,10 +92,9 @@ export function ProjectDetailPage({
               variants={fadeInUp}
             >
               <div className="overflow-hidden relative rounded-[1.75rem] border border-white/[0.08] bg-[#111]">
-                <ProjectMorphHero
+                <ProjectDetailHero
                   project={project}
                   galleryReady={galleryReady}
-                  variant="modal"
                 />
                 <motion.p
                   variants={pageHeroItem}
