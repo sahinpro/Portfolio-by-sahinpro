@@ -4,10 +4,10 @@ import { deferUntilIdle } from "@/lib/deferUntilIdle";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 const BRAND_COLORS = {
-  blue: "#789cff",
-  purple: "#9500ff",
-  violet: "#c37aff",
-  accent: "#ee2a7b",
+  blue: "#ffd650",
+  purple: "#ffbf00",
+  violet: "#e6a000",
+  accent: "#ff9a1a",
 } as const;
 
 const AURORA_LAYERS = 16;
@@ -96,10 +96,10 @@ void main() {
 
 export const CSS_AURORA_STYLE: CSSProperties = {
   background: `
-    radial-gradient(ellipse 85% 55% at 50% -15%, rgba(149, 0, 255, 0.22), transparent 58%),
-    radial-gradient(ellipse 55% 45% at 85% 45%, rgba(120, 156, 255, 0.14), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 15% 55%, rgba(195, 122, 255, 0.12), transparent 52%),
-    radial-gradient(ellipse 40% 30% at 50% 80%, rgba(238, 42, 123, 0.06), transparent 50%)
+    radial-gradient(ellipse 85% 55% at 50% -15%, rgba(255, 191, 0, 0.22), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 85% 45%, rgba(255, 214, 80, 0.14), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 15% 55%, rgba(230, 160, 0, 0.12), transparent 52%),
+    radial-gradient(ellipse 40% 30% at 50% 80%, rgba(255, 154, 26, 0.06), transparent 50%)
   `,
 };
 
@@ -207,7 +207,7 @@ export default function AuroraBackgroundDesktop({
 
       const canvas = renderer.domElement;
       canvas.style.cssText =
-        "position:absolute;inset:0;width:100%;height:100%;pointer-events:none";
+        "position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:20";
 
       container.appendChild(canvas);
       setWebglReady(true);
