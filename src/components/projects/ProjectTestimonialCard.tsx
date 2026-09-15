@@ -48,7 +48,7 @@ export function ProjectTestimonialCard({
 
   return (
     <div className={cn(className)}>
-      <figure className="relative rounded-2xl bg-gradient-to-br from-white/10 to-white/0 px-6 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur sm:p-8">
+      <figure className="relative rounded-2xl min-h-[16rem] bg-gradient-to-br from-white/10 to-white/0 px-6 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur sm:p-8">
         <span
           aria-hidden
           className="pointer-events-none absolute inset-0 rounded-2xl"

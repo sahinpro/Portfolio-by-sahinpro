@@ -2,13 +2,13 @@
 
 import type { TestimonialRow } from "@/admin/types/database";
 import { ProjectTestimonialCard } from "@/components/projects/ProjectTestimonialCard";
+import { SectionLabel } from "@/components/sections/SectionLabel";
 import {
   fadeInUp,
   scrollViewport,
   sectionReveal,
 } from "@/constants/scrollMotion";
 import { usePublicTestimonials } from "@/hooks/usePublicTestimonials";
-import { cn } from "@/lib/utils";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -80,9 +80,7 @@ export function TestimonialsSection({
 
         <div className="relative w-full flex flex-col lg:flex-row gap-8 md:gap-16">
           <motion.div variants={fadeInUp} className="lg:w-1/2">
-            <span className="inline-flex items-center rounded-full bg-emerald-950 px-3 py-1 text-xs font-medium uppercase tracking-tight text-emerald-400 ring-1 ring-emerald-400/20">
-              Testimonials
-            </span>
+            <SectionLabel>Testimonials</SectionLabel>
             <h2 className="mt-6 text-4xl font-light tracking-tight text-white sm:text-5xl lg:text-6xl">
               What clients say after I deliver
             </h2>
@@ -109,26 +107,6 @@ export function TestimonialsSection({
                 >
                   <ArrowRight className="h-5 w-5" aria-hidden />
                 </button>
-                <div className="ml-1 flex items-center gap-2" role="tablist">
-                  {testimonials.map((item, i) => (
-                    <button
-                      key={item.id ?? `${item.clientName}-${i}`}
-                      type="button"
-                      role="tab"
-                      aria-label={`Go to testimonial ${i + 1}`}
-                      aria-selected={i === index}
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-                      onClick={() => goTo(i)}
-                    >
-                      <span
-                        className={cn(
-                          "h-2.5 w-2.5 rounded-full ring-1 ring-white/10 transition",
-                          i === index ? "bg-emerald-400" : "bg-white/20",
-                        )}
-                      />
-                    </button>
-                  ))}
-                </div>
               </div>
             ) : null}
           </motion.div>
