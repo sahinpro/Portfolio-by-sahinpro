@@ -196,7 +196,7 @@ export const ProjectsPage = ({
           <section
             ref={gridRef}
             id="projects-grid"
-            className="w-full scroll-mt-28 pb-28"
+            className="w-full scroll-mt-28 pb-10 lg:pb-16"
           >
             <div className="container mx-auto space-y-12 px-4">
               <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">

@@ -449,3 +449,23 @@ html[data-perf="medium"] [class*="backdrop-blur-xl"] {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
+/* MEDIUM (added): blur-3xl/2xl decorative glows (48–64px radius) ship on
+   almost every page — the single most expensive filter for mobile GPUs
+   during scroll. Cap the radius; visual look barely changes but the
+   compositor has far less to redo per frame. Desktop (data-perf="high")
+   is untouched, so nothing changes there. */
+html[data-perf="medium"] [class*="blur-3xl"],
+html[data-perf="medium"] [class*="blur-2xl"] {
+  filter: blur(20px) !important;
+}
+/* MEDIUM (added): the header is position:fixed and visible for 100% of the
+   scroll gesture, so ANY backdrop-filter on it forces the browser to
+   re-sample everything scrolling underneath it on every single frame —
+   this is the single most expensive element for touch-scroll smoothness,
+   regardless of blur radius. Drop it to a solid background instead; the
+   existing border + shadow + gradient overlay already carry the "glass" look. */
+html[data-perf="medium"] .header-glass {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: rgba(10, 10, 10, 0.82) !important;
+}
