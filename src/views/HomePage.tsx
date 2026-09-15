@@ -2,6 +2,7 @@
 
 import type { ProjectRow, TestimonialRow } from "@/admin/types/database";
 import Header from "@/components/Header";
+import { DeferredSection } from "@/components/layout/DeferredSection";
 import { FeaturedProjectsSectionSkeleton } from "@/screens/sections/FeaturedProjectsSection/FeaturedProjectsSectionSkeleton";
 import { HeroSection } from "@/screens/sections/HeroSection";
 import { StatsSection } from "@/screens/sections/StatsSection";
@@ -34,50 +35,32 @@ const TechStackSection = lazy(() =>
   })),
 );
 const CareerJourneySection = lazy(() =>
-  import(
-    /* webpackPrefetch: true */
-    "@/screens/sections/CareerJourneySection"
-  ).then((m) => ({
+  import("@/screens/sections/CareerJourneySection").then((m) => ({
     default: m.CareerJourneySection,
   })),
 );
 const DevelopmentProcessSection = lazy(() =>
-  import(
-    /* webpackPrefetch: true */
-    "@/screens/sections/DevelopmentProcessSection"
-  ).then((m) => ({
+  import("@/screens/sections/DevelopmentProcessSection").then((m) => ({
     default: m.DevelopmentProcessSection,
   })),
 );
 const WhyChooseUsSection = lazy(() =>
-  import(
-    /* webpackPrefetch: true */
-    "@/screens/sections/WhyChooseUsSection"
-  ).then((m) => ({
+  import("@/screens/sections/WhyChooseUsSection").then((m) => ({
     default: m.WhyChooseUsSection,
   })),
 );
 const FAQSection = lazy(() =>
-  import(
-    /* webpackPrefetch: true */
-    "@/screens/sections/FAQSection"
-  ).then((m) => ({
+  import("@/screens/sections/FAQSection").then((m) => ({
     default: m.FAQSection,
   })),
 );
 const GetStartedSection = lazy(() =>
-  import(
-    /* webpackPrefetch: true */
-    "@/screens/sections/GetStartedSection"
-  ).then((m) => ({
+  import("@/screens/sections/GetStartedSection").then((m) => ({
     default: m.GetStartedSection,
   })),
 );
 const FooterSection = lazy(() =>
-  import(
-    /* webpackPrefetch: true */
-    "@/screens/sections/FooterSection"
-  ).then((m) => ({
+  import("@/screens/sections/FooterSection").then((m) => ({
     default: m.FooterSection,
   })),
 );
@@ -111,24 +94,36 @@ export const HomePage = ({
       <Suspense fallback={<div className="w-full min-h-[420px]" aria-hidden />}>
         <TechStackSection />
       </Suspense>
-      <Suspense fallback={<div className="w-full min-h-[500px]" aria-hidden />}>
-        <CareerJourneySection />
-      </Suspense>
-      <Suspense fallback={<div className="w-full min-h-[400px]" aria-hidden />}>
-        <DevelopmentProcessSection />
-      </Suspense>
-      <Suspense fallback={<div className="w-full min-h-[480px]" aria-hidden />}>
-        <WhyChooseUsSection />
-      </Suspense>
-      <Suspense fallback={<div className="w-full min-h-[400px]" aria-hidden />}>
-        <FAQSection />
-      </Suspense>
-      <Suspense fallback={<div className="w-full min-h-[320px]" aria-hidden />}>
-        <GetStartedSection />
-      </Suspense>
-      <Suspense fallback={<div className="w-full min-h-[280px]" aria-hidden />}>
-        <FooterSection />
-      </Suspense>
+      <DeferredSection fallback={<div className="w-full min-h-[500px]" aria-hidden />}>
+        <Suspense fallback={<div className="w-full min-h-[500px]" aria-hidden />}>
+          <CareerJourneySection />
+        </Suspense>
+      </DeferredSection>
+      <DeferredSection fallback={<div className="w-full min-h-[400px]" aria-hidden />}>
+        <Suspense fallback={<div className="w-full min-h-[400px]" aria-hidden />}>
+          <DevelopmentProcessSection />
+        </Suspense>
+      </DeferredSection>
+      <DeferredSection fallback={<div className="w-full min-h-[480px]" aria-hidden />}>
+        <Suspense fallback={<div className="w-full min-h-[480px]" aria-hidden />}>
+          <WhyChooseUsSection />
+        </Suspense>
+      </DeferredSection>
+      <DeferredSection fallback={<div className="w-full min-h-[400px]" aria-hidden />}>
+        <Suspense fallback={<div className="w-full min-h-[400px]" aria-hidden />}>
+          <FAQSection />
+        </Suspense>
+      </DeferredSection>
+      <DeferredSection fallback={<div className="w-full min-h-[320px]" aria-hidden />}>
+        <Suspense fallback={<div className="w-full min-h-[320px]" aria-hidden />}>
+          <GetStartedSection />
+        </Suspense>
+      </DeferredSection>
+      <DeferredSection fallback={<div className="w-full min-h-[280px]" aria-hidden />}>
+        <Suspense fallback={<div className="w-full min-h-[280px]" aria-hidden />}>
+          <FooterSection />
+        </Suspense>
+      </DeferredSection>
     </main>
   );
 };
