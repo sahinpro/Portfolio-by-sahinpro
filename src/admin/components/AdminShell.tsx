@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   Settings2,
+  Target,
   X,
 } from "lucide-react";
 import { AdminNavLink } from "@/components/common/AdminNavLink";
@@ -46,6 +47,7 @@ function mobileAdminTitle(pathname: string): string {
   if (pathname.startsWith("/admin/projects")) return "Projects";
   if (pathname.startsWith("/admin/testimonials")) return "Testimonials";
   if (pathname.startsWith("/admin/media")) return "Media";
+  if (pathname.startsWith("/admin/challenges")) return "Challenges";
   if (pathname.startsWith("/admin/analytics")) return "Analytics";
   if (pathname === "/admin/settings") return "Site settings";
   if (pathname.startsWith("/admin/settings/resume")) return "Resume";
@@ -231,6 +233,10 @@ export function AdminShell({ children }: { children: ReactNode }): JSX.Element {
               <AdminNavLink href="/admin/testimonials" className={navClass}>
                 <Quote className="h-4 w-4 shrink-0 opacity-80" />
                 Testimonials
+              </AdminNavLink>
+              <AdminNavLink href="/admin/challenges" className={navClass}>
+                <Target className="h-4 w-4 shrink-0 opacity-80" />
+                Challenges
               </AdminNavLink>
               <AdminNavLink href="/admin/media" className={navClass}>
                 <ImageIcon className="h-4 w-4 shrink-0 opacity-80" />
