@@ -12,7 +12,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(getSiteUrl()),
+  metadataBase: new URL("https://www.sahinpro.me"),
   title: {
     default: DEFAULT_META_TITLE,
     template: `%s | Sahin Alam`,
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
       { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
       { url: "/icons/favicon-48x48.png", sizes: "48x48", type: "image/png" },
       {
-        url: "/icons/favicon-192x192.png",
+         url: "/icons/favicon-192x192.png",
         sizes: "192x192",
         type: "image/png",
       },
@@ -46,6 +46,12 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
+    type: "website",
+    siteName: "Sahin Alam",
+    locale: "en_US",
+    url: "/",
+    title: DEFAULT_META_TITLE,
+    description: DEFAULT_META_DESCRIPTION,
     images: [
       {
         url: OG_IMAGE.url,
@@ -55,6 +61,12 @@ export const metadata: Metadata = {
         type: OG_IMAGE.type,
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_META_TITLE,
+    description: DEFAULT_META_DESCRIPTION,
+    images: [OG_IMAGE.url],
   },
   alternates: {
     types: {
