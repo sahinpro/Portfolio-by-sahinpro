@@ -1,6 +1,5 @@
 import { PublicLayoutShell } from "@/components/layout/PublicLayoutShell";
 import { SiteStructuredDataScript } from "@/components/public/SiteStructuredDataScript";
-import { getSiteUrl } from "@/constants/site";
 import { inter, monteCarlo } from "@/lib/fonts";
 import { PERF_BOOT_SCRIPT } from "@/lib/performanceLevel";
 import {
