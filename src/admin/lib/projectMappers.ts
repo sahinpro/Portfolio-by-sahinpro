@@ -11,6 +11,7 @@ import {
 import type { ProjectFormValues } from "@/admin/schemas/projectFormSchema";
 import type {
   ProjectCaseStudy,
+  ProjectMetric,
   ProjectRow,
   ProjectTestimonial,
 } from "@/admin/types/database";
@@ -46,6 +47,12 @@ function readTrimmedString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+export function parseMetrics(raw: unknown): ProjectMetric[] {
+  return parseStats(raw)
+    .map((item) => ({ label: item.label.trim(), value: item.value.trim() }))
+    .filter((item) => item.label.length > 0 || item.value.length > 0);
+}
+
 export function parseCaseStudy(raw: unknown): ProjectCaseStudy | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const obj = raw as Record<string, unknown>;
@@ -54,6 +61,44 @@ export function parseCaseStudy(raw: unknown): ProjectCaseStudy | null {
   const result = readTrimmedString(obj.result);
   if (!problem && !solution && !result) return null;
   return { problem, solution, result };
+}
+
+/** Column values win. JSON is only a fallback for rows saved before the columns existed. */
+export function caseStudyTextsFromRow(
+  row: Pick<ProjectRow, "problem" | "solution" | "result" | "case_study">,
+): ProjectCaseStudy | null {
+  const legacy = parseCaseStudy(row.case_study);
+  const problem = readTrimmedString(row.problem) || legacy?.problem || "";
+  const solution = readTrimmedString(row.solution) || legacy?.solution || "";
+  const result = readTrimmedString(row.result) || legacy?.result || "";
+  if (!problem && !solution && !result) return null;
+  return { problem, solution, result };
+}
+
+function legacyCaseStudyRecord(
+  raw: ProjectRow["case_study"],
+): Record<string, unknown> | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  return raw as Record<string, unknown>;
+}
+
+export function metricsFromRow(row: ProjectRow): ProjectMetric[] {
+  const fromColumn = parseMetrics(row.metrics);
+  if (fromColumn.length > 0) return fromColumn;
+  const legacy = legacyCaseStudyRecord(row.case_study);
+  return legacy ? parseMetrics(legacy.metrics) : [];
+}
+
+export function caseStudyImageFromRow(
+  column: string | null | undefined,
+  legacyKey: "before_image" | "after_image",
+  row: ProjectRow,
+): string | null {
+  const fromColumn = readTrimmedString(column);
+  if (fromColumn) return fromColumn;
+  const legacy = legacyCaseStudyRecord(row.case_study);
+  const fromLegacy = legacy ? readTrimmedString(legacy[legacyKey]) : "";
+  return fromLegacy || null;
 }
 
 export function parseTestimonial(raw: unknown): ProjectTestimonial | null {
@@ -155,7 +200,7 @@ export function projectRowToFormValues(row: ProjectRow): ProjectFormValues {
     category = categoriesForBuildKind("custom")[0];
   }
 
-  const caseStudy = parseCaseStudy(row.case_study);
+  const caseStudy = caseStudyTextsFromRow(row);
 
   return stripInactiveBuildFields({
     title: row.title === "Untitled project" ? "" : row.title,
@@ -166,6 +211,12 @@ export function projectRowToFormValues(row: ProjectRow): ProjectFormValues {
       solution: caseStudy?.solution ?? "",
       result: caseStudy?.result ?? "",
     },
+    metrics: metricsFromRow(row),
+    before_image: caseStudyImageFromRow(row.before_image, "before_image", row) ?? "",
+    after_image: caseStudyImageFromRow(row.after_image, "after_image", row) ?? "",
+    testimonial_quote: row.testimonial_quote ?? "",
+    testimonial_author: row.testimonial_author ?? "",
+    testimonial_role: row.testimonial_role ?? "",
     image_url: row.image_url ?? "",
     screenshot_urls: screenshots,
     technologies: row.build_kind === "custom" ? (row.technologies ?? []) : [],
@@ -209,11 +260,21 @@ export function formValuesToProjectPayload(
     .map((e) => (e ?? "").trim())
     .filter(Boolean);
   const desc = activeValues.description.trim();
+  const metrics = parseMetrics(activeValues.metrics);
 
   const base = {
     title: activeValues.title.trim() || "Untitled project",
     description: desc || null,
     role_label: activeValues.role_label.trim() || null,
+    problem: activeValues.case_study.problem.trim() || null,
+    solution: activeValues.case_study.solution.trim() || null,
+    result: activeValues.case_study.result.trim() || null,
+    metrics,
+    before_image: activeValues.before_image.trim() || null,
+    after_image: activeValues.after_image.trim() || null,
+    testimonial_quote: activeValues.testimonial_quote.trim() || null,
+    testimonial_author: activeValues.testimonial_author.trim() || null,
+    testimonial_role: activeValues.testimonial_role.trim() || null,
     case_study: caseStudyToPayload(activeValues.case_study),
     image_url: activeValues.image_url.trim() || null,
     screenshot_urls: screenshotClean,
@@ -261,6 +322,12 @@ export function defaultEmptyProjectForm(): ProjectFormValues {
     description: "",
     role_label: "",
     case_study: { problem: "", solution: "", result: "" },
+    metrics: [],
+    before_image: "",
+    after_image: "",
+    testimonial_quote: "",
+    testimonial_author: "",
+    testimonial_role: "",
     image_url: "",
     screenshot_urls: [],
     technologies: [],
@@ -289,6 +356,20 @@ export function shouldPersistNewProjectDraft(
   if (t(values.case_study.problem) !== t(d.case_study.problem)) return true;
   if (t(values.case_study.solution) !== t(d.case_study.solution)) return true;
   if (t(values.case_study.result) !== t(d.case_study.result)) return true;
+  if (values.metrics.length !== d.metrics.length) return true;
+  if (
+    values.metrics.some(
+      (metric, i) =>
+        t(metric.label) !== t(d.metrics[i]?.label ?? "") ||
+        t(metric.value) !== t(d.metrics[i]?.value ?? ""),
+    )
+  )
+    return true;
+  if (t(values.before_image) !== t(d.before_image)) return true;
+  if (t(values.after_image) !== t(d.after_image)) return true;
+  if (t(values.testimonial_quote) !== t(d.testimonial_quote)) return true;
+  if (t(values.testimonial_author) !== t(d.testimonial_author)) return true;
+  if (t(values.testimonial_role) !== t(d.testimonial_role)) return true;
   if (t(values.image_url) !== t(d.image_url)) return true;
   if (values.screenshot_urls.length !== d.screenshot_urls.length) return true;
   if (

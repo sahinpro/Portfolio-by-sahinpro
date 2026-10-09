@@ -1,17 +1,26 @@
 import {
-  parseCaseStudy,
+  caseStudyImageFromRow,
+  caseStudyTextsFromRow,
+  metricsFromRow,
   parseScreenshotUrls,
   parseTestimonial,
 } from "@/admin/lib/projectMappers";
 import type {
-  ProjectCaseStudy,
+  ProjectMetric,
   ProjectRow,
   TestimonialRow,
 } from "@/admin/types/database";
 import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
 import { projectSlugFromTitle } from "@/lib/projectPaths";
+import { visibleLabels } from "@/lib/visibleLabels";
 
-export type PublicCaseStudy = ProjectCaseStudy;
+export type PublicCaseStudy = {
+  problem: string;
+  solution: string;
+  result: string;
+};
+
+export type PublicProjectMetric = ProjectMetric;
 
 export type PublicTestimonial = {
   id?: string;
@@ -52,6 +61,9 @@ export type PublicProjectDetail = PublicProject & {
   cmsPlatform: ProjectRow["cms_platform"];
   cmsThemeName: string | null;
   cmsExtensions: string[];
+  metrics: PublicProjectMetric[];
+  beforeImage: string | null;
+  afterImage: string | null;
 };
 
 function parseCmsExtensions(raw: unknown): string[] {
@@ -77,6 +89,20 @@ export function mapTestimonial(raw: unknown): PublicTestimonial | null {
   };
 }
 
+export function mapProjectTestimonial(row: ProjectRow): PublicTestimonial | null {
+  const quote = row.testimonial_quote?.trim() ?? "";
+  if (quote) {
+    const author = row.testimonial_author?.trim() ?? "";
+    const role = row.testimonial_role?.trim() ?? "";
+    return {
+      quote,
+      clientName: author,
+      ...(role ? { clientRole: role } : {}),
+    };
+  }
+  return mapTestimonial(row.testimonial);
+}
+
 export function mapTestimonialRowToPublic(
   row: TestimonialRow,
 ): PublicTestimonial | null {
@@ -90,10 +116,10 @@ export function mapProjectRowToPublic(row: ProjectRow): PublicProject {
     title: row.title,
     description: row.description ?? "",
     roleLabel: row.role_label?.trim() ? row.role_label.trim() : null,
-    caseStudy: parseCaseStudy(row.case_study),
-    testimonial: mapTestimonial(row.testimonial),
+    caseStudy: caseStudyTextsFromRow(row),
+    testimonial: mapProjectTestimonial(row),
     image: row.image_url?.trim() ? row.image_url : PROJECT_IMAGE_PLACEHOLDER,
-    technologies: row.technologies ?? [],
+    technologies: visibleLabels(row.technologies),
     category: row.category || "Web Development",
     liveUrl: row.live_url,
     githubUrl: row.github_url,
@@ -119,5 +145,8 @@ export function mapProjectRowToPublicDetail(
     cmsThemeName: row.cms_theme_name?.trim() ? row.cms_theme_name : null,
     cmsExtensions:
       row.build_kind === "cms" ? parseCmsExtensions(row.cms_extensions) : [],
+    metrics: metricsFromRow(row),
+    beforeImage: caseStudyImageFromRow(row.before_image, "before_image", row),
+    afterImage: caseStudyImageFromRow(row.after_image, "after_image", row),
   };
 }

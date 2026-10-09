@@ -136,6 +136,7 @@ export function AdminProjectFormPage({
   }, []);
 
   const cmsExtensions = watch("cms_extensions");
+  const metrics = watch("metrics");
   const buildKind = useWatch({ control, name: "build_kind" });
   const status = useWatch({ control, name: "status" });
   const categoryOptions = categoriesForBuildKind(buildKind ?? "custom");
@@ -459,7 +460,7 @@ export function AdminProjectFormPage({
             />
             <p className="mt-1 text-[11px] text-white/35">
               e.g. &apos;Sole Developer — built while employed at We Next
-              Coder&apos; or &apos;Independent Client (via Fiverr)&apos;
+              Coder&apos; or &apos;Independent freelance&apos;
             </p>
             <FieldError message={errors.role_label?.message} />
           </div>
@@ -553,8 +554,8 @@ export function AdminProjectFormPage({
         <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
           <h2 className="text-sm font-semibold text-white">Case Study</h2>
           <p className="text-[11px] text-white/35">
-            Optional. When filled, these replace the short description on the
-            public site.
+            Optional. Each field appears on the project page only when it has
+            content. The short description stays.
           </p>
           <div data-field="case_study">
             <label className={labelCls} htmlFor="project-case-problem">
@@ -592,13 +593,137 @@ export function AdminProjectFormPage({
             />
             <FieldError message={errors.case_study?.result?.message} />
           </div>
+          <div data-field="metrics">
+            <label className={labelCls}>Metrics (optional)</label>
+            <p className="mb-2 text-[11px] text-white/35">
+              A label and a value, such as Mobile PageSpeed and 38 to 91.
+              Blank rows are not saved.
+            </p>
+            {(metrics ?? []).map((_, index) => (
+              <div key={index} className="mb-2 flex gap-2">
+                <Input
+                  className={field}
+                  placeholder="Label"
+                  aria-label={`Metric ${index + 1} label`}
+                  {...register(`metrics.${index}.label` as const)}
+                />
+                <Input
+                  className={field}
+                  placeholder="Value"
+                  aria-label={`Metric ${index + 1} value`}
+                  {...register(`metrics.${index}.value` as const)}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue(
+                      "metrics",
+                      (metrics ?? []).filter((__, j) => j !== index),
+                      { shouldValidate: true },
+                    );
+                  }}
+                  className="p-2 text-red-400/70"
+                  aria-label="Remove metric"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() =>
+                setValue(
+                  "metrics",
+                  [...(metrics ?? []), { label: "", value: "" }],
+                  { shouldValidate: true },
+                )
+              }
+              className="text-xs font-medium text-violet-300"
+            >
+              + Add metric
+            </button>
+            <FieldError message={errors.metrics?.message} />
+          </div>
+          <div data-field="before_image">
+            <Controller
+              name="before_image"
+              control={control}
+              render={({ field: f }) => (
+                <ImageUrlField
+                  label="Before image (optional)"
+                  value={f.value}
+                  onChange={f.onChange}
+                  bucket="portfolio-assets"
+                  pathPrefix="projects/before-after"
+                />
+              )}
+            />
+            <FieldError message={errors.before_image?.message} />
+          </div>
+          <div data-field="after_image">
+            <Controller
+              name="after_image"
+              control={control}
+              render={({ field: f }) => (
+                <ImageUrlField
+                  label="After image (optional)"
+                  value={f.value}
+                  onChange={f.onChange}
+                  bucket="portfolio-assets"
+                  pathPrefix="projects/before-after"
+                />
+              )}
+            />
+            <FieldError message={errors.after_image?.message} />
+          </div>
         </section>
 
         <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
           <h2 className="text-sm font-semibold text-white">Testimonial</h2>
           <p className="text-[11px] text-white/35">
-            Client quotes are managed in Testimonials. Assign one to this
-            project there so it appears on the public case-study page.
+            Optional quote stored on this project. It appears on the project
+            page only when the quote is filled. If these fields are empty, an
+            assigned testimonial from Testimonials is used instead.
+          </p>
+          <div data-field="testimonial_quote">
+            <label className={labelCls} htmlFor="project-testimonial-quote">
+              Quote
+            </label>
+            <Textarea
+              id="project-testimonial-quote"
+              className={`${field} min-h-[80px]`}
+              aria-invalid={Boolean(errors.testimonial_quote)}
+              {...register("testimonial_quote")}
+            />
+            <FieldError message={errors.testimonial_quote?.message} />
+          </div>
+          <div data-field="testimonial_author">
+            <label className={labelCls} htmlFor="project-testimonial-author">
+              Author
+            </label>
+            <Input
+              id="project-testimonial-author"
+              className={field}
+              aria-invalid={Boolean(errors.testimonial_author)}
+              {...register("testimonial_author")}
+            />
+            <FieldError message={errors.testimonial_author?.message} />
+          </div>
+          <div data-field="testimonial_role">
+            <label className={labelCls} htmlFor="project-testimonial-role">
+              Role
+            </label>
+            <Input
+              id="project-testimonial-role"
+              className={field}
+              aria-invalid={Boolean(errors.testimonial_role)}
+              {...register("testimonial_role")}
+            />
+            <FieldError message={errors.testimonial_role?.message} />
+          </div>
+          <p className="text-[11px] text-white/35">
+            You can still assign a quote from Testimonials. That quote is used
+            only when the fields above are empty.
           </p>
           {assignedTestimonial?.quote ? (
             <div className="space-y-3">

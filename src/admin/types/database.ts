@@ -21,6 +21,11 @@ export type ProjectCustomFrameworkDbSlug =
   | "other"
   | null;
 
+export type ProjectMetric = {
+  label: string;
+  value: string;
+};
+
 export type ProjectCaseStudy = {
   problem: string;
   solution: string;
@@ -51,6 +56,17 @@ export type ProjectRow = {
   description: string | null;
   /** Short attribution, e.g. sole developer vs independent freelance client. */
   role_label?: string | null;
+  /** Optional case-study copy. Empty/null means the public section stays hidden. */
+  problem?: string | null;
+  solution?: string | null;
+  result?: string | null;
+  /** `{ label, value }[]`. Empty array means no stat cards. */
+  metrics?: ProjectMetric[] | unknown;
+  before_image?: string | null;
+  after_image?: string | null;
+  testimonial_quote?: string | null;
+  testimonial_author?: string | null;
+  testimonial_role?: string | null;
   case_study?: ProjectCaseStudy | null;
   /**
    * Resolved from `testimonials.project_id` (or legacy JSON) when loading

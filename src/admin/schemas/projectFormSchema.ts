@@ -22,6 +22,17 @@ const baseProjectFields = {
     solution: z.string(),
     result: z.string(),
   }),
+  metrics: z.array(
+    z.object({
+      label: z.string(),
+      value: z.string(),
+    }),
+  ),
+  before_image: z.string(),
+  after_image: z.string(),
+  testimonial_quote: z.string(),
+  testimonial_author: z.string(),
+  testimonial_role: z.string(),
   image_url: z.string(),
   screenshot_urls: z.array(z.string()),
   category: z.enum(PROJECT_CATEGORIES),
