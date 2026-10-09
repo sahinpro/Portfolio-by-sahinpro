@@ -25,7 +25,7 @@ export const EXPERTISE_CATEGORIES: ExpertiseCategory[] = [
   {
     category: "CMS & E-commerce",
     iconKey: "cms",
-    skills: ["WordPress", "Wix", " ", "WooCommerce"],
+    skills: ["WordPress", "Wix", "WooCommerce"],
   },
   {
     category: "Design Tools",
@@ -71,7 +71,7 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
     id: "full-stack",
     title: "Full Stack Development",
     description:
-      "End-to-end web applications from database design to pixel-perfect frontend    built to scale.",
+      "End-to-end web applications from database design to pixel-perfect frontend, built to scale.",
     tag: "Dev",
     accent: "from-yellow-500/10 to-amber-500/5",
     border: "border-yellow-500/20",
@@ -88,7 +88,7 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
     id: "wordpress",
     title: "WordPress Development",
     description:
-      "Professional, fast, and SEO-ready WordPress builds    themes, plugins, and full custom sites.",
+      "Professional, fast, and SEO-ready WordPress builds: themes, plugins, and full custom sites.",
     tag: "CMS",
     accent: "from-blue-500/10 to-cyan-500/5",
     border: "border-blue-500/20",
@@ -104,14 +104,14 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
     id: "ecommerce",
     title: "E-Commerce Solutions",
     description:
-      "Complete e-commerce with WooCommerce or      from product pages to checkout and beyond.",
+      "Complete e-commerce with WooCommerce, from product pages to checkout and beyond.",
     tag: "E-Commerce",
     accent: "from-emerald-500/10 to-teal-500/5",
     border: "border-emerald-500/20",
     buttonAccent:
       "bg-emerald-500/20 border-emerald-500/30 hover:bg-emerald-500/30",
     features: [
-      "WooCommerce &  ",
+      "WooCommerce",
       "Payment Integration",
       "Inventory Management",
       "Order Automation",
@@ -138,7 +138,7 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
     id: "maintenance",
     title: "Maintenance & Support",
     description:
-      "Ongoing peace of mind    regular updates, security monitoring, and fast response to any issues.",
+      "Ongoing peace of mind: regular updates, security monitoring, and fast response to any issues.",
     tag: "Support",
     accent: "from-orange-500/10 to-red-500/5",
     border: "border-orange-500/20",
@@ -149,6 +149,22 @@ export const SERVICE_DEFINITIONS: ServiceSummary[] = [
       "Security Scanning",
       "Daily Backups",
       "Priority Support",
+    ],
+  },
+  {
+    id: "wordpress-error-fixing",
+    title: "WordPress Error Fixing & Maintenance",
+    description:
+      "WordPress fixes for critical and fatal errors, plugin conflicts after updates, and problems in WooCommerce, Elementor, forms, and checkout, plus speed and mobile performance optimisation.",
+    tag: "WordPress",
+    accent: "from-rose-500/10 to-red-500/5",
+    border: "border-rose-500/20",
+    buttonAccent: "bg-rose-500/20 border-rose-500/30 hover:bg-rose-500/30",
+    features: [
+      "Critical errors and fatal errors",
+      "Plugin conflicts and compatibility after updates",
+      "WooCommerce, Elementor, forms, and checkout",
+      "Speed and mobile performance optimisation",
     ],
   },
 ];
@@ -172,14 +188,14 @@ export const WHY_CHOOSE_PROOF_CARDS: ProofCard[] = [
     iconKey: "delivery",
     title: "200+ sites shipped",
     description:
-      "WordPress, WooCommerce,  , and React builds delivered for agencies and direct clients.",
-    badges: ["WordPress", " ", "React"],
+      "WordPress, WooCommerce, and React builds delivered for agencies and direct clients.",
+    badges: ["WordPress", "WooCommerce", "React"],
   },
   {
     iconKey: "speed",
     title: "40%+ faster loads",
     description:
-      "Core Web Vitals optimisation on client sites    including pkpayplus.com and agency storefronts.",
+      "Core Web Vitals optimisation on client sites, including pkpayplus.com and agency storefronts.",
   },
   {
     iconKey: "satisfaction",

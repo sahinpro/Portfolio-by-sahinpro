@@ -32,6 +32,7 @@ import {
   ShoppingCart,
   Sparkles,
   TrendingUp,
+  Bug,
   Wrench,
   Zap,
 } from "lucide-react";
@@ -44,6 +45,7 @@ const SERVICE_ICONS: Record<string, LucideIcon> = {
   ecommerce: ShoppingCart,
   performance: TrendingUp,
   maintenance: Wrench,
+  "wordpress-error-fixing": Bug,
 };
 
 type Service = (typeof SERVICE_DEFINITIONS)[number] & { icon: LucideIcon };
