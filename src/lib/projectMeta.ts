@@ -1,3 +1,4 @@
+import { PROFILE } from "@/constants/profile";
 import type { PublicProjectDetail } from "@/data/projectUiMapper";
 
 export function bodyParagraphs(text: string): string[] {
@@ -22,11 +23,12 @@ export function frameworkLabel(
 }
 
 export function cmsPlatformLabel(
-  p: PublicProjectDetail["cmsPlatform"],
+  p: PublicProjectDetail["cmsPlatform"] | string | null | undefined,
 ): string {
-  if (p === "wordpress") return "WordPress";
-  if (p === " ") return " ";
-  if (p === "wix") return "Wix";
+  const value = p?.trim().toLowerCase() ?? "";
+  if (!value) return "";
+  if (value === "wordpress") return "WordPress";
+  if (value === "wix") return "Wix";
   return "";
 }
 
@@ -39,4 +41,15 @@ export function projectBuildLabel(project: PublicProjectDetail): string {
 
 export function projectCategoryLine(project: PublicProjectDetail): string {
   return `${project.category}${project.year ? ` · ${project.year}` : ""}`;
+}
+
+/** Meta description from problem and result when either is filled. */
+export function projectShareDescription(project: PublicProjectDetail): string {
+  const problem = project.caseStudy?.problem.trim() ?? "";
+  const result = project.caseStudy?.result.trim() ?? "";
+  const fromCaseStudy = [problem, result].filter(Boolean).join(" ");
+  if (fromCaseStudy) return fromCaseStudy.replace(/\s+/g, " ").trim();
+  const description = project.description.trim();
+  if (description) return description;
+  return `${project.title} — case study by ${PROFILE.name}`;
 }

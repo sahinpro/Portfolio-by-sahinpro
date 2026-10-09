@@ -4,11 +4,13 @@ import {
   type PublicProjectDetail,
 } from "@/data/projectUiMapper";
 import { PROFILE } from "@/constants/profile";
+import { PROJECT_IMAGE_PLACEHOLDER } from "@/constants/placeholders";
 import { canonicalPath } from "@/constants/site";
 import { sortProjectsByUpdatedDesc } from "@/lib/projectSort";
 import { findProjectBySlug } from "@/lib/projectPaths";
-import { projectImageAlt } from "@/lib/seoImages";
-import { ogImageMimeType } from "@/lib/resolveOgImage";
+import { projectShareDescription } from "@/lib/projectMeta";
+import { OG_IMAGE, projectImageAlt } from "@/lib/seoImages";
+import { ogImageMimeType, resolveOgImageUrl } from "@/lib/resolveOgImage";
 import { ProjectDetailPage } from "@/views/ProjectDetailPage";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -19,6 +21,21 @@ export const dynamicParams = true;
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
+
+/** Project pages replace the root Open Graph object, so never let that swap in the portrait. */
+function metadataImage(
+  imageUrl: string,
+  title: string,
+): { url: string; alt: string } {
+  const custom =
+    imageUrl && imageUrl !== PROJECT_IMAGE_PLACEHOLDER ? imageUrl : null;
+  const url = resolveOgImageUrl(custom);
+  const usesShareCard = url === OG_IMAGE.url;
+  return {
+    url,
+    alt: usesShareCard ? OG_IMAGE.alt : projectImageAlt(title),
+  };
+}
 
 async function loadPublishedProjects(): Promise<PublicProjectDetail[]> {
   try {
@@ -48,13 +65,10 @@ export async function generateMetadata({
     };
   }
 
-  const description =
-    project.caseStudy?.result?.trim() ||
-    project.description.trim() ||
-    `${project.title} — case study by ${PROFILE.name}`;
-  const title = `${project.title} | ${PROFILE.name} — Case Study`;
+  const description = projectShareDescription(project);
+  const title = `${project.title} | ${PROFILE.name}`;
   const canonical = canonicalPath(`/projects/${project.slug}`);
-  const imageAlt = projectImageAlt(project.title);
+  const shareImage = metadataImage(project.image, project.title);
 
   return {
     title: { absolute: title },
@@ -69,9 +83,9 @@ export async function generateMetadata({
       description,
       images: [
         {
-          url: project.image,
-          alt: imageAlt,
-          type: ogImageMimeType(project.image),
+          url: shareImage.url,
+          alt: shareImage.alt,
+          type: ogImageMimeType(shareImage.url),
         },
       ],
     },
@@ -79,7 +93,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [project.image],
+      images: [{ url: shareImage.url, alt: shareImage.alt }],
     },
   };
 }
