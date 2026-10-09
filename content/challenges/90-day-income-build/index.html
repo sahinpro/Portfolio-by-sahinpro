@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>90-Day Income Build — sahinpro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'] } } } }</script>
+<style>
+  html,body{height:100%}
+  body{ font-family: Inter, system-ui, sans-serif;
+    padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); }
+  input[type=checkbox]{ accent-color:#18181b; }
+  @media (prefers-color-scheme: dark){ input[type=checkbox]{ accent-color:#fafafa; } }
+  ::-webkit-scrollbar{ height:6px; width:6px; }
+  ::-webkit-scrollbar-thumb{ background:#d4d4d8; border-radius:4px; }
+</style>
+</head>
+<body class="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50">
+<div class="mx-auto w-full px-4 py-6 sm:py-10">
+
+  <header class="mb-6">
+    <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">sahinpro</p>
+    <h1 class="text-2xl font-semibold tracking-tight">90-Day Income Build</h1>
+    <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Full-time job cholbe, pashe-pashe ei sheet follow korle real secondary income-er best chance toiri hobe. Eta guarantee na — eta ekta execution system, r consistency-i asol variable.</p>
+  </header>
+
+  <section class="mb-6 grid grid-cols-3 gap-3">
+    <div class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
+      <p class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">START</p>
+      <p id="stat-start" class="mt-0.5 text-sm font-semibold">—</p>
+    </div>
+    <div class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
+      <p class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">TODAY</p>
+      <p id="stat-today" class="mt-0.5 text-sm font-semibold">—</p>
+    </div>
+    <div class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
+      <p class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">DAY</p>
+      <p id="stat-day" class="mt-0.5 text-sm font-semibold">—</p>
+    </div>
+  </section>
+
+  <section class="mb-6">
+    <div class="mb-1.5 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+      <span>Overall progress</span><span id="progress-text">0 / 0</span>
+    </div>
+    <div class="h-2 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+      <div id="ruler-fill" class="h-full w-0 rounded-full bg-zinc-900 dark:bg-zinc-50 transition-all duration-300"></div>
+    </div>
+  </section>
+
+  <div id="tabs" class="mb-4 inline-flex flex-wrap gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-800/60 p-1"></div>
+  <div id="panels"></div>
+
+  <div class="mt-8 text-center">
+    <button id="reset-btn" class="inline-flex h-8 items-center rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 text-xs text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:focus-visible:ring-zinc-300">Reset sheet</button>
+    <p class="mx-auto mt-4 max-w-prose text-xs leading-relaxed text-zinc-400 dark:text-zinc-500">90 din er por eta review korben — ja kaj korche seta double korben, ja korche na seta bodlaben.</p>
+  </div>
+
+</div>
+
+<div id="drawer-backdrop" class="fixed inset-0 z-40 bg-black/30 opacity-0 pointer-events-none transition-opacity duration-200"></div>
+<aside id="lead-drawer" class="fixed right-0 top-0 z-50 h-full w-full translate-x-full overflow-y-auto border-l border-zinc-200 bg-white shadow-xl transition-transform duration-200 dark:border-zinc-800 dark:bg-zinc-900 sm:w-96">
+  <div class="flex items-start justify-between border-b border-zinc-200 p-4 dark:border-zinc-800">
+    <div>
+      <h3 id="drawer-name" class="text-sm font-semibold"></h3>
+      <p id="drawer-contact" class="mt-1 text-xs text-zinc-500 dark:text-zinc-400"></p>
+    </div>
+    <button id="drawer-close" class="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:focus-visible:ring-zinc-300">✕</button>
+  </div>
+  <div class="space-y-4 p-4">
+    <label class="block"><span class="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">Niche</span>
+      <input id="drawer-niche" class="h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:focus-visible:ring-zinc-300"></label>
+    <label class="block"><span class="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">Status</span>
+      <select id="drawer-status" class="h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:focus-visible:ring-zinc-300"></select></label>
+    <div class="grid grid-cols-2 gap-3">
+      <label class="block"><span class="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">Last contact</span>
+        <input type="date" id="drawer-lastcontact" class="h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:focus-visible:ring-zinc-300"></label>
+      <label class="block"><span class="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">Follow-up</span>
+        <input type="date" id="drawer-followup" class="h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:focus-visible:ring-zinc-300"></label>
+    </div>
+    <label class="block"><span class="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">Notes</span>
+      <textarea id="drawer-notes" class="min-h-[100px] w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:focus-visible:ring-zinc-300"></textarea></label>
+  </div>
+</aside>
+
+<script>
+const STORAGE_KEY = 'income-build-90-v1';
+const TAB_KEY = 'income-build-90-tab';
+const START_KEY = 'income-build-90-start';
+const LEADS_KEY = 'income-build-90-leads';
+const CHAIN_KEY = 'income-build-90-chains';
+const DEFAULT_CHAINS = "UNIQLO,Dunelm,Damart,Primark,Lidl,Matalan,Moss Bros,Urban Outfitters,New Look,JD Sports,Argos,Sue Ryder,Hobbycraft,Waterstones,Lush,Next,H&M,TK Maxx,British Red Cross,Sports Direct,The Works,Sofology,Oxfam,Liberty London,Hobbs,Select Fashion,McDonald,KFC,Burger King,Subway,Nando,Pizza Hut,Domino,Wagamama,Costa,Starbucks,Greggs,Wetherspoon,Five Guys,Pret A Manger,TGI Friday,Harvester,Toby Carvery,Frankie & Benny,Bella Italia,Zizzi,PizzaExpress,Byron,Leon,Chipotle,Miller & Carter,Beefeater,Ask Italian,Cafe Rouge,Prezzo";
+const STATUS_OPTS = ['Not contacted','DM sent','Emailed','Replied','Interested','Proposal sent','Client','Not a fit'];
+
+const INPUT_CLS = "h-8 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 text-xs text-zinc-900 dark:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:focus-visible:ring-zinc-300";
+function statusBadgeClass(s) {
+  if (s === 'Client') return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900';
+  if (s === 'Proposal sent' || s === 'Interested') return 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900';
+  if (s === 'Replied') return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900';
+  if (s === 'DM sent' || s === 'Emailed') return 'bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700';
+  if (s === 'Not a fit') return 'bg-red-50 text-red-600 border-red-200 dark:bg-red-950/30 dark:text-red-300 dark:border-red-900';
+  return 'bg-white text-zinc-500 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800';
+}
+
+function parseCSV(text) {
+  const rows = []; let row = []; let field = ''; let inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) { if (c === '"') { if (text[i+1] === '"') { field += '"'; i++; } else inQ = false; } else field += c; }
+    else {
+      if (c === '"') inQ = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\r') {}
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.length > 1 || r[0]);
+}
+function csvVal(v) { if (!v) return ''; const s = String(v).trim(); return (s === '### In progress ###') ? '' : s; }
+
+const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function todayMidnight() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+function fmtDate(d) { return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear() + ' (' + DOW[d.getDay()] + ')'; }
+function fmtRange(start, end) {
+  if (start.getMonth() === end.getMonth()) return start.getDate() + '–' + end.getDate() + ' ' + MONTHS[start.getMonth()];
+  return start.getDate() + ' ' + MONTHS[start.getMonth()] + '–' + end.getDate() + ' ' + MONTHS[end.getMonth()];
+}
+
+let startDate;
+try {
+  const storedStart = localStorage.getItem(START_KEY);
+  if (storedStart) startDate = new Date(storedStart);
+  else { startDate = todayMidnight(); localStorage.setItem(START_KEY, startDate.toISOString()); }
+} catch (e) { startDate = todayMidnight(); }
+
+const today = todayMidnight();
+const diffDays = Math.max(1, Math.floor((today - startDate) / 86400000) + 1);
+const currentWeek = Math.min(12, Math.max(1, Math.ceil(diffDays / 7)));
+function phaseForWeek(wk) { return phases.find(p => p.weeks.includes(wk)); }
+function weekDateRange(wk) {
+  const ws = new Date(startDate); ws.setDate(startDate.getDate() + (wk - 1) * 7);
+  const we = new Date(ws); we.setDate(ws.getDate() + 6);
+  return fmtRange(ws, we);
+}
+
+const phases = [
+  { id: 'p1', tabName: 'Phase 1', title: 'Foundation', sub: 'Week 1–4 · Fast cash + proof', weeks: [1,2,3,4],
+    items: ['Mon: 5-6 ta personalized DM pathano','Wed: Follow-up + notun 2 DM pathano','Fri: 1 ta mini-proposal pathano',
+      'Weekend-e extra outreach session (extra effort layer)','JS fundamentals: 5 session complete (Mon/Wed/Thu/Fri/Sat)',
+      'Content post: ei shoptahe minimum 3 bar','WP/WooCommerce chhoto-scope offer 1+ lead-ke pathano'],
+    milestone: { title: 'Phase 1 Sign-off — Foundation',
+      items: ['Prothom paying WP/WooCommerce client close hoyeche','Client-er theke feedback ba testimonial newa hoyeche'] } },
+  { id: 'p2', tabName: 'Phase 2', title: 'Framing', sub: 'Week 5–8 · Scale + upgrade', weeks: [5,6,7,8],
+    items: ['Mon: 5+ personalized DM pathano (volume aro barano)','Wed: Follow-up + notun 2-3 DM','Fri: 1-2 ta proposal pathano',
+      'Weekend-e extra outreach session','JS fundamentals: 5 session complete','Content post: prottidin (daily target)',
+      'React/Next.js higher-ticket lead-ke 2+ outreach','Portfolio/case study update (Phase 1-er kaj diye)'],
+    milestone: { title: 'Phase 2 Sign-off — Framing',
+      items: ['Portfolio-te 2+ notun case study add kora hoyeche','2nd ba 3rd client close hoyeche'] } },
+  { id: 'p3', tabName: 'Phase 3', title: 'Finishing', sub: 'Week 9–12 · Systematize', weeks: [9,10,11,12],
+    items: ['Existing client(der) shathe retainer/maintenance niye kotha bola hoyeche','Weekly DM/proposal cadence chalu rakha hoyeche',
+      'JS fundamentals: 5 session complete','Content post: prottidin','Digital product idea (theme/plugin) niye explore ba kaj kora hoyeche',
+      'Weekly numbers review kora hoyeche — ki kaj korche dekha hoyeche'],
+    milestone: { title: 'Phase 3 Sign-off — Finishing',
+      items: ['Kompokkhe 1 ta client retainer/monthly-e convert hoyeche','Ekta stable secondary income stream dara hoye geche'] } }
+];
+
+let state = { checks: {}, nums: {} };
+try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) state = JSON.parse(raw); } catch (e) { state = { checks: {}, nums: {} }; }
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+let leads = [];
+try { const rawL = localStorage.getItem(LEADS_KEY); if (rawL) leads = JSON.parse(rawL); } catch (e) { leads = []; }
+function saveLeads() { try { localStorage.setItem(LEADS_KEY, JSON.stringify(leads)); } catch (e) {} }
+
+let chainList = DEFAULT_CHAINS;
+try { const rawC = localStorage.getItem(CHAIN_KEY); if (rawC) chainList = rawC; } catch (e) {}
+function saveChains() { try { localStorage.setItem(CHAIN_KEY, chainList); } catch (e) {} }
+function isFlagged(name) {
+  const terms = chainList.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const n = String(name).toLowerCase();
+  return terms.some(t => n.includes(t));
+}
+
+function totalCheckboxCount() { let t = 0; phases.forEach(p => { t += p.weeks.length * p.items.length + p.milestone.items.length; }); return t; }
+function checkedCount() { return Object.values(state.checks).filter(Boolean).length; }
+function updateProgress() {
+  const total = totalCheckboxCount(); const done = checkedCount();
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progress-text').textContent = done + ' / ' + total + '  (' + pct + '%)';
+  document.getElementById('ruler-fill').style.width = pct + '%';
+}
+function weekCompleteFraction(weekNum, itemCount) {
+  let c = 0; for (let i = 0; i < itemCount; i++) { if (state.checks['w' + weekNum + '-i' + i]) c++; }
+  return c + '/' + itemCount;
+}
+
+function taskRow(id, text) {
+  const checked = !!state.checks[id];
+  return '<tr class="border-t border-zinc-100 dark:border-zinc-800 first:border-0 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/30">' +
+    '<td class="w-9 py-2 pl-3"><input type="checkbox" data-id="' + id + '" ' + (checked ? 'checked' : '') + ' class="h-4 w-4 cursor-pointer rounded border-zinc-300 dark:border-zinc-700"></td>' +
+    '<td class="py-2 pr-3 text-sm ' + (checked ? 'text-zinc-400 line-through decoration-zinc-300' : 'text-zinc-700 dark:text-zinc-200') + '">' + text + '</td>' +
+  '</tr>';
+}
+function numFieldHtml(id, label) {
+  const val = state.nums[id] || '';
+  return '<label class="block"><span class="mb-1 block text-[10px] font-medium uppercase tracking-wide text-zinc-400">' + label + '</span>' +
+    '<input type="number" min="0" inputmode="numeric" value="' + val + '" data-id="' + id + '" class="' + INPUT_CLS + ' h-8 w-full"></label>';
+}
+function statCard(label, value, id) {
+  return '<div class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2.5 text-center">' +
+    '<p class="text-lg font-semibold leading-none' + (id ? '" id="' + id : '"') + '>' + value + '</p>' +
+    '<p class="mt-1 text-[9px] font-medium uppercase tracking-wide text-zinc-400">' + label + '</p></div>';
+}
+
+const TAB_BASE = 'rounded-md px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 dark:focus-visible:ring-zinc-300';
+const TAB_ACTIVE = ' bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-sm';
+const TAB_INACTIVE = ' text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200';
+
+function renderPanels() {
+  const panelsEl = document.getElementById('panels');
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = ''; panelsEl.innerHTML = '';
+  const activeId = localStorage.getItem(TAB_KEY) || phaseForWeek(currentWeek).id;
+
+  phases.forEach(p => {
+    const tab = document.createElement('div');
+    tab.className = TAB_BASE + (p.id === activeId ? TAB_ACTIVE : TAB_INACTIVE);
+    tab.setAttribute('role','button'); tab.setAttribute('tabindex','0'); tab.dataset.id = p.id;
+    tab.innerHTML = p.tabName;
+    tab.addEventListener('click', () => setActive(p.id));
+    tab.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActive(p.id); } });
+    tabsEl.appendChild(tab);
+
+    const panel = document.createElement('div');
+    panel.className = 'phase-panel space-y-4' + (p.id === activeId ? '' : ' hidden');
+    panel.dataset.id = p.id;
+
+    let weeksHtml = '';
+    p.weeks.forEach(wk => {
+      const rows = p.items.map((text, idx) => taskRow('w' + wk + '-i' + idx, text)).join('');
+      const isCurrent = wk === currentWeek;
+      weeksHtml += '<div class="overflow-hidden rounded-lg border ' + (isCurrent ? 'border-zinc-900 dark:border-zinc-100' : 'border-zinc-200 dark:border-zinc-800') + ' bg-white dark:bg-zinc-900">' +
+        '<div class="flex items-center justify-between gap-2 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40 px-3 py-2">' +
+          '<div class="flex items-center gap-2"><span class="text-xs font-semibold">Week ' + String(wk).padStart(2,'0') + '</span>' +
+          '<span class="text-[11px] text-zinc-400">' + weekDateRange(wk) + '</span>' +
+          (isCurrent ? '<span class="rounded-full bg-zinc-900 dark:bg-zinc-50 px-2 py-0.5 text-[9px] font-semibold text-white dark:text-zinc-900">NOW</span>' : '') + '</div>' +
+          '<span class="text-[11px] text-zinc-400" data-weekfrac="' + wk + '">' + weekCompleteFraction(wk, p.items.length) + '</span></div>' +
+        '<table class="w-full"><tbody>' + rows + '</tbody></table>' +
+        '<div class="grid grid-cols-3 gap-2 border-t border-zinc-100 dark:border-zinc-800 p-3">' +
+          numFieldHtml('w' + wk + '-dm', 'DM sent') + numFieldHtml('w' + wk + '-reply', 'Replies') + numFieldHtml('w' + wk + '-proposal', 'Proposals') +
+        '</div></div>';
+    });
+
+    const mRows = p.milestone.items.map((text, idx) => taskRow('m-' + p.id + '-i' + idx, text)).join('');
+    panel.innerHTML = '<p class="text-sm text-zinc-500 dark:text-zinc-400">' + p.sub + '</p>' + weeksHtml +
+      '<div class="overflow-hidden rounded-lg border border-amber-300/70 dark:border-amber-700/40 bg-amber-50/60 dark:bg-amber-950/10">' +
+        '<div class="border-b border-amber-200/70 dark:border-amber-800/40 px-3 py-2"><span class="text-xs font-semibold text-amber-800 dark:text-amber-300">' + p.milestone.title + '</span></div>' +
+        '<table class="w-full"><tbody>' + mRows + '</tbody></table></div>';
+    panelsEl.appendChild(panel);
+  });
+
+  const leadsTab = document.createElement('div');
+  leadsTab.className = TAB_BASE + (activeId === 'leads' ? TAB_ACTIVE : TAB_INACTIVE);
+  leadsTab.setAttribute('role','button'); leadsTab.setAttribute('tabindex','0'); leadsTab.dataset.id = 'leads';
+  leadsTab.innerHTML = 'Leads <span class="text-zinc-400">(' + leads.length + ')</span>';
+  leadsTab.addEventListener('click', () => setActive('leads'));
+  leadsTab.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActive('leads'); } });
+  tabsEl.appendChild(leadsTab);
+
+  const leadsPanel = document.createElement('div');
+  leadsPanel.className = 'phase-panel space-y-4' + (activeId === 'leads' ? '' : ' hidden');
+  leadsPanel.dataset.id = 'leads';
+  leadsPanel.innerHTML = leadsShellHtml();
+  panelsEl.appendChild(leadsPanel);
+  wireLeadsPanel(leadsPanel);
+
+  attachHandlers(); updateProgress();
+}
+
+function leadsShellHtml() {
+  const statusOpts = '<option value="">All status</option>' + STATUS_OPTS.map(s => '<option value="' + s + '">' + s + '</option>').join('');
+  const SEL = INPUT_CLS + ' h-9 w-full';
+  const BTN = 'inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-zinc-900 dark:bg-zinc-50 px-3 text-xs font-medium text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 cursor-pointer';
+  return '<div class="space-y-2">' +
+    '<div class="flex flex-wrap gap-2">' +
+      '<input type="text" id="niche-input" placeholder="Niche label (e.g. Restaurant)" class="' + SEL + ' flex-1 min-w-[160px]">' +
+      '<label class="' + BTN + '">Import CSV<input type="file" id="csv-file" accept=".csv" class="hidden"></label>' +
+    '</div>' +
+    '<div class="flex flex-wrap gap-2">' +
+      '<input type="text" id="lead-search" placeholder="Search name..." class="' + SEL + ' flex-1 min-w-[120px]">' +
+      '<select id="status-filter" class="' + SEL + ' flex-1 min-w-[110px]">' + statusOpts + '</select>' +
+      '<select id="niche-filter" class="' + SEL + ' flex-1 min-w-[110px]"><option value="">All niches</option></select>' +
+      '<label class="flex items-center gap-1.5 whitespace-nowrap rounded-md border border-zinc-200 dark:border-zinc-800 px-2.5 text-xs text-zinc-500 dark:text-zinc-400"><input type="checkbox" id="hide-flagged" checked class="h-3.5 w-3.5"> Hide flagged</label>' +
+    '</div>' +
+    '<details class="rounded-lg border border-zinc-200 dark:border-zinc-800 p-2.5 text-xs text-zinc-500 dark:text-zinc-400">' +
+      '<summary class="cursor-pointer font-medium">Edit chain blocklist (comma separated)</summary>' +
+      '<textarea id="chain-textarea" class="mt-2 min-h-[64px] w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 text-xs text-zinc-700 dark:text-zinc-200">' + chainList + '</textarea>' +
+      '<button id="apply-chains" type="button" class="mt-2 rounded-md border border-zinc-200 dark:border-zinc-800 px-2.5 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800">Apply to existing leads</button>' +
+    '</details>' +
+  '</div>' +
+  '<div class="grid grid-cols-3 sm:grid-cols-5 gap-2" id="lead-stats"></div>' +
+  '<p class="text-xs text-zinc-400">Business-er naam-e click korle detail panel-e Niche, Status, dates ar Notes edit korte parben.</p>' +
+  '<div class="overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">' +
+    '<table class="w-full text-sm">' +
+      '<thead class="bg-zinc-50 dark:bg-zinc-800/50 text-[11px] uppercase tracking-wide text-zinc-400">' +
+        '<tr><th class="px-3 py-2 text-left font-medium">Business</th><th class="px-3 py-2 text-left font-medium">Channel</th>' +
+        '<th class="px-3 py-2 text-left font-medium">Status</th></tr></thead>' +
+      '<tbody id="leads-tbody"></tbody>' +
+    '</table></div>';
+}
+
+function importCsvText(text, niche) {
+  const rows = parseCSV(text); if (!rows.length) return;
+  const header = rows[0].map(h => h.trim().toLowerCase());
+  const idx = (name) => header.indexOf(name);
+  const iName = idx('name'), iCat = idx('category'), iWeb = idx('website'), iPhone = idx('phone'),
+        iEmail = idx('emails'), iInsta = idx('instagram'), iFb = idx('facebook');
+  for (let r = 1; r < rows.length; r++) {
+    const row = rows[r]; if (!row || row.length < 2) continue;
+    const name = csvVal(row[iName]); if (!name) continue;
+    const website = csvVal(iWeb >= 0 ? row[iWeb] : '');
+    if (leads.some(l => l.name.toLowerCase() === name.toLowerCase() && l.website === website)) continue;
+    const email = csvVal(iEmail >= 0 ? row[iEmail] : '').split(',')[0];
+    const insta = csvVal(iInsta >= 0 ? row[iInsta] : '');
+    const fb = csvVal(iFb >= 0 ? row[iFb] : '');
+    let channel = 'Check site contact form';
+    if (email) channel = 'Email'; else if (insta) channel = 'Instagram DM'; else if (fb) channel = 'Facebook DM'; else if (!website) channel = 'No contact info';
+    leads.push({ id: 'l' + Date.now() + Math.random().toString(36).slice(2,7), name, niche,
+      category: csvVal(iCat >= 0 ? row[iCat] : ''), website, phone: csvVal(iPhone >= 0 ? row[iPhone] : ''),
+      email, instagram: insta, facebook: fb, channel, status: 'Not contacted', lastContact: '', followUp: '', notes: '',
+      flagged: isFlagged(name) });
+  }
+  saveLeads();
+}
+
+function leadRowHtml(l) {
+  const channel = l.email ? 'Email' : l.instagram ? 'Instagram' : l.facebook ? 'Facebook' : l.website ? 'Site only' : 'None';
+  const todayStr = todayMidnight().toISOString().slice(0,10);
+  const dueFollow = l.followUp && l.followUp <= todayStr && !['Client','Not a fit'].includes(l.status);
+  return '<tr data-lead-id="' + l.id + '" class="cursor-pointer border-t border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/40' + (l.flagged ? ' opacity-50' : '') + '">' +
+    '<td class="px-3 py-2.5">' +
+      '<div class="flex items-center gap-1.5 text-sm font-medium">' + l.name +
+        (l.flagged ? '<span class="rounded-full bg-red-100 dark:bg-red-950/50 px-1.5 py-0.5 text-[9px] font-semibold text-red-600 dark:text-red-300">CHAIN?</span>' : '') +
+        (dueFollow ? '<span class="h-1.5 w-1.5 rounded-full bg-amber-500" title="Follow-up due"></span>' : '') + '</div>' +
+      '<div class="text-[11px] text-zinc-400">' + l.niche + '</div>' +
+    '</td>' +
+    '<td class="px-3 py-2.5"><span class="rounded-full border px-2 py-0.5 text-[10px] font-medium ' + (channel === 'None' ? 'border-zinc-200 bg-white text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900' : 'border-zinc-200 bg-zinc-50 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300') + '">' + channel + '</span></td>' +
+    '<td class="px-3 py-2.5"><span class="rounded-full border px-2 py-0.5 text-[10px] font-medium ' + statusBadgeClass(l.status) + '">' + l.status + '</span></td>' +
+  '</tr>';
+}
+
+let openLeadId = null;
+function openDrawer(id) {
+  const lead = leads.find(x => x.id === id); if (!lead) return;
+  openLeadId = id;
+  document.getElementById('drawer-name').textContent = lead.name;
+  const bits = [];
+  if (lead.email) bits.push('<a class="hover:underline" href="mailto:' + lead.email + '">' + lead.email + '</a>');
+  if (lead.phone) bits.push(lead.phone);
+  if (lead.website) bits.push('<a class="hover:underline" href="' + lead.website + '" target="_blank" rel="noopener">Website</a>');
+  if (lead.instagram) bits.push('<a class="hover:underline" href="' + lead.instagram + '" target="_blank" rel="noopener">Instagram</a>');
+  if (lead.facebook) bits.push('<a class="hover:underline" href="' + lead.facebook + '" target="_blank" rel="noopener">Facebook</a>');
+  document.getElementById('drawer-contact').innerHTML = bits.join(' · ') || '<span class="text-zinc-400">No contact info</span>';
+  document.getElementById('drawer-niche').value = lead.niche || '';
+  document.getElementById('drawer-status').innerHTML = STATUS_OPTS.map(s => '<option value="' + s + '"' + (s === lead.status ? ' selected' : '') + '>' + s + '</option>').join('');
+  document.getElementById('drawer-lastcontact').value = lead.lastContact || '';
+  document.getElementById('drawer-followup').value = lead.followUp || '';
+  document.getElementById('drawer-notes').value = lead.notes || '';
+  document.getElementById('lead-drawer').classList.remove('translate-x-full');
+  document.getElementById('drawer-backdrop').classList.remove('opacity-0', 'pointer-events-none');
+}
+function closeDrawer() {
+  openLeadId = null;
+  document.getElementById('lead-drawer').classList.add('translate-x-full');
+  document.getElementById('drawer-backdrop').classList.add('opacity-0', 'pointer-events-none');
+}
+
+function renderLeadsList(panel) {
+  const search = panel.querySelector('#lead-search').value.trim().toLowerCase();
+  const statusF = panel.querySelector('#status-filter').value;
+  const hideFlag = panel.querySelector('#hide-flagged').checked;
+  const nicheSel = panel.querySelector('#niche-filter');
+  const niches = Array.from(new Set(leads.map(l => l.niche))).sort();
+  const curNicheVal = nicheSel.value;
+  nicheSel.innerHTML = '<option value="">All niches</option>' + niches.map(n => '<option value="' + n + '"' + (n === curNicheVal ? ' selected' : '') + '>' + n + '</option>').join('');
+  const nicheF = nicheSel.value;
+  const filtered = leads.filter(l => (!search || l.name.toLowerCase().includes(search)) && (!statusF || l.status === statusF) && (!nicheF || l.niche === nicheF) && (!hideFlag || !l.flagged));
+  const todayStr = todayMidnight().toISOString().slice(0,10);
+  panel.querySelector('#lead-stats').innerHTML =
+    statCard('Total', leads.length) + statCard('Not contacted', leads.filter(l => l.status === 'Not contacted').length) +
+    statCard('Today', leads.filter(l => l.lastContact === todayStr).length) +
+    statCard('Replied+', leads.filter(l => ['Replied','Interested','Proposal sent','Client'].includes(l.status)).length) +
+    statCard('Client', leads.filter(l => l.status === 'Client').length);
+  const tbody = panel.querySelector('#leads-tbody');
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="7" class="px-3 py-6 text-center text-xs text-zinc-400">Kono lead nai ei filter-e — CSV import korun ba filter change korun.</td></tr>'; return; }
+  tbody.innerHTML = filtered.map(leadRowHtml).join('');
+  tbody.querySelectorAll('tr[data-lead-id]').forEach(tr => {
+    tr.addEventListener('click', () => openDrawer(tr.dataset.leadId));
+  });
+}
+
+function wireLeadsPanel(panel) {
+  panel.querySelector('#csv-file').addEventListener('change', (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const niche = panel.querySelector('#niche-input').value.trim() || 'General';
+    const reader = new FileReader();
+    reader.onload = () => { importCsvText(reader.result, niche); renderLeadsList(panel); e.target.value = ''; };
+    reader.readAsText(f);
+  });
+  ['lead-search','status-filter','niche-filter','hide-flagged'].forEach(id => {
+    const el = panel.querySelector('#' + id);
+    el.addEventListener('input', () => renderLeadsList(panel));
+    el.addEventListener('change', () => renderLeadsList(panel));
+  });
+  panel.querySelector('#apply-chains').addEventListener('click', () => {
+    chainList = panel.querySelector('#chain-textarea').value; saveChains();
+    leads.forEach(l => { l.flagged = isFlagged(l.name); }); saveLeads();
+    renderLeadsList(panel);
+  });
+  renderLeadsList(panel);
+}
+
+function setActive(id) {
+  localStorage.setItem(TAB_KEY, id);
+  document.querySelectorAll('[data-id]').forEach(el => {
+    if (!el.classList.contains('phase-panel') && el.parentElement && el.parentElement.id === 'tabs') {
+      el.className = TAB_BASE + (el.dataset.id === id ? TAB_ACTIVE : TAB_INACTIVE);
+    }
+  });
+  document.querySelectorAll('.phase-panel').forEach(p => p.classList.toggle('hidden', p.dataset.id !== id));
+}
+
+function attachHandlers() {
+  document.querySelectorAll('.phase-panel input[type=checkbox][data-id]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const id = cb.dataset.id; state.checks[id] = cb.checked; save();
+      const td = cb.closest('tr').querySelector('td:last-child');
+      td.className = cb.checked ? 'py-2 pr-3 text-sm text-zinc-400 line-through decoration-zinc-300' : 'py-2 pr-3 text-sm text-zinc-700 dark:text-zinc-200';
+      const wkMatch = id.match(/^w(\d+)-i/);
+      if (wkMatch) {
+        const wk = wkMatch[1]; const phase = phases.find(p => p.weeks.includes(Number(wk)));
+        const frac = document.querySelector('[data-weekfrac="' + wk + '"]');
+        if (frac && phase) frac.textContent = weekCompleteFraction(wk, phase.items.length);
+      }
+      updateProgress();
+    });
+  });
+  document.querySelectorAll('.phase-panel input[type=number][data-id]').forEach(inp => {
+    inp.addEventListener('input', () => { state.nums[inp.dataset.id] = inp.value; save(); });
+  });
+}
+
+let resetConfirming = false;
+const resetBtn = document.getElementById('reset-btn');
+resetBtn.addEventListener('click', () => {
+  if (!resetConfirming) {
+    resetConfirming = true;
+    resetBtn.textContent = 'Sure? Tap abar reset korte';
+    resetBtn.className = 'inline-flex h-8 items-center rounded-md border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-3 text-xs text-red-600 dark:text-red-300';
+    setTimeout(() => {
+      if (resetConfirming) {
+        resetConfirming = false; resetBtn.textContent = 'Reset sheet';
+        resetBtn.className = 'inline-flex h-8 items-center rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 text-xs text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800';
+      }
+    }, 4000);
+    return;
+  }
+  try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(START_KEY); localStorage.removeItem(TAB_KEY); } catch (e) {}
+  location.reload();
+});
+
+const DRAWER_FIELD_MAP = { niche: 'niche', status: 'status', lastcontact: 'lastContact', followup: 'followUp', notes: 'notes' };
+Object.keys(DRAWER_FIELD_MAP).forEach(key => {
+  const el = document.getElementById('drawer-' + key);
+  const evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+  el.addEventListener(evt, () => {
+    if (!openLeadId) return;
+    const lead = leads.find(x => x.id === openLeadId); if (!lead) return;
+    lead[DRAWER_FIELD_MAP[key]] = el.value;
+    if (key === 'status' && el.value !== 'Not contacted' && !lead.lastContact) {
+      lead.lastContact = todayMidnight().toISOString().slice(0, 10);
+      document.getElementById('drawer-lastcontact').value = lead.lastContact;
+    }
+    saveLeads();
+    const activePanel = document.querySelector('.phase-panel[data-id="leads"]');
+    if (activePanel) renderLeadsList(activePanel);
+  });
+});
+document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+document.getElementById('drawer-backdrop').addEventListener('click', closeDrawer);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+
+document.getElementById('stat-start').textContent = fmtDate(startDate);
+document.getElementById('stat-today').textContent = fmtDate(today);
+document.getElementById('stat-day').textContent = diffDays + ' / 90';
+renderPanels();
+</script>
+</body>
+</html>

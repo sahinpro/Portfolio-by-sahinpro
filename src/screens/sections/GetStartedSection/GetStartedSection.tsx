@@ -1,0 +1,84 @@
+import { CTAButton } from "@/components/common/CTAButton";
+import { Card, CardContent } from "@/components/ui/card";
+import { PublicImage } from "@/components/ui/PublicImage";
+import { navItems } from "@/constants/navigation";
+import {
+  fadeInUp,
+  scrollViewport,
+  sectionReveal,
+} from "@/constants/scrollMotion";
+import { motion } from "framer-motion";
+
+const contactHref =
+  navItems.find((item) => item.name === "Contact")?.href ?? "/contact";
+
+export const GetStartedSection = (): JSX.Element => {
+  return (
+    <section className="scroll-section flex flex-col container items-center gap-20 px-4 py-10 lg:py-14 relative mx-auto">
+      <motion.div
+        className="relative z-10 w-full"
+        initial="hidden"
+        whileInView="visible"
+        viewport={scrollViewport}
+        variants={sectionReveal}
+      >
+        <Card className="relative w-full rounded-[20px] overflow-hidden border border-[#ffffff1a] glass-card">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute bottom-0 left-0 h-[480px] w-full lg:left-[77px] lg:h-[454px] lg:w-[1158px]"
+          >
+            <PublicImage
+              className="object-cover object-left-bottom"
+              alt=""
+              src="/Group 24.png"
+              fill
+              sizes="(max-width: 1023px) 100vw, 1158px"
+            />
+          </div>
+
+          <CardContent className="flex flex-col items-center justify-center gap-8 px-8 md:px-20 lg:py-[100px] py-10 relative">
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col items-center gap-3 relative w-full"
+            >
+              <h2 className="section-heading [font-family:'Inter_Display-Medium',Helvetica] text-3xl md:text-5xl text-center tracking-[-1.00px] leading-tight md:leading-[56.0px] font-medium">
+                Let's Work Together
+              </h2>
+
+              <p className="flex items-center justify-center max-w-[656px] [font-family:'Inter_Display-Regular',Helvetica] font-normal text-[#b3b3b3] text-lg md:text-xl text-center tracking-[-0.20px] leading-[28px] md:leading-[32.0px]">
+                Have an exciting project in mind? Let's discuss how I can help
+                bring your vision to life. I'm ready to start your next project.
+              </p>
+            </motion.div>
+
+            <motion.div
+              variants={fadeInUp}
+              className="inline-flex items-start gap-2 sm:gap-3 relative flex-nowrap justify-center"
+            >
+              <CTAButton
+                href="/projects"
+                variant="primary"
+                className="px-2.5 sm:px-3.5 text-sm"
+              >
+                View My Work
+              </CTAButton>
+
+              <CTAButton
+                href={contactHref}
+                variant="secondary"
+                showArrow={true}
+                className="px-2.5 sm:px-4 text-sm gap-1.5 sm:gap-2 [&_svg]:size-3.5 sm:[&_svg]:size-4"
+              >
+                Get In Touch
+              </CTAButton>
+            </motion.div>
+          </CardContent>
+        </Card>
+      </motion.div>
+      <div
+        className="absolute bottom-0 left-0 w-full h-full pointer-events-none bg-radial-gradient(50% 50% at 50% 0%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(0deg, rgba(9, 9, 9, 1) 0%, rgba(9, 9, 9, 1) 100%)"
+        aria-hidden
+      />
+    </section>
+  );
+};

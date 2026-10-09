@@ -1,0 +1,45 @@
+import { PROFILE } from "@/constants/profile";
+import { useSiteSettingsMap } from "@/hooks/useSiteSettingsMap";
+import { useMemo } from "react";
+import {
+  type AboutCodeProfile,
+  buildAboutCode,
+  buildTerminalLines,
+  defaultPlatforms,
+  defaultStack,
+  type TerminalLine,
+} from "./aboutCodeContent";
+
+const FALLBACK_NAME = PROFILE.name;
+const FALLBACK_ROLE = PROFILE.role;
+
+export function useAboutCodeProfile(): {
+  profile: AboutCodeProfile;
+  code: string;
+  terminalLines: TerminalLine[];
+} {
+  const { settings } = useSiteSettingsMap();
+
+  const profile = useMemo<AboutCodeProfile>(() => {
+    return {
+      name: settings.hero_title?.trim() || FALLBACK_NAME,
+      role: FALLBACK_ROLE,
+      focus: PROFILE.codeFocus,
+      mindset: PROFILE.codeMindset,
+      highlights: [...PROFILE.codeHighlights],
+      certifications: [...PROFILE.certifications],
+      stack: defaultStack(),
+      platforms: defaultPlatforms(),
+      available: settings.availability_status !== "unavailable",
+    };
+  }, [settings]);
+
+  const code = useMemo(() => buildAboutCode(profile), [profile]);
+  const terminalLines = useMemo(() => buildTerminalLines(profile), [profile]);
+
+  return {
+    profile,
+    code,
+    terminalLines,
+  };
+}

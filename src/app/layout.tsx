@@ -1,0 +1,143 @@
+import { PublicLayoutShell } from "@/components/layout/PublicLayoutShell";
+import { SiteStructuredDataScript } from "@/components/public/SiteStructuredDataScript";
+import { inter, monteCarlo } from "@/lib/fonts";
+import { PERF_BOOT_SCRIPT } from "@/lib/performanceLevel";
+import {
+  DEFAULT_META_DESCRIPTION,
+  DEFAULT_META_TITLE,
+} from "@/lib/seoDefaults";
+import { OG_IMAGE } from "@/lib/seoImages";
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://www.sahinpro.me"),
+  title: {
+    default: DEFAULT_META_TITLE,
+    template: `%s | Sahin Alam`,
+  },
+  description: DEFAULT_META_DESCRIPTION,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+      {
+         url: "/icons/favicon-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      { url: "/favicon.ico", sizes: "48x48" },
+    ],
+    shortcut: "/icons/favicon-48x48.png",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Sahin Alam",
+    locale: "en_US",
+    url: "/",
+    title: DEFAULT_META_TITLE,
+    description: DEFAULT_META_DESCRIPTION,
+    images: [
+      {
+        url: OG_IMAGE.path,
+        width: OG_IMAGE.width,
+        height: OG_IMAGE.height,
+        alt: OG_IMAGE.alt,
+        type: OG_IMAGE.type,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_META_TITLE,
+    description: DEFAULT_META_DESCRIPTION,
+    images: [OG_IMAGE.path],
+  },
+  alternates: {
+    types: {
+      "application/xml": "/sitemap.xml",
+    },
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  verification: {
+    google: "KjNY2S0tQzG56aBy0wehwOu_UTBUZpzmus98P0crQqo",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#050505",
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="en"
+      className={`${inter.variable} ${monteCarlo.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: PERF_BOOT_SCRIPT }} />
+        <SiteStructuredDataScript />
+      </head>
+      <body className={`${inter.className} antialiased`}>
+        <noscript>
+          <div
+            style={{
+              maxWidth: "48rem",
+              margin: "2rem auto",
+              padding: "0 1rem",
+              fontFamily: "system-ui, sans-serif",
+              lineHeight: 1.6,
+            }}
+          >
+            <h1>Sahin Alam — Full Stack Developer</h1>
+            <p>
+              Full Stack Developer from Bangladesh specializing in React,
+              Next.js, WordPress, WooCommerce, and . Explore the portfolio at{" "}
+              <a href="https://www.sahinpro.me/">www.sahinpro.me</a>.
+            </p>
+            <nav aria-label="Primary">
+              <ul>
+                <li>
+                  <a href="/about">About</a>
+                </li>
+                <li>
+                  <a href="/projects">Projects</a>
+                </li>
+                <li>
+                  <a href="/services">Services</a>
+                </li>
+                <li>
+                  <a href="/contact">Contact</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </noscript>
+        <PublicLayoutShell>{children}</PublicLayoutShell>
+      </body>
+    </html>
+  );
+}
