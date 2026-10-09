@@ -23,7 +23,7 @@ export const careerTimeline: TimelineEntry[] = [
   {
     year: "Feb 2023–May 2024",
     role: "Freelance WordPress Developer",
-    company: "Fiverr",
+    company: "Independent freelance",
     desc: "Developed WordPress websites for clients worldwide, specializing in custom theme development, plugin integration, and SEO optimization.",
     icon: Handshake,
   },

@@ -114,8 +114,8 @@ const faqs = [
     a: "I read every message personally. You can usually expect a first reply within 24 hours on business days (often much sooner), with a short call or written plan of next steps.",
   },
   {
-    q: "How do you price projects    fixed fee or hourly?",
-    a: "Most work is quoted as a fixed scope and milestone-based fee so you know the cost up front. For ongoing or evolving work, we can use a retainer or hourly model    I’ll recommend what fits your project after we clarify goals and deliverables.",
+    q: "How do you price projects — fixed fee or hourly?",
+    a: "Most work is quoted as a fixed scope and milestone-based fee so you know the cost up front. For ongoing or evolving work, we can use a retainer or hourly model. I’ll recommend what fits your project after we clarify goals and deliverables.",
   },
   {
     q: "What’s your process after we say go?",
@@ -135,15 +135,19 @@ const faqs = [
   },
   {
     q: "What about revisions, scope changes, and after launch?",
-    a: "Revisions are built into each phase so we can refine before sign-off. Bigger scope changes are scoped and priced separately so there are no surprises. After launch, I can offer a support window or ongoing maintenance    we’ll align on what you need before we ship.",
+    a: "Revisions are built into each phase so we can refine before sign-off. Bigger scope changes are scoped and priced separately so there are no surprises. After launch, I can offer a support window or ongoing maintenance. We’ll align on what you need before we ship.",
   },
 ];
 
-export const ContactPage = (): JSX.Element => {
+export const ContactPage = ({
+  initialSubject = "",
+}: {
+  initialSubject?: string;
+}): JSX.Element => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
-    subject: "",
+    subject: initialSubject,
     phone: "",
     message: "",
   });
@@ -491,7 +495,7 @@ export const ContactPage = (): JSX.Element => {
                         required
                         value={formData.email}
                         onChange={handleInputChange}
-                        placeholder="hello.sahinpro@gmail.com"
+                        placeholder="name@email.com"
                         className={inputClass}
                       />
                     </div>

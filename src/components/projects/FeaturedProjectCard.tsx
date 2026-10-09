@@ -7,7 +7,9 @@ import {
 import { PublicImage } from "@/components/ui/PublicImage";
 import { fadeUp, itemStagger, scrollViewport } from "@/constants/scrollMotion";
 import type { PublicProject } from "@/data/projectUiMapper";
+import { isRepositoryUrl } from "@/lib/repositoryUrl";
 import { projectImageAlt } from "@/lib/seoImages";
+import { visibleLabels } from "@/lib/visibleLabels";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, ExternalLink, Github, Tag } from "lucide-react";
 import Link from "next/link";
@@ -91,7 +93,7 @@ export const FeaturedProjectCard = ({
         </p>
 
         <div className="mb-6 flex flex-wrap gap-2">
-          {project.technologies.map((t) => (
+          {visibleLabels(project.technologies).map((t) => (
             <span
               key={t}
               className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-white/60"
@@ -122,7 +124,7 @@ export const FeaturedProjectCard = ({
               Live url
             </a>
           ) : null}
-          {project.githubUrl ? (
+          {isRepositoryUrl(project.githubUrl) ? (
             <a
               href={project.githubUrl}
               target="_blank"

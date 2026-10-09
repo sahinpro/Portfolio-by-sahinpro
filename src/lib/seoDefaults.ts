@@ -1,10 +1,10 @@
-import { PROFILE } from "@/constants/profile";
 import { OG_IMAGE } from "@/lib/seoImages";
 
-export const DEFAULT_META_TITLE = `${PROFILE.name} - ${PROFILE.role} | React · Next.js · WordPress`;
+export const DEFAULT_META_TITLE =
+  "Sahin Alam | WordPress, WooCommerce & Next.js Developer";
 
 export const DEFAULT_META_DESCRIPTION =
-  "Sahin Alam — Full Stack Developer from Bangladesh. 3+ years building React, Next.js, WordPress, and WooCommerce sites for clients worldwide. View projects and get in touch.";
+  "I help businesses fix website errors and turn visitors into customers. WordPress, WooCommerce and Next.js sites for international clients. Free website check.";
 
 export const DEFAULT_OG_IMAGE = OG_IMAGE.url;
 

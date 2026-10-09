@@ -32,14 +32,14 @@ const skillsCards: BentoCardProps[] = [
     color: "#0d0d0d",
     title: "WordPress & CMS Development",
     description:
-      "Professional WordPress and   development    custom themes, store setup, plugins, and optimization for performance and SEO.",
+      "Professional WordPress development: custom themes, store setup, plugins, and optimization for performance and SEO.",
     image: "/bentocardImage/wordpress.webp",
   },
   {
     color: "#0d0d0d",
     title: "E-Commerce Solutions",
     description:
-      "Complete e-commerce implementation with WooCommerce,  , and custom shopping experiences with payment integration.",
+      "Complete e-commerce implementation with WooCommerce and custom shopping experiences with payment integration.",
     image: "/bentocardImage/ecommerce.jpg",
   },
   {
@@ -70,7 +70,7 @@ export const SkillsSection = (): JSX.Element => {
         <motion.div variants={fadeInUp} className={sectionHeaderWrapClass}>
           <SectionHeader
             title="Skills & technologies"
-            description="Modern web development capabilities    from frontend interfaces to CMS and e-commerce builds."
+            description="Modern web development capabilities, from frontend interfaces to CMS and e-commerce builds."
           />
         </motion.div>
         <motion.div variants={fadeInUp} className={sectionContentClass}>

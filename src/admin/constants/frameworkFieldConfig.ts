@@ -38,7 +38,6 @@ export type CustomFrameworkSlug =
 
 export const CMS_PLATFORM_OPTIONS = [
   { value: "wordpress", label: "WordPress" },
-  { value: " ", label: " " },
   { value: "wix", label: "Wix" },
 ] as const;
 

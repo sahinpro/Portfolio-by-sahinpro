@@ -65,7 +65,14 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: DEFAULT_META_TITLE,
     description: DEFAULT_META_DESCRIPTION,
-    images: [OG_IMAGE.url],
+    images: [
+      {
+        url: OG_IMAGE.url,
+        alt: OG_IMAGE.alt,
+        width: OG_IMAGE.width,
+        height: OG_IMAGE.height,
+      },
+    ],
   },
   alternates: {
     types: {
@@ -115,7 +122,7 @@ export default function RootLayout({
             <h1>Sahin Alam — Full Stack Developer</h1>
             <p>
               Full Stack Developer from Bangladesh specializing in React,
-              Next.js, WordPress, WooCommerce, and . Explore the portfolio at{" "}
+              Next.js, WordPress, and WooCommerce. Explore the portfolio at{" "}
               <a href="https://www.sahinpro.me/">www.sahinpro.me</a>.
             </p>
             <nav aria-label="Primary">

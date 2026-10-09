@@ -147,7 +147,7 @@ export const ProjectsPage = ({
               className="text-lg text-white/50 max-w-xl mb-10"
             >
               A curated selection of work from full-stack applications to
-              WordPress, , and WooCommerce builds.
+              WordPress and WooCommerce builds.
             </motion.p>
 
             <motion.div

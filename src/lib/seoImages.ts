@@ -6,6 +6,10 @@ import {
   absoluteUrl,
 } from "@/constants/site";
 
+/** Alt text for the 1200×630 share card. The image file itself stays /share-card.jpeg. */
+export const SHARE_IMAGE_ALT =
+  "Website not bringing customers? Let's fix that. WordPress, WooCommerce & Next.js developer.";
+
 /** Descriptive alt text for the primary profile portrait (image SEO). */
 export const PROFILE_PORTRAIT_ALT = `${PROFILE.name} — ${PROFILE.role} · React · Next.js · WordPress`;
 
@@ -22,7 +26,7 @@ export const OG_IMAGE = {
   path: DEFAULT_OG_IMAGE_PATH,
   width: 1200,
   height: 630,
-  alt: PROFILE_PORTRAIT_ALT,
+  alt: SHARE_IMAGE_ALT,
   type: "image/jpeg",
 } as const;
 

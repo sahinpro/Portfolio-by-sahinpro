@@ -54,9 +54,9 @@ const highlights: {
 }[] = [
   {
     icon: Paintbrush,
-    title: "WordPress,   & WooCommerce",
+    title: "WordPress & WooCommerce",
     description:
-      "200+ delivered sites and stores    WordPress themes, WooCommerce and   builds, Elementor, and on-page SEO for international clients.",
+      "200+ delivered sites and stores: WordPress themes, WooCommerce builds, Elementor, and on-page SEO for international clients.",
     tag: "CMS",
     color: "from-orange-500/10 to-amber-500/5",
     border: "border-orange-500/20",
@@ -83,7 +83,7 @@ const highlights: {
     icon: BookOpen,
     title: "Performance & SEO",
     description:
-      "Core Web Vitals optimization, lazy loading, and asset tuning    often improving load speed 40%+ on client projects.",
+      "Core Web Vitals optimization, lazy loading, and asset tuning, often improving load speed 40%+ on client projects.",
     tag: "Speed",
     color: "from-violet-500/10 to-purple-500/5",
     border: "border-violet-500/20",
@@ -183,7 +183,7 @@ export const AboutPage = (): JSX.Element => {
 
       <section className="w-full pb-20">
         <motion.div
-          className="container mx-auto px-4 max-w-6xl grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
+          className="container mx-auto grid max-w-3xl grid-cols-1 gap-3 px-4 sm:grid-cols-2 sm:gap-4"
           initial="hidden"
           whileInView="visible"
           viewport={scrollViewport}
@@ -273,7 +273,7 @@ export const AboutPage = (): JSX.Element => {
 
       <LandscapePageCtaSection
         title="Let's work together"
-        description="Available for freelance, full-time, and remote collaboration    startups, redesigns, or joining your team. Let's build something great."
+        description="Available for freelance, full-time, and remote collaboration — startups, redesigns, or joining your team. Let's build something great."
         actions={
           <>
             {!resumeLoading && activeResume ? (

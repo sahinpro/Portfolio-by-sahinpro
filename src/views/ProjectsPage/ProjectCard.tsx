@@ -7,6 +7,7 @@ import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { projectCategoryLine } from "@/lib/projectMeta";
 import { projectHref } from "@/lib/projectPaths";
+import { visibleLabels } from "@/lib/visibleLabels";
 import { projectImageAlt } from "@/lib/seoImages";
 import { cn } from "@/lib/utils";
 import {
@@ -30,7 +31,8 @@ export const ProjectCard = ({
 }: ProjectCardProps): JSX.Element => {
   const isMobile = useIsMobile();
   const categoryLine = projectCategoryLine(project);
-  const techPreview = project.technologies.slice(0, 4).join(" · ");
+  const technologies = visibleLabels(project.technologies);
+  const techPreview = technologies.slice(0, 4).join(" · ");
 
   const card = (
     <Link
@@ -79,7 +81,7 @@ export const ProjectCard = ({
           caseStudy={project.caseStudy}
           testimonial={project.testimonial}
           techPreview={techPreview}
-          extraTechCount={Math.max(0, project.technologies.length - 4)}
+          extraTechCount={Math.max(0, technologies.length - 4)}
         />
       </div>
     </Link>

@@ -4,6 +4,13 @@ import { buildPageMetadata } from "@/lib/metadata";
 export const metadata = buildPageMetadata("/contact", "/contact");
 export const revalidate = 3600;
 
-export default function Page() {
-  return <ContactPage />;
+type PageProps = {
+  searchParams: Promise<{ topic?: string }>;
+};
+
+export default async function Page({ searchParams }: PageProps) {
+  const { topic } = await searchParams;
+  const initialSubject =
+    topic === "free-website-check" ? "Free website check" : "";
+  return <ContactPage initialSubject={initialSubject} />;
 }

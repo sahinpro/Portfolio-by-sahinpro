@@ -31,9 +31,9 @@ export const SEO_PAGE_DEFAULTS: Record<SeoPageKey, SeoPageDefaults> = {
     keywords: DEFAULT_KEYWORDS,
   },
   "/about": {
-    meta_title: `About ${DEFAULT_META_TITLE.split(" - ")[0]} | Full Stack Developer`,
+    meta_title: "About Sahin Alam | Full Stack Developer",
     meta_description:
-      "Learn about Sahin Alam — Full Stack Developer from Bangladesh. Experience with React, Next.js, WordPress, WooCommerce, and   for agencies and founders worldwide.",
+      "Learn about Sahin Alam — Full Stack Developer from Bangladesh. Experience with React, Next.js, WordPress, and WooCommerce for agencies and founders worldwide.",
     og_image: DEFAULT_OG_IMAGE_PATH,
     keywords:
       "Sahin Alam, About, Full Stack Developer, React, Next.js, WordPress",
@@ -41,7 +41,7 @@ export const SEO_PAGE_DEFAULTS: Record<SeoPageKey, SeoPageDefaults> = {
   "/projects": {
     meta_title: "Projects | Sahin Alam — Portfolio Work",
     meta_description:
-      "Selected client projects: WordPress stores, WooCommerce,  , React and Next.js apps. E-commerce, CMS, and custom web development.",
+      "Selected client projects: WordPress stores, WooCommerce, React and Next.js apps. E-commerce, CMS, and custom web development.",
     og_image: DEFAULT_OG_IMAGE_PATH,
     keywords:
       "Portfolio, Projects, Web Development, React, Next.js, WordPress, WooCommerce",
@@ -49,10 +49,10 @@ export const SEO_PAGE_DEFAULTS: Record<SeoPageKey, SeoPageDefaults> = {
   "/services": {
     meta_title: "Services | Sahin Alam — Web Development",
     meta_description:
-      "Full stack web development services: React & Next.js apps, WordPress & WooCommerce stores,  , performance, SEO, and ongoing support.",
+      "Full stack web development services: React & Next.js apps, WordPress & WooCommerce stores, performance, SEO, and ongoing support.",
     og_image: DEFAULT_OG_IMAGE_PATH,
     keywords:
-      "Web Development Services, React, Next.js, WordPress, WooCommerce,  ",
+      "Web Development Services, React, Next.js, WordPress, WooCommerce",
   },
   "/contact": {
     meta_title: "Contact | Sahin Alam — Hire a Full Stack Developer",
@@ -67,6 +67,7 @@ export const SEO_PAGE_DEFAULTS: Record<SeoPageKey, SeoPageDefaults> = {
 /** Legacy OG paths / hosts that should not be used anymore. */
 export const STALE_OG_IMAGE_PATHS = new Set([
   "/sahin.png",
+  "/sahin.jpg",
   "/sahin.webp",
   "/sahin-avatar.webp",
   "/logo.svg",
@@ -74,6 +75,7 @@ export const STALE_OG_IMAGE_PATHS = new Set([
 
 export const STALE_OG_IMAGE_SUFFIXES = [
   "/sahin.png",
+  "/sahin.jpg",
   "/sahin.webp",
   "/sahin-avatar.webp",
   "/logo.svg",

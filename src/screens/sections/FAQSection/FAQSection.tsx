@@ -16,7 +16,7 @@ const faqItems = [
   {
     question: "What technologies do you specialize in?",
     answer:
-      "JavaScript, React, Next.js, Node.js, WordPress, WooCommerce,  , and Figma-to-web builds. See the Skills section above or the services page for a full breakdown.",
+      "JavaScript, React, Next.js, Node.js, WordPress, WooCommerce, and Figma-to-web builds. See the Skills section above or the services page for a full breakdown.",
   },
   {
     question: "How long does a typical project take?",
@@ -26,12 +26,12 @@ const faqItems = [
   {
     question: "Do you provide ongoing maintenance and support?",
     answer:
-      "Yes    from security updates and content changes to performance tuning. We can agree on a support window or a monthly maintenance plan before launch.",
+      "Yes — from security updates and content changes to performance tuning. We can agree on a support window or a monthly maintenance plan before launch.",
   },
   {
     question: "Can you work with existing websites or only build new ones?",
     answer:
-      "Both. I can redesign, add features, fix bugs, or improve performance on an existing site    not just greenfield builds.",
+      "Both. I can redesign, add features, fix bugs, or improve performance on an existing site, not just greenfield builds.",
   },
   {
     question: "What is your process for starting a new project?",
@@ -62,7 +62,7 @@ export const FAQSection = (): JSX.Element => {
         <motion.div variants={fadeInUp} className="w-full">
           <SectionHeader
             title="Frequently asked questions"
-            description="Don't see your answer? Get in touch    I'm happy to clarify anything before we start."
+            description="Don't see your answer? Get in touch — I'm happy to clarify anything before we start."
           />
         </motion.div>
 

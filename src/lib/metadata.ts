@@ -49,12 +49,13 @@ function baseTwitter(
   description: string,
   _url: string,
   image: string,
+  imageAlt = OG_IMAGE.alt,
 ): Metadata["twitter"] {
   return {
     card: "summary_large_image",
     title,
     description,
-    images: [image],
+    images: [{ url: image, alt: imageAlt }],
   };
 }
 
@@ -75,7 +76,7 @@ export function buildPageMetadata(
   const canonical = canonicalPath(pathname);
 
   return {
-    title,
+    title: pagePath === "/" ? { absolute: title } : title,
     description,
     keywords,
     authors: [{ name: SITE }],

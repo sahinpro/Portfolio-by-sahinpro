@@ -10,7 +10,7 @@ export const StatsSection = (): JSX.Element => {
       className="container relative z-10 mx-auto w-full shrink-0 px-4 pb-8 pt-2 sm:pb-12 scroll-section"
     >
       <motion.div
-        className="w-full max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
+        className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4"
         initial="hidden"
         whileInView="visible"
         viewport={scrollViewport}
