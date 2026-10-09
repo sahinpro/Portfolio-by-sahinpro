@@ -4,6 +4,7 @@ import { CTAButton } from "@/components/common/CTAButton";
 import Header from "@/components/Header";
 import { ProjectDetailHero } from "@/components/projects/ProjectDetailHero";
 import { ProjectTestimonialCard } from "@/components/projects/ProjectTestimonialCard";
+import { PublicImage } from "@/components/ui/PublicImage";
 import {
   fadeInUp,
   pageHeroItem,
@@ -11,15 +12,15 @@ import {
   scrollViewport,
   sectionReveal,
 } from "@/constants/scrollMotion";
-import type {
-  PublicCaseStudy,
-  PublicProjectDetail,
-} from "@/data/projectUiMapper";
+import type { PublicProjectDetail } from "@/data/projectUiMapper";
 import {
   bodyParagraphs,
   projectBuildLabel,
   projectCategoryLine,
 } from "@/lib/projectMeta";
+import { projectImageAlt } from "@/lib/seoImages";
+import { isRepositoryUrl } from "@/lib/repositoryUrl";
+import { visibleLabels } from "@/lib/visibleLabels";
 import { FooterSection } from "@/screens/sections/FooterSection";
 import { ProjectCard } from "@/views/ProjectsPage/ProjectCard";
 import { motion } from "framer-motion";
@@ -27,11 +28,34 @@ import { ArrowLeft, ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const CASE_STUDY_STEPS: { key: keyof PublicCaseStudy; label: string }[] = [
-  { key: "problem", label: "Problem" },
-  { key: "solution", label: "Solution" },
-  { key: "result", label: "Result" },
-];
+const caseHeadingClass =
+  "text-sm font-semibold uppercase tracking-[0.16em] text-white/35";
+
+function CaseStudyCopy({
+  id,
+  title,
+  text,
+}: {
+  id: string;
+  title: string;
+  text: string;
+}): JSX.Element | null {
+  const paragraphs = bodyParagraphs(text);
+  if (paragraphs.length === 0) return null;
+
+  return (
+    <motion.section variants={fadeInUp} aria-labelledby={id}>
+      <h2 id={id} className={caseHeadingClass}>
+        {title}
+      </h2>
+      <div className="mt-5 max-w-3xl space-y-4 text-base leading-relaxed text-white/70">
+        {paragraphs.map((para) => (
+          <p key={para}>{para}</p>
+        ))}
+      </div>
+    </motion.section>
+  );
+}
 
 export function ProjectDetailPage({
   project,
@@ -43,9 +67,14 @@ export function ProjectDetailPage({
   const categoryLine = projectCategoryLine(project);
   const buildLabel = projectBuildLabel(project);
   const overview = bodyParagraphs(project.description || "");
-  const caseStudyLines = project.caseStudy
-    ? CASE_STUDY_STEPS.filter(({ key }) => project.caseStudy?.[key])
-    : [];
+  const problem = project.caseStudy?.problem.trim() ?? "";
+  const solution = project.caseStudy?.solution.trim() ?? "";
+  const result = project.caseStudy?.result.trim() ?? "";
+  const metrics = project.metrics.filter(
+    (metric) => metric.label.trim() || metric.value.trim(),
+  );
+  const beforeImage = project.beforeImage?.trim() ?? "";
+  const afterImage = project.afterImage?.trim() ?? "";
   const [galleryReady, setGalleryReady] = useState(
     project.screenshots.length === 0,
   );
@@ -112,7 +141,7 @@ export function ProjectDetailPage({
                       Live url
                     </CTAButton>
                   ) : null}
-                  {project.githubUrl ? (
+                  {isRepositoryUrl(project.githubUrl) ? (
                     <CTAButton href={project.githubUrl} variant="secondary">
                       <Github className="h-4 w-4" aria-hidden />
                       Source
@@ -137,7 +166,7 @@ export function ProjectDetailPage({
               {project.title}
             </motion.h1>
 
-            {overview.length > 0 && !project.caseStudy ? (
+            {overview.length > 0 ? (
               <motion.div
                 variants={pageHeroItem}
                 className="mt-6 space-y-4 text-base leading-relaxed text-white/55"
@@ -146,15 +175,6 @@ export function ProjectDetailPage({
                   <p key={para}>{para}</p>
                 ))}
               </motion.div>
-            ) : null}
-
-            {overview.length > 0 && project.caseStudy ? (
-              <motion.p
-                variants={pageHeroItem}
-                className="mt-6 max-w-4xl text-base leading-relaxed text-white/55"
-              >
-                {overview[0]}
-              </motion.p>
             ) : null}
           </motion.div>
 
@@ -165,32 +185,93 @@ export function ProjectDetailPage({
             viewport={scrollViewport}
             variants={sectionReveal}
           >
-            {caseStudyLines.length > 0 ? (
+            <CaseStudyCopy
+              id="case-problem-heading"
+              title="The problem"
+              text={problem}
+            />
+            <CaseStudyCopy
+              id="case-solution-heading"
+              title="What I did"
+              text={solution}
+            />
+            {result || metrics.length > 0 ? (
               <motion.section
                 variants={fadeInUp}
-                aria-labelledby="case-study-heading"
+                aria-labelledby="case-result-heading"
               >
-                <h2
-                  id="case-study-heading"
-                  className="text-sm font-semibold uppercase tracking-[0.16em] text-white/35"
-                >
-                  Case study
+                <h2 id="case-result-heading" className={caseHeadingClass}>
+                  The result
                 </h2>
-                <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
-                  {caseStudyLines.map(({ key, label }) => (
-                    <div
-                      key={key}
-                      className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5"
-                    >
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#00BB7D]">
-                        {label}
-                      </p>
-                      <p className="mt-3 text-sm leading-relaxed text-white/70">
-                        {project.caseStudy?.[key]}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                {result ? (
+                  <div className="mt-5 max-w-3xl space-y-4 text-base leading-relaxed text-white/70">
+                    {bodyParagraphs(result).map((para) => (
+                      <p key={para}>{para}</p>
+                    ))}
+                  </div>
+                ) : null}
+                {metrics.length > 0 ? (
+                  <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {metrics.map((metric) => (
+                      <div
+                        key={`${metric.label}-${metric.value}`}
+                        className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4"
+                      >
+                        {metric.value ? (
+                          <p className="text-lg font-semibold tracking-tight text-white">
+                            {metric.value}
+                          </p>
+                        ) : null}
+                        {metric.label ? (
+                          <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
+                            {metric.label}
+                          </p>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </motion.section>
+            ) : null}
+
+            {beforeImage || afterImage ? (
+              <motion.section
+                variants={fadeInUp}
+                aria-label="Before and after"
+                className={`grid grid-cols-1 gap-4 ${
+                  beforeImage && afterImage ? "md:grid-cols-2" : ""
+                }`}
+              >
+                {beforeImage ? (
+                  <figure className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111]">
+                    <PublicImage
+                      src={beforeImage}
+                      alt={`${projectImageAlt(project.title)} — before`}
+                      width={1200}
+                      height={800}
+                      sizes="(max-width: 768px) 100vw, 560px"
+                      className="h-auto w-full"
+                    />
+                    <figcaption className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">
+                      Before
+                    </figcaption>
+                  </figure>
+                ) : null}
+                {afterImage ? (
+                  <figure className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111]">
+                    <PublicImage
+                      src={afterImage}
+                      alt={`${projectImageAlt(project.title)} — after`}
+                      width={1200}
+                      height={800}
+                      sizes="(max-width: 768px) 100vw, 560px"
+                      className="h-auto w-full"
+                    />
+                    <figcaption className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">
+                      After
+                    </figcaption>
+                  </figure>
+                ) : null}
               </motion.section>
             ) : null}
 
@@ -207,7 +288,7 @@ export function ProjectDetailPage({
                     Tech stack
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech) => (
+                    {visibleLabels(project.technologies).map((tech) => (
                       <span
                         key={tech}
                         className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs text-white/70"
@@ -232,11 +313,11 @@ export function ProjectDetailPage({
                     </span>
                   </span>
                 ) : null}
-                {project.cmsExtensions.length > 0 ? (
+                {visibleLabels(project.cmsExtensions).length > 0 ? (
                   <span>
                     Plugins:{" "}
                     <span className="text-white/75">
-                      {project.cmsExtensions.join(", ")}
+                      {visibleLabels(project.cmsExtensions).join(", ")}
                     </span>
                   </span>
                 ) : null}
@@ -265,6 +346,18 @@ export function ProjectDetailPage({
                 </div>
               </motion.section>
             ) : null}
+
+            <motion.section
+              variants={fadeInUp}
+              className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-6 py-8 sm:px-8"
+            >
+              <CTAButton
+                href="/contact?topic=free-website-check"
+                className="h-auto max-w-full whitespace-normal text-center"
+              >
+                Want results like this? Get a free website check
+              </CTAButton>
+            </motion.section>
           </motion.div>
         </article>
 
