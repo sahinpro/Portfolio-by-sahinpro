@@ -15,28 +15,30 @@ export const PROFILE_AVATAR_ALT = `${PROFILE.name} — ${PROFILE.role} portfolio
 /** Desk / workspace photo alt. */
 export const PROFILE_DESK_ALT = `${PROFILE.name} at AI-powered developer workspace — ${PROFILE.role}`;
 
+const PORTRAIT_EDGE = 1254;
+
 export const OG_IMAGE = {
   url: absoluteUrl(DEFAULT_OG_IMAGE_PATH),
   path: DEFAULT_OG_IMAGE_PATH,
-  width: 1254,
-  height: 1254,
+  width: 1200,
+  height: 630,
   alt: PROFILE_PORTRAIT_ALT,
   type: "image/jpeg",
 } as const;
 
 export const PROFILE_PORTRAIT = {
-  url: OG_IMAGE.url,
-  path: DEFAULT_OG_IMAGE_PATH,
-  width: OG_IMAGE.width,
-  height: OG_IMAGE.height,
+  url: absoluteUrl(PROFILE_AVATAR_PATH),
+  path: PROFILE_AVATAR_PATH,
+  width: PORTRAIT_EDGE,
+  height: PORTRAIT_EDGE,
   alt: PROFILE_PORTRAIT_ALT,
 } as const;
 
 export const PROFILE_AVATAR = {
   url: absoluteUrl(PROFILE_AVATAR_PATH),
   path: PROFILE_AVATAR_PATH,
-  width: OG_IMAGE.width,
-  height: OG_IMAGE.height,
+  width: PORTRAIT_EDGE,
+  height: PORTRAIT_EDGE,
   alt: PROFILE_AVATAR_ALT,
 } as const;
 

@@ -4,7 +4,7 @@ export const SITE_URL = "https://www.sahinpro.me";
 /** Hosts that must 301 to SITE_URL so Google stops ranking the old domain. */
 export const LEGACY_HOSTS = ["sahin.pro.bd", "www.sahin.pro.bd"] as const;
 
-export const DEFAULT_OG_IMAGE_PATH = "/share-card.png";
+export const DEFAULT_OG_IMAGE_PATH = "/share-card.jpeg";
 
 export const PROFILE_AVATAR_PATH = "/sahin.jpg";
 
