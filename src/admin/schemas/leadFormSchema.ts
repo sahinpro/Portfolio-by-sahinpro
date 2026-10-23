@@ -15,16 +15,6 @@ export const LEAD_SOURCE_VALUES = [
   "linkedin",
   "business_directory",
   "referral",
-  "email",
-  "other",
-] as const;
-
-export const CONTACT_METHOD_VALUES = [
-  "instagram_dm",
-  "email",
-  "whatsapp",
-  "phone",
-  "facebook",
   "other",
 ] as const;
 
@@ -39,90 +29,89 @@ export const OUTREACH_STATUS_VALUES = [
   "do_not_contact",
 ] as const;
 
-export const PRIORITY_VALUES = ["low", "medium", "high"] as const;
-
-export const PROJECT_STATUS_VALUES = [
-  "not_qualified",
-  "qualified",
-  "proposal_sent",
-  "negotiation",
-  "won",
-  "lost",
-  "not_a_fit",
-] as const;
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Empty allowed; otherwise must parse as an http(s) URL. */
+/** Empty allowed; otherwise must parse as an http(s) URL. Trimming happens in the mapper layer. */
 const optionalUrl = (message: string) =>
-  z
-    .string()
-    .trim()
-    .refine((v) => v === "" || isHttpUrl(v), message);
+  z.string().refine((v) => v.trim() === "" || isHttpUrl(v), message);
 
 const optionalEmail = z
   .string()
-  .trim()
-  .refine((v) => v === "" || EMAIL_RE.test(v), "Enter a valid email address");
+  .refine((v) => v.trim() === "" || EMAIL_RE.test(v.trim()), "Enter a valid email address");
 
 const optionalDate = (message: string) =>
-  z
-    .string()
-    .trim()
-    .refine((v) => v === "" || DATE_RE.test(v), message);
+  z.string().refine((v) => v.trim() === "" || DATE_RE.test(v.trim()), message);
 
-/** Fields edited in the Add / Lead form. */
+/**
+ * Simplified fields edited in the Add / Edit Lead form.
+ * Legacy fields (priority, project status, contact dates, message history,
+ * budgets…) are no longer part of the form — they are preserved untouched on
+ * existing IndexedDB records via the mapper layer.
+ */
 export const leadFormSchema = z
   .object({
-    businessName: z.string().trim().min(1, "Business name is required"),
-    niche: z.string().trim().min(1, "Niche is required"),
-    country: z.string().trim(),
-    city: z.string().trim(),
+    // A. Business information
+    businessName: z.string().min(1, "Business name is required"),
+    niche: z.string().min(1, "Niche is required"),
+    country: z.string(),
+    city: z.string(),
     websiteUrl: optionalUrl("Enter a valid website URL"),
-    websiteStatus: z.enum(WEBSITE_STATUS_VALUES),
-    leadSource: z.enum(LEAD_SOURCE_VALUES).or(z.literal("")),
+    websiteStatus: z
+      .enum(WEBSITE_STATUS_VALUES)
+      .refine((v) => Boolean(v), "Select a website status"),
+    leadSource: z
+      .enum(LEAD_SOURCE_VALUES)
+      .or(z.literal(""))
+      .refine((v) => v !== "", "Select a lead source"),
 
-    contactPerson: z.string().trim(),
+    // B. Contact information (all optional)
     email: optionalEmail,
-    phone: z.string().trim(),
+    phone: z.string(),
     instagramUrl: optionalUrl("Enter a valid Instagram profile URL"),
-    facebookUrl: optionalUrl("Enter a valid Facebook page URL"),
-    preferredContactMethod: z.enum(CONTACT_METHOD_VALUES).or(z.literal("")),
 
-    outreachStatus: z.enum(OUTREACH_STATUS_VALUES),
-    firstContactDate: optionalDate("Use a valid date"),
-    lastContactDate: optionalDate("Use a valid date"),
+    // C. Outreach & notes
+    outreachStatus: z
+      .enum(OUTREACH_STATUS_VALUES)
+      .refine((v) => Boolean(v), "Select an outreach status"),
     followUpDate: optionalDate("Use a valid date"),
-    firstMessage: z.string(),
-    lastConversation: z.string(),
-
-    priority: z.enum(PRIORITY_VALUES),
-    opportunity: z.string(),
-    improvements: z.string(),
-    estBudget: z.string().trim(),
-    expectedValue: z.string().trim(),
     notes: z.string(),
-
-    projectStatus: z.enum(PROJECT_STATUS_VALUES),
   })
   .superRefine((data, ctx) => {
+    // A URL only makes sense when the business actually has a website.
+    if (data.websiteStatus === "no_website") {
+      if (data.websiteUrl.trim() !== "") {
+        ctx.addIssue({
+          code: "custom",
+          message: "Remove the website URL — this lead is marked “No Website”",
+          path: ["websiteUrl"],
+        });
+      }
+      return;
+    }
     if (
-      data.firstContactDate &&
-      data.lastContactDate &&
-      data.lastContactDate < data.firstContactDate
+      (data.websiteStatus === "has_website" ||
+        data.websiteStatus === "needs_improvement") &&
+      data.websiteUrl.trim() === ""
     ) {
       ctx.addIssue({
         code: "custom",
-        message: "Last contact date is before the first contact date",
-        path: ["lastContactDate"],
+        message: "Website URL is required when the business has a website",
+        path: ["websiteUrl"],
       });
     }
   });
 
 export type LeadFormValues = z.infer<typeof leadFormSchema>;
 
-/** Full stored lead record — used to validate imported backup JSON. */
+/** Pre-transform form state type (selects can be untouched "" before validation). */
+export type LeadFormInput = z.input<typeof leadFormSchema>;
+
+/**
+ * Full stored lead record — used to validate imported backup JSON.
+ * Intentionally unchanged: old backups (with legacy fields) and new, simplified
+ * exports must both round-trip without losing any stored data.
+ */
 export const leadRecordSchema = z.object({
   id: z.string().min(1),
   businessName: z.string().min(1, "businessName is required"),
@@ -137,10 +126,7 @@ export const leadRecordSchema = z.object({
   phone: z.string().default(""),
   instagramUrl: z.string().default(""),
   facebookUrl: z.string().default(""),
-  preferredContactMethod: z
-    .enum(CONTACT_METHOD_VALUES)
-    .or(z.literal(""))
-    .default(""),
+  preferredContactMethod: z.string().default(""),
   outreachStatus: z.enum(OUTREACH_STATUS_VALUES).default("not_contacted"),
   firstContactDate: z.string().default(""),
   lastContactDate: z.string().default(""),
@@ -148,13 +134,13 @@ export const leadRecordSchema = z.object({
   followUpCount: z.number().int().min(0).default(0),
   firstMessage: z.string().default(""),
   lastConversation: z.string().default(""),
-  priority: z.enum(PRIORITY_VALUES).default("medium"),
+  priority: z.string().default("medium"),
   opportunity: z.string().default(""),
   improvements: z.string().default(""),
   estBudget: z.string().default(""),
   expectedValue: z.string().default(""),
   notes: z.string().default(""),
-  projectStatus: z.enum(PROJECT_STATUS_VALUES).default("not_qualified"),
+  projectStatus: z.string().default("not_qualified"),
   normalizedKey: z.string().default(""),
   createdAt: z.string().default(""),
   updatedAt: z.string().default(""),

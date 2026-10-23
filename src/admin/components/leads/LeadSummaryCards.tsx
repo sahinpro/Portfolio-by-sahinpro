@@ -9,7 +9,6 @@ import {
   Clock,
   Inbox,
   Star,
-  Trophy,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -27,7 +26,6 @@ export type SummaryAction = {
 /** The subset of filters a summary card toggles. */
 export type SummaryFilters = {
   outreachStatus: string;
-  projectStatus: string;
   followUp: "" | FollowUpBucket;
 };
 
@@ -39,7 +37,6 @@ const ACCENTS: Record<string, string> = {
   awaiting: "text-amber-200 bg-amber-500/15 border-amber-500/25",
   interested: "text-emerald-300 bg-emerald-500/15 border-emerald-500/25",
   due: "text-red-300 bg-red-500/15 border-red-500/25",
-  won: "text-sky-300 bg-sky-500/15 border-sky-500/25",
 };
 
 export function LeadSummaryCards({
@@ -58,9 +55,8 @@ export function LeadSummaryCards({
       value: summary.total,
       icon: Users,
       accent: ACCENTS.total,
-      patch: { outreachStatus: "", projectStatus: "", followUp: "" },
-      isActive:
-        !filters.outreachStatus && !filters.projectStatus && !filters.followUp,
+      patch: { outreachStatus: "", followUp: "" },
+      isActive: !filters.outreachStatus && !filters.followUp,
     },
     {
       key: "notContacted",
@@ -70,7 +66,6 @@ export function LeadSummaryCards({
       accent: ACCENTS.notContacted,
       patch: {
         outreachStatus: "not_contacted",
-        projectStatus: "",
         followUp: "",
       },
       isActive: filters.outreachStatus === "not_contacted",
@@ -83,7 +78,6 @@ export function LeadSummaryCards({
       accent: ACCENTS.awaiting,
       patch: {
         outreachStatus: "awaiting_reply",
-        projectStatus: "",
         followUp: "",
       },
       isActive: filters.outreachStatus === "awaiting_reply",
@@ -94,7 +88,7 @@ export function LeadSummaryCards({
       value: summary.interested,
       icon: Star,
       accent: ACCENTS.interested,
-      patch: { outreachStatus: "interested", projectStatus: "", followUp: "" },
+      patch: { outreachStatus: "interested", followUp: "" },
       isActive: filters.outreachStatus === "interested",
     },
     {
@@ -103,22 +97,13 @@ export function LeadSummaryCards({
       value: summary.followUpsDue,
       icon: CalendarClock,
       accent: ACCENTS.due,
-      patch: { outreachStatus: "", projectStatus: "", followUp: "overdue" },
+      patch: { outreachStatus: "", followUp: "overdue" },
       isActive: filters.followUp === "overdue",
-    },
-    {
-      key: "won",
-      label: "Projects Won",
-      value: summary.projectsWon,
-      icon: Trophy,
-      accent: ACCENTS.won,
-      patch: { outreachStatus: "", projectStatus: "won", followUp: "" },
-      isActive: filters.projectStatus === "won",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
       {cards.map((card) => {
         const Icon = card.icon;
         return (

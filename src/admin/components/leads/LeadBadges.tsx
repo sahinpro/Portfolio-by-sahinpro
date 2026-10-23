@@ -3,16 +3,10 @@
 import {
   LEAD_SOURCE_OPTIONS,
   OUTREACH_STATUS_OPTIONS,
-  PRIORITY_OPTIONS,
-  PROJECT_STATUS_OPTIONS,
   WEBSITE_STATUS_OPTIONS,
   labelFor,
   outreachBadgeClass,
-  priorityBadgeClass,
-  projectBadgeClass,
   websiteBadgeClass,
-  type LeadPriority,
-  type LeadProjectStatus,
   type LeadSource,
   type OutreachStatus,
   type WebsiteStatus,
@@ -40,32 +34,6 @@ export function OutreachBadge({
     <Pill
       label={labelFor(OUTREACH_STATUS_OPTIONS, status)}
       className={outreachBadgeClass(status)}
-    />
-  );
-}
-
-export function ProjectBadge({
-  status,
-}: {
-  status: LeadProjectStatus;
-}): JSX.Element {
-  return (
-    <Pill
-      label={labelFor(PROJECT_STATUS_OPTIONS, status)}
-      className={projectBadgeClass(status)}
-    />
-  );
-}
-
-export function PriorityBadge({
-  priority,
-}: {
-  priority: LeadPriority;
-}): JSX.Element {
-  return (
-    <Pill
-      label={labelFor(PRIORITY_OPTIONS, priority)}
-      className={priorityBadgeClass(priority)}
     />
   );
 }

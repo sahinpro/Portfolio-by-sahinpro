@@ -8,17 +8,18 @@ type ResendErrorBody = {
   name?: string;
 };
 
-type SendContactEmailInput = {
+type SendResendEmailInput = {
   apiKey: string;
   from: string;
   to: string;
-  replyTo: string;
+  replyTo?: string;
   subject: string;
   html: string;
   text: string;
   idempotencyKey: string;
   templateId?: string;
   templateVariables?: Record<string, string>;
+  tag?: string;
 };
 
 function sleep(ms: number): Promise<void> {
@@ -52,29 +53,30 @@ async function readResendError(response: Response): Promise<ResendApiError> {
   );
 }
 
-function buildPayload(input: SendContactEmailInput): Record<string, unknown> {
+function buildPayload(input: SendResendEmailInput): Record<string, unknown> {
+  const tag = input.tag ?? "portfolio-contact";
+  const base: Record<string, unknown> = {
+    from: input.from,
+    to: [input.to],
+    subject: input.subject,
+    tags: [{ name: "source", value: tag }],
+  };
+  if (input.replyTo) base.reply_to = input.replyTo;
+
   if (input.templateId) {
     return {
-      from: input.from,
-      to: [input.to],
-      reply_to: input.replyTo,
-      subject: input.subject,
+      ...base,
       template: {
         id: input.templateId,
         variables: input.templateVariables ?? {},
       },
-      tags: [{ name: "source", value: "portfolio-contact" }],
     };
   }
 
   return {
-    from: input.from,
-    to: [input.to],
-    reply_to: input.replyTo,
-    subject: input.subject,
+    ...base,
     html: input.html,
     text: input.text,
-    tags: [{ name: "source", value: "portfolio-contact" }],
   };
 }
 
@@ -85,7 +87,7 @@ function buildPayload(input: SendContactEmailInput): Record<string, unknown> {
  * - No retries on 400/401/403/409
  */
 export async function sendViaResend(
-  input: SendContactEmailInput,
+  input: SendResendEmailInput,
 ): Promise<ResendSendResult> {
   const payload = buildPayload(input);
   let lastError: ResendApiError | null = null;

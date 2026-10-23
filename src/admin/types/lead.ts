@@ -1,9 +1,6 @@
 import type {
-  LeadPriority,
-  LeadProjectStatus,
   LeadSource,
   OutreachStatus,
-  PreferredContactMethod,
   WebsiteStatus,
 } from "@/admin/constants/leadOptions";
 
@@ -14,6 +11,10 @@ import type {
  * Dates are ISO `YYYY-MM-DD` strings ("" when unset). Timestamps are full ISO
  * date-times. All optional text fields use "" rather than null to keep the form,
  * backup JSON, and IndexedDB records consistent.
+ *
+ * The form edits only the simplified core fields. Everything marked
+ * "(legacy)" is preserved as-is on existing records (IDs, timestamps, counts,
+ * old notes) and is no longer editable or displayed in the primary UI.
  */
 export type Lead = {
   id: string;
@@ -28,32 +29,32 @@ export type Lead = {
   leadSource: LeadSource | "";
 
   // Contact information (all optional)
-  contactPerson: string;
+  contactPerson: string; // (legacy) read-only, preserved on edit
   email: string;
   phone: string;
   instagramUrl: string;
-  facebookUrl: string;
-  preferredContactMethod: PreferredContactMethod | "";
+  facebookUrl: string; // (legacy) still used for duplicate detection
+  preferredContactMethod: string; // (legacy) stored as plain string now
 
   // Outreach tracking
   outreachStatus: OutreachStatus;
-  firstContactDate: string;
-  lastContactDate: string;
+  firstContactDate: string; // (legacy) auto-managed, not in the form
+  lastContactDate: string; // (legacy) auto-managed via "Log contact"
   followUpDate: string;
-  followUpCount: number;
-  firstMessage: string;
-  lastConversation: string;
+  followUpCount: number; // (legacy) auto-managed via "Log contact"
+  firstMessage: string; // (legacy)
+  lastConversation: string; // (legacy)
 
-  // Qualification
-  priority: LeadPriority;
+  // Qualification (all legacy — preserved on existing records only)
+  priority: string;
   opportunity: string;
   improvements: string;
   estBudget: string;
   expectedValue: string;
   notes: string;
 
-  // Project tracking (independent from outreachStatus)
-  projectStatus: LeadProjectStatus;
+  // Project tracking (legacy — preserved on existing records only)
+  projectStatus: string;
 
   // Identity used for local duplicate detection
   normalizedKey: string;

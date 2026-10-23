@@ -13,15 +13,6 @@ export type LeadSource =
   | "linkedin"
   | "business_directory"
   | "referral"
-  | "email"
-  | "other";
-
-export type PreferredContactMethod =
-  | "instagram_dm"
-  | "email"
-  | "whatsapp"
-  | "phone"
-  | "facebook"
   | "other";
 
 export type OutreachStatus =
@@ -33,8 +24,6 @@ export type OutreachStatus =
   | "not_interested"
   | "no_response"
   | "do_not_contact";
-
-export type LeadPriority = "low" | "medium" | "high";
 
 export type LeadProjectStatus =
   | "not_qualified"
@@ -61,16 +50,6 @@ export const LEAD_SOURCE_OPTIONS: Option<LeadSource>[] = [
   { value: "linkedin", label: "LinkedIn" },
   { value: "business_directory", label: "Business Directory" },
   { value: "referral", label: "Referral" },
-  { value: "email", label: "Email" },
-  { value: "other", label: "Other" },
-];
-
-export const PREFERRED_CONTACT_OPTIONS: Option<PreferredContactMethod>[] = [
-  { value: "instagram_dm", label: "Instagram DM" },
-  { value: "email", label: "Email" },
-  { value: "whatsapp", label: "WhatsApp" },
-  { value: "phone", label: "Phone" },
-  { value: "facebook", label: "Facebook" },
   { value: "other", label: "Other" },
 ];
 
@@ -83,12 +62,6 @@ export const OUTREACH_STATUS_OPTIONS: Option<OutreachStatus>[] = [
   { value: "not_interested", label: "Not Interested" },
   { value: "no_response", label: "No Response" },
   { value: "do_not_contact", label: "Do Not Contact" },
-];
-
-export const PRIORITY_OPTIONS: Option<LeadPriority>[] = [
-  { value: "low", label: "Low" },
-  { value: "medium", label: "Medium" },
-  { value: "high", label: "High" },
 ];
 
 export const PROJECT_STATUS_OPTIONS: Option<LeadProjectStatus>[] = [
@@ -123,12 +96,6 @@ const PROJECT_BADGE: Record<LeadProjectStatus, string> = {
   not_a_fit: "bg-zinc-600/25 text-zinc-400 border-zinc-600/30",
 };
 
-const PRIORITY_BADGE: Record<LeadPriority, string> = {
-  low: "bg-zinc-500/20 text-zinc-300 border-zinc-500/30",
-  medium: "bg-amber-500/15 text-amber-200 border-amber-500/25",
-  high: "bg-red-500/15 text-red-300 border-red-500/25",
-};
-
 const WEBSITE_BADGE: Record<WebsiteStatus, string> = {
   no_website: "bg-red-500/15 text-red-300 border-red-500/25",
   has_website: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
@@ -152,10 +119,6 @@ export function outreachBadgeClass(status: OutreachStatus): string {
 
 export function projectBadgeClass(status: LeadProjectStatus): string {
   return PROJECT_BADGE[status] ?? FALLBACK_BADGE;
-}
-
-export function priorityBadgeClass(priority: LeadPriority): string {
-  return PRIORITY_BADGE[priority] ?? FALLBACK_BADGE;
 }
 
 export function websiteBadgeClass(status: WebsiteStatus): string {

@@ -5,15 +5,17 @@ import { ConfirmDialog } from "@/admin/components/ui/ConfirmDialog";
 import {
   LEAD_SOURCE_OPTIONS,
   OUTREACH_STATUS_OPTIONS,
-  PREFERRED_CONTACT_OPTIONS,
-  PRIORITY_OPTIONS,
-  PROJECT_STATUS_OPTIONS,
   WEBSITE_STATUS_OPTIONS,
   labelFor,
   type Option,
 } from "@/admin/constants/leadOptions";
 import { useToast } from "@/admin/context/ToastContext";
-import { getAllLeads, getLead, putLead } from "@/admin/lib/leads/leadDb";
+import {
+  LeadStoreError,
+  getLead,
+  listLeads,
+  putLead,
+} from "@/admin/lib/leads/leadRepository";
 import {
   defaultEmptyLeadForm,
   formValuesToLead,
@@ -22,6 +24,7 @@ import {
 import { findDuplicates } from "@/admin/lib/leads/leadService";
 import {
   leadFormSchema,
+  type LeadFormInput,
   type LeadFormValues,
 } from "@/admin/schemas/leadFormSchema";
 import type { Lead } from "@/admin/types/lead";
@@ -49,6 +52,7 @@ import {
 const field =
   "w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-white/20";
 const labelCls = "block text-xs font-medium text-white/50 mb-1.5";
+const requiredMark = <span className="text-red-400"> *</span>;
 const NONE = "__none__";
 
 function FieldError({ message }: { message?: string }): JSX.Element | null {
@@ -62,19 +66,14 @@ function FieldError({ message }: { message?: string }): JSX.Element | null {
 
 function Section({
   title,
-  hint,
   children,
 }: {
   title: string;
-  hint?: string;
   children: React.ReactNode;
 }): JSX.Element {
   return (
     <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#111] p-5">
-      <div>
-        <h2 className="text-sm font-semibold text-white">{title}</h2>
-        {hint ? <p className="mt-1 text-[11px] text-white/35">{hint}</p> : null}
-      </div>
+      <h2 className="text-sm font-semibold text-white">{title}</h2>
       {children}
     </section>
   );
@@ -88,8 +87,8 @@ function EnumField({
   allowEmpty = false,
   error,
 }: {
-  control: Control<LeadFormValues>;
-  name: keyof LeadFormValues;
+  control: Control<LeadFormInput>;
+  name: keyof LeadFormInput;
   label: string;
   options: Option<string>[];
   allowEmpty?: boolean;
@@ -103,13 +102,16 @@ function EnumField({
         const current = (f.value as string) ?? "";
         return (
           <div>
-            <label className={labelCls}>{label}</label>
+            <label className={labelCls}>
+              {label}
+              {allowEmpty ? null : requiredMark}
+            </label>
             <Select
               value={current === "" ? NONE : current}
               onValueChange={(v) => f.onChange(v === NONE ? "" : v)}
             >
               <SelectTrigger id={String(name)} className={field}>
-                <SelectValue placeholder={allowEmpty ? "Not set" : undefined} />
+                <SelectValue placeholder={allowEmpty ? "Not set" : "Select…"} />
               </SelectTrigger>
               <SelectContent className="border-white/10 bg-[#111] text-white">
                 {allowEmpty ? (
@@ -155,11 +157,17 @@ export function AdminLeadFormPage({
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
-  } = useForm<LeadFormValues>({
+  } = useForm<LeadFormInput, unknown, LeadFormValues>({
     resolver: zodResolver(leadFormSchema),
     defaultValues: defaultEmptyLeadForm(),
   });
+
+  const websiteStatus = watch("websiteStatus");
+  const showWebsiteUrl = websiteStatus !== "no_website";
+  const websiteUrlRequired =
+    websiteStatus === "has_website" || websiteStatus === "needs_improvement";
 
   const closePanel = useCallback(() => {
     if (saving) return;
@@ -180,16 +188,21 @@ export function AdminLeadFormPage({
         if (cancelled) return;
         setLoadingRow(false);
         if (!row) {
-          showToast("That lead was not found in this browser", "error");
+          showToast("That lead was not found", "error");
           router.replace("/admin/leads");
           return;
         }
         setExisting(row);
         reset(leadToFormValues(row));
-      } catch {
+      } catch (e) {
         if (cancelled) return;
         setLoadingRow(false);
-        showToast("Could not open the local database", "error");
+        showToast(
+          e instanceof LeadStoreError
+            ? e.message
+            : "Could not load that lead",
+          "error",
+        );
         router.replace("/admin/leads");
       }
     })();
@@ -204,10 +217,15 @@ export function AdminLeadFormPage({
       try {
         const lead = formValuesToLead(values, existing);
         await putLead(lead);
-        showToast(isNewRoute ? "Lead saved locally" : "Lead updated");
+        showToast(isNewRoute ? "Lead saved" : "Lead updated");
         router.replace("/admin/leads");
-      } catch {
-        showToast("Could not save to the local database", "error");
+      } catch (e) {
+        showToast(
+          e instanceof LeadStoreError
+            ? e.message
+            : "Could not save this lead",
+          "error",
+        );
       } finally {
         setSaving(false);
       }
@@ -221,7 +239,7 @@ export function AdminLeadFormPage({
       try {
         const candidate = formValuesToLead(values, existing);
         if (isNewRoute && candidate.normalizedKey) {
-          const all = await getAllLeads();
+          const all = await listLeads();
           const dupes = findDuplicates(all, candidate.normalizedKey);
           if (dupes.length > 0) {
             setSaving(false);
@@ -230,9 +248,14 @@ export function AdminLeadFormPage({
           }
         }
         await persist(values);
-      } catch {
+      } catch (e) {
         setSaving(false);
-        showToast("Could not save to the local database", "error");
+        showToast(
+          e instanceof LeadStoreError
+            ? e.message
+            : "Could not save this lead",
+          "error",
+        );
       }
     },
     [existing, isNewRoute, persist, showToast],
@@ -246,9 +269,6 @@ export function AdminLeadFormPage({
     event.preventDefault();
     void handleSubmit(onSubmit, onInvalid)(event);
   };
-
-  const firstError = (key: keyof LeadFormValues): string | undefined =>
-    (errors as FieldErrors<LeadFormValues>)[key]?.message as string | undefined;
 
   if (loadingRow) {
     return (
@@ -266,18 +286,18 @@ export function AdminLeadFormPage({
     );
   }
 
-  const err = errors as FieldErrors<LeadFormValues>;
+  const err = errors as FieldErrors<LeadFormInput>;
 
   return (
     <AdminSidePanel
       title={isNewRoute ? "Add lead" : existing?.businessName || "Edit lead"}
-      description="Stored only in this browser's local database — never uploaded."
+      description="Saved to your Supabase project, visible to authorised admins on every device."
       onClose={closePanel}
       busy={saving}
     >
       <form
         onSubmit={onFormSubmit}
-        className="mx-auto max-w-3xl space-y-6 pb-24"
+        className="mx-auto max-w-2xl space-y-5 pb-24"
         noValidate
       >
         {/* A. Business Information */}
@@ -285,7 +305,7 @@ export function AdminLeadFormPage({
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className={labelCls} htmlFor="businessName">
-                Business name<span className="text-red-400"> *</span>
+                Business name{requiredMark}
               </label>
               <Input
                 id="businessName"
@@ -297,7 +317,7 @@ export function AdminLeadFormPage({
             </div>
             <div>
               <label className={labelCls} htmlFor="niche">
-                Niche<span className="text-red-400"> *</span>
+                Niche{requiredMark}
               </label>
               <Input
                 id="niche"
@@ -320,26 +340,12 @@ export function AdminLeadFormPage({
               </label>
               <Input id="city" className={field} {...register("city")} />
             </div>
-          </div>
-          <div>
-            <label className={labelCls} htmlFor="websiteUrl">
-              Business website URL
-            </label>
-            <Input
-              id="websiteUrl"
-              className={field}
-              placeholder="example.com"
-              aria-invalid={Boolean(err.websiteUrl)}
-              {...register("websiteUrl")}
-            />
-            <FieldError message={err.websiteUrl?.message} />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
             <EnumField
               control={control}
               name="websiteStatus"
               label="Website status"
               options={WEBSITE_STATUS_OPTIONS}
+              error={err.websiteStatus?.message}
             />
             <EnumField
               control={control}
@@ -347,25 +353,42 @@ export function AdminLeadFormPage({
               label="Lead source"
               options={LEAD_SOURCE_OPTIONS}
               allowEmpty
+              error={err.leadSource?.message}
             />
           </div>
+          {showWebsiteUrl ? (
+            <div>
+              <label className={labelCls} htmlFor="websiteUrl">
+                Website URL
+                {websiteUrlRequired ? requiredMark : " (optional)"}
+              </label>
+              <Input
+                id="websiteUrl"
+                className={field}
+                placeholder="example.com"
+                aria-invalid={Boolean(err.websiteUrl)}
+                {...register("websiteUrl")}
+              />
+              <FieldError message={err.websiteUrl?.message} />
+            </div>
+          ) : null}
         </Section>
 
         {/* B. Contact Information */}
-        <Section
-          title="Contact information"
-          hint="All optional. Leave email/phone blank if Instagram DM is the only way to reach them."
-        >
+        <Section title="Contact information (all optional)">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className={labelCls} htmlFor="contactPerson">
-                Contact person
+              <label className={labelCls} htmlFor="instagramUrl">
+                Instagram profile URL
               </label>
               <Input
-                id="contactPerson"
+                id="instagramUrl"
                 className={field}
-                {...register("contactPerson")}
+                placeholder="instagram.com/business"
+                aria-invalid={Boolean(err.instagramUrl)}
+                {...register("instagramUrl")}
               />
+              <FieldError message={err.instagramUrl?.message} />
             </div>
             <div>
               <label className={labelCls} htmlFor="email">
@@ -382,92 +405,28 @@ export function AdminLeadFormPage({
             </div>
             <div>
               <label className={labelCls} htmlFor="phone">
-                Phone / WhatsApp
-              </label>
-              <Input id="phone" className={field} {...register("phone")} />
-            </div>
-            <EnumField
-              control={control}
-              name="preferredContactMethod"
-              label="Preferred contact method"
-              options={PREFERRED_CONTACT_OPTIONS}
-              allowEmpty
-            />
-            <div>
-              <label className={labelCls} htmlFor="instagramUrl">
-                Instagram profile URL
+                Phone / WhatsApp link
               </label>
               <Input
-                id="instagramUrl"
+                id="phone"
                 className={field}
-                aria-invalid={Boolean(err.instagramUrl)}
-                {...register("instagramUrl")}
+                placeholder="+880 1700 000000 or wa.me link"
+                {...register("phone")}
               />
-              <FieldError message={err.instagramUrl?.message} />
-            </div>
-            <div>
-              <label className={labelCls} htmlFor="facebookUrl">
-                Facebook page URL
-              </label>
-              <Input
-                id="facebookUrl"
-                className={field}
-                aria-invalid={Boolean(err.facebookUrl)}
-                {...register("facebookUrl")}
-              />
-              <FieldError message={err.facebookUrl?.message} />
             </div>
           </div>
         </Section>
 
-        {/* C. Outreach Tracking */}
-        <Section
-          title="Outreach tracking"
-          hint="Independent from project status. A sent DM does not mean the lead is qualified."
-        >
+        {/* C. Outreach & Notes */}
+        <Section title="Outreach & notes">
           <div className="grid gap-4 sm:grid-cols-2">
             <EnumField
               control={control}
               name="outreachStatus"
               label="Outreach status"
               options={OUTREACH_STATUS_OPTIONS}
-              error={firstError("outreachStatus")}
+              error={err.outreachStatus?.message}
             />
-            <div>
-              <label className={labelCls}>Follow-up count</label>
-              <div
-                className={`${field} flex items-center justify-between text-white/60`}
-              >
-                <span>{existing?.followUpCount ?? 0} logged contact(s)</span>
-                <span className="text-[11px] text-white/30">
-                  use “Log contact” in the list
-                </span>
-              </div>
-            </div>
-            <div>
-              <label className={labelCls} htmlFor="firstContactDate">
-                First contact date
-              </label>
-              <Input
-                id="firstContactDate"
-                type="date"
-                className={field}
-                {...register("firstContactDate")}
-              />
-              <FieldError message={err.firstContactDate?.message} />
-            </div>
-            <div>
-              <label className={labelCls} htmlFor="lastContactDate">
-                Last contact date
-              </label>
-              <Input
-                id="lastContactDate"
-                type="date"
-                className={field}
-                {...register("lastContactDate")}
-              />
-              <FieldError message={err.lastContactDate?.message} />
-            </div>
             <div>
               <label className={labelCls} htmlFor="followUpDate">
                 Next follow-up date
@@ -482,142 +441,20 @@ export function AdminLeadFormPage({
             </div>
           </div>
           <div>
-            <label className={labelCls} htmlFor="firstMessage">
-              First message sent
-            </label>
-            <Textarea
-              id="firstMessage"
-              className={`${field} min-h-[80px]`}
-              {...register("firstMessage")}
-            />
-          </div>
-          <div>
-            <label className={labelCls} htmlFor="lastConversation">
-              Last message / conversation summary
-            </label>
-            <Textarea
-              id="lastConversation"
-              className={`${field} min-h-[80px]`}
-              {...register("lastConversation")}
-            />
-          </div>
-        </Section>
-
-        {/* D. Qualification & Opportunity */}
-        <Section title="Qualification & opportunity">
-          <EnumField
-            control={control}
-            name="priority"
-            label="Priority"
-            options={PRIORITY_OPTIONS}
-          />
-          <div>
-            <label className={labelCls} htmlFor="opportunity">
-              Observed business opportunity
-            </label>
-            <Textarea
-              id="opportunity"
-              className={`${field} min-h-[70px]`}
-              placeholder="Why might they need a website?"
-              {...register("opportunity")}
-            />
-          </div>
-          <div>
-            <label className={labelCls} htmlFor="improvements">
-              Potential website improvements
-            </label>
-            <Textarea
-              id="improvements"
-              className={`${field} min-h-[70px]`}
-              {...register("improvements")}
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className={labelCls} htmlFor="estBudget">
-                Estimated project budget
-              </label>
-              <Input
-                id="estBudget"
-                className={field}
-                placeholder="$500–$1,000"
-                {...register("estBudget")}
-              />
-            </div>
-            <div>
-              <label className={labelCls} htmlFor="expectedValue">
-                Expected project value
-              </label>
-              <Input
-                id="expectedValue"
-                className={field}
-                {...register("expectedValue")}
-              />
-            </div>
-          </div>
-          <div>
             <label className={labelCls} htmlFor="notes">
-              Internal notes
+              Notes
             </label>
             <Textarea
               id="notes"
-              className={`${field} min-h-[70px]`}
+              className={`${field} min-h-[90px]`}
+              placeholder="Why they might need a website, Instagram observations, conversation summaries, planned improvements…"
               {...register("notes")}
             />
           </div>
         </Section>
 
-        {/* E. Project Tracking */}
-        <Section
-          title="Project status"
-          hint="Separate from outreach. Use for the deal pipeline."
-        >
-          <EnumField
-            control={control}
-            name="projectStatus"
-            label="Project status"
-            options={PROJECT_STATUS_OPTIONS}
-          />
-        </Section>
-
-        {/* Meta + links (view existing) */}
-        {existing ? (
-          <Section title="Record">
-            <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-              <div>
-                <dt className="text-white/40">Created</dt>
-                <dd className="text-white/70">
-                  {new Date(existing.createdAt).toLocaleString()}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-white/40">Last updated</dt>
-                <dd className="text-white/70">
-                  {new Date(existing.updatedAt).toLocaleString()}
-                </dd>
-              </div>
-            </dl>
-            <div className="flex flex-wrap gap-2 pt-1">
-              {existing.websiteUrl ? (
-                <MetaLink href={existing.websiteUrl} label="Website" />
-              ) : null}
-              {existing.instagramUrl ? (
-                <MetaLink href={existing.instagramUrl} label="Instagram" />
-              ) : null}
-              {existing.facebookUrl ? (
-                <MetaLink href={existing.facebookUrl} label="Facebook" />
-              ) : null}
-              {existing.email ? (
-                <a
-                  href={`mailto:${existing.email}`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.10] bg-white/[0.03] px-3 py-1.5 text-xs text-white/70 hover:bg-white/[0.06]"
-                >
-                  Email {existing.email}
-                </a>
-              ) : null}
-            </div>
-          </Section>
-        ) : null}
+        {/* Read-only record info (existing leads only) */}
+        {existing ? <RecordSection lead={existing} /> : null}
 
         <div className="flex flex-wrap gap-3">
           <button
@@ -632,7 +469,7 @@ export function AdminLeadFormPage({
                 Saving…
               </>
             ) : isNewRoute ? (
-              "Save lead"
+              "Save Lead"
             ) : (
               "Save changes"
             )}
@@ -707,5 +544,79 @@ function MetaLink({
       <ExternalLink className="h-3.5 w-3.5" />
       {label}
     </a>
+  );
+}
+
+/** Read-only details kept out of the simplified form: timestamps, quick-action
+ * counters, links, and any legacy info still present on older records. */
+function RecordSection({ lead }: { lead: Lead }): JSX.Element {
+  const legacyNotes: { label: string; value: string }[] = [
+    { label: "Contact person", value: lead.contactPerson },
+    { label: "Facebook page", value: lead.facebookUrl },
+    { label: "Preferred contact", value: lead.preferredContactMethod },
+    { label: "First contact date", value: lead.firstContactDate },
+    { label: "Last contact date", value: lead.lastContactDate },
+    { label: "First message sent", value: lead.firstMessage },
+    { label: "Last conversation", value: lead.lastConversation },
+    { label: "Opportunity", value: lead.opportunity },
+    { label: "Improvements", value: lead.improvements },
+    { label: "Est. budget", value: lead.estBudget },
+    { label: "Expected value", value: lead.expectedValue },
+  ].filter((entry) => Boolean(entry.value));
+
+  return (
+    <Section title="Record">
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+        <div>
+          <dt className="text-white/40">Created</dt>
+          <dd className="text-white/70">
+            {new Date(lead.createdAt).toLocaleString()}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-white/40">Last updated</dt>
+          <dd className="text-white/70">
+            {new Date(lead.updatedAt).toLocaleString()}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-white/40">Contacts logged</dt>
+          <dd className="text-white/70">{lead.followUpCount ?? 0}</dd>
+        </div>
+        <div>
+          <dt className="text-white/40">Follow-up count</dt>
+          <dd className="text-white/70">
+            Use “Log contact” in the list to increment
+          </dd>
+        </div>
+      </dl>
+      <div className="flex flex-wrap gap-2 pt-1">
+        {lead.websiteUrl ? <MetaLink href={lead.websiteUrl} label="Website" /> : null}
+        {lead.instagramUrl ? (
+          <MetaLink href={lead.instagramUrl} label="Instagram" />
+        ) : null}
+        {lead.facebookUrl ? (
+          <MetaLink href={lead.facebookUrl} label="Facebook" />
+        ) : null}
+        {lead.email ? (
+          <a
+            href={`mailto:${lead.email}`}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.10] bg-white/[0.03] px-3 py-1.5 text-xs text-white/70 hover:bg-white/[0.06]"
+          >
+            Email {lead.email}
+          </a>
+        ) : null}
+      </div>
+      {legacyNotes.length > 0 ? (
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-white/[0.06] pt-3 text-xs">
+          {legacyNotes.map((entry) => (
+            <div key={entry.label} className="min-w-0">
+              <dt className="text-white/40">{entry.label}</dt>
+              <dd className="break-words text-white/70">{entry.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+    </Section>
   );
 }

@@ -1,24 +1,34 @@
 "use client";
 
 import {
-  bulkPutLeads,
-  clearAllLeads,
+  LeadStoreError,
+  checkLeadAccess,
+  deleteAllLeads,
   deleteLead,
-  getAllLeads,
+  listLeads,
   putLead,
-} from "@/admin/lib/leads/leadDb";
+  upsertLeads,
+  type LeadAccessState,
+} from "@/admin/lib/leads/leadRepository";
 import type { Lead } from "@/admin/types/lead";
 import { useCallback, useEffect, useState } from "react";
 
 /**
- * React state wrapper over the browser-local (IndexedDB) lead store.
- * Every mutation writes to IndexedDB then reloads from it, so the DB is the
- * single source of truth and records survive refresh / reopen.
+ * React state wrapper over the Supabase `leads` table.
+ *
+ * Every mutation writes to Postgres then re-reads, so the database is the single
+ * source of truth and records are visible from any device the admin signs in on.
+ * The old browser-only store (`leadDb.ts`) is untouched — it still holds the
+ * pre-migration copy and the planner preferences.
+ *
+ * `access` tells the UI why a read failed (missing migration, RLS, expired
+ * session) so it can show a fix instead of an empty table.
  */
 export function useLeads(): {
   leads: Lead[];
   loading: boolean;
   error: string | null;
+  access: LeadAccessState;
   reload: () => Promise<void>;
   saveLead: (lead: Lead) => Promise<void>;
   removeLead: (id: string) => Promise<void>;
@@ -28,16 +38,27 @@ export function useLeads(): {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [access, setAccess] = useState<LeadAccessState>("ok");
 
   const reload = useCallback(async () => {
     setLoading(true);
     try {
-      setLeads(await getAllLeads());
+      const rows = await listLeads();
+      setLeads(rows);
       setError(null);
+      // RLS hides rows rather than raising an error, so "empty" and "not
+      // allowed to see anything" look identical. Only when the table came back
+      // empty do we ask Postgres directly which of the two it is.
+      setAccess(rows.length > 0 ? "ok" : await checkLeadAccess());
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Could not load your local leads.",
+        e instanceof LeadStoreError
+          ? e.message
+          : (e instanceof Error
+            ? e.message
+            : "Could not load your leads."),
       );
+      setAccess(e instanceof LeadStoreError ? e.state : "unknown");
     } finally {
       setLoading(false);
     }
@@ -65,8 +86,8 @@ export function useLeads(): {
 
   const replaceAllLeads = useCallback(
     async (next: Lead[]) => {
-      await clearAllLeads();
-      await bulkPutLeads(next);
+      await deleteAllLeads();
+      await upsertLeads(next);
       await reload();
     },
     [reload],
@@ -74,7 +95,7 @@ export function useLeads(): {
 
   const mergeLeads = useCallback(
     async (incoming: Lead[]) => {
-      await bulkPutLeads(incoming);
+      await upsertLeads(incoming);
       await reload();
     },
     [reload],
@@ -84,6 +105,7 @@ export function useLeads(): {
     leads,
     loading,
     error,
+    access,
     reload,
     saveLead,
     removeLead,

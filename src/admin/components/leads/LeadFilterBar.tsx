@@ -3,8 +3,6 @@
 import {
   LEAD_SOURCE_OPTIONS,
   OUTREACH_STATUS_OPTIONS,
-  PRIORITY_OPTIONS,
-  PROJECT_STATUS_OPTIONS,
   WEBSITE_STATUS_OPTIONS,
   type Option,
 } from "@/admin/constants/leadOptions";
@@ -152,7 +150,7 @@ export function LeadFilterBar({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-7">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         <FacetFilter
           label="Niche"
           value={filters.niche}
@@ -182,18 +180,6 @@ export function LeadFilterBar({
           value={filters.outreachStatus}
           onChange={(v) => onPatch({ outreachStatus: v })}
           options={OUTREACH_STATUS_OPTIONS}
-        />
-        <SelectFilter
-          label="Project"
-          value={filters.projectStatus}
-          onChange={(v) => onPatch({ projectStatus: v })}
-          options={PROJECT_STATUS_OPTIONS}
-        />
-        <SelectFilter
-          label="Priority"
-          value={filters.priority}
-          onChange={(v) => onPatch({ priority: v })}
-          options={PRIORITY_OPTIONS}
         />
       </div>
 

@@ -3,15 +3,17 @@
 import {
   LeadSourceText,
   OutreachBadge,
-  PriorityBadge,
   WebsiteBadge,
 } from "@/admin/components/leads/LeadBadges";
+import { LeadCloudSyncBanner } from "@/admin/components/leads/LeadCloudSyncBanner";
 import { LeadFilterBar } from "@/admin/components/leads/LeadFilterBar";
 import { LeadSummaryCards } from "@/admin/components/leads/LeadSummaryCards";
+import { LeadTimePlanner } from "@/admin/components/leads/LeadTimePlanner";
 import { AdminListPagination } from "@/admin/components/ui/AdminListPagination";
 import { ConfirmDialog } from "@/admin/components/ui/ConfirmDialog";
 import { useToast } from "@/admin/context/ToastContext";
 import { useLeads } from "@/admin/hooks/useLeads";
+import { LeadStoreError } from "@/admin/lib/leads/leadRepository";
 import {
   exportLeadsCsv,
   exportLeadsJson,
@@ -47,6 +49,8 @@ import {
   Download,
   Eye,
   FileJson,
+  Mail,
+  MessageCircle,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -154,6 +158,7 @@ function RowActions({
   const [open, setOpen] = useState(false);
   const itemClass =
     "flex w-full items-center gap-2.5 px-3.5 py-2 text-sm transition-colors";
+  const close = () => setOpen(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -178,7 +183,7 @@ function RowActions({
           <Link
             href={`/admin/leads/${lead.id}`}
             className={`${itemClass} text-white/70 hover:bg-white/[0.05] hover:text-white`}
-            onClick={() => setOpen(false)}
+            onClick={close}
           >
             <Eye className="h-3.5 w-3.5" />
             View / edit details
@@ -188,19 +193,57 @@ function RowActions({
             className={`${itemClass} text-white/70 hover:bg-white/[0.05] hover:text-white`}
             onClick={() => {
               onLogFollowUp(lead);
-              setOpen(false);
+              close();
             }}
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Log contact (+1 follow-up)
           </button>
+          {lead.instagramUrl ? (
+            <a
+              href={lead.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${itemClass} text-white/70 hover:bg-white/[0.05] hover:text-white`}
+              onClick={close}
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              Open Instagram
+            </a>
+          ) : null}
+          {lead.email ? (
+            <a
+              href={`mailto:${lead.email}`}
+              className={`${itemClass} text-white/70 hover:bg-white/[0.05] hover:text-white`}
+              onClick={close}
+            >
+              <Mail className="h-3.5 w-3.5" />
+              Email
+            </a>
+          ) : null}
+          {lead.phone ? (
+            <a
+              href={
+                lead.phone.startsWith("http")
+                  ? lead.phone
+                  : `https://wa.me/${lead.phone.replace(/[^\d]/g, "")}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${itemClass} text-white/70 hover:bg-white/[0.05] hover:text-white`}
+              onClick={close}
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              WhatsApp / phone
+            </a>
+          ) : null}
           <div className="mx-2 my-1 h-px bg-white/[0.06]" />
           <button
             type="button"
             className={`${itemClass} text-red-400/90 hover:bg-red-500/10 hover:text-red-300`}
             onClick={() => {
               onDelete(lead.id);
-              setOpen(false);
+              close();
             }}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -238,7 +281,7 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }): JSX.Element {
 }
 
 const desktopGrid =
-  "grid-cols-[minmax(160px,1.4fr)_110px_minmax(130px,1fr)_140px_120px_150px_140px_96px_48px]";
+  "grid-cols-[minmax(180px,1.6fr)_130px_minmax(140px,1fr)_150px_130px_150px_140px_48px]";
 
 type PendingImport = {
   leads: Lead[];
@@ -262,6 +305,7 @@ export function AdminLeadsListPage({
     leads,
     loading,
     error,
+    access,
     reload,
     saveLead,
     removeLead,
@@ -279,7 +323,7 @@ export function AdminLeadsListPage({
   );
   const [busy, setBusy] = useState(false);
 
-  // Reload from IndexedDB when returning to the list from the add/edit panel.
+  // Re-read from Supabase when returning to the list from the add/edit panel.
   useEffect(() => {
     const prev = prevPathRef.current;
     prevPathRef.current = pathname;
@@ -347,8 +391,13 @@ export function AdminLeadsListPage({
       showToast(
         `Logged contact for ${lead.businessName} · next follow-up in 7 days`,
       );
-    } catch {
-      showToast("Could not update the local database", "error");
+    } catch (e) {
+      showToast(
+        e instanceof LeadStoreError
+          ? e.message
+          : "Could not save the follow-up",
+        "error",
+      );
     }
   };
 
@@ -359,8 +408,13 @@ export function AdminLeadsListPage({
     try {
       await removeLead(deleteId);
       showToast(target ? `Deleted ${target.businessName}` : "Lead deleted");
-    } catch {
-      showToast("Could not delete the lead", "error");
+    } catch (e) {
+      showToast(
+        e instanceof LeadStoreError
+          ? e.message
+          : "Could not delete the lead",
+        "error",
+      );
     }
   };
 
@@ -427,8 +481,13 @@ export function AdminLeadsListPage({
         );
       }
       setPendingImport(null);
-    } catch {
-      showToast("Could not write the imported leads to local storage", "error");
+    } catch (e) {
+      showToast(
+        e instanceof LeadStoreError
+          ? e.message
+          : "Could not save the imported leads",
+        "error",
+      );
     } finally {
       setBusy(false);
     }
@@ -445,14 +504,8 @@ export function AdminLeadsListPage({
             Leads
           </h1>
           <p className="mt-0.5 text-sm text-white/40">
-            A private CRM for freelance outreach. Everything is stored only in
-            this browser.
-          </p>
-          <p className="mt-1.5 max-w-2xl text-[11px] leading-relaxed text-white/30">
-            These records live in your browser&rsquo;s local database
-            (IndexedDB) and are never uploaded. They don&rsquo;t sync across
-            devices and can be lost if you clear site data — use{" "}
-            <strong>Export Backup</strong> regularly.
+            A private CRM for freelance outreach, stored in your Supabase
+            project and synced across every device you sign in on.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -474,6 +527,15 @@ export function AdminLeadsListPage({
           </Link>
         </div>
       </div>
+
+      <LeadCloudSyncBanner
+        access={access}
+        cloudLeads={leads}
+        loading={loading}
+        onSynced={reload}
+      />
+
+      <LeadTimePlanner leads={leads} ready={!loading} />
 
       <LeadSummaryCards
         summary={summary}
@@ -506,6 +568,12 @@ export function AdminLeadsListPage({
           className="hidden"
           onChange={(e) => void handleImportFile(e.target.files?.[0])}
         />
+        <p className="w-full text-[11px] leading-relaxed text-white/30">
+          Leads live in the Supabase <strong>leads</strong> table and are only
+          readable by allowlisted admin accounts. Exported files stay on your
+          device — keep an <strong>Export Backup</strong> copy before clearing
+          browser data or moving to a new machine.
+        </p>
       </div>
 
       <LeadFilterBar
@@ -524,7 +592,7 @@ export function AdminLeadsListPage({
         {error ? (
           <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
             <p className="text-sm font-medium text-red-300">
-              Could not load your local leads
+              Could not load your leads
             </p>
             <p className="max-w-md text-xs text-white/40">{error}</p>
             <button
@@ -554,7 +622,6 @@ export function AdminLeadsListPage({
                   <div className="h-4 w-16 rounded bg-white/[0.06]" />
                   <div className="h-4 w-20 rounded bg-white/[0.06]" />
                   <div className="h-4 w-20 rounded bg-white/[0.06]" />
-                  <div className="h-4 w-10 rounded bg-white/[0.06]" />
                   <div />
                 </div>
               </div>
@@ -604,13 +671,6 @@ export function AdminLeadsListPage({
                       dir={sortDir}
                       onSort={handleSort}
                     />
-                    <SortHeader
-                      label="Priority"
-                      columnKey="priority"
-                      activeKey={sortKey}
-                      dir={sortDir}
-                      onSort={handleSort}
-                    />
                     <span />
                   </div>
                 </div>
@@ -630,9 +690,9 @@ export function AdminLeadsListPage({
                         >
                           {lead.businessName || "Untitled"}
                         </Link>
-                        {lead.contactPerson ? (
+                        {lead.notes ? (
                           <p className="truncate text-xs text-white/40">
-                            {lead.contactPerson}
+                            {lead.notes}
                           </p>
                         ) : null}
                       </div>
@@ -648,7 +708,6 @@ export function AdminLeadsListPage({
                       </span>
                       <OutreachBadge status={lead.outreachStatus} />
                       <FollowUpCell lead={lead} />
-                      <PriorityBadge priority={lead.priority} />
                       <RowActions
                         lead={lead}
                         onLogFollowUp={(l) => void logFollowUp(l)}
@@ -690,7 +749,6 @@ export function AdminLeadsListPage({
                   <div className="mt-2 flex flex-wrap items-center gap-1.5">
                     <OutreachBadge status={lead.outreachStatus} />
                     <WebsiteBadge status={lead.websiteStatus} />
-                    <PriorityBadge priority={lead.priority} />
                   </div>
                   <div className="mt-2 flex items-center justify-between text-[11px] text-white/40">
                     <span className="flex items-center gap-1">
@@ -718,7 +776,7 @@ export function AdminLeadsListPage({
       <ConfirmDialog
         open={Boolean(deleteId)}
         title="Delete this lead?"
-        message="This permanently removes the lead from this browser's local storage. This cannot be undone."
+        message="This permanently removes the lead from Supabase. This cannot be undone."
         danger
         confirmLabel="Delete"
         onCancel={() => setDeleteId(null)}

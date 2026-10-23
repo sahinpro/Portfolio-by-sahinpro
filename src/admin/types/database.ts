@@ -112,3 +112,49 @@ export type PageViewRow = {
   user_agent: string | null;
   visited_at: string;
 };
+
+/**
+ * `leads` — the Lead CRM table (see
+ * `supabase/migrations/20261023120000_leads_table.sql`).
+ *
+ * Status/enum columns are plain text so records migrated from the browser store
+ * keep legacy values instead of being rejected by a CHECK constraint; the app
+ * normalises them on read (see `leadRecordSchema`).
+ */
+export type LeadRow = {
+  id: string;
+  business_name: string;
+  niche: string;
+  country: string;
+  city: string;
+  website_url: string;
+  website_status: string;
+  lead_source: string;
+  contact_person: string;
+  email: string;
+  phone: string;
+  instagram_url: string;
+  facebook_url: string;
+  preferred_contact_method: string;
+  outreach_status: string;
+  first_contact_date: string | null;
+  last_contact_date: string | null;
+  follow_up_date: string | null;
+  follow_up_count: number;
+  first_message: string;
+  last_conversation: string;
+  priority: string;
+  opportunity: string;
+  improvements: string;
+  est_budget: string;
+  expected_value: string;
+  notes: string;
+  project_status: string;
+  normalized_key: string;
+  created_at: string;
+  updated_at: string;
+};
+
+/** Upsert payload: every column is optional except the identity ones. */
+export type LeadRowInput = Partial<LeadRow> &
+  Pick<LeadRow, "id" | "business_name">;

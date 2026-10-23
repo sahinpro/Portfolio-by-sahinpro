@@ -7,10 +7,7 @@ export type FollowUpBucket = "overdue" | "today" | "upcoming" | "none";
 export type LeadSortKey =
   | "businessName"
   | "followUpDate"
-  | "lastContactDate"
-  | "priority"
   | "outreachStatus"
-  | "projectStatus"
   | "createdAt"
   | "updatedAt";
 
@@ -23,8 +20,6 @@ export type LeadFilterState = {
   leadSource: string;
   websiteStatus: string;
   outreachStatus: string;
-  projectStatus: string;
-  priority: string;
   followUp: "" | FollowUpBucket;
 };
 
@@ -35,8 +30,6 @@ export const EMPTY_FILTERS: LeadFilterState = {
   leadSource: "",
   websiteStatus: "",
   outreachStatus: "",
-  projectStatus: "",
-  priority: "",
   followUp: "",
 };
 
@@ -68,8 +61,6 @@ export function classifyFollowUp(
   return "upcoming";
 }
 
-const PRIORITY_RANK: Record<string, number> = { low: 0, medium: 1, high: 2 };
-
 function matchesSearch(lead: Lead, q: string): boolean {
   if (!q) return true;
   const needle = q.toLowerCase();
@@ -78,7 +69,6 @@ function matchesSearch(lead: Lead, q: string): boolean {
     lead.niche,
     lead.city,
     lead.country,
-    lead.contactPerson,
     lead.email,
     lead.phone,
   ].some((value) => (value ?? "").toLowerCase().includes(needle));
@@ -99,9 +89,6 @@ export function applyFilters(leads: Lead[], filters: LeadFilterState): Lead[] {
       lead.outreachStatus !== filters.outreachStatus
     )
       return false;
-    if (filters.projectStatus && lead.projectStatus !== filters.projectStatus)
-      return false;
-    if (filters.priority && lead.priority !== filters.priority) return false;
     if (filters.followUp) {
       if (filters.followUp === "none") {
         if (lead.followUpDate) return false;
@@ -122,15 +109,8 @@ export function sortLeads(
   const copy = [...leads];
 
   copy.sort((a, b) => {
-    if (key === "priority") {
-      const av = PRIORITY_RANK[a.priority] ?? 1;
-      const bv = PRIORITY_RANK[b.priority] ?? 1;
-      return (av - bv) * factor;
-    }
-
     if (
       key === "followUpDate" ||
-      key === "lastContactDate" ||
       key === "createdAt" ||
       key === "updatedAt"
     ) {
@@ -157,7 +137,6 @@ export type LeadSummary = {
   awaitingReply: number;
   interested: number;
   followUpsDue: number;
-  projectsWon: number;
 };
 
 export function computeSummary(leads: Lead[]): LeadSummary {
@@ -165,7 +144,6 @@ export function computeSummary(leads: Lead[]): LeadSummary {
   let awaitingReply = 0;
   let interested = 0;
   let followUpsDue = 0;
-  let projectsWon = 0;
 
   for (const lead of leads) {
     if (lead.outreachStatus === "not_contacted") notContacted += 1;
@@ -173,7 +151,6 @@ export function computeSummary(leads: Lead[]): LeadSummary {
     if (lead.outreachStatus === "interested") interested += 1;
     const bucket = classifyFollowUp(lead.followUpDate);
     if (bucket === "overdue" || bucket === "today") followUpsDue += 1;
-    if (lead.projectStatus === "won") projectsWon += 1;
   }
 
   return {
@@ -182,7 +159,6 @@ export function computeSummary(leads: Lead[]): LeadSummary {
     awaitingReply,
     interested,
     followUpsDue,
-    projectsWon,
   };
 }
 
@@ -220,8 +196,6 @@ export function hasActiveFilters(filters: LeadFilterState): boolean {
     filters.leadSource !== "" ||
     filters.websiteStatus !== "" ||
     filters.outreachStatus !== "" ||
-    filters.projectStatus !== "" ||
-    filters.priority !== "" ||
     filters.followUp !== ""
   );
 }

@@ -4,11 +4,14 @@ import {
   normalizeEmail,
   normalizeUrl,
 } from "@/admin/lib/leads/normalize";
-import type { LeadFormValues } from "@/admin/schemas/leadFormSchema";
+import type {
+  LeadFormInput,
+  LeadFormValues,
+} from "@/admin/schemas/leadFormSchema";
 import type { Lead } from "@/admin/types/lead";
 
 /** Sensible defaults for a brand-new lead. */
-export function defaultEmptyLeadForm(): LeadFormValues {
+export function defaultEmptyLeadForm(): LeadFormInput {
   return {
     businessName: "",
     niche: "",
@@ -18,63 +21,34 @@ export function defaultEmptyLeadForm(): LeadFormValues {
     websiteStatus: "unknown",
     leadSource: "",
 
-    contactPerson: "",
     email: "",
     phone: "",
     instagramUrl: "",
-    facebookUrl: "",
-    preferredContactMethod: "",
 
     outreachStatus: "not_contacted",
-    firstContactDate: "",
-    lastContactDate: "",
     followUpDate: "",
-    firstMessage: "",
-    lastConversation: "",
-
-    priority: "medium",
-    opportunity: "",
-    improvements: "",
-    estBudget: "",
-    expectedValue: "",
     notes: "",
-
-    projectStatus: "not_qualified",
   };
 }
 
-export function leadToFormValues(lead: Lead): LeadFormValues {
+/** Map a stored record (including legacy ones) down to the simplified form. */
+export function leadToFormValues(lead: Lead): LeadFormInput {
   return {
     businessName: lead.businessName ?? "",
     niche: lead.niche ?? "",
     country: lead.country ?? "",
     city: lead.city ?? "",
-    websiteUrl: lead.websiteUrl ?? "",
+    websiteUrl: lead.websiteStatus === "no_website" ? "" : (lead.websiteUrl ?? ""),
     websiteStatus: lead.websiteStatus ?? "unknown",
     leadSource: lead.leadSource ?? "",
 
-    contactPerson: lead.contactPerson ?? "",
     email: lead.email ?? "",
     phone: lead.phone ?? "",
     instagramUrl: lead.instagramUrl ?? "",
-    facebookUrl: lead.facebookUrl ?? "",
-    preferredContactMethod: lead.preferredContactMethod ?? "",
 
     outreachStatus: lead.outreachStatus ?? "not_contacted",
-    firstContactDate: lead.firstContactDate ?? "",
-    lastContactDate: lead.lastContactDate ?? "",
     followUpDate: lead.followUpDate ?? "",
-    firstMessage: lead.firstMessage ?? "",
-    lastConversation: lead.lastConversation ?? "",
-
-    priority: lead.priority ?? "medium",
-    opportunity: lead.opportunity ?? "",
-    improvements: lead.improvements ?? "",
-    estBudget: lead.estBudget ?? "",
-    expectedValue: lead.expectedValue ?? "",
     notes: lead.notes ?? "",
-
-    projectStatus: lead.projectStatus ?? "not_qualified",
   };
 }
 
@@ -85,21 +59,28 @@ function nowIso(): string {
 /**
  * Build a persisted {@link Lead} from validated form values.
  * - New lead (no `existing`): generates an id + createdAt, followUpCount 0.
- * - Edit: preserves id, createdAt and followUpCount (managed via quick actions).
+ * - Edit: preserves id, createdAt and every legacy field the simplified form
+ *   no longer edits (dates, counts, messages, priority, project status,
+ *   contact person, Facebook URL …) so no stored data is ever lost.
  */
 export function formValuesToLead(
   values: LeadFormValues,
   existing?: Lead | null,
 ): Lead {
+  const hasWebsite =
+    values.websiteStatus === "has_website" ||
+    values.websiteStatus === "needs_improvement" ||
+    (values.websiteStatus === "unknown" && values.websiteUrl.trim() !== "");
+
   const normalized = {
-    websiteUrl: normalizeUrl(values.websiteUrl),
+    websiteUrl: hasWebsite ? normalizeUrl(values.websiteUrl) : "",
     instagramUrl: normalizeUrl(values.instagramUrl),
-    facebookUrl: normalizeUrl(values.facebookUrl),
+    // Facebook URLs are no longer editable, but stay part of the identity key.
+    facebookUrl: existing?.facebookUrl ?? "",
     email: normalizeEmail(values.email),
   };
 
   const createdAt = existing?.createdAt ?? nowIso();
-  const followUpCount = existing?.followUpCount ?? 0;
 
   return {
     id: existing?.id ?? createLeadId(),
@@ -111,29 +92,29 @@ export function formValuesToLead(
     websiteStatus: values.websiteStatus,
     leadSource: values.leadSource,
 
-    contactPerson: values.contactPerson.trim(),
+    contactPerson: existing?.contactPerson ?? "",
     email: normalized.email,
     phone: values.phone.trim(),
     instagramUrl: normalized.instagramUrl,
-    facebookUrl: normalized.facebookUrl,
-    preferredContactMethod: values.preferredContactMethod,
+    facebookUrl: existing?.facebookUrl ?? "",
+    preferredContactMethod: existing?.preferredContactMethod ?? "",
 
     outreachStatus: values.outreachStatus,
-    firstContactDate: values.firstContactDate,
-    lastContactDate: values.lastContactDate,
+    firstContactDate: existing?.firstContactDate ?? "",
+    lastContactDate: existing?.lastContactDate ?? "",
     followUpDate: values.followUpDate,
-    followUpCount,
-    firstMessage: values.firstMessage.trim(),
-    lastConversation: values.lastConversation.trim(),
+    followUpCount: existing?.followUpCount ?? 0,
+    firstMessage: existing?.firstMessage ?? "",
+    lastConversation: existing?.lastConversation ?? "",
 
-    priority: values.priority,
-    opportunity: values.opportunity.trim(),
-    improvements: values.improvements.trim(),
-    estBudget: values.estBudget.trim(),
-    expectedValue: values.expectedValue.trim(),
+    priority: existing?.priority ?? "medium",
+    opportunity: existing?.opportunity ?? "",
+    improvements: existing?.improvements ?? "",
+    estBudget: existing?.estBudget ?? "",
+    expectedValue: existing?.expectedValue ?? "",
     notes: values.notes.trim(),
 
-    projectStatus: values.projectStatus,
+    projectStatus: existing?.projectStatus ?? "not_qualified",
 
     normalizedKey: buildNormalizedKey(normalized),
 
