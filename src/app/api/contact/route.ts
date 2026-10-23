@@ -1,5 +1,5 @@
-import { handleContactSubmission } from "../../../../api/lib/contactHandler";
-import type { ContactRequestBody } from "../../../../api/lib/types";
+import { handleContactSubmission } from "../../../../api/_lib/contactHandler";
+import type { ContactRequestBody } from "../../../../api/_lib/types";
 import { NextResponse } from "next/server";
 
 export const runtime = "edge";

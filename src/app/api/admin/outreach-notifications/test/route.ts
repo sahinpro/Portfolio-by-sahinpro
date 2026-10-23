@@ -1,13 +1,13 @@
-import { isAuthorizedAdmin } from "../../../../../../api/lib/adminRouteAuth";
-import { OUTREACH_MARKETS } from "../../../../../../api/lib/outreach/marketsData";
+import { isAuthorizedAdmin } from "../../../../../../api/_lib/adminRouteAuth";
+import { OUTREACH_MARKETS } from "../../../../../../api/_lib/outreach/marketsData";
 import {
   buildOutreachHtml,
   buildOutreachPlainText,
   buildOutreachSubject,
   sendOutreachWindowEmail,
-} from "../../../../../../api/lib/outreach/outreachEmail";
-import { buildTestMatch } from "../../../../../../api/lib/outreach/runOutreachNotifications";
-import type { OutreachZoneTarget } from "../../../../../../api/lib/outreach/types";
+} from "../../../../../../api/_lib/outreach/outreachEmail";
+import { buildTestMatch } from "../../../../../../api/_lib/outreach/runOutreachNotifications";
+import type { OutreachZoneTarget } from "../../../../../../api/_lib/outreach/types";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";

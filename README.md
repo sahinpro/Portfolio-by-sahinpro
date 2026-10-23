@@ -144,7 +144,7 @@ Portfolio-by-sahinpro/
 ├── public/
 │   ├── fonts/              # Self-hosted Inter + MonteCarlo (woff2)
 │   └── …                   # Static assets, sitemap, robots.txt, llms.txt
-├── api/lib/                # Shared contact-form helpers (Resend, rate limit, Turnstile)
+├── api/_lib/               # Server helpers (underscore: excluded from Vercel Hobby function count)
 ├── scripts/                # Favicon + sitemap generators
 ├── supabase/
 │   ├── migrations/         # SQL migrations (run in order)

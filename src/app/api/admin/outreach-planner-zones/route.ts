@@ -1,6 +1,6 @@
-import { isAuthorizedAdmin } from "../../../../../api/lib/adminRouteAuth";
-import { sanitizePlannerZones } from "../../../../../api/lib/outreach/zonesConfig";
-import { SITE_SETTING_PLANNER_ZONES_KEY } from "../../../../../api/lib/outreach/types";
+import { isAuthorizedAdmin } from "../../../../../api/_lib/adminRouteAuth";
+import { sanitizePlannerZones } from "../../../../../api/_lib/outreach/zonesConfig";
+import { SITE_SETTING_PLANNER_ZONES_KEY } from "../../../../../api/_lib/outreach/types";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 

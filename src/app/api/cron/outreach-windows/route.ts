@@ -1,5 +1,5 @@
-import { isCronAuthorized } from "../../../../../api/lib/cronAuth";
-import { runOutreachWindowNotifications } from "../../../../../api/lib/outreach/runOutreachNotifications";
+import { isCronAuthorized } from "../../../../../api/_lib/cronAuth";
+import { runOutreachWindowNotifications } from "../../../../../api/_lib/outreach/runOutreachNotifications";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";

@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "type-check:functions": "tsc -p supabase/functions/tsconfig.json --noEmit",
-    "test:outreach": "npx --yes tsx --test api/lib/outreach/windowScheduler.test.ts api/lib/outreach/zonesConfig.test.ts",
+    "test:outreach": "npx --yes tsx --test api/_lib/outreach/windowScheduler.test.ts api/_lib/outreach/zonesConfig.test.ts",
+    "check:vercel-api": "node scripts/check-vercel-api-function-count.mjs",
     "deploy:function:record-page-view": "npx supabase functions deploy record-page-view",
     "clean": "rm -rf .next node_modules/.cache"
   },
