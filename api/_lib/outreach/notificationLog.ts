@@ -6,6 +6,7 @@ export type NotificationDeliveryStatus = "sent" | "failed";
 export type NotificationLogRow = {
   iana_timezone: string;
   local_date: string;
+  /** HH:MM label of the configured reminder time; part of the dedupe key. */
   window_start: string;
   market_id: string;
   zone_city: string;
@@ -20,6 +21,7 @@ const TABLE = "outreach_window_notifications";
 export async function wasNotificationAlreadySent(
   ianaTimezone: string,
   localDate: string,
+  windowStart: string = OUTREACH_WINDOW_OPEN_LABEL,
 ): Promise<boolean> {
   const client = getSupabaseServiceClient();
   if (!client) return false;
@@ -29,7 +31,7 @@ export async function wasNotificationAlreadySent(
     .select("status")
     .eq("iana_timezone", ianaTimezone)
     .eq("local_date", localDate)
-    .eq("window_start", OUTREACH_WINDOW_OPEN_LABEL)
+    .eq("window_start", windowStart)
     .maybeSingle();
 
   if (error) {
@@ -44,14 +46,17 @@ export async function wasNotificationAlreadySent(
 }
 
 export async function recordNotificationDelivery(
-  row: Omit<NotificationLogRow, "sent_at"> & { sent_at?: string | null },
+  row: Omit<NotificationLogRow, "sent_at" | "window_start"> & {
+    sent_at?: string | null;
+    window_start?: string;
+  },
 ): Promise<void> {
   const client = getSupabaseServiceClient();
   if (!client) return;
 
   const payload = {
     ...row,
-    window_start: OUTREACH_WINDOW_OPEN_LABEL,
+    window_start: row.window_start ?? OUTREACH_WINDOW_OPEN_LABEL,
     sent_at: row.status === "sent" ? row.sent_at ?? new Date().toISOString() : null,
   };
 

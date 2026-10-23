@@ -4,7 +4,13 @@ import {
   wasNotificationAlreadySent,
 } from "./notificationLog";
 import { sendOutreachWindowEmail } from "./outreachEmail";
-import { SITE_SETTING_PLANNER_ZONES_KEY } from "./types";
+import { parseScheduleConfigJson } from "./scheduleConfig";
+import {
+  SITE_SETTING_PLANNER_ZONES_KEY,
+  SITE_SETTING_SCHEDULE_CONFIG_KEY,
+  formatWindowStartLabel,
+  type OutreachScheduleConfig,
+} from "./types";
 import { sanitizePlannerZones, resolveNotificationZones } from "./zonesConfig";
 import {
   findZonesOpeningNow,
@@ -21,6 +27,11 @@ export type OutreachRunResult = {
   skipped: string[];
   failed: { tz: string; error: string }[];
   warnings: string[];
+  schedule?: {
+    days: number[];
+    startMinutes: number;
+    graceMinutes: number;
+  };
 };
 
 async function loadPlannerZonesFromDb(): Promise<Record<string, string>> {
@@ -40,6 +51,26 @@ async function loadPlannerZonesFromDb(): Promise<Record<string, string>> {
   } catch {
     return {};
   }
+}
+
+async function loadScheduleConfigFromDb(): Promise<OutreachScheduleConfig> {
+  const client = getSupabaseServiceClient();
+  if (!client) return parseScheduleConfigJson(null);
+
+  const { data, error } = await client
+    .from("site_settings")
+    .select("value")
+    .eq("key", SITE_SETTING_SCHEDULE_CONFIG_KEY)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[outreach-notify] schedule lookup failed", {
+      code: error.code,
+      message: error.message,
+    });
+  }
+
+  return parseScheduleConfigJson(data?.value ?? null);
 }
 
 export async function runOutreachWindowNotifications(
@@ -64,17 +95,35 @@ export async function runOutreachWindowNotifications(
     return result;
   }
 
-  const plannerZones = await loadPlannerZonesFromDb();
+  const [plannerZones, schedule] = await Promise.all([
+    loadPlannerZonesFromDb(),
+    loadScheduleConfigFromDb(),
+  ]);
+
+  result.schedule = {
+    days: schedule.days,
+    startMinutes: schedule.startMinutes,
+    graceMinutes: schedule.graceMinutes,
+  };
+
+  // Fail-safe: never send if the schedule has no days selected.
+  if (!schedule.days || schedule.days.length === 0) {
+    result.warnings.push("Schedule has no weekdays selected — skipping");
+    return result;
+  }
+
   const zones = resolveNotificationZones(
     plannerZones,
     process.env.OUTREACH_NOTIFICATION_ZONES,
   );
 
-  const matches = findZonesOpeningNow(zones, now);
+  const matches = findZonesOpeningNow(zones, now, schedule);
   result.matches = matches.length;
 
+  const windowStart = formatWindowStartLabel(schedule.startMinutes);
+
   for (const match of matches) {
-    const key = `${match.zone.tz}@${match.localDate}`;
+    const key = `${match.zone.tz}@${match.localDate}@${windowStart}`;
     if (options.dryRun) {
       result.skipped.push(`${key} (dry-run)`);
       continue;
@@ -83,6 +132,7 @@ export async function runOutreachWindowNotifications(
     const alreadySent = await wasNotificationAlreadySent(
       match.zone.tz,
       match.localDate,
+      windowStart,
     );
     if (alreadySent) {
       result.skipped.push(`${key} (already sent)`);
@@ -90,11 +140,13 @@ export async function runOutreachWindowNotifications(
     }
 
     try {
-      const { id } = await sendOutreachWindowEmail(match);
+      const { id } = await sendOutreachWindowEmail(match, {
+        scheduleStartLabel: windowStart,
+      });
       await recordNotificationDelivery({
         iana_timezone: match.zone.tz,
         local_date: match.localDate,
-        window_start: "09:30",
+        window_start: windowStart,
         market_id: match.zone.marketId,
         zone_city: match.zone.city,
         status: "sent",
@@ -108,7 +160,7 @@ export async function runOutreachWindowNotifications(
       await recordNotificationDelivery({
         iana_timezone: match.zone.tz,
         local_date: match.localDate,
-        window_start: "09:30",
+        window_start: windowStart,
         market_id: match.zone.marketId,
         zone_city: match.zone.city,
         status: "failed",
@@ -124,14 +176,19 @@ export async function runOutreachWindowNotifications(
 export function buildTestMatch(
   zone: OutreachZoneTarget,
   now: Date,
+  schedule?: OutreachScheduleConfig,
 ): WindowOpenMatch {
-  const matches = findZonesOpeningNow([zone], now);
+  const matches = findZonesOpeningNow([zone], now, schedule);
   if (matches[0]) return matches[0];
   const parts = tzParts(zone.tz, now);
   return {
     zone,
     localDate: formatLocalDateKey(parts),
     localTimeLabel: `${parts.weekday} ${String(parts.hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`,
-    bdWindowLabel: formatBangladeshWindow(zone.tz, now),
+    bdWindowLabel: formatBangladeshWindow(
+      zone.tz,
+      now,
+      schedule?.startMinutes,
+    ),
   };
 }

@@ -6,11 +6,13 @@ import {
   weekdayIndex,
 } from "../timezone";
 import {
+  DEFAULT_SCHEDULE_CONFIG,
   OUTREACH_BD_TZ,
   OUTREACH_CRON_GRACE_MINUTES,
   OUTREACH_WINDOW_DAYS,
   OUTREACH_WINDOW_END_MINUTES,
   OUTREACH_WINDOW_START_MINUTES,
+  type OutreachScheduleConfig,
   type OutreachZoneTarget,
 } from "./types";
 
@@ -32,12 +34,15 @@ function formatClock(hour: number, minute: number): string {
 export function formatBangladeshWindow(
   prospectTz: string,
   now: Date = new Date(),
+  startMinutes: number = OUTREACH_WINDOW_START_MINUTES,
 ): string {
+  const startHour = Math.floor(startMinutes / 60);
+  const startMin = startMinutes % 60;
   const start = projectWallClock(
     prospectTz,
     OUTREACH_BD_TZ,
-    9,
-    30,
+    startHour,
+    startMin,
     now,
   );
   const end = projectWallClock(prospectTz, OUTREACH_BD_TZ, 11, 0, now);
@@ -49,47 +54,80 @@ export function formatBangladeshWindow(
 }
 
 /**
- * True only during Tue–Thu, within [09:30, 09:30 + grace) local time.
+ * True only during the configured weekdays, within
+ * [startMinutes, startMinutes + graceMinutes) local time.
  * Never matches outside that narrow band (no backlog after downtime).
  */
 export function isOutreachWindowOpeningNow(
   tz: string,
   now: Date,
-  graceMinutes: number = OUTREACH_CRON_GRACE_MINUTES,
+  graceMinutesOrConfig: number | OutreachScheduleConfig =
+    OUTREACH_CRON_GRACE_MINUTES,
 ): boolean {
+  const config: Pick<OutreachScheduleConfig, "days" | "startMinutes" | "graceMinutes"> =
+    typeof graceMinutesOrConfig === "number"
+      ? {
+          days: [...OUTREACH_WINDOW_DAYS],
+          startMinutes: OUTREACH_WINDOW_START_MINUTES,
+          graceMinutes: graceMinutesOrConfig,
+        }
+      : {
+          days:
+            graceMinutesOrConfig.days && graceMinutesOrConfig.days.length > 0
+              ? graceMinutesOrConfig.days
+              : [...DEFAULT_SCHEDULE_CONFIG.days],
+          startMinutes:
+            typeof graceMinutesOrConfig.startMinutes === "number"
+              ? graceMinutesOrConfig.startMinutes
+              : DEFAULT_SCHEDULE_CONFIG.startMinutes,
+          graceMinutes:
+            typeof graceMinutesOrConfig.graceMinutes === "number"
+              ? graceMinutesOrConfig.graceMinutes
+              : DEFAULT_SCHEDULE_CONFIG.graceMinutes,
+        };
+
   const parts = tzParts(tz, now);
   const dow = weekdayIndex(parts.weekday);
-  if (!OUTREACH_WINDOW_DAYS.includes(dow as 2 | 3 | 4)) return false;
+  if (!config.days.includes(dow)) return false;
 
   const minutes = minutesOfDayInTz(tz, now);
   return (
-    minutes >= OUTREACH_WINDOW_START_MINUTES &&
-    minutes < OUTREACH_WINDOW_START_MINUTES + graceMinutes
+    minutes >= config.startMinutes &&
+    minutes < config.startMinutes + config.graceMinutes
   );
 }
 
 export function findZonesOpeningNow(
   zones: OutreachZoneTarget[],
   now: Date,
+  config?: OutreachScheduleConfig,
 ): WindowOpenMatch[] {
   const matches: WindowOpenMatch[] = [];
+  const startMinutes =
+    config?.startMinutes ?? OUTREACH_WINDOW_START_MINUTES;
   for (const zone of zones) {
-    if (!isOutreachWindowOpeningNow(zone.tz, now)) continue;
+    if (!isOutreachWindowOpeningNow(zone.tz, now, config ?? OUTREACH_CRON_GRACE_MINUTES)) {
+      continue;
+    }
     const parts = tzParts(zone.tz, now);
     matches.push({
       zone,
       localDate: formatLocalDateKey(parts),
       localTimeLabel: `${parts.weekday} ${formatClock(parts.hour, parts.minute)}`,
-      bdWindowLabel: formatBangladeshWindow(zone.tz, now),
+      bdWindowLabel: formatBangladeshWindow(zone.tz, now, startMinutes),
     });
   }
   return matches;
 }
 
-export function isValidOutreachWeekday(tz: string, at: Date): boolean {
+export function isValidOutreachWeekday(
+  tz: string,
+  at: Date,
+  days: readonly number[] = OUTREACH_WINDOW_DAYS,
+): boolean {
   const parts = tzParts(tz, at);
   const dow = weekdayIndex(parts.weekday);
-  return OUTREACH_WINDOW_DAYS.includes(dow as 2 | 3 | 4);
+  return days.includes(dow);
 }
 
 export function outreachWindowEndMinutes(): number {

@@ -43,6 +43,7 @@ export function buildOutreachSubject(
 export function buildOutreachPlainText(
   match: WindowOpenMatch,
   testMode: boolean,
+  windowStart: string = "09:30",
 ): string {
   const parts = tzParts(match.zone.tz);
   const localStamp = formatLocalDateTime(parts);
@@ -52,7 +53,7 @@ export function buildOutreachPlainText(
     `Market: ${match.zone.flag} ${match.zone.marketName}`,
     `City / time zone: ${match.zone.city} (${match.zone.tz})`,
     `Local date & time: ${localStamp}`,
-    "Recommended window: Tuesday–Thursday, 09:30–11:00 local time",
+    `Recommended window: ${windowStart} local time`,
     `Bangladesh equivalent: ${match.bdWindowLabel}`,
     "",
     "This is a scheduled reminder for you — not an automated message to prospects.",
@@ -66,6 +67,7 @@ export function buildOutreachPlainText(
 export function buildOutreachHtml(
   match: WindowOpenMatch,
   testMode: boolean,
+  windowStart: string = "09:30",
 ): string {
   const parts = tzParts(match.zone.tz);
   const localStamp = formatLocalDateTime(parts);
@@ -120,7 +122,7 @@ export function buildOutreachHtml(
                   <td style="padding:20px 32px;">
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e5e7eb;border-radius:6px;font-size:14px;line-height:1.6;color:#374151;">
                       <tr><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;"><strong>Local now:</strong> ${escapeHtml(localStamp)}</td></tr>
-                      <tr><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;"><strong>Recommended window:</strong> Tue–Thu, 09:30–11:00 local</td></tr>
+                      <tr><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;"><strong>Recommended window:</strong> ${escapeHtml(windowStart)} local</td></tr>
                       <tr><td style="padding:12px 16px;"><strong>Bangladesh time:</strong> ${escapeHtml(match.bdWindowLabel)}</td></tr>
                     </table>
                     <p style="margin:20px 0 0;font-size:14px;line-height:1.65;color:#4b5563;">
@@ -148,22 +150,25 @@ export function buildOutreachHtml(
 export function outreachIdempotencyKey(
   match: WindowOpenMatch,
   testMode: boolean,
+  windowStart: string = "0930",
 ): string {
   if (testMode) {
     return `outreach-test-${match.zone.tz}-${Date.now()}`;
   }
-  return `outreach-${match.zone.tz}-${match.localDate}-0930`;
+  const compact = windowStart.replace(":", "");
+  return `outreach-${match.zone.tz}-${match.localDate}-${compact}`;
 }
 
 export async function sendOutreachWindowEmail(
   match: WindowOpenMatch,
-  options: { testMode?: boolean } = {},
+  options: { testMode?: boolean; scheduleStartLabel?: string } = {},
 ): Promise<{ id: string }> {
   const testMode = options.testMode === true;
+  const windowStart = options.scheduleStartLabel ?? "09:30";
   const { apiKey, to, from } = notificationEmails();
   const subject = buildOutreachSubject(match, testMode);
-  const html = buildOutreachHtml(match, testMode);
-  const text = buildOutreachPlainText(match, testMode);
+  const html = buildOutreachHtml(match, testMode, windowStart);
+  const text = buildOutreachPlainText(match, testMode, windowStart);
 
   return sendViaResend({
     apiKey,
@@ -172,7 +177,7 @@ export async function sendOutreachWindowEmail(
     subject,
     html,
     text,
-    idempotencyKey: outreachIdempotencyKey(match, testMode),
+    idempotencyKey: outreachIdempotencyKey(match, testMode, windowStart),
     tag: testMode ? "outreach-window-test" : "outreach-window-reminder",
   });
 }
