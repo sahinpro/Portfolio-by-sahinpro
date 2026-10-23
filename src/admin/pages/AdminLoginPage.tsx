@@ -34,6 +34,10 @@ export function AdminLoginPage(): JSX.Element | null {
         Boolean(session?.user && isAllowedAdminEmail(session.user)),
       );
       setSessionChecked(true);
+    }).catch(() => {
+      // Lock contention or a failed refresh must not leave the form unreachable.
+      setHasSession(false);
+      setSessionChecked(true);
     });
   }, []);
 

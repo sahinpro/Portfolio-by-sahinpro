@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/utils/supabase";
-import type { User } from "@supabase/supabase-js";
+import type { Session, User } from "@supabase/supabase-js";
 import {
   BarChart3,
   ExternalLink,
@@ -54,21 +54,14 @@ function mobileAdminTitle(pathname: string): string {
   return "Admin";
 }
 
-function AdminSidebarProfile(): JSX.Element {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    void supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-  const email = user?.email ?? "";
+/**
+ * Rendered from the session the protected layout already resolved. Deliberately
+ * makes no auth call of its own: every `getSession()`/`onAuthStateChange()`
+ * acquires the shared Supabase Navigator lock, and duplicating it here was one
+ * of the concurrent acquisitions colliding on page load.
+ */
+function AdminSidebarProfile({ user }: { user: User }): JSX.Element {
+  const email = user.email ?? "";
 
   return (
     <Card
@@ -105,7 +98,13 @@ function AdminSidebarProfile(): JSX.Element {
   );
 }
 
-export function AdminShell({ children }: { children: ReactNode }): JSX.Element {
+export function AdminShell({
+  children,
+  session,
+}: {
+  children: ReactNode;
+  session: Session;
+}): JSX.Element {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -215,7 +214,7 @@ export function AdminShell({ children }: { children: ReactNode }): JSX.Element {
         )}
       >
         <div className="shrink-0 px-2 pt-4 pb-2">
-          <AdminSidebarProfile />
+          <AdminSidebarProfile user={session.user} />
         </div>
 
         <ScrollArea className="flex-1 min-h-0 px-2">
