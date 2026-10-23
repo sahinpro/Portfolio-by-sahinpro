@@ -4,14 +4,29 @@ import { formatLocalDateTime, tzParts } from "../timezone";
 import type { WindowOpenMatch } from "./windowScheduler";
 
 const LOGO_URL = "https://www.sahinpro.me/sahin.jpg";
+/** Canonical production origin, used when no env override is configured. */
 const DEFAULT_SITE_URL = "https://www.sahinpro.me";
 
-function leadsAdminUrl(): string {
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() || process.env.VERCEL_URL?.trim();
-  if (!base) return `${DEFAULT_SITE_URL}/admin/leads`;
-  const origin = base.startsWith("http") ? base : `https://${base}`;
-  return `${origin.replace(/\/$/, "")}/admin/leads`;
+/**
+ * Base production origin for email links.
+ *
+ * Deliberately NEVER falls back to `VERCEL_URL`: Vercel auto-injects it with
+ * the unique per-deployment URL (e.g. `portfolio-by-sahinpro-<hash>-…
+ * vercel.app`), which goes stale when that deployment is removed. Server-side
+ * `SITE_URL` is the canonical override; `NEXT_PUBLIC_SITE_URL` is accepted as
+ * a legacy fallback. No secrets or tokens are ever embedded in the link.
+ */
+export function siteBaseUrl(): string {
+  const raw =
+    process.env.SITE_URL?.trim() ||
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    DEFAULT_SITE_URL;
+  const withScheme = raw.startsWith("http") ? raw : `https://${raw}`;
+  return withScheme.replace(/\/+$/, "");
+}
+
+export function leadsAdminUrl(): string {
+  return `${siteBaseUrl()}/admin/leads`;
 }
 
 function notificationEmails(): { to: string; from: string; apiKey: string } {
