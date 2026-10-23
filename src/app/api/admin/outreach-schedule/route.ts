@@ -1,11 +1,11 @@
+import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
 import { isAuthorizedAdmin } from "../../../../../api/_lib/adminRouteAuth";
 import { sanitizeScheduleConfig } from "../../../../../api/_lib/outreach/scheduleConfig";
 import {
   SITE_SETTING_SCHEDULE_CONFIG_KEY,
   type OutreachScheduleConfig,
 } from "../../../../../api/_lib/outreach/types";
-import { createClient } from "@supabase/supabase-js";
-import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 

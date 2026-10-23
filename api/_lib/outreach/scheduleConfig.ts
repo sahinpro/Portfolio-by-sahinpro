@@ -1,13 +1,23 @@
-import {
-  DEFAULT_SCHEDULE_CONFIG,
-  type OutreachScheduleConfig,
-} from "./types";
+import { DEFAULT_SCHEDULE_CONFIG, type OutreachScheduleConfig } from "./types";
 
 /** Inclusive bounds enforced on both server and client. */
 const MINUTES_MIN = 0;
 const MINUTES_MAX = 23 * 60 + 55; // 23:55
 const GRACE_MIN = 1;
 const GRACE_MAX = 30;
+
+/**
+ * Outcome of loading the schedule setting from `site_settings`.
+ * - `ok`      → valid saved config found
+ * - `missing` → query succeeded but no row/value exists (fresh install) → safe to use defaults
+ * - `invalid` → a row exists but its content cannot be parsed → fail safe, do NOT send
+ * - `error`   → the query or the client failed → do NOT send; retried on the next cron tick
+ */
+export type ScheduleConfigLoad =
+  | { status: "ok"; config: OutreachScheduleConfig }
+  | { status: "missing"; config: OutreachScheduleConfig }
+  | { status: "invalid"; reason: string }
+  | { status: "error"; reason: string };
 
 function isWeekdayIndex(n: unknown): n is number {
   return typeof n === "number" && Number.isInteger(n) && n >= 0 && n <= 6;
@@ -74,4 +84,38 @@ export function parseScheduleConfigJson(
   } catch {
     return sanitizeScheduleConfig(null);
   }
+}
+
+/**
+ * Interpret a raw `site_settings.value` string without silently falling back.
+ * A stored-but-unparseable value is `invalid` (never `missing`), so callers
+ * can distinguish "fresh install" from "corrupted config" and refuse to send.
+ */
+export function interpretScheduleConfigJson(
+  json: string | null | undefined,
+): ScheduleConfigLoad {
+  if (json === null || json === undefined || json.trim() === "") {
+    return { status: "missing", config: sanitizeScheduleConfig(null) };
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return { status: "invalid", reason: "Stored schedule is not valid JSON" };
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return {
+      status: "invalid",
+      reason: "Stored schedule is not a JSON object",
+    };
+  }
+  const src = parsed as Record<string, unknown>;
+  if (!Array.isArray(src.days) || src.days.length === 0) {
+    return {
+      status: "invalid",
+      reason:
+        "Stored schedule has no weekdays array — refusing to send on defaults",
+    };
+  }
+  return { status: "ok", config: sanitizeScheduleConfig(parsed) };
 }

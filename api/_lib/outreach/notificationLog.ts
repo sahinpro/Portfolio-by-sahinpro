@@ -6,7 +6,7 @@ export type NotificationDeliveryStatus = "sent" | "failed";
 export type NotificationLogRow = {
   iana_timezone: string;
   local_date: string;
-  /** HH:MM label of the configured reminder time; part of the dedupe key. */
+  /** HH:MM label of the configured reminder time; recorded for history. */
   window_start: string;
   market_id: string;
   zone_city: string;
@@ -18,32 +18,10 @@ export type NotificationLogRow = {
 
 const TABLE = "outreach_window_notifications";
 
-export async function wasNotificationAlreadySent(
-  ianaTimezone: string,
-  localDate: string,
-  windowStart: string = OUTREACH_WINDOW_OPEN_LABEL,
-): Promise<boolean> {
-  const client = getSupabaseServiceClient();
-  if (!client) return false;
-
-  const { data, error } = await client
-    .from(TABLE)
-    .select("status")
-    .eq("iana_timezone", ianaTimezone)
-    .eq("local_date", localDate)
-    .eq("window_start", windowStart)
-    .maybeSingle();
-
-  if (error) {
-    console.error("[outreach-notify] dedupe lookup failed", {
-      code: error.code,
-      message: error.message,
-    });
-    return false;
-  }
-
-  return data?.status === "sent";
-}
+// NOTE: the send/no-send decision is NOT read from this table any more — it
+// lives in reminderClaim.ts (atomic `outreach_window_claims` insert), which
+// is immune to legacy duplicate rows and fails safe on query errors.
+// This module is append-only delivery history.
 
 export async function recordNotificationDelivery(
   row: Omit<NotificationLogRow, "sent_at" | "window_start"> & {
@@ -57,7 +35,8 @@ export async function recordNotificationDelivery(
   const payload = {
     ...row,
     window_start: row.window_start ?? OUTREACH_WINDOW_OPEN_LABEL,
-    sent_at: row.status === "sent" ? row.sent_at ?? new Date().toISOString() : null,
+    sent_at:
+      row.status === "sent" ? (row.sent_at ?? new Date().toISOString()) : null,
   };
 
   const { error } = await client.from(TABLE).upsert(payload, {

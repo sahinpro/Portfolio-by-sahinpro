@@ -1,24 +1,29 @@
 import { getSupabaseServiceClient } from "../supabaseService";
-import {
-  recordNotificationDelivery,
-  wasNotificationAlreadySent,
-} from "./notificationLog";
+import { formatLocalDateKey, tzParts } from "../timezone";
+import { recordNotificationDelivery } from "./notificationLog";
 import { sendOutreachWindowEmail } from "./outreachEmail";
-import { parseScheduleConfigJson } from "./scheduleConfig";
+import {
+  claimReminderSlot,
+  getReminderClaimClient,
+  releaseReminderSlot,
+} from "./reminderClaim";
+import {
+  interpretScheduleConfigJson,
+  type ScheduleConfigLoad,
+} from "./scheduleConfig";
+import type { OutreachZoneTarget } from "./types";
 import {
   SITE_SETTING_PLANNER_ZONES_KEY,
   SITE_SETTING_SCHEDULE_CONFIG_KEY,
   formatWindowStartLabel,
   type OutreachScheduleConfig,
 } from "./types";
-import { sanitizePlannerZones, resolveNotificationZones } from "./zonesConfig";
 import {
   findZonesOpeningNow,
   formatBangladeshWindow,
   type WindowOpenMatch,
 } from "./windowScheduler";
-import { formatLocalDateKey, tzParts } from "../timezone";
-import type { OutreachZoneTarget } from "./types";
+import { resolveNotificationZones, sanitizePlannerZones } from "./zonesConfig";
 
 export type OutreachRunResult = {
   checkedAt: string;
@@ -53,9 +58,20 @@ async function loadPlannerZonesFromDb(): Promise<Record<string, string>> {
   }
 }
 
-async function loadScheduleConfigFromDb(): Promise<OutreachScheduleConfig> {
+/**
+ * Load the schedule setting without ever silently falling back to defaults
+ * on a failure: `error`/`invalid` outcomes must stop the run, while a
+ * genuinely missing setting (fresh install) may use the documented defaults.
+ * The cron retries naturally on the next tick (every minute).
+ */
+async function loadScheduleConfigFromDb(): Promise<ScheduleConfigLoad> {
   const client = getSupabaseServiceClient();
-  if (!client) return parseScheduleConfigJson(null);
+  if (!client) {
+    return {
+      status: "error",
+      reason: "Supabase service client is unavailable (missing env keys)",
+    };
+  }
 
   const { data, error } = await client
     .from("site_settings")
@@ -68,9 +84,13 @@ async function loadScheduleConfigFromDb(): Promise<OutreachScheduleConfig> {
       code: error.code,
       message: error.message,
     });
+    return {
+      status: "error",
+      reason: `site_settings query failed: ${error.message}`,
+    };
   }
 
-  return parseScheduleConfigJson(data?.value ?? null);
+  return interpretScheduleConfigJson(data?.value ?? null);
 }
 
 export async function runOutreachWindowNotifications(
@@ -95,16 +115,34 @@ export async function runOutreachWindowNotifications(
     return result;
   }
 
-  const [plannerZones, schedule] = await Promise.all([
+  const [plannerZones, scheduleLoad] = await Promise.all([
     loadPlannerZonesFromDb(),
     loadScheduleConfigFromDb(),
   ]);
+
+  // Fail-safe: a broken or unreachable schedule config must never send on
+  // fallback defaults. Only a genuinely missing setting (fresh install)
+  // uses the documented defaults. The next cron tick retries.
+  if (scheduleLoad.status === "error" || scheduleLoad.status === "invalid") {
+    result.warnings.push(
+      `Schedule config unavailable (${scheduleLoad.status}): ${scheduleLoad.reason} — no reminders sent this tick`,
+    );
+    return result;
+  }
+
+  const schedule = scheduleLoad.config;
 
   result.schedule = {
     days: schedule.days,
     startMinutes: schedule.startMinutes,
     graceMinutes: schedule.graceMinutes,
   };
+
+  if (scheduleLoad.status === "missing") {
+    result.warnings.push(
+      "No saved schedule found — using documented defaults (Tue–Thu 09:30, 4 min grace)",
+    );
+  }
 
   // Fail-safe: never send if the schedule has no days selected.
   if (!schedule.days || schedule.days.length === 0) {
@@ -122,6 +160,17 @@ export async function runOutreachWindowNotifications(
 
   const windowStart = formatWindowStartLabel(schedule.startMinutes);
 
+  // Atomic duplicate guard: one claim row per (tz, local date), inserted
+  // before the send. If the claims table can't be reached we must NOT send
+  // (fail safe) — the next cron tick retries once the table is available.
+  const claimClient = matches.length > 0 ? getReminderClaimClient() : null;
+  if (matches.length > 0 && !claimClient) {
+    result.warnings.push(
+      "Supabase service client unavailable — cannot claim reminder slots; skipping",
+    );
+    return result;
+  }
+
   for (const match of matches) {
     const key = `${match.zone.tz}@${match.localDate}@${windowStart}`;
     if (options.dryRun) {
@@ -129,12 +178,21 @@ export async function runOutreachWindowNotifications(
       continue;
     }
 
-    const alreadySent = await wasNotificationAlreadySent(
-      match.zone.tz,
-      match.localDate,
-      windowStart,
+    const claim = await claimReminderSlot(
+      claimClient as NonNullable<typeof claimClient>,
+      {
+        ianaTimezone: match.zone.tz,
+        localDate: match.localDate,
+        windowStart,
+      },
     );
-    if (alreadySent) {
+    if (claim.status === "error") {
+      result.warnings.push(
+        `Claim lookup failed for ${key}: ${claim.reason} — skipping (fail-safe, no send)`,
+      );
+      continue;
+    }
+    if (claim.status === "duplicate") {
       result.skipped.push(`${key} (already sent)`);
       continue;
     }
@@ -167,6 +225,17 @@ export async function runOutreachWindowNotifications(
         resend_id: null,
         error_message: message.slice(0, 500),
       });
+      // Release the claim so the next tick can retry this zone/date.
+      const releaseError = await releaseReminderSlot(
+        claimClient as NonNullable<typeof claimClient>,
+        match.zone.tz,
+        match.localDate,
+      );
+      if (releaseError) {
+        result.warnings.push(
+          `Claim release failed for ${key}: ${releaseError} — no retry today (fail-safe against double send)`,
+        );
+      }
     }
   }
 
@@ -185,10 +254,6 @@ export function buildTestMatch(
     zone,
     localDate: formatLocalDateKey(parts),
     localTimeLabel: `${parts.weekday} ${String(parts.hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`,
-    bdWindowLabel: formatBangladeshWindow(
-      zone.tz,
-      now,
-      schedule?.startMinutes,
-    ),
+    bdWindowLabel: formatBangladeshWindow(zone.tz, now, schedule?.startMinutes),
   };
 }

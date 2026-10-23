@@ -61,10 +61,14 @@ export function formatBangladeshWindow(
 export function isOutreachWindowOpeningNow(
   tz: string,
   now: Date,
-  graceMinutesOrConfig: number | OutreachScheduleConfig =
-    OUTREACH_CRON_GRACE_MINUTES,
+  graceMinutesOrConfig:
+    | number
+    | OutreachScheduleConfig = OUTREACH_CRON_GRACE_MINUTES,
 ): boolean {
-  const config: Pick<OutreachScheduleConfig, "days" | "startMinutes" | "graceMinutes"> =
+  const config: Pick<
+    OutreachScheduleConfig,
+    "days" | "startMinutes" | "graceMinutes"
+  > =
     typeof graceMinutesOrConfig === "number"
       ? {
           days: [...OUTREACH_WINDOW_DAYS],
@@ -103,10 +107,15 @@ export function findZonesOpeningNow(
   config?: OutreachScheduleConfig,
 ): WindowOpenMatch[] {
   const matches: WindowOpenMatch[] = [];
-  const startMinutes =
-    config?.startMinutes ?? OUTREACH_WINDOW_START_MINUTES;
+  const startMinutes = config?.startMinutes ?? OUTREACH_WINDOW_START_MINUTES;
   for (const zone of zones) {
-    if (!isOutreachWindowOpeningNow(zone.tz, now, config ?? OUTREACH_CRON_GRACE_MINUTES)) {
+    if (
+      !isOutreachWindowOpeningNow(
+        zone.tz,
+        now,
+        config ?? OUTREACH_CRON_GRACE_MINUTES,
+      )
+    ) {
       continue;
     }
     const parts = tzParts(zone.tz, now);

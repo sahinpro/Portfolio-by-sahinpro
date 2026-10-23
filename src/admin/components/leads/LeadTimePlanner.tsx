@@ -85,7 +85,10 @@ function sanitizeZones(record: unknown): Record<string, string> {
   if (!record || typeof record !== "object") return out;
   for (const market of OUTREACH_MARKETS) {
     const value = (record as Record<string, unknown>)[market.id];
-    if (typeof value === "string" && market.zones.some((zz) => zz.tz === value)) {
+    if (
+      typeof value === "string" &&
+      market.zones.some((zz) => zz.tz === value)
+    ) {
       out[market.id] = value;
     }
   }
@@ -128,7 +131,8 @@ function resolveZone(
     if (zone) return { zone, source: "leads" };
   }
   // Single-zone markets (UK, DE, IT) are never ambiguous.
-  if (market.zones.length === 1) return { zone: market.zones[0], source: "fixed" };
+  if (market.zones.length === 1)
+    return { zone: market.zones[0], source: "fixed" };
   return { zone: market.zones[0], source: "assumed" };
 }
 
@@ -269,7 +273,9 @@ function MarketCard({
           <p className="mt-0.5 text-xs tabular-nums text-white/70">
             {windowLabel}
           </p>
-          <p className="text-[11px] tabular-nums text-white/45">{view.bdWindow}</p>
+          <p className="text-[11px] tabular-nums text-white/45">
+            {view.bdWindow}
+          </p>
         </div>
       </div>
 
@@ -384,7 +390,10 @@ export function LeadTimePlanner({
   });
   const [scheduleLoading, setScheduleLoading] = useState(true);
   const [scheduleSaving, setScheduleSaving] = useState(false);
-  const [scheduleMsg, setScheduleMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [scheduleMsg, setScheduleMsg] = useState<{
+    type: "ok" | "err";
+    text: string;
+  } | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
@@ -405,7 +414,9 @@ export function LeadTimePlanner({
       .finally(() => {
         if (!cancelled) setScheduleLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Restore saved choices from the local IndexedDB `lead_prefs` store.
@@ -471,7 +482,10 @@ export function LeadTimePlanner({
       setSchedule(toSend);
       setScheduleMsg({ type: "ok", text: "Schedule saved" });
     } catch {
-      setScheduleMsg({ type: "err", text: "Failed to save — changes are local only" });
+      setScheduleMsg({
+        type: "err",
+        text: "Failed to save — changes are local only",
+      });
     } finally {
       setScheduleSaving(false);
     }
@@ -485,7 +499,15 @@ export function LeadTimePlanner({
   const views = useMemo<MarketView[]>(() => {
     if (!now) return [];
     return OUTREACH_MARKETS.map((market) =>
-      buildView(market, leads, overrides[market.id], now, schedule.days, schedule.startMinutes, windowEnd),
+      buildView(
+        market,
+        leads,
+        overrides[market.id],
+        now,
+        schedule.days,
+        schedule.startMinutes,
+        windowEnd,
+      ),
     );
   }, [leads, now, overrides, schedule.days, schedule.startMinutes, windowEnd]);
 
@@ -496,9 +518,8 @@ export function LeadTimePlanner({
   const activeCount = views.filter((v) => v.status === "active").length;
   const soonest = views.find((v) => v.status === "soon");
 
-  const daysLabel = schedule.days
-    .map((d) => DAY_LABELS[d])
-    .join(", ") || "None";
+  const daysLabel =
+    schedule.days.map((d) => DAY_LABELS[d]).join(", ") || "None";
   const startLabel = `${pad(Math.floor(schedule.startMinutes / 60))}:${pad(schedule.startMinutes % 60)}`;
   const endLabel = `${pad(Math.floor(windowEnd / 60))}:${pad(windowEnd % 60)}`;
 
@@ -587,7 +608,9 @@ export function LeadTimePlanner({
       {/* Schedule Settings Panel */}
       {showSettings ? (
         <div className="mt-3 rounded-xl border border-white/[0.08] bg-[#111] p-4">
-          <h3 className="text-xs font-semibold text-white/80">Outreach Schedule</h3>
+          <h3 className="text-xs font-semibold text-white/80">
+            Outreach Schedule
+          </h3>
           <p className="mt-0.5 text-[11px] text-white/40">
             Configure which days and times the cron sends reminders.
           </p>
@@ -623,19 +646,28 @@ export function LeadTimePlanner({
               {/* Time and grace inputs */}
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <div>
-                  <Label className="text-[11px] text-white/50">Reminder time (local)</Label>
+                  <Label className="text-[11px] text-white/50">
+                    Reminder time (local)
+                  </Label>
                   <Input
                     type="time"
                     value={startLabel}
                     onChange={(e) => {
-                      const [h, m] = (e.target.value || "09:30").split(":").map(Number);
-                      setSchedule((prev) => ({ ...prev, startMinutes: h * 60 + m }));
+                      const [h, m] = (e.target.value || "09:30")
+                        .split(":")
+                        .map(Number);
+                      setSchedule((prev) => ({
+                        ...prev,
+                        startMinutes: h * 60 + m,
+                      }));
                     }}
                     className="mt-1 h-8 bg-white/[0.04] border-white/[0.08] text-xs text-white"
                   />
                 </div>
                 <div>
-                  <Label className="text-[11px] text-white/50">Grace period (minutes)</Label>
+                  <Label className="text-[11px] text-white/50">
+                    Grace period (minutes)
+                  </Label>
                   <Input
                     type="number"
                     min={1}
@@ -643,7 +675,10 @@ export function LeadTimePlanner({
                     value={schedule.graceMinutes}
                     onChange={(e) => {
                       const v = parseInt(e.target.value, 10) || DEFAULT_GRACE;
-                      setSchedule((prev) => ({ ...prev, graceMinutes: Math.max(1, Math.min(30, v)) }));
+                      setSchedule((prev) => ({
+                        ...prev,
+                        graceMinutes: Math.max(1, Math.min(30, v)),
+                      }));
                     }}
                     className="mt-1 h-8 bg-white/[0.04] border-white/[0.08] text-xs text-white"
                   />
@@ -672,8 +707,11 @@ export function LeadTimePlanner({
               {/* Summary */}
               <p className="mt-2 text-[11px] text-white/35">
                 Reminders: <span className="text-white/60">{daysLabel}</span> at{" "}
-                <span className="text-white/60">{startLabel}</span> local time per market
-                {schedule.updatedAt ? ` · Last saved ${new Date(schedule.updatedAt).toLocaleDateString()}` : ""}
+                <span className="text-white/60">{startLabel}</span> local time
+                per market
+                {schedule.updatedAt
+                  ? ` · Last saved ${new Date(schedule.updatedAt).toLocaleDateString()}`
+                  : ""}
               </p>
             </>
           )}

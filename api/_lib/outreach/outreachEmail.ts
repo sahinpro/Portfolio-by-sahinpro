@@ -1,9 +1,6 @@
 import { escapeHtml } from "../html";
 import { sendViaResend } from "../resendClient";
-import {
-  formatLocalDateTime,
-  tzParts,
-} from "../timezone";
+import { formatLocalDateTime, tzParts } from "../timezone";
 import type { WindowOpenMatch } from "./windowScheduler";
 
 const LOGO_URL = "https://www.sahinpro.me/sahin.jpg";
@@ -11,8 +8,7 @@ const DEFAULT_SITE_URL = "https://www.sahinpro.me";
 
 function leadsAdminUrl(): string {
   const base =
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-    process.env.VERCEL_URL?.trim();
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() || process.env.VERCEL_URL?.trim();
   if (!base) return `${DEFAULT_SITE_URL}/admin/leads`;
   const origin = base.startsWith("http") ? base : `https://${base}`;
   return `${origin.replace(/\/$/, "")}/admin/leads`;
@@ -48,7 +44,9 @@ export function buildOutreachPlainText(
   const parts = tzParts(match.zone.tz);
   const localStamp = formatLocalDateTime(parts);
   const lines = [
-    testMode ? "TEST — Outreach window reminder" : "Scheduled outreach window reminder",
+    testMode
+      ? "TEST — Outreach window reminder"
+      : "Scheduled outreach window reminder",
     "",
     `Market: ${match.zone.flag} ${match.zone.marketName}`,
     `City / time zone: ${match.zone.city} (${match.zone.tz})`,

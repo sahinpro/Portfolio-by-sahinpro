@@ -34,7 +34,10 @@ export const OUTREACH_CRON_GRACE_MINUTES = 4;
 export const SITE_SETTING_PLANNER_ZONES_KEY = "outreach_planner_zones";
 export const SITE_SETTING_SCHEDULE_CONFIG_KEY = "outreach_schedule_config";
 
-export const DEFAULT_SCHEDULE_CONFIG: Omit<OutreachScheduleConfig, "updatedAt"> = {
+export const DEFAULT_SCHEDULE_CONFIG: Omit<
+  OutreachScheduleConfig,
+  "updatedAt"
+> = {
   days: [2, 3, 4],
   startMinutes: OUTREACH_WINDOW_START_MINUTES,
   graceMinutes: OUTREACH_CRON_GRACE_MINUTES,
