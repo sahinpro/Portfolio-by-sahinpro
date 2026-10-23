@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminNavLink } from "@/components/common/AdminNavLink";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -11,17 +12,16 @@ import {
   FileText,
   FolderKanban,
   ImageIcon,
-  Quote,
   LayoutDashboard,
   LogOut,
   Menu,
+  Quote,
   Settings2,
   Target,
   X,
 } from "lucide-react";
-import { AdminNavLink } from "@/components/common/AdminNavLink";
-import { useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { PROFILE_AVATAR } from "@/lib/seoImages";
 
@@ -45,9 +45,9 @@ const sectionLabel =
 function mobileAdminTitle(pathname: string): string {
   if (pathname === "/admin" || pathname === "/admin/") return "Dashboard";
   if (pathname.startsWith("/admin/projects")) return "Projects";
+  if (pathname.startsWith("/admin/leads")) return "Leads";
   if (pathname.startsWith("/admin/testimonials")) return "Testimonials";
   if (pathname.startsWith("/admin/media")) return "Media";
-  if (pathname.startsWith("/admin/challenges")) return "Challenges";
   if (pathname.startsWith("/admin/analytics")) return "Analytics";
   if (pathname === "/admin/settings") return "Site settings";
   if (pathname.startsWith("/admin/settings/resume")) return "Resume";
@@ -230,13 +230,13 @@ export function AdminShell({ children }: { children: ReactNode }): JSX.Element {
                 <FolderKanban className="h-4 w-4 shrink-0 opacity-80" />
                 Projects
               </AdminNavLink>
+              <AdminNavLink href="/admin/leads" className={navClass}>
+                <Target className="h-4 w-4 shrink-0 opacity-80" />
+                Leads
+              </AdminNavLink>
               <AdminNavLink href="/admin/testimonials" className={navClass}>
                 <Quote className="h-4 w-4 shrink-0 opacity-80" />
                 Testimonials
-              </AdminNavLink>
-              <AdminNavLink href="/admin/challenges" className={navClass}>
-                <Target className="h-4 w-4 shrink-0 opacity-80" />
-                Challenges
               </AdminNavLink>
               <AdminNavLink href="/admin/media" className={navClass}>
                 <ImageIcon className="h-4 w-4 shrink-0 opacity-80" />
