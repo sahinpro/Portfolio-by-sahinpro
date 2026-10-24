@@ -29,16 +29,19 @@ export function AdminLoginPage(): JSX.Element | null {
   const hasConfig = isSupabaseConfigured;
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setHasSession(
-        Boolean(session?.user && isAllowedAdminEmail(session.user)),
-      );
-      setSessionChecked(true);
-    }).catch(() => {
-      // Lock contention or a failed refresh must not leave the form unreachable.
-      setHasSession(false);
-      setSessionChecked(true);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        setHasSession(
+          Boolean(session?.user && isAllowedAdminEmail(session.user)),
+        );
+        setSessionChecked(true);
+      })
+      .catch(() => {
+        // Lock contention or a failed refresh must not leave the form unreachable.
+        setHasSession(false);
+        setSessionChecked(true);
+      });
   }, []);
 
   useEffect(() => {
@@ -128,7 +131,9 @@ export function AdminLoginPage(): JSX.Element | null {
       setError(resetError.message);
       return;
     }
-    setResetMessage("If an account exists for that email, a reset link has been sent.");
+    setResetMessage(
+      "If an account exists for that email, a reset link has been sent.",
+    );
     setForgotOpen(false);
   };
 
@@ -176,10 +181,9 @@ export function AdminLoginPage(): JSX.Element | null {
 
         {!hasConfig && (
           <p className="text-amber-300/90 text-sm mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-            Add{" "}
-            <code className="text-amber-200">NEXT_PUBLIC_SUPABASE_URL</code> and a key
-            to <code className="text-amber-200">.env</code>, then restart the dev
-            server.
+            Add <code className="text-amber-200">NEXT_PUBLIC_SUPABASE_URL</code>{" "}
+            and a key to <code className="text-amber-200">.env</code>, then
+            restart the dev server.
           </p>
         )}
 

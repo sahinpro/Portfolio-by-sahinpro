@@ -1,13 +1,13 @@
 "use client";
 
-import { supabase } from "@/utils/supabase";
-import type { Session } from "@supabase/supabase-js";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { usePathname, useRouter } from "next/navigation";
 import { AdminShell } from "@/admin/components/AdminShell";
 import { DuplicateUploadConfirmProvider } from "@/admin/context/DuplicateUploadConfirmContext";
 import { ToastProvider } from "@/admin/context/ToastContext";
 import { isAllowedAdminEmail } from "@/admin/lib/authHelpers";
+import { supabase } from "@/utils/supabase";
+import type { Session } from "@supabase/supabase-js";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 /**
  * Four distinct states. A session-check that *fails* is deliberately kept apart
@@ -78,7 +78,11 @@ export function AdminProtectedLayout({
   // Authorization is enforced independently of the authentication *status*: a
   // confirmed session whose email is not on the allow-list is signed out.
   useEffect(() => {
-    if (status === "authenticated" && session?.user && !isAllowedAdminEmail(session.user)) {
+    if (
+      status === "authenticated" &&
+      session?.user &&
+      !isAllowedAdminEmail(session.user)
+    ) {
       void supabase.auth.signOut();
       setSession(null);
       setStatus("unauthenticated");
@@ -115,7 +119,9 @@ export function AdminProtectedLayout({
         className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-4 px-4
           text-center"
       >
-        <p className="text-white/70 text-sm">We couldn&apos;t verify your session.</p>
+        <p className="text-white/70 text-sm">
+          We couldn&apos;t verify your session.
+        </p>
         <p className="text-white/40 text-xs">
           This is usually a temporary network issue. Your login is still valid.
         </p>
@@ -134,7 +140,11 @@ export function AdminProtectedLayout({
   // status === "unauthenticated" (or authenticated-but-disallowed, which the
   // authz effect has already reduced to unauthenticated). Render nothing while
   // the redirect runs; never expose admin children in this state.
-  if (status !== "authenticated" || !session?.user || !isAllowedAdminEmail(session.user)) {
+  if (
+    status !== "authenticated" ||
+    !session?.user ||
+    !isAllowedAdminEmail(session.user)
+  ) {
     return null;
   }
 

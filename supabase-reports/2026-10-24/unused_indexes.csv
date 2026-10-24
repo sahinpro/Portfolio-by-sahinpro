@@ -1,0 +1,4 @@
+name,index,index_size,index_scans
+public.page_views,page_views_visited_at,160 kB,0
+public.page_views,page_views_path,64 kB,0
+public.page_views,page_views_path_idx,64 kB,0
