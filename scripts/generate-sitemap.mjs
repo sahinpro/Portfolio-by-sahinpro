@@ -77,8 +77,12 @@ function renderUrl(entry) {
 
 function getSupabaseConfig() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  // Build-time script: the service-role key bypasses RLS, which is required
+  // because anon reads on `projects` depend on public.is_admin() EXECUTE grants.
   const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
     process.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY ??
     process.env.VITE_SUPABASE_ANON_KEY ??
@@ -89,7 +93,41 @@ function getSupabaseConfig() {
 }
 
 async function fetchDynamicEntries() {
-  return [];
+  const config = getSupabaseConfig();
+  if (!config) return [];
+
+  try {
+    // Same slug normalization as src/lib/projectPaths.ts → projectSlugFromTitle (slugify of title).
+    const res = await fetch(
+      `${config.url}/rest/v1/projects?select=title,updated_at&status=eq.published&order=updated_at.desc`,
+      {
+        headers: {
+          apikey: config.key,
+          Authorization: `Bearer ${config.key}`,
+        },
+      },
+    );
+    if (!res.ok) return [];
+
+    const rows = await res.json();
+    const seen = new Set();
+    return (Array.isArray(rows) ? rows : [])
+      .map((row) => {
+        const slug = slugify(String(row?.title ?? ""));
+        if (!slug || seen.has(slug)) return null;
+        seen.add(slug);
+        return {
+          loc: `${SITE_URL}/projects/${slug}`,
+          lastmod: toIsoDate(row.updated_at),
+          changefreq: "monthly",
+          priority: 0.6,
+        };
+      })
+      .filter(Boolean);
+  } catch {
+    // Network/schema failures must not break sitemap generation.
+    return [];
+  }
 }
 
 async function main() {

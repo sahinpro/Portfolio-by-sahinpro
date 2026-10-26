@@ -1,5 +1,6 @@
 "use client";
 
+import { NicheCombobox } from "@/admin/components/leads/NicheCombobox";
 import { AdminSidePanel } from "@/admin/components/ui/AdminSidePanel";
 import { ConfirmDialog } from "@/admin/components/ui/ConfirmDialog";
 import {
@@ -11,17 +12,17 @@ import {
 } from "@/admin/constants/leadOptions";
 import { useToast } from "@/admin/context/ToastContext";
 import {
+  defaultEmptyLeadForm,
+  formValuesToLead,
+  leadToFormValues,
+} from "@/admin/lib/leads/leadMappers";
+import {
   LeadStoreError,
   getLead,
   listLeads,
   putLead,
 } from "@/admin/lib/leads/leadRepository";
-import {
-  defaultEmptyLeadForm,
-  formValuesToLead,
-  leadToFormValues,
-} from "@/admin/lib/leads/leadMappers";
-import { findDuplicates } from "@/admin/lib/leads/leadService";
+import { findDuplicates, getNicheFacets } from "@/admin/lib/leads/leadService";
 import {
   leadFormSchema,
   type LeadFormInput,
@@ -151,6 +152,7 @@ export function AdminLeadFormPage({
   const [existing, setExisting] = useState<Lead | null>(null);
   const [saving, setSaving] = useState(false);
   const [duplicateLeads, setDuplicateLeads] = useState<Lead[] | null>(null);
+  const [nicheOptions, setNicheOptions] = useState<string[]>([]);
 
   const {
     register,
@@ -168,6 +170,28 @@ export function AdminLeadFormPage({
   const showWebsiteUrl = websiteStatus !== "no_website";
   const websiteUrlRequired =
     websiteStatus === "has_website" || websiteStatus === "needs_improvement";
+
+  // Existing niches feed the searchable picker so repeat values are selected,
+  // not retyped. Failure is non-fatal: the combobox can still create one.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const all = await listLeads();
+        if (cancelled) return;
+        setNicheOptions(
+          getNicheFacets(all)
+            .filter((n) => n.trim() !== "")
+            .sort((a, b) => a.localeCompare(b)),
+        );
+      } catch {
+        /* leave the picker empty */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const closePanel = useCallback(() => {
     if (saving) return;
@@ -198,9 +222,7 @@ export function AdminLeadFormPage({
         if (cancelled) return;
         setLoadingRow(false);
         showToast(
-          e instanceof LeadStoreError
-            ? e.message
-            : "Could not load that lead",
+          e instanceof LeadStoreError ? e.message : "Could not load that lead",
           "error",
         );
         router.replace("/admin/leads");
@@ -221,9 +243,7 @@ export function AdminLeadFormPage({
         router.replace("/admin/leads");
       } catch (e) {
         showToast(
-          e instanceof LeadStoreError
-            ? e.message
-            : "Could not save this lead",
+          e instanceof LeadStoreError ? e.message : "Could not save this lead",
           "error",
         );
       } finally {
@@ -251,9 +271,7 @@ export function AdminLeadFormPage({
       } catch (e) {
         setSaving(false);
         showToast(
-          e instanceof LeadStoreError
-            ? e.message
-            : "Could not save this lead",
+          e instanceof LeadStoreError ? e.message : "Could not save this lead",
           "error",
         );
       }
@@ -315,19 +333,28 @@ export function AdminLeadFormPage({
               />
               <FieldError message={err.businessName?.message} />
             </div>
-            <div>
-              <label className={labelCls} htmlFor="niche">
-                Niche{requiredMark}
-              </label>
-              <Input
-                id="niche"
-                className={field}
-                placeholder="Dental clinic, gym, restaurant…"
-                aria-invalid={Boolean(err.niche)}
-                {...register("niche")}
-              />
-              <FieldError message={err.niche?.message} />
-            </div>
+            <Controller
+              control={control}
+              name="niche"
+              render={({ field: f }) => (
+                <div>
+                  <label className={labelCls} htmlFor="niche">
+                    Niche{requiredMark}
+                  </label>
+                  <NicheCombobox
+                    id="niche"
+                    value={f.value}
+                    onChange={f.onChange}
+                    onBlur={f.onBlur}
+                    options={nicheOptions}
+                    placeholder="Search or type a niche…"
+                    invalid={Boolean(err.niche)}
+                    className={field}
+                  />
+                  <FieldError message={err.niche?.message} />
+                </div>
+              )}
+            />
             <div>
               <label className={labelCls} htmlFor="country">
                 Country
@@ -591,7 +618,9 @@ function RecordSection({ lead }: { lead: Lead }): JSX.Element {
         </div>
       </dl>
       <div className="flex flex-wrap gap-2 pt-1">
-        {lead.websiteUrl ? <MetaLink href={lead.websiteUrl} label="Website" /> : null}
+        {lead.websiteUrl ? (
+          <MetaLink href={lead.websiteUrl} label="Website" />
+        ) : null}
         {lead.instagramUrl ? (
           <MetaLink href={lead.instagramUrl} label="Instagram" />
         ) : null}

@@ -5,19 +5,23 @@
   "description": "Professional portfolio website for Sahin Alam - Full Stack Developer (React, Next.js, WordPress)",
   "author": "Sahin Alam",
   "license": "MIT",
+  "packageManager": "bun@1.4.2",
+  "engines": {
+    "bun": ">=1.2.0"
+  },
   "scripts": {
     "dev": "next dev",
-    "generate:favicons": "node scripts/generate-favicons.mjs",
-    "generate:sitemap": "node scripts/generate-sitemap.mjs",
-    "build": "node scripts/generate-favicons.mjs && node scripts/generate-sitemap.mjs && next build",
-    "start": "next start",
-    "lint": "eslint .",
-    "type-check": "tsc --noEmit",
-    "type-check:functions": "tsc -p supabase/functions/tsconfig.json --noEmit",
-    "test:outreach": "npx --yes tsx --test api/_lib/outreach/windowScheduler.test.ts api/_lib/outreach/zonesConfig.test.ts",
-    "check:vercel-api": "node scripts/check-vercel-api-function-count.mjs",
-    "deploy:function:record-page-view": "npx supabase functions deploy record-page-view",
-    "clean": "rm -rf .next node_modules/.cache"
+    "generate:favicons": "bun run scripts/generate-favicons.mjs",
+    "generate:sitemap": "bun run scripts/generate-sitemap.mjs",
+    "build": "bun run scripts/generate-favicons.mjs && bun run scripts/generate-sitemap.mjs && bun run --bun next build",
+    "start": "bun run --bun next start",
+    "lint": "bunx eslint .",
+    "type-check": "bunx tsc --noEmit",
+    "type-check:functions": "bunx tsc -p supabase/functions/tsconfig.json --noEmit",
+    "test:outreach": "bun test api/_lib/outreach/windowScheduler.test.ts api/_lib/outreach/zonesConfig.test.ts",
+    "check:vercel-api": "bun run scripts/check-vercel-api-function-count.mjs",
+    "deploy:function:record-page-view": "bunx supabase functions deploy record-page-view",
+    "clean": "rm -rf .next node_modules/.cache bun.lock"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

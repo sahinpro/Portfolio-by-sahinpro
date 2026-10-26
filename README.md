@@ -23,6 +23,7 @@ Built with **Next.js 15** (App Router), **React 18**, **TypeScript**, **Tailwind
 | Area     | Libraries                                                                                  |
 | -------- | ------------------------------------------------------------------------------------------ |
 | App      | Next.js 15 App Router, React 18, TypeScript 5                                              |
+| Runtime  | Bun (package manager + script runtime, `bun.lock`)                                          |
 | UI       | Tailwind CSS, Radix UI primitives, shadcn-style components, Lucide & React Icons           |
 | Motion   | Framer Motion, Lottie, Three.js (desktop aurora only)                                      |
 | Data     | Supabase JS client, public data hooks + cache (`src/lib/publicDataCache.ts`), Upstash Redis (optional) |
@@ -32,7 +33,7 @@ Built with **Next.js 15** (App Router), **React 18**, **TypeScript**, **Tailwind
 
 ## Prerequisites
 
-- **Node.js** (LTS recommended) and npm.
+- **Bun** (>= 1.2) as the runtime and package manager (Node.js also works for tooling that expects it).
 - **Supabase project** (optional for local UI-only dev; required for live content and admin). SQL lives in `supabase/migrations/`; the `record-page-view` Edge Function is under `supabase/functions/`.
 - **Resend** account for the contact form (production).
 - **Upstash Redis** (optional) for a shared public-data cache in front of Supabase.
@@ -42,7 +43,7 @@ Built with **Next.js 15** (App Router), **React 18**, **TypeScript**, **Tailwind
 ```bash
 git clone https://github.com/sahinpro/Portfolio-by-sahinpro.git
 cd Portfolio-by-sahinpro
-npm install
+bun install
 ```
 
 ## Environment variables
@@ -100,16 +101,17 @@ For **Vercel production**, add the same server variables in **Project → Settin
 
 | Command                                | Description                                              |
 | -------------------------------------- | -------------------------------------------------------- |
-| `npm run dev`                          | Next.js dev server (default `http://localhost:3000`)     |
-| `npm run build`                        | Generate favicons + sitemap, then production build       |
-| `npm start`                            | Serve the production build                               |
-| `npm run lint`                         | ESLint                                                   |
-| `npm run type-check`                   | `tsc --noEmit`                                           |
-| `npm run type-check:functions`         | Typecheck Supabase Edge Functions                        |
-| `npm run generate:favicons`            | Rebuild favicon set from source art                      |
-| `npm run generate:sitemap`             | Write `public/sitemap.xml`                               |
-| `npm run deploy:function:record-page-view` | Deploy the `record-page-view` Edge Function          |
-| `npm run clean`                        | Remove `.next` and Vite-era cache leftovers              |
+| `bun run dev`                          | Next.js dev server (default `http://localhost:3000`)     |
+| `bun run build`                        | Generate favicons + sitemap, then production build       |
+| `bun run start`                        | Serve the production build                               |
+| `bun run lint`                         | ESLint                                                   |
+| `bun run type-check`                   | `tsc --noEmit`                                           |
+| `bun run type-check:functions`         | Typecheck Supabase Edge Functions                        |
+| `bun run test:outreach`                | Outreach scheduler tests (native `bun test`)             |
+| `bun run generate:favicons`            | Rebuild favicon set from source art                      |
+| `bun run generate:sitemap`             | Write `public/sitemap.xml`                               |
+| `bun run deploy:function:record-page-view` | Deploy the `record-page-view` Edge Function          |
+| `bun run clean`                        | Remove `.next`, caches, and `bun.lock`                   |
 
 ## Routes
 
