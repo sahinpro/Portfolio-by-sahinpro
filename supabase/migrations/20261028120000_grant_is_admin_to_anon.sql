@@ -1,0 +1,31 @@
+-- ---------------------------------------------------------------------------
+-- Restore public project reads after the leads/RLS hardening.
+-- ---------------------------------------------------------------------------
+-- Context:
+--   * 20261023120000_leads_table.sql created public.is_admin() and then:
+--       REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC, anon;
+--       GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
+--   * The `projects` table also has an admin policy (projects_admin_all) that
+--     was defined WITHOUT a `TO` clause, so Postgres stores its roles as
+--     {public} — which means EVERY role, including anon.
+--
+-- Bug:
+--   A SELECT only needs to evaluate the policies that apply to the caller's
+--   role. For an anon (public-site) request, projects_admin_all applies, so
+--   Postgres must CALL is_admin(). anon has no EXECUTE on it, so the whole
+--   query aborts with SQLSTATE 42501 "permission denied for function is_admin"
+--   and /api/public/projects returns 500 → "Could not load projects".
+--
+-- Fix:
+--   Let anon evaluate is_admin(). It is SECURITY DEFINER owned by postgres and
+--   reads the private allowlist as its owner, so a fresh GRANT on the function
+--   is all that is needed. For an anonymous request public.jwt_email() returns
+--   '' and is_admin() is FALSE, so anon still sees ONLY rows allowed by
+--   projects_public_read_published (status = 'published'). No access widens.
+--
+-- Additive only: grants a function EXECUTE, never alters tables, policies or
+-- rows. The admin panel signs in through a Supabase session (authenticated),
+-- which already had this grant, so it is unaffected.
+-- ---------------------------------------------------------------------------
+
+GRANT EXECUTE ON FUNCTION public.is_admin() TO anon;
