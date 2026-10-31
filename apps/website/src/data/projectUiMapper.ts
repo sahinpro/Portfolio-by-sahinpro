@@ -1,0 +1,145 @@
+import { projectSlugFromTitle } from "@/lib/projectPaths";
+import { visibleLabels } from "@/lib/visibleLabels";
+import { PROJECT_IMAGE_PLACEHOLDER } from "@sahinpro/shared/placeholders";
+import {
+  caseStudyImageFromRow,
+  caseStudyTextsFromRow,
+  metricsFromRow,
+  parseScreenshotUrls,
+  parseTestimonial,
+} from "@sahinpro/shared/projectRowParsers";
+import type {
+  ProjectMetric,
+  ProjectRow,
+  TestimonialRow,
+} from "@sahinpro/shared/types/database";
+import {
+  toPublicTestimonial,
+  type PublicTestimonial,
+} from "@sahinpro/shared/types/publicContent";
+
+export type PublicCaseStudy = {
+  problem: string;
+  solution: string;
+  result: string;
+};
+
+export type PublicProjectMetric = ProjectMetric;
+
+/** Defined in shared — `ProjectTestimonialCard` renders it for both apps. */
+export type { PublicTestimonial };
+
+/** Shape used by `ProjectsPage` cards (public site). */
+export type PublicProject = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  roleLabel: string | null;
+  caseStudy: PublicCaseStudy | null;
+  testimonial: PublicTestimonial | null;
+  image: string;
+  technologies: string[];
+  category: string;
+  liveUrl: string | null;
+  githubUrl: string | null;
+  featured: boolean;
+  updatedAt: string;
+  year?: string;
+};
+
+export type PublicFrameworkSlug = ProjectRow["custom_framework"];
+
+/** Extra fields for the project detail page (build / CMS metadata). */
+export type PublicProjectDetail = PublicProject & {
+  screenshots: string[];
+  buildKind: "custom" | "cms";
+  customFramework: PublicFrameworkSlug;
+  customFrameworkLabel: string | null;
+  stackDetails: { label: string; value: string }[];
+  cmsPlatform: ProjectRow["cms_platform"];
+  cmsThemeName: string | null;
+  cmsExtensions: string[];
+  metrics: PublicProjectMetric[];
+  beforeImage: string | null;
+  afterImage: string | null;
+};
+
+function parseCmsExtensions(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (x): x is string => typeof x === "string" && x.trim().length > 0,
+  );
+}
+
+export function mapTestimonial(raw: unknown): PublicTestimonial | null {
+  const id =
+    raw && typeof raw === "object" && "id" in raw && typeof raw.id === "string"
+      ? raw.id
+      : undefined;
+  return toPublicTestimonial(parseTestimonial(raw), id);
+}
+
+export function mapProjectTestimonial(
+  row: ProjectRow,
+): PublicTestimonial | null {
+  const quote = row.testimonial_quote?.trim() ?? "";
+  if (quote) {
+    const author = row.testimonial_author?.trim() ?? "";
+    const role = row.testimonial_role?.trim() ?? "";
+    return {
+      quote,
+      clientName: author,
+      ...(role ? { clientRole: role } : {}),
+    };
+  }
+  return mapTestimonial(row.testimonial);
+}
+
+export function mapTestimonialRowToPublic(
+  row: TestimonialRow,
+): PublicTestimonial | null {
+  return mapTestimonial(row);
+}
+
+export function mapProjectRowToPublic(row: ProjectRow): PublicProject {
+  return {
+    id: row.id,
+    slug: projectSlugFromTitle(row.title),
+    title: row.title,
+    description: row.description ?? "",
+    roleLabel: row.role_label?.trim() ? row.role_label.trim() : null,
+    caseStudy: caseStudyTextsFromRow(row),
+    testimonial: mapProjectTestimonial(row),
+    image: row.image_url?.trim() ? row.image_url : PROJECT_IMAGE_PLACEHOLDER,
+    technologies: visibleLabels(row.technologies),
+    category: row.category || "Web Development",
+    liveUrl: row.live_url,
+    githubUrl: row.github_url,
+    featured: row.featured,
+    updatedAt: row.updated_at,
+  };
+}
+
+export function mapProjectRowToPublicDetail(
+  row: ProjectRow,
+): PublicProjectDetail {
+  const base = mapProjectRowToPublic(row);
+  const shots = parseScreenshotUrls(row.screenshot_urls);
+
+  return {
+    ...base,
+    screenshots: shots,
+    buildKind: row.build_kind,
+    customFramework: row.custom_framework ?? null,
+    customFrameworkLabel: row.custom_framework_label ?? null,
+    stackDetails: [],
+    cmsPlatform: row.cms_platform ?? null,
+    cmsThemeName: row.cms_theme_name?.trim() ? row.cms_theme_name : null,
+    cmsExtensions:
+      row.build_kind === "cms" ? parseCmsExtensions(row.cms_extensions) : [],
+    metrics: metricsFromRow(row),
+    beforeImage: caseStudyImageFromRow(row.before_image, "before_image", row),
+    afterImage: caseStudyImageFromRow(row.after_image, "after_image", row),
+  };
+}
