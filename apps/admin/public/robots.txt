@@ -1,0 +1,5 @@
+# admin.sahinpro.me — the CMS is never indexable.
+# `X-Robots-Tag: noindex, nofollow` is also sent on every path (vercel.json),
+# which is the enforcement that actually survives a crawler ignoring this file.
+User-agent: *
+Disallow: /

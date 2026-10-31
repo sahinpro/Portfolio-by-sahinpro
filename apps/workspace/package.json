@@ -1,0 +1,52 @@
+{
+  "name": "@sahinpro/workspace",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Lead CRM and outreach planner (workspace.sahinpro.me)",
+  "scripts": {
+    "dev": "next dev",
+    "start": "bun run --bun next start",
+    "build": "bun run --bun next build",
+    "lint": "bunx eslint .",
+    "type-check": "bunx tsc --noEmit",
+    "test:api": "bun test src/server/api",
+    "test:outreach": "bun test src/server/outreach/windowScheduler.test.ts src/server/outreach/zonesConfig.test.ts",
+    "check:vercel-api": "bun run scripts/check-vercel-api-function-count.mjs"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@hono/vercel": "^1.0.1",
+    "@sahinpro/shared": "workspace:*",
+    "@supabase/supabase-js": "~2.109.0",
+    "hono": "^4.13.14",
+    "lucide-react": "^0.453.0",
+    "next": "^15.5.19",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.72.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/node": "^25.3.3",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "^15.5.19",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "globals": "^15.12.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "3.4.16",
+    "tailwindcss-animate": "1.0.7",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.18.0"
+  },
+  "browserslist": [
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 111",
+    "safari >= 16.4"
+  ]
+}
