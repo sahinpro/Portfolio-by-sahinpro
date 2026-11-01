@@ -6,9 +6,11 @@ import { createClient } from "@supabase/supabase-js";
  *
  * Semantics are identical to the pre-monorepo `api/_lib/adminRouteAuth.ts` the
  * Next.js route handlers used: verify the Supabase access token with an
- * anon/publishable-key client, then apply the `isAllowedAdminEmail` env gate
- * (fail-open when `NEXT_PUBLIC_ADMIN_EMAIL` is unset — the documented audit §10
- * behaviour we deliberately preserve).
+ * anon/publishable-key client, then apply the `isAllowedAdminEmail` env gate.
+ * That gate now fails CLOSED: an unset/blank `NEXT_PUBLIC_ADMIN_EMAIL`, or an
+ * email that does not match the allowlist, denies access (401). Supabase RLS
+ * remains the separate data-layer boundary — this matters here because the
+ * outreach endpoints act with the service-role key.
  *
  * Deliberately NOT switched to the database `is_admin()` check — DB-only
  * authorization rollout is still deferred (audit blockers B1/B5).

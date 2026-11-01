@@ -1,3 +1,4 @@
+import { parseLeadTimestamp } from "@/admin/lib/leads/leadUploadPlan";
 import { buildNormalizedKey } from "@/admin/lib/leads/normalize";
 import { leadRecordSchema } from "@/admin/schemas/leadFormSchema";
 import type { Lead, LeadBackupFile } from "@/admin/types/lead";
@@ -197,20 +198,29 @@ export function parseBackup(text: string): ImportResult {
 
 export type MergeOutcome = {
   result: Lead[];
+  /** Only the incoming records that are new or strictly newer — exactly what a
+   * non-destructive merge may write. Records shadowed by a newer/equal existing
+   * lead are excluded, so callers can never silently overwrite fresher data. */
+  changed: Lead[];
   added: number;
   updated: number;
   keptExistingNewer: number;
 };
 
 /**
- * Merge incoming leads into the existing set by id, never overwriting a record
- * that is newer than the incoming one. Records with an unknown id are added.
+ * Merge incoming leads into the existing set by id, following the SAME safety
+ * rules as the conflict-safe cloud planner: timestamps are
+ * compared as parsed epoch milliseconds (never as raw strings, so different
+ * timezone offsets are judged by the actual instant), and the existing record
+ * is preserved whenever it is newer, the timestamps are equal, or either side
+ * is missing/invalid/unparseable. Records with an unknown id are added.
  */
 export function mergeLeadsById(
   existing: Lead[],
   incoming: Lead[],
 ): MergeOutcome {
   const byId = new Map(existing.map((lead) => [lead.id, lead]));
+  const changed: Lead[] = [];
   let added = 0;
   let updated = 0;
   let keptExistingNewer = 0;
@@ -219,11 +229,19 @@ export function mergeLeadsById(
     const current = byId.get(lead.id);
     if (!current) {
       byId.set(lead.id, lead);
+      changed.push(lead);
       added += 1;
       continue;
     }
-    if ((lead.updatedAt ?? "") > (current.updatedAt ?? "")) {
+    const incomingMs = parseLeadTimestamp(lead.updatedAt);
+    const existingMs = parseLeadTimestamp(current.updatedAt);
+    const incomingIsNewer =
+      !Number.isNaN(incomingMs) &&
+      !Number.isNaN(existingMs) &&
+      incomingMs > existingMs;
+    if (incomingIsNewer) {
       byId.set(lead.id, lead);
+      changed.push(lead);
       updated += 1;
     } else {
       keptExistingNewer += 1;
@@ -232,6 +250,7 @@ export function mergeLeadsById(
 
   return {
     result: [...byId.values()],
+    changed,
     added,
     updated,
     keptExistingNewer,

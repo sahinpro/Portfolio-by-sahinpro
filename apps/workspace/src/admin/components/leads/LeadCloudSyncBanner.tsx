@@ -1,6 +1,5 @@
 "use client";
 
-import { useToast } from "@sahinpro/shared/context/ToastContext";
 import {
   describeUpload,
   inspectLeadSync,
@@ -14,6 +13,7 @@ import {
   type LeadAccessState,
 } from "@/admin/lib/leads/leadRepository";
 import type { Lead } from "@/admin/types/lead";
+import { useToast } from "@sahinpro/shared/context/ToastContext";
 import {
   AlertTriangle,
   CloudUpload,
@@ -50,7 +50,8 @@ const HINTS: Partial<Record<LeadAccessState, string>> = {
     "Supabase Dashboard → SQL Editor → run supabase/migrations/20261023120000_leads_table.sql, then refresh this page.",
   "not-authorised":
     "Then add the email you sign in with: INSERT INTO public.admin_emails (email) VALUES ('you@example.com');",
-  "signed-out": "Sign out and back in from the admin panel to start a new session.",
+  "signed-out":
+    "Sign out and back in from the admin panel to start a new session.",
   unconfigured:
     "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then restart the app.",
 };
@@ -144,6 +145,8 @@ export function LeadCloudSyncBanner({
   const verified = report
     ? report.missingIds.length === 0 && report.mismatchedIds.length === 0
     : false;
+  const uploadedCount = report?.uploaded ?? 0;
+  const preservedCount = report?.cloudPreserved ?? 0;
 
   const upload = useCallback(async () => {
     setBusy(true);
@@ -160,7 +163,9 @@ export function LeadCloudSyncBanner({
     } catch (e) {
       if (!mountedRef.current) return;
       showToast(
-        e instanceof LeadStoreError ? e.message : "The upload failed. Try again.",
+        e instanceof LeadStoreError
+          ? e.message
+          : "The upload failed. Try again.",
         "error",
       );
     } finally {
@@ -204,7 +209,9 @@ export function LeadCloudSyncBanner({
                     : access === "unconfigured"
                       ? "Supabase is not configured for this deployment"
                       : verified
-                        ? "Local leads copied to Supabase"
+                        ? uploadedCount > 0
+                          ? "Local leads copied to Supabase"
+                          : "Cloud copy already up to date"
                         : `${pending} lead${pending === 1 ? "" : "s"} still only in this browser`}
             </p>
 
@@ -224,9 +231,18 @@ export function LeadCloudSyncBanner({
 
             {problem && (status?.localCount ?? 0) > 0 ? (
               <p className="mt-1.5 text-[11px] text-white/40">
-                {status?.localCount} lead{(status?.localCount ?? 0) === 1 ? "" : "s"}
+                {status?.localCount} lead
+                {(status?.localCount ?? 0) === 1 ? "" : "s"}
                 remain safe in this browser&rsquo;s local database — nothing has
                 been removed.
+              </p>
+            ) : null}
+
+            {report && verified && preservedCount > 0 ? (
+              <p className="mt-1.5 text-[11px] text-white/40">
+                {preservedCount} newer cloud record
+                {preservedCount === 1 ? "" : "s"} left untouched — nothing was
+                overwritten.
               </p>
             ) : null}
 
@@ -250,7 +266,11 @@ export function LeadCloudSyncBanner({
 
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           {problem ? (
-            <button type="button" onClick={() => setHidden(true)} className={ghostBtn}>
+            <button
+              type="button"
+              onClick={() => setHidden(true)}
+              className={ghostBtn}
+            >
               <X className="h-4 w-4" />
               Hide
             </button>

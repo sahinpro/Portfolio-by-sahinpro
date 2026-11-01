@@ -9,17 +9,14 @@ import { LeadCloudSyncBanner } from "@/admin/components/leads/LeadCloudSyncBanne
 import { LeadFilterBar } from "@/admin/components/leads/LeadFilterBar";
 import { LeadSummaryCards } from "@/admin/components/leads/LeadSummaryCards";
 import { LeadTimePlanner } from "@/admin/components/leads/LeadTimePlanner";
-import { AdminListPagination } from "@sahinpro/shared/ui/AdminListPagination";
-import { ConfirmDialog } from "@sahinpro/shared/ui/ConfirmDialog";
-import { useToast } from "@sahinpro/shared/context/ToastContext";
 import { useLeads } from "@/admin/hooks/useLeads";
-import { LeadStoreError } from "@/admin/lib/leads/leadRepository";
 import {
   exportLeadsCsv,
   exportLeadsJson,
   mergeLeadsById,
   parseBackup,
 } from "@/admin/lib/leads/leadBackup";
+import { LeadStoreError } from "@/admin/lib/leads/leadRepository";
 import {
   addDaysIso,
   applyFilters,
@@ -37,12 +34,15 @@ import {
   type SortDir,
 } from "@/admin/lib/leads/leadService";
 import type { Lead } from "@/admin/types/lead";
+import { useToast } from "@sahinpro/shared/context/ToastContext";
+import { LIST_PAGE_SIZE } from "@sahinpro/shared/pagination";
+import { AdminListPagination } from "@sahinpro/shared/ui/AdminListPagination";
+import { ConfirmDialog } from "@sahinpro/shared/ui/ConfirmDialog";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@sahinpro/shared/ui/popover";
-import { LIST_PAGE_SIZE } from "@sahinpro/shared/pagination";
 import {
   ChevronDown,
   ChevronUp,
@@ -285,6 +285,9 @@ const desktopGrid =
 
 type PendingImport = {
   leads: Lead[];
+  /** Subset safe to write on merge: new or strictly newer records only
+   * (mergeLeadsById().changed) — never a copy that is older than stored. */
+  toWrite: Lead[];
   added: number;
   updated: number;
   kept: number;
@@ -327,11 +330,7 @@ export function AdminLeadsListPage({
   useEffect(() => {
     const prev = prevPathRef.current;
     prevPathRef.current = pathname;
-    if (
-      prev !== null &&
-      prev !== "/leads" &&
-      pathname === "/leads"
-    ) {
+    if (prev !== null && prev !== "/leads" && pathname === "/leads") {
       void reload();
     }
   }, [pathname, reload]);
@@ -410,9 +409,7 @@ export function AdminLeadsListPage({
       showToast(target ? `Deleted ${target.businessName}` : "Lead deleted");
     } catch (e) {
       showToast(
-        e instanceof LeadStoreError
-          ? e.message
-          : "Could not delete the lead",
+        e instanceof LeadStoreError ? e.message : "Could not delete the lead",
         "error",
       );
     }
@@ -453,6 +450,7 @@ export function AdminLeadsListPage({
       const preview = mergeLeadsById(leads, result.leads);
       setPendingImport({
         leads: result.leads,
+        toWrite: preview.changed,
         added: preview.added,
         updated: preview.updated,
         kept: preview.keptExistingNewer,
@@ -475,10 +473,18 @@ export function AdminLeadsListPage({
           `Replaced all leads with ${pendingImport.leads.length} record(s)`,
         );
       } else {
-        await mergeLeads(pendingImport.leads);
-        showToast(
-          `Merged backup · ${pendingImport.added} added, ${pendingImport.updated} updated`,
-        );
+        // Merge writes ONLY the new/strictly-newer subset — the "existing
+        // record preserved" rows from the preview are never sent.
+        if (pendingImport.toWrite.length === 0) {
+          showToast(
+            `Nothing to merge · ${pendingImport.kept} record(s) preserved (existing newer, equal, or uncomparable)`,
+          );
+        } else {
+          await mergeLeads(pendingImport.toWrite);
+          showToast(
+            `Merged backup · ${pendingImport.added} added, ${pendingImport.updated} updated`,
+          );
+        }
       }
       setPendingImport(null);
     } catch (e) {
@@ -839,8 +845,14 @@ function ImportDialog({
         </p>
         <ul className="mt-3 space-y-1 text-sm text-white/50">
           <li>• {pending.added} new (would be added)</li>
-          <li>• {pending.updated} would update an existing (newer) record</li>
-          <li>• {pending.kept} skipped — your stored copy is newer</li>
+          <li>
+            • {pending.updated} would update an existing record (incoming is
+            newer)
+          </li>
+          <li>
+            • {pending.kept} skipped — existing record preserved (newer, equal,
+            or uncomparable)
+          </li>
         </ul>
         <p className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-200/80">
           <strong>Merge</strong> keeps your current leads and only
