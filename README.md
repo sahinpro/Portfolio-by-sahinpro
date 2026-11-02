@@ -1,6 +1,16 @@
 # Portfolio (Sahinpro)
 
-Personal site for **Sahin Alam** — Full Stack Developer (React, Next.js, WordPress). Live at [www.sahinpro.me](https://www.sahinpro.me).
+Personal site for **Sahin Alam** — Full Stack Developer (React, Next.js, WordPress). Live at [sahinpro.me](https://sahinpro.me) (apex is canonical; `www.sahinpro.me` 301s to it).
+
+This repo is a **Bun monorepo with three independent Next.js apps**, each deployed as its own Vercel project on its own domain:
+
+| App          | Directory        | Production URL          | Root directory on Vercel |
+| ------------ | ---------------- | ----------------------- | ------------------------ |
+| Website      | `apps/website`   | `https://sahinpro.me`   | `apps/website`           |
+| Admin (CMS)  | `apps/admin`     | `https://admin.sahinpro.me` | `apps/admin`         |
+| Workspace (Lead CRM) | `apps/workspace` | `https://workspace.sahinpro.me` | `apps/workspace` |
+
+Shared code lives in `packages/shared` (`@sahinpro/shared`). Each app builds independently (`bun run build:website | build:admin | build:workspace`).
 
 Public pages read published projects, testimonials, hero copy, SEO metadata, social links, and site settings from **Supabase**. An authenticated **admin** area manages content, media, inbox-related settings, analytics, and resume uploads.
 
@@ -11,7 +21,8 @@ Built with **Next.js 15** (App Router), **React 18**, **TypeScript**, **Tailwind
 - **Public site**: Home, About, Projects (list + slug detail), Services, Contact; animated sections; dark theme; responsive layout.
 - **Dynamic content**: Projects, testimonials, hero text, social icons, and per-route SEO when Supabase is configured (in-memory cache plus optional Upstash Redis).
 - **ISR**: Public pages revalidate about every hour (`revalidate = 3600`); `/api/revalidate` and `/api/admin/flush-cache` can bust caches after CMS edits.
-- **Admin dashboard** (`/admin`): projects CRUD, testimonials, media library, page-view analytics, site settings (including coming-soon mode), resume/CV in storage.
+- **Admin dashboard** (own app on `admin.sahinpro.me`, served from the root — no `/admin` prefix): projects CRUD, testimonials, media library, page-view analytics, site settings (including coming-soon mode), resume/CV in storage. Legacy `…/admin/...` URLs redirect to their clean equivalents.
+- **Workspace / Lead CRM** (own app on `workspace.sahinpro.me`): leads board at `/`, add/edit at `/leads/new` and `/leads/[id]`, outreach time planner. Supabase (the `leads` table + `site_settings` planner preferences) is the only persistent store — the app never reads or writes browser IndexedDB. JSON backup export/import ("Merge safely") writes straight to Supabase.
 - **Security**: Row Level Security (RLS) on the database; admin email allowlist; protected admin routes; `noindex` on `/admin`.
 - **SEO**: Next.js Metadata API, Open Graph, sitemap (`scripts/generate-sitemap.mjs`), `robots.txt`, `llms.txt`, and JSON-LD. Legacy hosts `sahin.pro.bd` / `www.sahin.pro.bd` 301 to the canonical domain.
 - **Contact**: Edge route (`/api/contact`) → Resend email delivery (optional Cloudflare Turnstile).
@@ -121,14 +132,20 @@ For **Vercel production**, add the same server variables in **Project → Settin
 - `/about`, `/projects`, `/projects/[slug]`, `/services`, `/contact`
 - Custom `not-found` page
 
-**Admin** (sign in at `/admin/login`)
+**Admin** — separate app on `https://admin.sahinpro.me` (sign in at `/login`)
 
-- `/admin` Dashboard
-- `/admin/projects`, `/admin/projects/new`, `/admin/projects/:id`
-- `/admin/testimonials`, `/admin/testimonials/new`, `/admin/testimonials/:id`
-- `/admin/media`
-- `/admin/analytics`
-- `/admin/settings`, `/admin/settings/resume`
+- `/` Dashboard
+- `/projects`, `/projects/new`, `/projects/:id`
+- `/testimonials`, `/testimonials/new`, `/testimonials/:id`
+- `/media`
+- `/analytics`
+- `/settings`, `/settings/resume`
+- Legacy `/admin` and `/admin/...` paths redirect (307) to the clean routes; `/admin/leads` redirects to the Workspace board.
+
+**Workspace** — separate app on `https://workspace.sahinpro.me` (sign in at `/login`)
+
+- `/` Leads board (after auth)
+- `/leads`, `/leads/new`, `/leads/:id`
 
 **API**
 

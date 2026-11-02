@@ -8,12 +8,9 @@ import {
   type OutreachMarket,
 } from "@/admin/constants/outreachMarkets";
 import {
-  getPlannerPreferences,
-  savePlannerPreferences,
-} from "@/admin/lib/leads/leadDb";
-import {
+  fetchPlannerPreferencesFromCloud,
   fetchScheduleConfigFromCloud,
-  syncPlannerZonesToCloud,
+  savePlannerPreferencesToCloud,
   syncScheduleConfigToCloud,
   type OutreachScheduleConfig,
 } from "@/admin/lib/leads/plannerCloudSync";
@@ -365,7 +362,7 @@ function MarketCard({
 /**
  * Compact multi-country outreach time planner shown at the top of the Leads
  * page. Reads schedule config from Supabase (server-side) for cron use and
- * stores local UI preferences in IndexedDB.
+ * persists its own zone picks and UI preferences to Supabase `site_settings`.
  */
 export function LeadTimePlanner({
   leads,
@@ -379,6 +376,7 @@ export function LeadTimePlanner({
   const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [now, setNow] = useState<Date | null>(null);
   const [prefsLoaded, setPrefsLoaded] = useState(false);
+  const [prefsMsg, setPrefsMsg] = useState<string | null>(null);
   const lastSavedRef = useRef<string>("");
 
   // --- Schedule config state ---
@@ -419,20 +417,20 @@ export function LeadTimePlanner({
     };
   }, []);
 
-  // Restore saved choices from the local IndexedDB `lead_prefs` store.
+  // Restore saved choices from Supabase (site_settings planner keys).
   useEffect(() => {
     let cancelled = false;
-    void getPlannerPreferences()
+    void fetchPlannerPreferencesFromCloud()
       .then((prefs) => {
         if (cancelled) return;
-        const zones = sanitizeZones(prefs.outreachZones);
+        const zones = sanitizeZones(prefs?.outreachZones ?? {});
         const nextFilter =
-          typeof prefs.marketFilter === "string" &&
+          prefs &&
           (prefs.marketFilter === "all" ||
             VALID_MARKET_IDS.has(prefs.marketFilter))
             ? prefs.marketFilter
             : "all";
-        const nextExpanded = prefs.expanded !== false;
+        const nextExpanded = prefs ? prefs.expanded !== false : true;
         setOverrides(zones);
         setFilter(nextFilter);
         setExpanded(nextExpanded);
@@ -451,7 +449,22 @@ export function LeadTimePlanner({
     };
   }, []);
 
-  // Persist every change back to IndexedDB (debounced, local-only).
+  const persistPrefs = useCallback(async () => {
+    try {
+      await savePlannerPreferencesToCloud({
+        outreachZones: overrides,
+        marketFilter: filter,
+        expanded,
+      });
+      setPrefsMsg(null);
+    } catch {
+      // No browser-local fallback — let the next change (or Retry) re-send.
+      lastSavedRef.current = "";
+      setPrefsMsg("Couldn't auto-save to Supabase");
+    }
+  }, [overrides, filter, expanded]);
+
+  // Persist every change back to Supabase (debounced).
   useEffect(() => {
     if (!prefsLoaded) return;
     const snapshot = JSON.stringify({
@@ -462,16 +475,10 @@ export function LeadTimePlanner({
     if (snapshot === lastSavedRef.current) return;
     const id = setTimeout(() => {
       lastSavedRef.current = snapshot;
-      void savePlannerPreferences({
-        outreachZones: overrides,
-        marketFilter: filter,
-        expanded,
-      })
-        .then(() => syncPlannerZonesToCloud(overrides))
-        .catch(() => undefined);
+      void persistPrefs();
     }, 300);
     return () => clearTimeout(id);
-  }, [prefsLoaded, overrides, filter, expanded]);
+  }, [prefsLoaded, overrides, filter, expanded, persistPrefs]);
 
   const handleSaveSchedule = useCallback(async () => {
     setScheduleSaving(true);
@@ -545,6 +552,18 @@ export function LeadTimePlanner({
         </div>
 
         <div className="flex items-center gap-2">
+          {prefsMsg ? (
+            <span className="flex items-center gap-1.5 text-[11px] text-red-300">
+              {prefsMsg}
+              <button
+                type="button"
+                onClick={() => void persistPrefs()}
+                className="font-medium underline underline-offset-2 hover:text-red-200"
+              >
+                Retry
+              </button>
+            </span>
+          ) : null}
           {expanded ? (
             <div className="flex flex-wrap items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.02] p-0.5">
               <button

@@ -3,6 +3,7 @@
 import { isAllowedAdminEmail } from "@sahinpro/shared/auth";
 import { Input } from "@sahinpro/shared/ui/input";
 import { isSupabaseConfigured, supabase } from "@sahinpro/shared/supabase";
+import { MAIN_WEBSITE_URL } from "@/lib/links";
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -11,7 +12,7 @@ import { FormEvent, useEffect, useId, useState } from "react";
 export function AdminLoginPage(): JSX.Element | null {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") ?? "/admin";
+  const from = searchParams.get("from") ?? "/";
   const formId = useId();
   const errorAlertId = `${formId}-error`;
 
@@ -46,7 +47,11 @@ export function AdminLoginPage(): JSX.Element | null {
 
   useEffect(() => {
     if (!sessionChecked || !hasSession) return;
-    router.replace(from === "/admin/login" ? "/admin" : from);
+    router.replace(
+      from.startsWith("/") && !from.startsWith("//") && from !== "/login"
+        ? from
+        : "/",
+    );
   }, [sessionChecked, hasSession, from, router]);
 
   if (!sessionChecked) {
@@ -105,7 +110,13 @@ export function AdminLoginPage(): JSX.Element | null {
       setError("This account is not authorized for admin access.");
       return;
     }
-    router.replace(from.startsWith("/admin") ? from : "/admin");
+    // `from` is attacker-controlled query data: only same-origin app paths are
+    // safe (never `//host` protocol-relative values, never `/login` itself).
+    const safeFrom =
+      from.startsWith("/") && !from.startsWith("//") && from !== "/login"
+        ? from
+        : "/";
+    router.replace(safeFrom);
   };
 
   const handleForgotPassword = async (e: FormEvent) => {
@@ -334,7 +345,7 @@ export function AdminLoginPage(): JSX.Element | null {
 
         <p className="mt-8 text-center text-sm text-white/40">
           <Link
-            href="/"
+            href={MAIN_WEBSITE_URL}
             className="inline-flex items-center gap-1.5 text-white/55 hover:text-white transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden />

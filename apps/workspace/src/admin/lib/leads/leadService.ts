@@ -1,6 +1,6 @@
 import type { Lead } from "@/admin/types/lead";
 
-/** Local, in-memory logic over the IndexedDB lead collection. */
+/** Pure in-memory logic over the Supabase-loaded lead collection. */
 
 export type FollowUpBucket = "overdue" | "today" | "upcoming" | "none";
 

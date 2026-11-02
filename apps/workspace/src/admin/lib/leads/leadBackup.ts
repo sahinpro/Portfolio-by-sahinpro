@@ -1,10 +1,17 @@
-import { parseLeadTimestamp } from "@/admin/lib/leads/leadUploadPlan";
 import { buildNormalizedKey } from "@/admin/lib/leads/normalize";
 import { leadRecordSchema } from "@/admin/schemas/leadFormSchema";
 import type { Lead, LeadBackupFile } from "@/admin/types/lead";
 
 /** Local backup / restore helpers. Nothing leaves the browser except as a
- * file the user explicitly downloads or selects. */
+ * file the user explicitly downloads or selects; an import writes straight to
+ * Supabase — there is no browser-local store anymore. */
+
+/** Epoch ms for a lead timestamp, or `NaN` when missing/unparseable. */
+export function parseLeadTimestamp(value: string | undefined | null): number {
+  if (!value) return Number.NaN;
+  const ms = Date.parse(value);
+  return Number.isNaN(ms) ? Number.NaN : ms;
+}
 
 const APP_ID = "portfolio-admin-lead-crm";
 const BACKUP_VERSION = 1;

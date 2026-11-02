@@ -97,7 +97,7 @@ export function AdminTestimonialFormPage({
 
   const closePanel = useCallback(() => {
     if (saving) return;
-    router.replace("/admin/testimonials");
+    router.replace("/testimonials");
   }, [router, saving]);
 
   useEffect(() => {
@@ -132,7 +132,7 @@ export function AdminTestimonialFormPage({
       setLoadingRow(false);
       if (error || !data) {
         showToast(withRlsHint(error?.message ?? "Not found"), "error");
-        router.replace("/admin/testimonials");
+        router.replace("/testimonials");
         return;
       }
       reset(testimonialRowToFormValues(data as TestimonialRow));
@@ -202,7 +202,7 @@ export function AdminTestimonialFormPage({
       }
 
       void invalidateTestimonialsPublicCache();
-      router.replace("/admin/testimonials");
+      router.replace("/testimonials");
     } catch {
       showToast("Could not save testimonial. Try again.", "error");
     } finally {

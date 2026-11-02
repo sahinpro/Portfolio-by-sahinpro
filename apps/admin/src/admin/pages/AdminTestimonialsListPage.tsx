@@ -80,7 +80,7 @@ function EmptyState({
       </p>
       {!search ? (
         <Link
-          href="/admin/testimonials/new"
+          href="/testimonials/new"
           className="mt-5 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-white/90"
         >
           <Plus className="h-4 w-4" />
@@ -121,7 +121,7 @@ function RowActions({
       >
         <div className="py-1">
           <Link
-            href={`/admin/testimonials/${row.id}`}
+            href={`/testimonials/${row.id}`}
             className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.05] hover:text-white"
             onClick={() => setOpen(false)}
           >
@@ -199,8 +199,8 @@ export function AdminTestimonialsListPage({
     prevPathRef.current = pathname;
     if (
       prev !== null &&
-      prev !== "/admin/testimonials" &&
-      pathname === "/admin/testimonials"
+      prev !== "/testimonials" &&
+      pathname === "/testimonials"
     ) {
       void load();
     }
@@ -280,7 +280,7 @@ export function AdminTestimonialsListPage({
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <Link
-            href="/admin/testimonials/new"
+            href="/testimonials/new"
             className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-white/90"
           >
             <Plus className="h-4 w-4" />
@@ -405,7 +405,7 @@ export function AdminTestimonialsListPage({
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <Link
-                            href={`/admin/testimonials/${row.id}`}
+                            href={`/testimonials/${row.id}`}
                             className="text-sm font-medium text-white/85 hover:text-white"
                           >
                             {row.client_name || "Untitled client"}
@@ -452,7 +452,7 @@ export function AdminTestimonialsListPage({
                     </div>
                     <div className="min-w-0">
                       <Link
-                        href={`/admin/testimonials/${row.id}`}
+                        href={`/testimonials/${row.id}`}
                         className="block truncate text-sm font-medium text-white/85 hover:text-white"
                       >
                         {row.client_name || "Untitled client"}

@@ -1,4 +1,4 @@
-# https://www.sahinpro.me robots.txt
+# https://sahinpro.me robots.txt
 # Allow all crawlers, including search engines and AI agents.
 
 User-agent: *
@@ -45,4 +45,4 @@ Disallow: /admin
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://www.sahinpro.me/sitemap.xml
+Sitemap: https://sahinpro.me/sitemap.xml

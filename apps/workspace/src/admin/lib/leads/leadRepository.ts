@@ -192,14 +192,6 @@ export async function deleteAllLeads(): Promise<void> {
   if (error) throw toLeadStoreError(error);
 }
 
-/** Ids currently stored in the cloud — used to verify an upload. */
-export async function listLeadIds(): Promise<string[]> {
-  ensureConfigured();
-  const { data, error } = await supabase.from(TABLE).select("id");
-  if (error) throw toLeadStoreError(error);
-  return (data ?? []).map((row: { id: string }) => row.id);
-}
-
 /**
  * Is the signed-in account allowed to use the leads table?
  * Returns the same states the read path would produce, without needing the

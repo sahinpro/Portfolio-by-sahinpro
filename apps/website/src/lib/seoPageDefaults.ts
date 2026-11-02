@@ -86,6 +86,7 @@ export const STALE_OG_HOSTS = [
   "www.sahinalam.com",
   "sahin.pro.bd",
   "www.sahin.pro.bd",
+  "www.sahinpro.me",
   "sahinpro.me",
   "sahincoder.vercel.app",
 ] as const;

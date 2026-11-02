@@ -7,35 +7,78 @@ export type OutreachScheduleConfig = {
   updatedAt: string;
 };
 
-/**
- * Persist Outreach Time Planner zone picks to Supabase so server cron can read them.
- * Best-effort: failures do not block local IndexedDB saves.
- */
-export async function syncPlannerZonesToCloud(
-  outreachZones: Record<string, string>,
-): Promise<void> {
+/** Everything the Outreach Time Planner persists — all of it lives in Supabase. */
+export type PlannerPreferences = {
+  /** Market id → IANA time zone the user picked for it. */
+  outreachZones: Record<string, string>;
+  /** "all" or a market id. */
+  marketFilter: string;
+  expanded: boolean;
+};
+
+async function bearerToken(): Promise<string | null> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  const token = session?.access_token;
-  if (!token) return;
+  return session?.access_token ?? null;
+}
 
-  await fetch("/api/admin/outreach-planner-zones", {
+/**
+ * Read the planner's saved zone picks and UI preferences from Supabase
+ * (`site_settings`, served by the admin-only planner-zones route).
+ * Returns null when signed out or on any failure — the planner then falls back
+ * to its defaults rather than reading any browser-local store.
+ */
+export async function fetchPlannerPreferencesFromCloud(): Promise<PlannerPreferences | null> {
+  const token = await bearerToken();
+  if (!token) return null;
+
+  const res = await fetch("/api/admin/outreach-planner-zones", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+
+  const json = (await res.json()) as {
+    outreachZones?: Record<string, string>;
+    prefs?: { marketFilter?: string; expanded?: boolean };
+  };
+  return {
+    outreachZones: json.outreachZones ?? {},
+    marketFilter: json.prefs?.marketFilter ?? "all",
+    expanded: json.prefs?.expanded !== false,
+  };
+}
+
+/**
+ * Persist the planner's zone picks and UI preferences to Supabase.
+ * Throws on network/permission failure so the caller can surface it —
+ * there is no browser-local fallback anymore.
+ */
+export async function savePlannerPreferencesToCloud(
+  prefs: PlannerPreferences,
+): Promise<void> {
+  const token = await bearerToken();
+  if (!token) throw new Error("Sign in again to save planner preferences.");
+
+  const res = await fetch("/api/admin/outreach-planner-zones", {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ outreachZones }),
+    body: JSON.stringify({
+      outreachZones: prefs.outreachZones,
+      prefs: { marketFilter: prefs.marketFilter, expanded: prefs.expanded },
+    }),
   });
+  if (!res.ok) {
+    throw new Error(`Planner preference save failed (${res.status}).`);
+  }
 }
 
 /** Fetch the server-side schedule config. Returns null on any failure. */
 export async function fetchScheduleConfigFromCloud(): Promise<OutreachScheduleConfig | null> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const token = session?.access_token;
+  const token = await bearerToken();
   if (!token) return null;
 
   const res = await fetch("/api/admin/outreach-schedule", {
@@ -51,10 +94,7 @@ export async function fetchScheduleConfigFromCloud(): Promise<OutreachScheduleCo
 export async function syncScheduleConfigToCloud(
   schedule: OutreachScheduleConfig,
 ): Promise<void> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const token = session?.access_token;
+  const token = await bearerToken();
   if (!token) return;
 
   await fetch("/api/admin/outreach-schedule", {

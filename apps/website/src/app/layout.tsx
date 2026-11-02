@@ -2,6 +2,7 @@ import { PublicLayoutShell } from "@/components/layout/PublicLayoutShell";
 import { SiteStructuredDataScript } from "@/components/public/SiteStructuredDataScript";
 import { inter, monteCarlo } from "@/lib/fonts";
 import { PERF_BOOT_SCRIPT } from "@/lib/performanceLevel";
+import { SITE_URL } from "@/constants/site";
 import {
   DEFAULT_META_DESCRIPTION,
   DEFAULT_META_TITLE,
@@ -11,7 +12,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.sahinpro.me"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: DEFAULT_META_TITLE,
     template: `%s | Sahin Alam`,
@@ -123,7 +124,7 @@ export default function RootLayout({
             <p>
               Full Stack Developer from Bangladesh specializing in React,
               Next.js, WordPress, and WooCommerce. Explore the portfolio at{" "}
-              <a href="https://www.sahinpro.me/">www.sahinpro.me</a>.
+              <a href="https://sahinpro.me/">sahinpro.me</a>.
             </p>
             <nav aria-label="Primary">
               <ul>

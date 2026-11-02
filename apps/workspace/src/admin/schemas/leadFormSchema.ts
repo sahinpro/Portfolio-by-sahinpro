@@ -47,7 +47,7 @@ const optionalDate = (message: string) =>
  * Simplified fields edited in the Add / Edit Lead form.
  * Legacy fields (priority, project status, contact dates, message history,
  * budgets…) are no longer part of the form — they are preserved untouched on
- * existing IndexedDB records via the mapper layer.
+ * existing Supabase records via the mapper layer.
  */
 export const leadFormSchema = z
   .object({

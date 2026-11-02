@@ -264,42 +264,36 @@ cron route untouched.**
    lowercase for **Admin** and **Workspace** (and Website if it renders admin screens) **before**
    cutover, or the owner will be locked out the moment the new apps go live.
 5. **Migrate the CRM data across origins (owner action — the UI workflow below is VERIFIED from
-   source, FF-003).** IndexedDB is origin-scoped (audit §5.1): leads stored under
-   `www.sahinpro.me` do NOT automatically exist on `workspace.sahinpro.me`, and the Workspace CRM
-   reads/writes the Supabase `leads` table directly — its "Upload N leads" banner only covers this
-   browser's _local IndexedDB_ copy (empty on a fresh origin). The JSON export/import is therefore
-   the cross-origin path. Actual UI facts from source: **Export Backup (JSON)** downloads
-   `leads-backup-<date>.json` (envelope `{app, version, exportedAt, count, leads}`); **Import
-   Backup** (file input, `.json` only) validates via `parseBackup` (rejects foreign apps/versions
-   and ANY invalid record — nothing is imported on validation failure), then shows a Review dialog
-   with `added / updated / skipped(existing record preserved — newer, equal, or uncomparable)`
-   counts and two actions: **Merge safely** — writes ONLY new/strictly-newer records,
-   compared as parsed epoch timestamps (FF-003 fix: preview and write now match; FF-004
-   fix: epoch-safe comparison matching the cloud planner — nothing newer, equal, or
-   uncomparable in the CRM is ever overwritten) — and **Replace all** — DELETES every
-   visible lead first, never use it
-   to merge. Import writes to Supabase directly; it does not touch IndexedDB, and nothing is ever
-   auto-deleted locally.
+   source, FF-003).** The Workspace CRM is **Supabase-only**: the `leads` table (RLS) is its single
+   data source and the Outreach Time Planner persists zone picks/UI preferences to `site_settings`.
+   The app no longer initialises, reads or writes browser IndexedDB — the old `lead-crm-db` under
+   `www.sahinpro.me` is untouched but permanently unused (origin-scoped, audit §5.1), so it never
+   needs clearing. The JSON export/import is the cross-origin migration path. Actual UI facts from
+   source: **Export Backup (JSON)** downloads `leads-backup-<date>.json` (envelope `{app, version,
+   exportedAt, count, leads}`); **Import Backup** (file input, `.json` only) validates via
+   `parseBackup` (rejects foreign apps/versions and ANY invalid record — nothing is imported on
+   validation failure), then shows a Review dialog with `added / updated / skipped(existing record
+   preserved — newer, equal, or uncomparable)` counts and two actions: **Merge safely** — writes
+   ONLY new/strictly-newer records, compared as parsed epoch timestamps (FF-003 fix: preview and
+   write now match; FF-004 fix: epoch-safe comparison — nothing newer, equal, or uncomparable in
+   the CRM is ever overwritten) — and **Replace all** — DELETES every visible lead first, never use
+   it to merge. Import writes to Supabase directly; there is no browser-local layer to migrate
+   through, and nothing is ever auto-deleted.
 
-   **On the old origin (`https://www.sahinpro.me/admin/leads`):**
-   1. Confirm the old CRM loads.
-   2. Click **Export Backup (JSON)**; record the exported lead count (the toast shows it; the file's
-      `count` field repeats it) and keep the JSON **outside the repository** — never commit it.
-   3. Do NOT clear browser site data or delete IndexedDB records.
+   **From the old CRM (wherever the JSON backup was exported):**
+   1. Keep the exported JSON **outside the repository** — never commit it; record its `count`.
+   2. Do NOT bother clearing the legacy IndexedDB copy — the Workspace app never reads it. Never
+      choose "Clear site data" just to get rid of it; it is unnecessary and wipes other origin data.
 
-   **On the new Workspace origin (`https://workspace.sahinpro.me`):**
+   **On the Workspace origin (`https://workspace.sahinpro.me`):**
    1. Sign in with the configured admin identity; open the Leads page and confirm the cloud table
       loads (empty on a fresh DB is fine).
    2. Click **Import Backup**, select the exported file, and check the Review dialog counts against
       the recorded export count.
    3. Click **Merge safely**. Never choose **Replace all** when preserving existing records matters.
-   4. If this browser still holds an un-exported local IndexedDB copy from the pre-cloud CRM, also
-      click the banner's **Upload N leads** — that path uses the conflict-safe `planLeadUpload`
-      planner (FC-002: insert local-only, update strictly newer, preserve newer/equal/uncomparable
-      cloud rows) and reports `uploaded / inserted / updated / cloudPreserved / verified / missing
-/ mismatched` counts before you dismiss it.
-   5. Verify the leads list count matches expectations, and keep both the JSON backup and the
-      browser-local records until cloud verification is complete.
+   4. Verify the leads list count matches expectations (refresh / reopen in another browser to
+      confirm it is genuinely cloud-backed) and keep the JSON backup until cloud verification is
+      complete.
 
 6. **Create/confirm three separate Vercel projects** (all linked to this repo), each with its
    app-specific Root Directory (table above) and "Include source files outside of the Root
@@ -488,12 +482,10 @@ and adding them is deliberately left as the smallest owner-side step rather than
 - [ ] **Legacy redirects:** `/admin/leads*` → Workspace and `/admin/*` (CMS) → Admin, with query
       strings preserved and no loops.
 - [ ] **Lead data verified:** the old-origin JSON backup was imported on Workspace with **Merge
-      safely** (never Replace all) and the Review-dialog counts matched; where a local IndexedDB
-      copy exists, run the conflict-safe cloud migration and record:
-      local, uploaded (insert + update), cloud-preserved, verified, missing, mismatched. Preserved
-      newer cloud records are NOT failures. Discrepancies must be reported and the **local copy
-      never auto-deleted**. Browser-local backups and the JSON export stay until the owner confirms
-      cloud verification.
+      safely** (never Replace all) and the Review-dialog counts matched; the board total equals the
+      backup `count` minus skipped (preserved) records. Discrepancies must be reported. The JSON
+      export stays with the owner until cloud verification is complete; the legacy browser
+      IndexedDB copy is unused by the app and needs no action.
 - [ ] **Authorization (fail-closed):** an unset/blank `NEXT_PUBLIC_ADMIN_EMAIL` denies everyone;
       an authenticated but non-allowlisted user and an unauthenticated user cannot read/mutate
       leads OR CMS data via UI **or** direct Supabase REST; RLS denies; privileged API routes return

@@ -6,7 +6,7 @@ function siteHostname(): string {
   try {
     return new URL(getSiteUrl()).hostname.toLowerCase();
   } catch {
-    return "www.sahinpro.me";
+    return "sahinpro.me";
   }
 }
 

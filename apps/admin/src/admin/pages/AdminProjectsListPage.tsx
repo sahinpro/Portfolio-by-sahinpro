@@ -91,7 +91,7 @@ function ProjectRowActions({
       >
         <div className="py-1">
           <Link
-            href={`/admin/projects/${row.id}`}
+            href={`/projects/${row.id}`}
             className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.05] hover:text-white"
             onClick={() => setOpen(false)}
           >
@@ -184,7 +184,7 @@ function EmptyState({ search, filter }: { search: string; filter: Filter }) {
       ) : null}
       {!(search || filter !== "all") ? (
         <Link
-          href="/admin/projects/new"
+          href="/projects/new"
           className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-white/90"
         >
           <Plus className="h-4 w-4" />
@@ -268,8 +268,8 @@ export function AdminProjectsListPage({
     prevPathRef.current = pathname;
     if (
       prev !== null &&
-      prev !== "/admin/projects" &&
-      pathname === "/admin/projects"
+      prev !== "/projects" &&
+      pathname === "/projects"
     ) {
       void load();
     }
@@ -477,7 +477,7 @@ export function AdminProjectsListPage({
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <Link
-            href="/admin/projects/new"
+            href="/projects/new"
             className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-white/90"
           >
             <Plus className="h-4 w-4" />
@@ -676,7 +676,7 @@ export function AdminProjectsListPage({
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <Link
-                          href={`/admin/projects/${row.id}`}
+                          href={`/projects/${row.id}`}
                           className="line-clamp-2 text-sm font-medium text-white/85 transition-colors hover:text-white"
                         >
                           {row.title}
@@ -743,7 +743,7 @@ export function AdminProjectsListPage({
                   </div>
                   <div className="min-w-0 pr-3 lg:pr-4">
                     <Link
-                      href={`/admin/projects/${row.id}`}
+                      href={`/projects/${row.id}`}
                       className="block line-clamp-1 text-sm font-medium text-white/85 transition-colors hover:text-white"
                     >
                       {row.title}

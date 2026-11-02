@@ -5,7 +5,6 @@ import {
   OutreachBadge,
   WebsiteBadge,
 } from "@/admin/components/leads/LeadBadges";
-import { LeadCloudSyncBanner } from "@/admin/components/leads/LeadCloudSyncBanner";
 import { LeadFilterBar } from "@/admin/components/leads/LeadFilterBar";
 import { LeadSummaryCards } from "@/admin/components/leads/LeadSummaryCards";
 import { LeadTimePlanner } from "@/admin/components/leads/LeadTimePlanner";
@@ -308,7 +307,6 @@ export function AdminLeadsListPage({
     leads,
     loading,
     error,
-    access,
     reload,
     saveLead,
     removeLead,
@@ -533,13 +531,6 @@ export function AdminLeadsListPage({
           </Link>
         </div>
       </div>
-
-      <LeadCloudSyncBanner
-        access={access}
-        cloudLeads={leads}
-        loading={loading}
-        onSynced={reload}
-      />
 
       <LeadTimePlanner leads={leads} ready={!loading} />
 
@@ -840,8 +831,8 @@ function ImportDialog({
           The backup contains{" "}
           <strong className="text-white">{pending.leads.length}</strong> valid
           lead(s). You currently have{" "}
-          <strong className="text-white">{existingTotal}</strong> stored
-          locally.
+          <strong className="text-white">{existingTotal}</strong> leads in
+          Supabase.
         </p>
         <ul className="mt-3 space-y-1 text-sm text-white/50">
           <li>• {pending.added} new (would be added)</li>

@@ -18,7 +18,7 @@ import type { ApiEnv } from "./types";
  * the Lead CRM talks to these same-origin paths via `plannerCloudSync.ts`.
  *
  * These are the only endpoints this app exposes: the CRM itself reads and writes
- * Supabase directly under RLS (with the anon key) and via IndexedDB, so lead
+ * Supabase directly under RLS (with the anon key), so lead
  * CRUD needs no app API of its own. The service-role key is used exclusively by
  * the outreach schedule/zones reads+writes and the cron tick.
  */
