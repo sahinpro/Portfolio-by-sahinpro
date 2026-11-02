@@ -36,6 +36,42 @@ owner follows this sequence (see "Decision: no code proxy needed" at the end of 
 
 ---
 
+## Outreach notification model — Daily Outreach Digest (current behaviour)
+
+The `GET /api/cron/outreach-windows` endpoint no longer sends one email per city/timezone that
+happens to open on a tick. It now produces **at most one** **Daily Outreach Digest** per Bangladesh
+calendar day:
+
+- **Schedule intent:** one daily execution at **08:00 Bangladesh time** (`Asia/Dhaka`, fixed +06,
+  no DST). Supabase pg_cron defaults to UTC, so the proposed expression is **`0 2 * * *`**
+  (02:00 UTC = 08:00 BD). **The agent does NOT change the schedule** — the exact production
+  reschedule, the `show cron.timezone;` verification step, and rollback are documented in
+  **`docs/OUTREACH_DAILY_DIGEST_SCHEDULER_PROPOSAL.sql`** for owner review only.
+- **Coverage:** each digest lists every enabled outreach target whose window opens within
+  `[execution instant, execution instant + 24h)`, computed from the existing `outreach_schedule_config`
+  - planner-zone settings (no cities/timezones are hardcoded). Expired and beyond-24h windows are
+    excluded; entries are DST-aware and sorted chronologically by Bangladesh time (next opportunity
+    first), grouped by Today/Tomorrow.
+- **Template:** a single premium mini-dashboard email (hero card, summary metrics, a layered schedule
+  table with mobile stacking, a next-opportunity highlight with countdown, one **Open Leads** CTA,
+  minimal footer). It replaces the old per-window template entirely.
+- **Idempotency & safety:** delivery is guarded by an **atomic, database-backed daily claim** reusing
+  the existing `outreach_window_claims` table with a synthetic key (`iana_timezone =
+'digest/asia-dhaka'`, `local_date = <BD date>`). **No schema change/migration is required.**
+  Concurrent/repeated ticks cannot double-send; a provider failure releases the claim and is recorded
+  as `failed`, never as a success. A separate `mode:"preview"` path renders the digest without
+  claiming or sending. **No message is ever sent to a prospect** — this notifies the owner only.
+- **Disk I/O:** reducing the tick cadence from `*/3` (≈480/day) to daily removes idle
+  `cron.job_run_details` + pg_net write churn. This is **not** claimed to clear the Supabase free-tier
+  Disk I/O warning by itself; the owner verifies the Disk I/O Budget after applying the scheduler
+  proposal.
+
+The Stage A/B cron-continuity checks below still apply (route reachability, single job, Vault URL
+repoint) — only the _effect_ of a scheduled tick changed: a tick now sends one digest (or skips), not
+per-city emails.
+
+---
+
 ## Prerequisite — owner decisions & pre-Phase-2 gate
 
 The two audit blockers have been decided by the owner. **Design lives in
@@ -215,8 +251,11 @@ cron route untouched.**
    - **Live-inspect the policies NOT present in the repo:** `projects`, `site_settings`, `resume`,
      `page_views`, and storage bucket read/upload policies (Appendix A). Do not assume they use
      `is_admin()`; record the actual `permissive`/`roles`/`using`/`check` clauses.
-   - Exactly **one** pg_cron job `outreach-window-reminder-tick`, expected schedule `*/3 * * * *`
-     (after `20261028130000_reduce_outreach_cron_frequency.sql`). Do **not** change it here.
+   - Exactly **one** pg_cron job `outreach-window-reminder-tick`. Today its schedule is `*/3 * * * *`
+     (after `20261028130000_reduce_outreach_cron_frequency.sql`); the digest redesign proposes moving
+     it to a single daily `0 2 * * *` (see `docs/OUTREACH_DAILY_DIGEST_SCHEDULER_PROPOSAL.sql`). Do
+     **not** change the schedule here — Stage A/B only repoint the URL; the cadence change is a
+     separate owner-applied step.
    - `outreach_window_notifications` unique index `(iana_timezone, local_date, window_start)`
      present (dedupe guarantee).
    - Vault secrets `outreach_cron_endpoint_url` and `outreach_cron_secret` exist (names only).
@@ -289,9 +328,11 @@ cron route untouched.**
    | Cron route/middleware reachability   | `GET /api/cron/outreach-windows`              | **Unauthenticated** GET → expect `401` (rejected by `requireCron`, never reaches the runner). **Never** send a valid `CRON_SECRET`. |
    | Outreach notification content render | `POST /api/admin/outreach-notifications/test` | Admin bearer + **explicit `mode:"preview"`** → confirm rendered subject/text/HTML. **Never** `mode:"send"`.                         |
    - The cron handler has **no `mode:"preview"` path.** An _authorized_ `GET /api/cron/outreach-windows`
-     immediately runs `runOutreachWindowNotifications(new Date())` and **sends real outreach** to any
-     matching window. Stage A proves the endpoint is deployed **only** via the `401` from an
-     unauthenticated request; a `200`/`207` means a genuine run happened and is **not** a no-send test.
+     immediately runs `runDailyOutreachDigest(new Date())`, which attempts to send the **single Daily
+     Outreach Digest** (at most one per BD day — later ticks that day skip via the daily claim). It
+     never emails prospects, but it can send a real owner digest. Stage A proves the endpoint is
+     deployed **only** via the `401` from an unauthenticated request; a `200`/`207` means a genuine
+     digest run happened and is **not** a no-send test.
    - Only the separate `/admin/outreach-notifications/test` endpoint supports `preview`/`send`; use it
      in `preview` to validate email rendering.
 
@@ -337,17 +378,18 @@ execute these):
      'GET endpoint invoked by pg_cron every 3 minutes (workspace)');
    ```
 4. **Verify without leaking secrets:**
-   - Wait for the next `*/3 * * * *` tick. Check `net._http_response` (or the `extensions` schema)
+   - Wait for the next scheduled tick. Check `net._http_response` (or the `extensions` schema)
      for the request status to the **new** host — expect `200`/`207`, not `401`/`404`/`503` or a
      connection error.
    - Confirm `pg_cron.job` still lists exactly one `outreach-window-reminder-tick`
      (`select jobid, jobname, schedule from <cron_schema>.job;`). Do not create a new job.
-   - Confirm no duplicate sends: the `outreach_window_notifications` unique index plus the
-     `outreach_window_claims` mechanism prevent double-sends; check counts are stable.
-   - **This is the real production path, not a no-send test.** The naturally scheduled run **will
-     send genuine notifications** to any configured window that matches. Verify via the recorded
-     HTTP status and delivery rows only — never by manually invoking the endpoint with a valid
-     `CRON_SECRET`.
+   - Confirm no duplicate sends: the digest's atomic daily claim in `outreach_window_claims`
+     guarantees at most one digest per BD day even if the job still fires at the old cadence; check
+     counts are stable.
+   - **This is the real production path, not a no-send test.** The naturally scheduled run will send
+     **one Daily Outreach Digest** to the owner if any window falls in the next 24h and the day is not
+     yet claimed (otherwise it skips). Verify via the recorded HTTP status and delivery rows only —
+     never by manually invoking the endpoint with a valid `CRON_SECRET`.
 5. If the new host fails, execute the Stage E **cron rollback** immediately (restore the URL from
    the id saved in step 2). The old Website deployment is still live on `www.sahinpro.me` (Stage C
    has not run), so a rollback returns cron to a known-good target with zero downtime.

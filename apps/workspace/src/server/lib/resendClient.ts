@@ -1,11 +1,18 @@
 /**
  * Resend REST transport for the outreach window reminder.
  *
- * Byte-identical request behaviour to the Website's `api/_lib/resendClient.ts`
- * (idempotency key, 429/5xx retry honoring retry-after, no retry on 4xx) but
- * kept self-contained here — `ResendApiError` and `ResendSendResult` are defined
+ * Mirrors the Website's `api/_lib/resendClient.ts` request surface (idempotency
+ * key, 429/5xx retry honoring retry-after, no retry on 4xx) but is kept
+ * self-contained here — `ResendApiError` and `ResendSendResult` are defined
  * inline instead of importing the Website's contact `types` module across the
  * app boundary. Genuinely-shared dedup of this transport is a Stage E concern.
+ *
+ * Digest-only divergence (this task): the outreach transport additionally
+ * retries a *thrown* fetch (network timeout / connection reset) as an
+ * ambiguous provider failure. Because the payload and `Idempotency-Key` are
+ * built once before the retry loop, every attempt is a byte-identical replay
+ * and Resend's 24h idempotency window turns the retry into a single send.
+ * The Website's contact transport is unchanged.
  */
 export type ResendSendResult = {
   id: string;
@@ -107,24 +114,40 @@ function buildPayload(input: SendResendEmailInput): Record<string, unknown> {
  * Sends via Resend REST API per official docs:
  * - Idempotency-Key header (24h dedupe window)
  * - Retries 429/5xx honoring retry-after
+ * - Retries a thrown network error (connection reset / timeout) — an ambiguous
+ *   failure where the request MAY have reached Resend. The payload and
+ *   Idempotency-Key are built ONCE before the loop, so every attempt
+ *   re-presents them byte-identically; a duplicate can therefore never slip
+ *   through on retry.
  * - No retries on 400/401/403/409
  */
 export async function sendViaResend(
   input: SendResendEmailInput,
 ): Promise<ResendSendResult> {
   const payload = buildPayload(input);
-  let lastError: ResendApiError | null = null;
+  let lastError: unknown = null;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
-    const response = await fetch(RESEND_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${input.apiKey}`,
-        "Content-Type": "application/json",
-        "Idempotency-Key": input.idempotencyKey,
-      },
-      body: JSON.stringify(payload),
-    });
+    let response: Response;
+    try {
+      response = await fetch(RESEND_API_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${input.apiKey}`,
+          "Content-Type": "application/json",
+          "Idempotency-Key": input.idempotencyKey,
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (err) {
+      // Ambiguous transport failure: never conclude "not sent". Retry the SAME
+      // payload + idempotency key so Resend dedupes if the first attempt
+      // actually landed. Only give up (and surface the error) once exhausted.
+      lastError = err;
+      if (attempt === MAX_ATTEMPTS - 1) throw err;
+      await sleep(2 ** attempt * 1000);
+      continue;
+    }
 
     if (response.ok) {
       const data = (await response.json()) as { id?: string };

@@ -1,7 +1,12 @@
 import { getSupabaseServiceClient } from "../lib/supabaseService";
-import { formatLocalDateKey, tzParts } from "../lib/timezone";
+import { buildDigestModel, resolveDigestAnchor } from "./dailyDigest";
 import { recordNotificationDelivery } from "./notificationLog";
-import { sendOutreachWindowEmail } from "./outreachEmail";
+import {
+  buildDigestHtml,
+  buildDigestPlainText,
+  buildDigestSubject,
+  sendDailyOutreachDigestEmail,
+} from "./outreachEmail";
 import {
   claimReminderSlot,
   getReminderClaimClient,
@@ -9,34 +14,41 @@ import {
 } from "./reminderClaim";
 import {
   interpretScheduleConfigJson,
+  sanitizeScheduleConfig,
   type ScheduleConfigLoad,
 } from "./scheduleConfig";
-import type { OutreachZoneTarget } from "./types";
 import {
+  OUTREACH_DIGEST_CLAIM_LABEL,
+  OUTREACH_DIGEST_CLAIM_ZONE,
   SITE_SETTING_PLANNER_ZONES_KEY,
   SITE_SETTING_SCHEDULE_CONFIG_KEY,
-  formatWindowStartLabel,
-  type OutreachScheduleConfig,
+  type DigestModel,
 } from "./types";
-import {
-  findZonesOpeningNow,
-  formatBangladeshWindow,
-  type WindowOpenMatch,
-} from "./windowScheduler";
 import { resolveNotificationZones, sanitizePlannerZones } from "./zonesConfig";
 
-export type OutreachRunResult = {
+export type OutreachDigestPreview = {
+  subject: string;
+  text: string;
+  html: string;
+};
+
+export type OutreachDigestResult = {
   checkedAt: string;
-  matches: number;
-  sent: string[];
-  skipped: string[];
-  failed: { tz: string; error: string }[];
+  /** Bangladesh calendar date the digest is claimed/rendered against. */
+  bdDate: string;
+  /** Number of eligible windows in the next-24h horizon. */
+  windowCount: number;
+  /** The one combined digest email was sent. */
+  sent: boolean;
+  /** Nothing was sent (no eligible windows, already claimed today, or fail-safe). */
+  skipped: boolean;
+  reason?: string;
+  resendId?: string;
+  failed?: string;
   warnings: string[];
-  schedule?: {
-    days: number[];
-    startMinutes: number;
-    graceMinutes: number;
-  };
+  schedule?: { days: number[]; startMinutes: number };
+  /** Populated only in `dryRun`/preview — renders without any send. */
+  preview?: OutreachDigestPreview;
 };
 
 async function loadPlannerZonesFromDb(): Promise<Record<string, string>> {
@@ -59,10 +71,9 @@ async function loadPlannerZonesFromDb(): Promise<Record<string, string>> {
 }
 
 /**
- * Load the schedule setting without ever silently falling back to defaults
- * on a failure: `error`/`invalid` outcomes must stop the run, while a
- * genuinely missing setting (fresh install) may use the documented defaults.
- * The cron retries naturally on the next tick (every minute).
+ * Load the schedule setting without ever silently falling back to defaults on a
+ * failure: `error`/`invalid` outcomes must stop the run, while a genuinely
+ * missing setting (fresh install) may use the documented defaults.
  */
 async function loadScheduleConfigFromDb(): Promise<ScheduleConfigLoad> {
   const client = getSupabaseServiceClient();
@@ -80,7 +91,7 @@ async function loadScheduleConfigFromDb(): Promise<ScheduleConfigLoad> {
     .maybeSingle();
 
   if (error) {
-    console.error("[outreach-notify] schedule lookup failed", {
+    console.error("[outreach-digest] schedule lookup failed", {
       code: error.code,
       message: error.message,
     });
@@ -93,26 +104,79 @@ async function loadScheduleConfigFromDb(): Promise<ScheduleConfigLoad> {
   return interpretScheduleConfigJson(data?.value ?? null);
 }
 
-export async function runOutreachWindowNotifications(
+function digestDeliveryRow(
+  model: DigestModel,
+  status: "sent" | "failed",
+  resendId: string | null,
+  errorMessage: string | null,
+) {
+  return {
+    iana_timezone: OUTREACH_DIGEST_CLAIM_ZONE,
+    local_date: model.bdDateKey,
+    window_start: OUTREACH_DIGEST_CLAIM_LABEL,
+    market_id: "daily-digest",
+    zone_city: `Daily digest (${model.total} window${model.total === 1 ? "" : "s"})`,
+    status,
+    resend_id: resendId,
+    error_message: errorMessage,
+  };
+}
+
+/**
+ * The single daily outreach digest.
+ *
+ * Replaces the old every-tick per-city/per-timezone reminder loop. It resolves
+ * the enabled targets + schedule (same loaders as before), builds one combined
+ * model covering `[now, now + 24h)`, and — guarded by an atomic, database-backed
+ * daily claim — sends exactly ONE email per Bangladesh calendar day. It NEVER
+ * messages prospects; the recipient is the owner's own notification address.
+ */
+export async function runDailyOutreachDigest(
   now: Date = new Date(),
   options: { dryRun?: boolean } = {},
-): Promise<OutreachRunResult> {
-  const result: OutreachRunResult = {
+): Promise<OutreachDigestResult> {
+  const dryRun = options.dryRun === true;
+  const result: OutreachDigestResult = {
     checkedAt: now.toISOString(),
-    matches: 0,
-    sent: [],
-    skipped: [],
-    failed: [],
+    bdDate: "",
+    windowCount: 0,
+    sent: false,
+    skipped: false,
     warnings: [],
   };
 
-  if (!process.env.RESEND_API_KEY?.trim()) {
-    result.warnings.push("RESEND_API_KEY is not configured");
-    return result;
-  }
-  if (!process.env.CONTACT_NOTIFICATION_TO_EMAIL?.trim()) {
-    result.warnings.push("CONTACT_NOTIFICATION_TO_EMAIL is not configured");
-    return result;
+  // Preview renders without sending, so it must not require send credentials.
+  if (!dryRun) {
+    if (!process.env.RESEND_API_KEY?.trim()) {
+      result.warnings.push("RESEND_API_KEY is not configured");
+      result.skipped = true;
+      result.reason = "RESEND_API_KEY is not configured";
+      return result;
+    }
+    if (!process.env.CONTACT_NOTIFICATION_TO_EMAIL?.trim()) {
+      result.warnings.push("CONTACT_NOTIFICATION_TO_EMAIL is not configured");
+      result.skipped = true;
+      result.reason = "CONTACT_NOTIFICATION_TO_EMAIL is not configured";
+      return result;
+    }
+
+    // Scheduling guard. The digest is designed to fire at 08:00 Asia/Dhaka,
+    // but the ACTIVE production scheduler is still `*/3 * * * *` (see
+    // docs/MONOREPO_CUTOVER_RUNBOOK.md §4). Without this check, the very
+    // first tick after Bangladesh midnight (~00:03 BD) would build a model
+    // anchored to a still-FUTURE 08:00, acquire today's daily claim and ship
+    // the email ~8h early — and the real 08:00 tick would then see the claim
+    // already taken and skip. Refuse until `now` reaches today's 08:00 BD
+    // anchor: no DB reads, no claim acquisition, no provider call and no
+    // release/modification of an existing claim. Dry-run/preview is exempt so
+    // the admin test route still renders on demand at any hour.
+    const digestAnchor = resolveDigestAnchor(now);
+    if (now.getTime() < digestAnchor.getTime()) {
+      result.skipped = true;
+      result.reason =
+        "Digest not due yet — before today's 08:00 Asia/Dhaka anchor";
+      return result;
+    }
   }
 
   const [plannerZones, scheduleLoad] = await Promise.all([
@@ -121,32 +185,31 @@ export async function runOutreachWindowNotifications(
   ]);
 
   // Fail-safe: a broken or unreachable schedule config must never send on
-  // fallback defaults. Only a genuinely missing setting (fresh install)
-  // uses the documented defaults. The next cron tick retries.
+  // fallback defaults. Only a genuinely missing setting uses documented
+  // defaults; the daily claim makes a later successful run still once-per-day.
   if (scheduleLoad.status === "error" || scheduleLoad.status === "invalid") {
-    result.warnings.push(
-      `Schedule config unavailable (${scheduleLoad.status}): ${scheduleLoad.reason} — no reminders sent this tick`,
-    );
+    result.skipped = true;
+    result.reason = `Schedule config unavailable (${scheduleLoad.status}): ${scheduleLoad.reason}`;
+    result.warnings.push(`${result.reason} — no digest sent`);
     return result;
   }
 
   const schedule = scheduleLoad.config;
-
   result.schedule = {
     days: schedule.days,
     startMinutes: schedule.startMinutes,
-    graceMinutes: schedule.graceMinutes,
   };
 
   if (scheduleLoad.status === "missing") {
     result.warnings.push(
-      "No saved schedule found — using documented defaults (Tue–Thu 09:30, 4 min grace)",
+      "No saved schedule found — using documented defaults (Tue–Thu 09:30 local per zone)",
     );
   }
 
-  // Fail-safe: never send if the schedule has no days selected.
   if (!schedule.days || schedule.days.length === 0) {
-    result.warnings.push("Schedule has no weekdays selected — skipping");
+    result.skipped = true;
+    result.reason = "Schedule has no weekdays selected";
+    result.warnings.push(`${result.reason} — skipping`);
     return result;
   }
 
@@ -155,105 +218,114 @@ export async function runOutreachWindowNotifications(
     process.env.OUTREACH_NOTIFICATION_ZONES,
   );
 
-  const matches = findZonesOpeningNow(zones, now, schedule);
-  result.matches = matches.length;
+  // Anchor the model to the scheduled 08:00 Asia/Dhaka instant for this
+  // Bangladesh date (not the raw tick time) so a claim-released retry later in
+  // the same day rebuilds a byte-identical payload — which is what makes the
+  // daily Resend idempotency key actually dedupe instead of double-sending.
+  const model = buildDigestModel(zones, resolveDigestAnchor(now), schedule);
+  result.bdDate = model.bdDateKey;
+  result.windowCount = model.total;
 
-  const windowStart = formatWindowStartLabel(schedule.startMinutes);
+  if (dryRun) {
+    result.preview = {
+      subject: buildDigestSubject(model, true),
+      text: buildDigestPlainText(model, true),
+      html: buildDigestHtml(model, true),
+    };
+    result.skipped = true;
+    result.reason = "preview (dry-run) — nothing sent";
+    return result;
+  }
 
-  // Atomic duplicate guard: one claim row per (tz, local date), inserted
-  // before the send. If the claims table can't be reached we must NOT send
-  // (fail safe) — the next cron tick retries once the table is available.
-  const claimClient = matches.length > 0 ? getReminderClaimClient() : null;
-  if (matches.length > 0 && !claimClient) {
+  // No eligible window in the horizon → skip cleanly (never send an empty
+  // digest, never claim the day so a same-day re-run after config changes can
+  // still surface windows).
+  if (model.total === 0) {
+    result.skipped = true;
+    result.reason = "No eligible windows in the next 24 hours";
+    return result;
+  }
+
+  // Atomic daily claim keyed on (synthetic digest zone, Bangladesh calendar
+  // date). Concurrent runs for the same day cannot both win.
+  const claimClient = getReminderClaimClient();
+  if (!claimClient) {
+    result.skipped = true;
+    result.reason = "Claim client unavailable";
     result.warnings.push(
-      "Supabase service client unavailable — cannot claim reminder slots; skipping",
+      "Supabase service client unavailable — cannot claim daily digest slot; skipping (fail-safe, no send)",
     );
     return result;
   }
 
-  for (const match of matches) {
-    const key = `${match.zone.tz}@${match.localDate}@${windowStart}`;
-    if (options.dryRun) {
-      result.skipped.push(`${key} (dry-run)`);
-      continue;
-    }
+  const claim = await claimReminderSlot(claimClient, {
+    ianaTimezone: OUTREACH_DIGEST_CLAIM_ZONE,
+    localDate: model.bdDateKey,
+    windowStart: OUTREACH_DIGEST_CLAIM_LABEL,
+  });
+  if (claim.status === "error") {
+    result.skipped = true;
+    result.reason = `Claim lookup failed: ${claim.reason}`;
+    result.warnings.push(`${result.reason} — skipping (fail-safe, no send)`);
+    return result;
+  }
+  if (claim.status === "duplicate") {
+    result.skipped = true;
+    result.reason =
+      "Daily digest already claimed/sent for this Bangladesh date";
+    return result;
+  }
 
-    const claim = await claimReminderSlot(
-      claimClient as NonNullable<typeof claimClient>,
-      {
-        ianaTimezone: match.zone.tz,
-        localDate: match.localDate,
-        windowStart,
-      },
+  try {
+    const { id } = await sendDailyOutreachDigestEmail(model);
+    await recordNotificationDelivery(
+      digestDeliveryRow(model, "sent", id, null),
     );
-    if (claim.status === "error") {
+    result.sent = true;
+    result.resendId = id;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Send failed";
+    result.failed = message;
+    // Provider failure: record FAILED (not a false success) and release the
+    // daily claim so a later tick today can retry the digest.
+    await recordNotificationDelivery(
+      digestDeliveryRow(model, "failed", null, message.slice(0, 500)),
+    );
+    const releaseError = await releaseReminderSlot(
+      claimClient,
+      OUTREACH_DIGEST_CLAIM_ZONE,
+      model.bdDateKey,
+    );
+    if (releaseError) {
       result.warnings.push(
-        `Claim lookup failed for ${key}: ${claim.reason} — skipping (fail-safe, no send)`,
+        `Daily claim release failed: ${releaseError} — no retry today (fail-safe against double send)`,
       );
-      continue;
-    }
-    if (claim.status === "duplicate") {
-      result.skipped.push(`${key} (already sent)`);
-      continue;
-    }
-
-    try {
-      const { id } = await sendOutreachWindowEmail(match, {
-        scheduleStartLabel: windowStart,
-      });
-      await recordNotificationDelivery({
-        iana_timezone: match.zone.tz,
-        local_date: match.localDate,
-        window_start: windowStart,
-        market_id: match.zone.marketId,
-        zone_city: match.zone.city,
-        status: "sent",
-        resend_id: id,
-        error_message: null,
-      });
-      result.sent.push(key);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Send failed";
-      result.failed.push({ tz: match.zone.tz, error: message });
-      await recordNotificationDelivery({
-        iana_timezone: match.zone.tz,
-        local_date: match.localDate,
-        window_start: windowStart,
-        market_id: match.zone.marketId,
-        zone_city: match.zone.city,
-        status: "failed",
-        resend_id: null,
-        error_message: message.slice(0, 500),
-      });
-      // Release the claim so the next tick can retry this zone/date.
-      const releaseError = await releaseReminderSlot(
-        claimClient as NonNullable<typeof claimClient>,
-        match.zone.tz,
-        match.localDate,
-      );
-      if (releaseError) {
-        result.warnings.push(
-          `Claim release failed for ${key}: ${releaseError} — no retry today (fail-safe against double send)`,
-        );
-      }
     }
   }
 
   return result;
 }
 
-export function buildTestMatch(
-  zone: OutreachZoneTarget,
-  now: Date,
-  schedule?: OutreachScheduleConfig,
-): WindowOpenMatch {
-  const matches = findZonesOpeningNow([zone], now, schedule);
-  if (matches[0]) return matches[0];
-  const parts = tzParts(zone.tz, now);
-  return {
-    zone,
-    localDate: formatLocalDateKey(parts),
-    localTimeLabel: `${parts.weekday} ${String(parts.hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`,
-    bdWindowLabel: formatBangladeshWindow(zone.tz, now, schedule?.startMinutes),
-  };
+/**
+ * Render the digest model for a preview WITHOUT claiming or sending anything.
+ * Used by the admin `outreach-notifications/test` route. A corrupted schedule
+ * falls back to documented defaults here (a preview is inert and never hits the
+ * production daily claim), unlike the real run which refuses to send.
+ */
+export async function buildDigestForPreview(
+  now: Date = new Date(),
+): Promise<DigestModel> {
+  const [plannerZones, scheduleLoad] = await Promise.all([
+    loadPlannerZonesFromDb(),
+    loadScheduleConfigFromDb(),
+  ]);
+  const schedule =
+    scheduleLoad.status === "ok" || scheduleLoad.status === "missing"
+      ? scheduleLoad.config
+      : sanitizeScheduleConfig(null);
+  const zones = resolveNotificationZones(
+    plannerZones,
+    process.env.OUTREACH_NOTIFICATION_ZONES,
+  );
+  return buildDigestModel(zones, now, schedule);
 }

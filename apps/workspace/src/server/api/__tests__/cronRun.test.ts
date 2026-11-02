@@ -1,25 +1,18 @@
 /**
  * Workspace API: GET /api/cron/outreach-windows — the status contract the
- * Supabase pg_cron caller depends on: 200 for a clean tick (including the
- * fail-safe no-ops), 207 when any zone send failed.
+ * Supabase pg_cron caller depends on. It now produces exactly ONE Daily
+ * Outreach Digest (not per-zone emails): 200 for a clean tick (sent, or a
+ * fail-safe/skip no-op), 207 when the digest send failed.
  *
- * The schedule fed to the run is generated around the CURRENT minute in
- * America/New_York (`startMinutes = now`, grace 30) with a single env-pinned
- * zone, so exactly one window matches on every tick regardless of when the
- * suite runs. Every external call (site_settings reads, claims insert/release,
- * notification-log upsert, Resend send) is served by the fetch stub; the
- * service-role client is created against the test URL on its first call and
- * cached — see the ordering note in ./harness.ts.
- *
- * Tiny theoretical caveat, in-code: if the wall clock crosses a NEW_YORK
- * minute boundary between computing `startMinutes` and the route's own
- * `new Date()`, the route's minute is +1 — still inside the 30-min grace, so
- * the match holds. Only an exactly-23:59:59.x run would miss (startMinutes
- * 1439, next minute wraps to 0); not reproducible in CI, accepted trade-off.
+ * The schedule is stubbed to open every weekday at 09:30 local, and the
+ * env-pinned single America/New_York zone therefore always has a window inside
+ * the next-24h horizon regardless of when the suite runs. Every external call
+ * (site_settings reads, the daily claim insert/release, delivery-log upsert,
+ * Resend send) is served by the fetch stub; nothing reaches production — see
+ * ./harness.ts.
  */
 import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
-import { minutesOfDayInTz } from "../../lib/timezone";
 import { api } from "../app";
 import {
   CRON_ENV,
@@ -33,17 +26,26 @@ import {
 } from "./harness";
 
 const CRON_PATH = "/api/cron/outreach-windows";
-const NY_TZ = "America/New_York";
 
-/** A schedule whose 30-minute window contains this exact instant. */
-function liveScheduleValue(): string {
-  const startMinutes = minutesOfDayInTz(NY_TZ, new Date());
+/** Every weekday, 09:30 local → the pinned zone always opens within 24h. */
+function digestScheduleValue(): string {
   return JSON.stringify({
     days: [0, 1, 2, 3, 4, 5, 6],
-    startMinutes,
-    graceMinutes: 30,
+    startMinutes: 9 * 60 + 30,
+    graceMinutes: 4,
   });
 }
+
+type DigestResult = {
+  checkedAt: string;
+  bdDate: string;
+  windowCount: number;
+  sent: boolean;
+  skipped: boolean;
+  reason?: string;
+  failed?: string;
+  warnings: string[];
+};
 
 let stub: ReturnType<typeof installFetchStub> | null = null;
 afterEach(() => {
@@ -55,16 +57,36 @@ function runCron() {
   return api.request(CRON_PATH, { method: "GET", headers: CRON_HEADERS });
 }
 
-type RunResult = {
-  checkedAt: string;
-  matches: number;
-  sent: string[];
-  skipped: string[];
-  failed: { tz: string; error: string }[];
-  warnings: string[];
-};
+/**
+ * Pin `new Date()` inside `run` to `isoMs` (epoch ms). The route handler calls
+ * `runDailyOutreachDigest(new Date())` and the runner now refuses to send
+ * before today's 08:00 Asia/Dhaka anchor; a fixed post-anchor clock keeps
+ * these route tests deterministic regardless of when the suite runs.
+ */
+function withFixedClock<T>(isoMs: number, run: () => Promise<T>): Promise<T> {
+  const RealDate = Date;
+  class FakeDate extends RealDate {
+    constructor(...args: unknown[]) {
+      if (args.length === 0) super(isoMs);
+      // @ts-expect-error pass remaining overloads through unchanged
+      else super(...args);
+    }
+    static now(): number {
+      return isoMs;
+    }
+  }
+  // @ts-expect-error narrow the constructor just for tests
+  globalThis.Date = FakeDate;
+  return run().finally(() => {
+    globalThis.Date = RealDate;
+  });
+}
 
-describe("workspace api: cron outreach-windows", () => {
+// 2026-11-03 (Tue) 08:05 Asia/Dhaka = 02:05Z — a few minutes AFTER the daily
+// anchor, so the runner takes the normal claim + send path.
+const ANCHOR_PASSED_MS = Date.UTC(2026, 10, 3, 2, 5, 0);
+
+describe("workspace api: cron outreach-windows (daily digest)", () => {
   it("fail-safe 200 without sending when RESEND_API_KEY is unset (no network at all)", async () => {
     stub = installFetchStub([]);
     await withEnv(
@@ -76,75 +98,62 @@ describe("workspace api: cron outreach-windows", () => {
       async () => {
         const res = await runCron();
         assert.equal(res.status, 200);
-        const body = (await res.json()) as RunResult;
-        assert.deepEqual(body.warnings, ["RESEND_API_KEY is not configured"]);
-        assert.equal(body.sent.length, 0);
-        assert.equal(body.failed.length, 0);
+        const body = (await res.json()) as DigestResult;
+        assert.equal(body.sent, false);
+        assert.equal(body.skipped, true);
+        assert.ok(
+          body.warnings.includes("RESEND_API_KEY is not configured"),
+          "reports the missing-key warning",
+        );
         // The fail-safe returns before any DB or email call whatsoever.
         assert.equal(stub!.length, 0);
       },
     );
   });
 
-  it("fail-safe 200 without sending when the recipient address is unset", async () => {
-    stub = installFetchStub([]);
-    await withEnv(
-      {
-        ...CRON_ENV,
-        CONTACT_NOTIFICATION_TO_EMAIL: undefined,
-        NEXT_PUBLIC_ADMIN_EMAIL: undefined,
-      },
-      async () => {
-        const res = await runCron();
-        assert.equal(res.status, 200);
-        const body = (await res.json()) as RunResult;
-        assert.deepEqual(body.warnings, [
-          "CONTACT_NOTIFICATION_TO_EMAIL is not configured",
-        ]);
-        assert.equal(stub!.length, 0);
-      },
-    );
-  });
-
-  it("answers 200 when the tick completes with every send delivered", async () => {
+  it("answers 200 and sends the ONE digest when the day is claimed", async () => {
     stub = installFetchStub([
-      ...cronRunRoutes({ scheduleValue: liveScheduleValue() }),
-      { match: isResend, json: { id: "email-cron-1" } },
+      ...cronRunRoutes({ scheduleValue: digestScheduleValue() }),
+      { match: isResend, json: { id: "email-digest-1" } },
     ]);
     await withEnv(
       { ...CRON_ENV, NEXT_PUBLIC_ADMIN_EMAIL: undefined },
-      async () => {
-        const res = await runCron();
-        assert.equal(res.status, 200);
-        const body = (await res.json()) as RunResult;
-        assert.equal(body.matches, 1, "env pins exactly one NY zone in-window");
-        assert.equal(body.sent.length, 1);
-        assert.equal(body.failed.length, 0);
-        assert.deepEqual(body.warnings, []);
+      () =>
+        withFixedClock(ANCHOR_PASSED_MS, async () => {
+          const res = await runCron();
+          assert.equal(res.status, 200);
+          const body = (await res.json()) as DigestResult;
+          assert.ok(body.windowCount >= 1, "pinned zone opens within 24h");
+          assert.equal(body.sent, true);
+          assert.equal(body.failed, undefined);
 
-        // Claimed before send, reminder emailed, success recorded — and the
-        // claim was NOT released.
-        assert.ok(stub!.some((c) => isClaims(c.url) && c.method === "POST"));
-        const email = stub!.find((c) => isResend(c.url));
-        assert.ok(email, "expected a Resend send");
-        assert.ok(
-          email!.headers["idempotency-key"],
-          "sends are idempotency-keyed",
-        );
-        assert.ok(!stub!.some((c) => isClaims(c.url) && c.method === "DELETE"));
-        const log = stub!.find((c) => isNotifLog(c.url));
-        assert.ok(log, "expected a delivery-log upsert");
-        assert.equal(
-          (JSON.parse(log!.body!) as { status: string }).status,
-          "sent",
-        );
-      },
+          // Exactly ONE email — the whole point of the digest redesign.
+          const sends = stub!.filter((c) => isResend(c.url));
+          assert.equal(sends.length, 1, "multiple cities must yield one digest");
+          assert.ok(
+            /^outreach-digest\/asia-dhaka\/\d{4}-\d{2}-\d{2}$/.test(
+              sends[0].headers["idempotency-key"] ?? "",
+            ),
+            "the send uses a deterministic per-BD-date digest idempotency key",
+          );
+
+          // A daily claim (POST) reserved the day before the send; success logged;
+          // the claim was NOT released.
+          assert.ok(stub!.some((c) => isClaims(c.url) && c.method === "POST"));
+          assert.ok(!stub!.some((c) => isClaims(c.url) && c.method === "DELETE"));
+          const log = stub!.find((c) => isNotifLog(c.url));
+          assert.ok(log, "expected a delivery-log upsert");
+          assert.equal(
+            (JSON.parse(log!.body!) as { status: string }).status,
+            "sent",
+          );
+        }),
     );
   });
 
-  it("answers 207 when a zone send fails, and releases the claim for retry", async () => {
+  it("answers 207 when the digest send fails, and releases the claim for retry", async () => {
     stub = installFetchStub([
-      ...cronRunRoutes({ scheduleValue: liveScheduleValue() }),
+      ...cronRunRoutes({ scheduleValue: digestScheduleValue() }),
       {
         // 4xx throws immediately in the resend client (no retry sleeps).
         match: isResend,
@@ -154,27 +163,26 @@ describe("workspace api: cron outreach-windows", () => {
     ]);
     await withEnv(
       { ...CRON_ENV, NEXT_PUBLIC_ADMIN_EMAIL: undefined },
-      async () => {
-        const res = await runCron();
-        assert.equal(res.status, 207);
-        const body = (await res.json()) as RunResult;
-        assert.equal(body.matches, 1);
-        assert.equal(body.sent.length, 0);
-        assert.deepEqual(body.failed, [{ tz: NY_TZ, error: "stub rejected" }]);
+      () =>
+        withFixedClock(ANCHOR_PASSED_MS, async () => {
+          const res = await runCron();
+          assert.equal(res.status, 207);
+          const body = (await res.json()) as DigestResult;
+          assert.equal(body.sent, false);
+          assert.ok(body.failed, "the failure surfaces on the result");
 
-        // Failure path: delivery logged as failed, claim released so the next
-        // tick may retry this zone/date.
-        const log = stub!.find((c) => isNotifLog(c.url));
-        assert.ok(log, "expected a delivery-log upsert");
-        assert.equal(
-          (JSON.parse(log!.body!) as { status: string }).status,
-          "failed",
-        );
-        assert.ok(
-          stub!.some((c) => isClaims(c.url) && c.method === "DELETE"),
-          "expected the failed send to release its claim",
-        );
-      },
+          // Failure path: logged as FAILED (never a false success) and the daily
+          // claim released so a later tick may retry today.
+          const log = stub!.find((c) => isNotifLog(c.url));
+          assert.equal(
+            (JSON.parse(log!.body!) as { status: string }).status,
+            "failed",
+          );
+          assert.ok(
+            stub!.some((c) => isClaims(c.url) && c.method === "DELETE"),
+            "the failed digest released its daily claim",
+          );
+        }),
     );
   });
 

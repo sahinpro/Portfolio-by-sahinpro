@@ -1,14 +1,12 @@
 import { Hono } from "hono";
 
-import { OUTREACH_MARKETS } from "@/server/outreach/marketsData";
 import {
-  buildOutreachHtml,
-  buildOutreachPlainText,
-  buildOutreachSubject,
-  sendOutreachWindowEmail,
+  buildDigestHtml,
+  buildDigestPlainText,
+  buildDigestSubject,
+  sendDailyOutreachDigestEmail,
 } from "@/server/outreach/outreachEmail";
-import { buildTestMatch } from "@/server/outreach/runOutreachNotifications";
-import type { OutreachZoneTarget } from "@/server/outreach/types";
+import { buildDigestForPreview } from "@/server/outreach/runOutreachNotifications";
 
 import { requireAdminBearer } from "../middleware/requireAdminBearer";
 import type { ApiEnv } from "../types";
@@ -16,35 +14,20 @@ import type { ApiEnv } from "../types";
 /**
  * `POST /api/admin/outreach-notifications/test`.
  *
- * Ported from the pre-monorepo Next.js route handler: 401 → tolerant JSON body →
- * `400` unknown zone / invalid timestamp → `preview` returns the rendered email,
- * `send` dispatches via Resend (test mode) or answers `502 { error }`. Request
- * and response contracts are byte-for-byte unchanged.
+ * Renders or sends the ONE Daily Outreach Digest for preview purposes. `mode`
+ * defaults to `preview` (never touches Resend, never touches the production
+ * daily claim). `send` dispatches a real test email via Resend (test-mode
+ * idempotency key) but STILL neither claims nor records a production
+ * notification, so previewing cannot consume or duplicate the day's digest.
+ * Optional `at` (ISO timestamp) lets the operator preview the digest as if it
+ * ran at another moment.
  */
 export const outreachNotificationsTestRoutes = new Hono<ApiEnv>();
 
 type TestBody = {
   mode?: "preview" | "send";
-  marketId?: string;
-  tz?: string;
   at?: string;
 };
-
-function resolveZone(body: TestBody): OutreachZoneTarget | null {
-  const market =
-    OUTREACH_MARKETS.find((m) => m.id === body.marketId) ?? OUTREACH_MARKETS[0];
-  const tz = body.tz?.trim();
-  const zone = tz ? market.zones.find((z) => z.tz === tz) : market.zones[0];
-  if (!zone) return null;
-  return {
-    marketId: market.id,
-    marketName: market.name,
-    flag: market.flag,
-    zoneId: zone.id,
-    city: zone.city,
-    tz: zone.tz,
-  };
-}
 
 outreachNotificationsTestRoutes.post(
   "/admin/outreach-notifications/test",
@@ -57,36 +40,35 @@ outreachNotificationsTestRoutes.post(
       body = {};
     }
 
-    const zone = resolveZone(body);
-    if (!zone) {
-      return c.json({ error: "Unknown time zone" }, 400);
-    }
-
     const at = body.at?.trim() ? new Date(body.at) : new Date();
     if (Number.isNaN(at.getTime())) {
       return c.json({ error: "Invalid at timestamp" }, 400);
     }
 
-    const match = buildTestMatch(zone, at);
+    const model = await buildDigestForPreview(at);
     const mode = body.mode === "send" ? "send" : "preview";
 
     if (mode === "preview") {
       return c.json({
         mode: "preview",
-        subject: buildOutreachSubject(match, true),
-        text: buildOutreachPlainText(match, true),
-        html: buildOutreachHtml(match, true),
-        match,
+        subject: buildDigestSubject(model, true),
+        text: buildDigestPlainText(model, true),
+        html: buildDigestHtml(model, true),
+        windowCount: model.total,
+        marketCount: model.marketCount,
+        bdDate: model.bdDateKey,
       });
     }
 
     try {
-      const { id } = await sendOutreachWindowEmail(match, { testMode: true });
+      const { id } = await sendDailyOutreachDigestEmail(model, {
+        testMode: true,
+      });
       return c.json({
         mode: "send",
         ok: true,
         resendId: id,
-        subject: buildOutreachSubject(match, true),
+        subject: buildDigestSubject(model, true),
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Send failed";

@@ -49,3 +49,104 @@ export function formatWindowStartLabel(startMinutes: number): string {
   const m = startMinutes % 60;
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
+
+// ---------------------------------------------------------------------------
+// Daily Outreach Digest
+// ---------------------------------------------------------------------------
+
+/**
+ * The digest covers every enabled target whose scheduled window opens within
+ * `[digest execution time, digest execution time + this horizon)`.
+ */
+export const OUTREACH_DIGEST_HORIZON_HOURS = 24;
+
+/**
+ * Synthetic `iana_timezone` value used to reserve ONE digest per Bangladesh
+ * calendar day in the existing `outreach_window_claims` table (PK
+ * `(iana_timezone, local_date)`). It is deliberately not a real IANA zone, so
+ * it can never collide with a legacy per-zone claim row. Reusing the claims
+ * table keeps daily dedupe atomic and database-backed (no schema change, no
+ * in-memory lock).
+ */
+export const OUTREACH_DIGEST_CLAIM_ZONE = "digest/asia-dhaka";
+
+/** `window_start` label recorded on the digest claim for operator context. */
+export const OUTREACH_DIGEST_CLAIM_LABEL = "daily-digest";
+
+/**
+ * Hour (Bangladesh local) the daily digest is scheduled to fire (08:00
+ * Asia/Dhaka). The rendered payload is always anchored to this instant on the
+ * Bangladesh calendar date — never to the raw tick time — so a claim-released
+ * retry later in the same day rebuilds a BYTE-IDENTICAL email. Resend only
+ * dedupes when the reused idempotency key carries an identical payload, so this
+ * anchor is what makes the daily idempotency guard reliable.
+ */
+export const OUTREACH_DIGEST_SCHEDULE_HOUR = 8;
+
+/** Example subject requested by the product owner. */
+export const OUTREACH_DIGEST_SUBJECT =
+  "Your Outreach Windows \u2014 Daily Summary";
+
+/**
+ * One upcoming outreach opportunity inside the digest's 24-hour horizon.
+ * Every time field is derived from the real schedule + DST-aware zone math;
+ * nothing here is hardcoded per city.
+ */
+export type DigestWindow = {
+  zone: OutreachZoneTarget;
+  /** Absolute UTC instant (epoch ms) the window opens — the sort key. */
+  opensAtMs: number;
+  /** Whole minutes from the digest timestamp until the window opens (>= 0). */
+  minutesUntilOpen: number;
+  /** Bangladesh `HH:MM` the window opens. */
+  bdTimeLabel: string;
+  /** Bangladesh calendar date key `YYYY-MM-DD` the window opens on. */
+  bdDateKey: string;
+  /** `Today` / `Tomorrow` / short weekday, relative to the digest BD date. */
+  bdDayLabel: string;
+  /** Prospect-local `HH:MM` the window opens (== the configured start). */
+  localTimeLabel: string;
+  /** Prospect-local calendar date key `YYYY-MM-DD`. */
+  localDateKey: string;
+  /** Prospect-local short weekday (e.g. `Tue`). */
+  localDayLabel: string;
+  /** IANA zone id. */
+  tz: string;
+  /** DST-aware readable abbreviation (e.g. `EDT`, `BST`, `GMT+6`). */
+  tzAbbrev: string;
+};
+
+/** Digest windows grouped under a single Bangladesh calendar date. */
+export type DigestGroup = {
+  bdDateKey: string;
+  bdDayLabel: string;
+  /** Human date, e.g. `Tue, Nov 3`. */
+  bdDateLabel: string;
+  windows: DigestWindow[];
+};
+
+/** Fully-resolved data model rendered into the one daily digest email. */
+export type DigestModel = {
+  /** Digest execution instant (epoch ms). Every countdown is relative to this. */
+  generatedAtMs: number;
+  /** Bangladesh calendar date key of the digest run. */
+  bdDateKey: string;
+  /** Bangladesh `HH:MM` of the digest run. */
+  bdTimeLabel: string;
+  /** Bangladesh readable digest date, e.g. `Tue, Nov 3 2026`. */
+  bdDateLabel: string;
+  /** Horizon end (epoch ms) = generatedAtMs + OUTREACH_DIGEST_HORIZON_HOURS. */
+  horizonEndMs: number;
+  /** Configured local window-open label, e.g. `09:30`. */
+  windowStartLabel: string;
+  /** Chronologically sorted (soonest first) eligible windows. */
+  windows: DigestWindow[];
+  /** Same windows grouped by Bangladesh date, preserving chronological order. */
+  groups: DigestGroup[];
+  total: number;
+  marketCount: number;
+  /** Soonest upcoming window, or `undefined` when there are none. */
+  next?: DigestWindow;
+  /** `in 3h 20m` style countdown for the next window, from `generatedAtMs`. */
+  nextCountdownLabel?: string;
+};

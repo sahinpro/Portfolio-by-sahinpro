@@ -69,8 +69,7 @@ export function projectWallClock(
   const today = tzParts(fromTz, now);
   const wall = Date.UTC(today.year, today.month - 1, today.day, hour, minute);
   const dayAnchor = Date.UTC(today.year, today.month - 1, today.day, 12);
-  let targetUtc =
-    wall - tzOffsetMinutes(fromTz, new Date(dayAnchor)) * 60000;
+  let targetUtc = wall - tzOffsetMinutes(fromTz, new Date(dayAnchor)) * 60000;
   targetUtc = wall - tzOffsetMinutes(fromTz, new Date(targetUtc)) * 60000;
 
   const to = tzParts(toTz, new Date(targetUtc));
@@ -80,6 +79,45 @@ export function projectWallClock(
     minute: to.minute,
     dayShift: dayNumber(to) - dayNumber(today),
   };
+}
+
+/**
+ * Absolute UTC instant (epoch ms) at which the given zone's LOCAL wall clock
+ * reads `year-month-day hour:minute`, resolved DST-aware. The zone offset is
+ * applied twice (the first pass may straddle a DST boundary) so a fold/spring
+ * forward resolves to the correct real instant, mirroring `projectWallClock`.
+ */
+export function localWallToUtcMs(
+  tz: string,
+  year: number,
+  month: number,
+  day: number,
+  hour: number,
+  minute: number,
+): number {
+  const wall = Date.UTC(year, month - 1, day, hour, minute);
+  let utc = wall - tzOffsetMinutes(tz, new Date(wall)) * 60000;
+  utc = wall - tzOffsetMinutes(tz, new Date(utc)) * 60000;
+  return utc;
+}
+
+/**
+ * Readable short time-zone abbreviation for an instant inside a zone — e.g.
+ * `EDT`, `BST`, `GMT`, `AEST`, `GMT+6`. Intl resolves it dynamically, so it is
+ * DST-aware (New York returns `EST` in winter and `EDT` in summer). Falls back
+ * to the raw IANA name if the runtime returns no abbreviation part.
+ */
+export function tzAbbrev(tz: string, date: Date = new Date()): string {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      timeZoneName: "short",
+    }).formatToParts(date);
+    const value = parts.find((p) => p.type === "timeZoneName")?.value;
+    return value && value.length > 0 ? value : tz;
+  } catch {
+    return tz;
+  }
 }
 
 export function minutesOfDayInTz(tz: string, date: Date): number {

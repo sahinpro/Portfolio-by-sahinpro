@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { outreachIdempotencyKey } from "./outreachEmail";
 import {
   interpretScheduleConfigJson,
   sanitizeScheduleConfig,
@@ -11,7 +10,6 @@ import {
   type OutreachScheduleConfig,
   type OutreachZoneTarget,
 } from "./types";
-import type { WindowOpenMatch } from "./windowScheduler";
 import {
   findZonesOpeningNow,
   isOutreachWindowOpeningNow,
@@ -35,15 +33,6 @@ function config(
     graceMinutes: DEFAULT_SCHEDULE_CONFIG.graceMinutes,
     updatedAt: "",
     ...patch,
-  };
-}
-
-function testMatch(tz: string, localDate: string): WindowOpenMatch {
-  return {
-    zone: { ...londonZone, tz },
-    localDate,
-    localTimeLabel: "",
-    bdWindowLabel: "",
   };
 }
 
@@ -172,34 +161,6 @@ describe("duplicate prevention across schedule edits", () => {
     assert.ok(
       !runnerSrc.includes("wasNotificationAlreadySent"),
       "the old fail-open lookup must not be reintroduced",
-    );
-  });
-});
-
-describe("test emails stay independent of production records", () => {
-  it("test-mode idempotency key is unique and never matches the production pattern", async () => {
-    const match = testMatch("Europe/London", "2026-11-02");
-    const prod = outreachIdempotencyKey(match, false, "09:30");
-    const test1 = outreachIdempotencyKey(match, true);
-    // Date.now() is ms-resolution; wait so uniqueness is genuinely exercised.
-    await new Promise((r) => setTimeout(r, 2));
-    const test2 = outreachIdempotencyKey(match, true);
-
-    assert.equal(prod, "outreach-Europe/London-2026-11-02-0930");
-    assert.match(test1, /^outreach-test-Europe\/London-\d+$/);
-    assert.notEqual(
-      test1,
-      test2,
-      "test sends are never deduped against each other",
-    );
-    assert.ok(!test1.startsWith("outreach-Europe"), "test ≠ production key");
-  });
-
-  it("production key tracks the configured window label (not a hardcoded 0930)", () => {
-    const match = testMatch("Europe/London", "2026-11-02");
-    assert.equal(
-      outreachIdempotencyKey(match, false, "10:15"),
-      "outreach-Europe/London-2026-11-02-1015",
     );
   });
 });
