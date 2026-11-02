@@ -1,0 +1,7 @@
+{
+  "name": "server-only",
+  "version": "0.0.1-test-stub",
+  "private": true,
+  "description": "No-op test stub for the `server-only` guard. Next.js aliases the real package to its own compiled react-server stub at build time, so production behaviour is untouched; this local link only exists so `bun test` (which resolves node_modules directly and does not apply the react-server condition) can import server-tagged modules. The published server-only@0.0.1 throws on any non-react-server import, which would break the API tests.",
+  "main": "index.js"
+}
