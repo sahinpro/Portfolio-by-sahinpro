@@ -11,11 +11,9 @@ import {
 import { getComingSoonContent, isComingSoonEnabled } from "@sahinpro/shared/siteMode";
 import { ComingSoonPage } from "@/views/ComingSoonPage";
 import { PageSpinner } from "@sahinpro/shared/PageSpinner";
-import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 export function PublicSiteGate({ children }: { children: ReactNode }): JSX.Element {
-  const pathname = usePathname();
   const cacheVersion = usePublicCacheVersion();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [settingsChecked, setSettingsChecked] = useState(false);
@@ -70,10 +68,6 @@ export function PublicSiteGate({ children }: { children: ReactNode }): JSX.Eleme
       unsubscribe?.();
     };
   }, [comingSoonActive]);
-
-  if (pathname.startsWith("/admin")) {
-    return <>{children}</>;
-  }
 
   if (comingSoonActive) {
     if (adminBypass === null) {
