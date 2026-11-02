@@ -35,36 +35,6 @@
       "has": [{ "type": "host", "value": "www.sahin.pro.bd" }],
       "destination": "https://sahinpro.me/:path*",
       "statusCode": 301
-    },
-    {
-      "source": "/admin/leads",
-      "destination": "https://workspace.sahinpro.me/leads",
-      "statusCode": 307
-    },
-    {
-      "source": "/admin/leads/:path*",
-      "destination": "https://workspace.sahinpro.me/leads/:path*",
-      "statusCode": 307
-    },
-    {
-      "source": "/admin",
-      "destination": "https://admin.sahinpro.me/",
-      "statusCode": 307
-    },
-    {
-      "source": "/admin/:path*",
-      "destination": "https://admin.sahinpro.me/:path*",
-      "statusCode": 307
-    },
-    {
-      "source": "/leads",
-      "destination": "https://workspace.sahinpro.me/leads",
-      "statusCode": 307
-    },
-    {
-      "source": "/leads/:path*",
-      "destination": "https://workspace.sahinpro.me/leads/:path*",
-      "statusCode": 307
     }
   ],
   "headers": [
@@ -86,15 +56,6 @@
         {
           "key": "Permissions-Policy",
           "value": "camera=(), microphone=(), geolocation=()"
-        }
-      ]
-    },
-    {
-      "source": "/admin/(.*)",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow"
         }
       ]
     },
