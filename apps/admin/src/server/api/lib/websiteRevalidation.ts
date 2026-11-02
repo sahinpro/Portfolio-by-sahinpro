@@ -16,17 +16,19 @@ import type { CacheTag } from "@sahinpro/shared/revalidate";
  *    that triggered the flush has already succeeded, so the UI shows
  *    "saved, cache refresh pending" and the admin can retry.
  */
-const CANONICAL_WEBSITE_ORIGIN = "https://www.sahinpro.me";
+const CANONICAL_WEBSITE_ORIGIN = "https://sahinpro.me";
 
 /**
  * Origins `WEBSITE_URL` may resolve to. Production is the canonical website
- * (`CANONICAL_WEBSITE_ORIGIN`); the loopback entries exist so
+ * (the `sahinpro.me` apex; `www.sahinpro.me` is only kept so a still-unmigrated
+ * `WEBSITE_URL` keeps relaying during the domain cutover — the browser-facing
+ * canonical is always the apex). The loopback entries exist so
  * `bun run dev:admin` can flush a locally running website instead of the
  * production one. Any other value is refused.
  */
 const ALLOWED_WEBSITE_ORIGINS = new Set<string>([
   CANONICAL_WEBSITE_ORIGIN,
-  "https://sahinpro.me",
+  "https://www.sahinpro.me",
   "http://localhost:3000",
   "http://localhost:3100",
   "http://localhost:3200",

@@ -2,7 +2,7 @@ import { escapeHtml } from "../lib/html";
 import { sendViaResend } from "../lib/resendClient";
 import type { DigestModel, DigestWindow } from "./types";
 
-const LOGO_URL = "https://www.sahinpro.me/sahin.jpg";
+const LOGO_URL = "https://sahinpro.me/sahin.jpg";
 
 /**
  * Brand accent (emerald) carried over from the previous Outreach Time Planner

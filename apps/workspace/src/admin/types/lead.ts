@@ -5,12 +5,12 @@ import type {
 } from "@/admin/constants/leadOptions";
 
 /**
- * A single potential-client lead. Stored ONLY in the browser's IndexedDB
- * (object store `leads`, keyed by `id`). Never sent to a server.
+ * A single potential-client lead. Stored ONLY in the Supabase `leads` table
+ * (keyed by `id`) — the CRM keeps no browser-local copy anymore.
  *
  * Dates are ISO `YYYY-MM-DD` strings ("" when unset). Timestamps are full ISO
  * date-times. All optional text fields use "" rather than null to keep the form,
- * backup JSON, and IndexedDB records consistent.
+ * backup JSON, and Supabase records consistent.
  *
  * The form edits only the simplified core fields. Everything marked
  * "(legacy)" is preserved as-is on existing records (IDs, timestamps, counts,

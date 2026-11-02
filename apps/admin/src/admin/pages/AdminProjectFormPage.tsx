@@ -165,7 +165,7 @@ export function AdminProjectFormPage({
       setLoadingRow(false);
       if (error || !data) {
         showToast(withRlsHint(error?.message ?? "Not found"), "error");
-        router.replace("/admin/projects");
+        router.replace("/projects");
         return;
       }
       const row = data as ProjectRow;
@@ -188,7 +188,7 @@ export function AdminProjectFormPage({
     if (mutationLockRef.current) return;
 
     if (loadingRow) {
-      router.replace("/admin/projects");
+      router.replace("/projects");
       return;
     }
 
@@ -200,7 +200,7 @@ export function AdminProjectFormPage({
             "Complete required fields and choose a valid category for this build type.",
             "warning",
           );
-          router.replace("/admin/projects");
+          router.replace("/projects");
           return;
         }
         if (!beginMutation()) return;
@@ -222,20 +222,20 @@ export function AdminProjectFormPage({
             }
             void invalidateProjectsPublicCache();
             showToast("Draft saved", "success");
-            router.replace("/admin/projects");
+            router.replace("/projects");
           } catch {
             endMutation();
-            router.replace("/admin/projects");
+            router.replace("/projects");
           }
         })();
         return;
       }
-      router.replace("/admin/projects");
+      router.replace("/projects");
       return;
     }
 
     if (!routeId) {
-      router.replace("/admin/projects");
+      router.replace("/projects");
       return;
     }
 
@@ -255,7 +255,7 @@ export function AdminProjectFormPage({
       } catch {
         /* still leave the panel */
       } finally {
-        router.replace("/admin/projects");
+        router.replace("/projects");
       }
     })();
   }, [
@@ -336,7 +336,7 @@ export function AdminProjectFormPage({
             "warning",
           );
         }
-        router.replace("/admin/projects");
+        router.replace("/projects");
         return;
       }
 
@@ -365,7 +365,7 @@ export function AdminProjectFormPage({
           "warning",
         );
       }
-      router.replace("/admin/projects");
+      router.replace("/projects");
     } catch {
       showToast("Could not save project. Try again.", "error");
       endMutation();
@@ -737,7 +737,7 @@ export function AdminProjectFormPage({
                 }}
               />
               <Link
-                href={`/admin/testimonials/${assignedTestimonial.id}`}
+                href={`/testimonials/${assignedTestimonial.id}`}
                 className="inline-flex text-xs font-medium text-[#00BB7D] hover:text-[#00d68a]"
               >
                 Edit assigned testimonial
@@ -751,7 +751,7 @@ export function AdminProjectFormPage({
             </p>
           )}
           <Link
-            href="/admin/testimonials"
+            href="/testimonials"
             className="inline-flex text-xs font-medium text-white/55 underline-offset-2 hover:text-white hover:underline"
           >
             Manage testimonials

@@ -7,7 +7,7 @@ import "./globals.css";
  *
  * Deliberately minimal: the public site's `PublicLayoutShell` (coming-soon gate,
  * page-view tracker, Vercel analytics, perf boot script) belongs to
- * www.sahinpro.me and must not run here. Auth chrome lives in
+ * the public site on sahinpro.me and must not run here. Auth chrome lives in
  * `AdminProtectedLayout`, which is where the dashboard tree mounts.
  */
 export const metadata: Metadata = {

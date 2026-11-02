@@ -191,7 +191,7 @@ export function WorkspaceShell({
           </div>
         </div>
         <a
-          href="https://www.sahinpro.me"
+          href="https://sahinpro.me"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3
@@ -249,7 +249,7 @@ export function WorkspaceShell({
 
         <div className="shrink-0 border-t border-zinc-800/80 bg-zinc-950/90 backdrop-blur-sm px-2 py-3 space-y-0.5">
           <a
-            href="https://www.sahinpro.me"
+            href="https://sahinpro.me"
             target="_blank"
             rel="noopener noreferrer"
             className={cn(

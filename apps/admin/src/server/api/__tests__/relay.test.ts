@@ -28,7 +28,7 @@ import {
 const RELAY_ENV = {
   ...AUTHORIZED_ENV,
   REVALIDATE_SECRET: "relay-secret",
-  WEBSITE_URL: "https://www.sahinpro.me",
+  WEBSITE_URL: "https://sahinpro.me",
 };
 
 const ADMIN_HEADERS = {
@@ -69,7 +69,7 @@ describe("admin api: website revalidate relay", () => {
 
       const relay = stub!.find((call) => isWebsiteRelay(call.url));
       assert.ok(relay, "expected a relay POST to the website");
-      assert.equal(relay!.url, "https://www.sahinpro.me/api/revalidate");
+      assert.equal(relay!.url, "https://sahinpro.me/api/revalidate");
       assert.equal(relay!.method, "POST");
       assert.equal(relay!.headers["x-revalidate-token"], "relay-secret");
       assert.deepEqual(JSON.parse(relay!.body!), { tags: [...ALL_CACHE_TAGS] });

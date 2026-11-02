@@ -2,27 +2,69 @@
   "redirects": [
     {
       "source": "/",
+      "has": [{ "type": "host", "value": "www.sahinpro.me" }],
+      "destination": "https://sahinpro.me/",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.sahinpro.me" }],
+      "destination": "https://sahinpro.me/:path*",
+      "statusCode": 301
+    },
+    {
+      "source": "/",
       "has": [{ "type": "host", "value": "sahin.pro.bd" }],
-      "destination": "https://www.sahinpro.me/",
+      "destination": "https://sahinpro.me/",
       "statusCode": 301
     },
     {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "sahin.pro.bd" }],
-      "destination": "https://www.sahinpro.me/:path*",
+      "destination": "https://sahinpro.me/:path*",
       "statusCode": 301
     },
     {
       "source": "/",
       "has": [{ "type": "host", "value": "www.sahin.pro.bd" }],
-      "destination": "https://www.sahinpro.me/",
+      "destination": "https://sahinpro.me/",
       "statusCode": 301
     },
     {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "www.sahin.pro.bd" }],
-      "destination": "https://www.sahinpro.me/:path*",
+      "destination": "https://sahinpro.me/:path*",
       "statusCode": 301
+    },
+    {
+      "source": "/admin/leads",
+      "destination": "https://workspace.sahinpro.me/leads",
+      "statusCode": 307
+    },
+    {
+      "source": "/admin/leads/:path*",
+      "destination": "https://workspace.sahinpro.me/leads/:path*",
+      "statusCode": 307
+    },
+    {
+      "source": "/admin",
+      "destination": "https://admin.sahinpro.me/",
+      "statusCode": 307
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "https://admin.sahinpro.me/:path*",
+      "statusCode": 307
+    },
+    {
+      "source": "/leads",
+      "destination": "https://workspace.sahinpro.me/leads",
+      "statusCode": 307
+    },
+    {
+      "source": "/leads/:path*",
+      "destination": "https://workspace.sahinpro.me/leads/:path*",
+      "statusCode": 307
     }
   ],
   "headers": [

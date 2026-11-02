@@ -33,6 +33,19 @@ export const OUTREACH_CRON_GRACE_MINUTES = 4;
 
 export const SITE_SETTING_PLANNER_ZONES_KEY = "outreach_planner_zones";
 export const SITE_SETTING_SCHEDULE_CONFIG_KEY = "outreach_schedule_config";
+export const SITE_SETTING_PLANNER_PREFS_KEY = "outreach_planner_prefs";
+
+/**
+ * Outreach Time Planner UI preferences (market filter + expanded/collapsed),
+ * stored in `site_settings` so the planner is identical on every device.
+ * Zone picks live in their own key (`outreach_planner_zones`) because the
+ * reminder cron reads that shape directly.
+ */
+export type PlannerUiPreferences = {
+  /** "all" or a known market id. */
+  marketFilter: string;
+  expanded: boolean;
+};
 
 export const DEFAULT_SCHEDULE_CONFIG: Omit<
   OutreachScheduleConfig,

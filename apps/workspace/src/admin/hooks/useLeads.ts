@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  LEAD_STORE_MESSAGES,
   LeadStoreError,
   checkLeadAccess,
   deleteAllLeads,
@@ -14,14 +15,13 @@ import type { Lead } from "@/admin/types/lead";
 import { useCallback, useEffect, useState } from "react";
 
 /**
- * React state wrapper over the Supabase `leads` table.
+ * React state wrapper over the Supabase `leads` table — the CRM's ONLY data
+ * source. No browser-local store is read or written: every mutation goes to
+ * Postgres then re-reads, so records are identical on any device the admin
+ * signs in on, and a Supabase failure surfaces as an error + retry instead of
+ * silently falling back to stale local data.
  *
- * Every mutation writes to Postgres then re-reads, so the database is the single
- * source of truth and records are visible from any device the admin signs in on.
- * The old browser-only store (`leadDb.ts`) is untouched — it still holds the
- * pre-migration copy and the planner preferences.
- *
- * `access` tells the UI why a read failed (missing migration, RLS, expired
+ * `access` tells the UI why a read failed (missing table, RLS, expired
  * session) so it can show a fix instead of an empty table.
  */
 export function useLeads(): {
@@ -48,8 +48,14 @@ export function useLeads(): {
       setError(null);
       // RLS hides rows rather than raising an error, so "empty" and "not
       // allowed to see anything" look identical. Only when the table came back
-      // empty do we ask Postgres directly which of the two it is.
-      setAccess(rows.length > 0 ? "ok" : await checkLeadAccess());
+      // empty do we ask Postgres directly which of the two it is — and surface
+      // a fixable message so the UI shows an error + retry, never an empty
+      // board that looks like "no leads".
+      const next = rows.length > 0 ? "ok" : await checkLeadAccess();
+      setAccess(next);
+      if (next !== "ok" && next !== "unknown") {
+        setError(LEAD_STORE_MESSAGES[next]);
+      }
     } catch (e) {
       setError(
         e instanceof LeadStoreError

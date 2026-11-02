@@ -1,8 +1,16 @@
-/** Canonical production origin (no trailing slash). */
-export const SITE_URL = "https://www.sahinpro.me";
+/** Canonical production origin (apex, no trailing slash, no `www`). */
+export const SITE_URL = "https://sahinpro.me";
 
-/** Hosts that must 301 to SITE_URL so Google stops ranking the old domain. */
-export const LEGACY_HOSTS = ["sahin.pro.bd", "www.sahin.pro.bd"] as const;
+/**
+ * Hosts that must 301 to SITE_URL so Google stops ranking the old URL space:
+ * the retired `sahin.pro.bd` domain and the `www` hostname of the current
+ * domain (the apex is canonical; `www` must never serve content).
+ */
+export const LEGACY_HOSTS = [
+  "sahin.pro.bd",
+  "www.sahin.pro.bd",
+  "www.sahinpro.me",
+] as const;
 
 export const DEFAULT_OG_IMAGE_PATH = "/share-card.jpeg";
 

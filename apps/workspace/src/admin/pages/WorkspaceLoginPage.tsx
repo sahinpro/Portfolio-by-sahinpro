@@ -11,7 +11,7 @@ import { FormEvent, useEffect, useId, useState } from "react";
 export function WorkspaceLoginPage(): JSX.Element | null {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") ?? "/leads";
+  const from = searchParams.get("from") ?? "/";
   const formId = useId();
   const errorAlertId = `${formId}-error`;
 
@@ -46,7 +46,11 @@ export function WorkspaceLoginPage(): JSX.Element | null {
 
   useEffect(() => {
     if (!sessionChecked || !hasSession) return;
-    router.replace(from === "/login" ? "/leads" : from);
+    router.replace(
+      from.startsWith("/") && !from.startsWith("//") && from !== "/login"
+        ? from
+        : "/",
+    );
   }, [sessionChecked, hasSession, from, router]);
 
   if (!sessionChecked) {
@@ -105,7 +109,15 @@ export function WorkspaceLoginPage(): JSX.Element | null {
       setError("This account is not authorized for workspace access.");
       return;
     }
-    router.replace(from.startsWith("/leads") ? from : "/leads");
+    // `from` is attacker-controlled query data: only same-origin app paths are
+    // safe (never `//host` protocol-relative values, never `/login` itself).
+    // Users who entered through `/` (from=%2F) return to the `/` board; CRM
+    // deep links (`/leads/...`) return to the exact panel they came from.
+    const safeFrom =
+      from.startsWith("/") && !from.startsWith("//") && from !== "/login"
+        ? from
+        : "/";
+    router.replace(safeFrom);
   };
 
   const handleForgotPassword = async (e: FormEvent) => {
@@ -334,7 +346,7 @@ export function WorkspaceLoginPage(): JSX.Element | null {
 
         <p className="mt-8 text-center text-sm text-white/40">
           <Link
-            href="https://www.sahinpro.me"
+            href="https://sahinpro.me"
             className="inline-flex items-center gap-1.5 text-white/55 hover:text-white transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden />

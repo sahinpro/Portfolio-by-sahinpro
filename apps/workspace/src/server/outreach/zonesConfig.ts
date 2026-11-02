@@ -1,5 +1,5 @@
 import { OUTREACH_MARKETS, type OutreachMarket } from "./marketsData";
-import type { OutreachZoneTarget } from "./types";
+import type { OutreachZoneTarget, PlannerUiPreferences } from "./types";
 
 function isValidZone(market: OutreachMarket, tz: string): boolean {
   return market.zones.some((z) => z.tz === tz);
@@ -50,6 +50,21 @@ export function sanitizePlannerZones(
     }
   }
   return out;
+}
+
+/** Clamp planner UI prefs to sane values; anything malformed falls back to defaults. */
+export function sanitizePlannerPrefs(raw: unknown): PlannerUiPreferences {
+  const record =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const filter = typeof record.marketFilter === "string" ? record.marketFilter : "all";
+  const marketFilter =
+    filter === "all" || OUTREACH_MARKETS.some((m) => m.id === filter)
+      ? filter
+      : "all";
+  return {
+    marketFilter,
+    expanded: typeof record.expanded === "boolean" ? record.expanded : true,
+  };
 }
 
 /**

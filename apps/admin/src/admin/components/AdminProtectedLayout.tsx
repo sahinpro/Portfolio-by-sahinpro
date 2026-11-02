@@ -94,7 +94,7 @@ export function AdminProtectedLayout({
   useEffect(() => {
     if (status !== "unauthenticated") return;
     const from = encodeURIComponent(pathname);
-    router.replace(`/admin/login?from=${from}`);
+    router.replace(`/login?from=${from}`);
   }, [status, pathname, router]);
 
   const retry = useCallback(() => {

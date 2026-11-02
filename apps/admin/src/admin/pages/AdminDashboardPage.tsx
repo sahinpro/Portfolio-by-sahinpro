@@ -80,7 +80,7 @@ export function AdminDashboardPage(): JSX.Element {
             Refresh
           </button>
           <Link
-            href="/admin/projects/new"
+            href="/projects/new"
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white
               text-black text-sm font-semibold hover:bg-white/90 transition-colors"
           >
@@ -134,7 +134,7 @@ export function AdminDashboardPage(): JSX.Element {
           subtitle="Page views over the last 30 days"
           action={
             <Link
-              href="/admin/analytics"
+              href="/analytics"
               className="text-xs text-white/35 hover:text-white/70 inline-flex items-center gap-1 transition-colors"
             >
               View all <ExternalLink className="w-3 h-3" />

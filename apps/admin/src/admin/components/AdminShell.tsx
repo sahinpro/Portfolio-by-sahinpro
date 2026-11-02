@@ -24,7 +24,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { ADMIN_AVATAR_PATH } from "@/lib/branding";
-import Link from "next/link";
+import { MAIN_WEBSITE_URL, WORKSPACE_LEADS_URL } from "@/lib/links";
 
 const avatarUrl = ADMIN_AVATAR_PATH;
 
@@ -44,14 +44,13 @@ const sectionLabel =
   "px-2.5 pt-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500";
 
 function mobileAdminTitle(pathname: string): string {
-  if (pathname === "/admin" || pathname === "/admin/") return "Dashboard";
-  if (pathname.startsWith("/admin/projects")) return "Projects";
-  if (pathname.startsWith("/admin/leads")) return "Leads";
-  if (pathname.startsWith("/admin/testimonials")) return "Testimonials";
-  if (pathname.startsWith("/admin/media")) return "Media";
-  if (pathname.startsWith("/admin/analytics")) return "Analytics";
-  if (pathname === "/admin/settings") return "Site settings";
-  if (pathname.startsWith("/admin/settings/resume")) return "Resume";
+  if (pathname === "/") return "Dashboard";
+  if (pathname.startsWith("/projects")) return "Projects";
+  if (pathname.startsWith("/testimonials")) return "Testimonials";
+  if (pathname.startsWith("/media")) return "Media";
+  if (pathname.startsWith("/analytics")) return "Analytics";
+  if (pathname === "/settings") return "Site settings";
+  if (pathname.startsWith("/settings/resume")) return "Resume";
   return "Admin";
 }
 
@@ -143,7 +142,7 @@ export function AdminShell({
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.replace("/admin/login");
+    router.replace("/login");
   };
 
   return (
@@ -179,7 +178,9 @@ export function AdminShell({
           </div>
         </div>
         <a
-          href="/"
+          href={MAIN_WEBSITE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3
             text-xs font-medium text-zinc-300 transition-colors hover:bg-white/[0.06] hover:text-zinc-100"
         >
@@ -222,31 +223,38 @@ export function AdminShell({
           <nav className="pr-6 pb-4">
             <p className={sectionLabel}>Main</p>
             <div className="flex flex-col gap-0.5">
-              <AdminNavLink href="/admin" end className={navClass}>
+              <AdminNavLink href="/" end className={navClass}>
                 <LayoutDashboard className="h-4 w-4 shrink-0 opacity-80" />
                 Dashboard
               </AdminNavLink>
-              <AdminNavLink href="/admin/projects" className={navClass}>
+              <AdminNavLink href="/projects" className={navClass}>
                 <FolderKanban className="h-4 w-4 shrink-0 opacity-80" />
                 Projects
               </AdminNavLink>
-              <AdminNavLink href="/admin/leads" className={navClass}>
+              {/* Leads live in the Workspace app now; the old `/admin/leads`
+                  section was cut over to workspace…/leads in the monorepo split. */}
+              <a
+                href={WORKSPACE_LEADS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(navClass({ isActive: false }))}
+              >
                 <Target className="h-4 w-4 shrink-0 opacity-80" />
                 Leads
-              </AdminNavLink>
-              <AdminNavLink href="/admin/testimonials" className={navClass}>
+              </a>
+              <AdminNavLink href="/testimonials" className={navClass}>
                 <Quote className="h-4 w-4 shrink-0 opacity-80" />
                 Testimonials
               </AdminNavLink>
-              <AdminNavLink href="/admin/media" className={navClass}>
+              <AdminNavLink href="/media" className={navClass}>
                 <ImageIcon className="h-4 w-4 shrink-0 opacity-80" />
                 Media library
               </AdminNavLink>
-              <AdminNavLink href="/admin/analytics" className={navClass}>
+              <AdminNavLink href="/analytics" className={navClass}>
                 <BarChart3 className="h-4 w-4 shrink-0 opacity-80" />
                 Analytics
               </AdminNavLink>
-              <AdminNavLink href="/admin/settings" className={navClass}>
+              <AdminNavLink href="/settings" className={navClass}>
                 <Settings2 className="h-4 w-4 shrink-0 opacity-80" />
                 Site settings
               </AdminNavLink>
@@ -254,7 +262,7 @@ export function AdminShell({
 
             <p className={cn(sectionLabel, "mt-4")}>Settings</p>
             <div className="flex flex-col gap-0.5">
-              <AdminNavLink href="/admin/settings/resume" className={navClass}>
+              <AdminNavLink href="/settings/resume" className={navClass}>
                 <FileText className="h-4 w-4 shrink-0 opacity-80" />
                 Resume
               </AdminNavLink>
@@ -263,8 +271,10 @@ export function AdminShell({
         </ScrollArea>
 
         <div className="shrink-0 border-t border-zinc-800/80 bg-zinc-950/90 backdrop-blur-sm px-2 py-3 space-y-0.5">
-          <Link
-            href="/"
+          <a
+            href={MAIN_WEBSITE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className={cn(
               navLinkBase,
               "text-zinc-500 hover:bg-white/[0.05] hover:text-zinc-200 border border-transparent",
@@ -272,7 +282,7 @@ export function AdminShell({
           >
             <ExternalLink className="h-4 w-4 shrink-0 opacity-80" />
             View site
-          </Link>
+          </a>
           <button
             type="button"
             onClick={handleSignOut}
