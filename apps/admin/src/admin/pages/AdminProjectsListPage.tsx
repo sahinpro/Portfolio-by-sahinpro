@@ -39,6 +39,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Fragment, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AdminListPagination } from "@sahinpro/shared/ui/AdminListPagination";
@@ -663,13 +664,16 @@ export function AdminProjectsListPage({
                       />
                     </div>
                     <div className="flex shrink-0 items-start">
-                      <img
+                      <Image
                         src={
                           row.image_url?.trim()
                             ? row.image_url
                             : PROJECT_IMAGE_PLACEHOLDER
                         }
                         alt=""
+                        width={56}
+                        height={56}
+                        unoptimized
                         className="h-14 w-14 rounded-lg border border-white/[0.08] bg-black/30 object-cover"
                       />
                     </div>
@@ -731,13 +735,16 @@ export function AdminProjectsListPage({
                     />
                   </div>
                   <div className="flex items-center">
-                    <img
+                    <Image
                       src={
                         row.image_url?.trim()
                           ? row.image_url
                           : PROJECT_IMAGE_PLACEHOLDER
                       }
                       alt=""
+                      width={72}
+                      height={72}
+                      unoptimized
                       className="h-14 w-14 rounded-lg border border-white/[0.08] bg-black/30 object-cover lg:h-[4.5rem] lg:w-[4.5rem]"
                     />
                   </div>

@@ -17,14 +17,14 @@ import {
   Menu,
   Quote,
   Settings2,
-  Target,
   X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { ADMIN_AVATAR_PATH } from "@/lib/branding";
-import { MAIN_WEBSITE_URL, WORKSPACE_LEADS_URL } from "@/lib/links";
+import { MAIN_WEBSITE_URL } from "@/lib/links";
 
 const avatarUrl = ADMIN_AVATAR_PATH;
 
@@ -71,9 +71,12 @@ function AdminSidebarProfile({ user }: { user: User }): JSX.Element {
       <CardContent className="p-3">
         <div className="flex flex-col flex-nowrap text-center items-center gap-3">
           <div className="relative shrink-0">
-            <img
+            <Image
               src={avatarUrl}
               alt=""
+              width={80}
+              height={80}
+              unoptimized
               className="h-20 w-20 rounded-full object-cover border border-zinc-700/80 bg-zinc-800"
             />
             <span
@@ -186,9 +189,12 @@ export function AdminShell({
         >
           <ExternalLink className="h-3.5 w-3.5" />
           <span className="hidden min-[380px]:inline">Site</span>
-          <img
+          <Image
             src={avatarUrl}
             alt=""
+            width={20}
+            height={20}
+            unoptimized
             className="h-5 w-5 rounded-full border border-white/10 object-cover"
           />
         </a>
@@ -231,17 +237,6 @@ export function AdminShell({
                 <FolderKanban className="h-4 w-4 shrink-0 opacity-80" />
                 Projects
               </AdminNavLink>
-              {/* Leads live in the Workspace app now; the old `/admin/leads`
-                  section was cut over to workspace…/leads in the monorepo split. */}
-              <a
-                href={WORKSPACE_LEADS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(navClass({ isActive: false }))}
-              >
-                <Target className="h-4 w-4 shrink-0 opacity-80" />
-                Leads
-              </a>
               <AdminNavLink href="/testimonials" className={navClass}>
                 <Quote className="h-4 w-4 shrink-0 opacity-80" />
                 Testimonials

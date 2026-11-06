@@ -36,6 +36,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 function isProbablyImage(item: MediaLibraryItem): boolean {
@@ -413,11 +414,12 @@ export function AdminMediaLibraryPage(): JSX.Element {
                       {ext}
                     </span>
                     {img ? (
-                      <img
+                      <Image
                         src={item.publicUrl}
                         alt=""
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                        fill
+                        sizes="16rem"
+                        className="object-cover"
                       />
                     ) : (
                       <div className="flex flex-col items-center gap-1 text-center px-2">
@@ -566,9 +568,12 @@ export function AdminMediaLibraryPage(): JSX.Element {
                 <div className="flex flex-1 items-center justify-center p-4 sm:p-6">
                   {isProbablyImage(selected) ? (
                     <div className="relative max-h-[min(52vh,520px)] w-full max-w-full overflow-hidden rounded-xl border border-white/[0.08] bg-black/50 shadow-inner">
-                      <img
+                      <Image
                         src={selected.publicUrl}
                         alt={metaAlt || selected.name}
+                        width={520}
+                        height={520}
+                        unoptimized
                         className="mx-auto max-h-[min(52vh,520px)] w-auto max-w-full object-contain"
                       />
                     </div>

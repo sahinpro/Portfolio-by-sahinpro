@@ -6,6 +6,7 @@ import { ScrollArea } from "@sahinpro/shared/ui/scroll-area";
 import { cn } from "@sahinpro/shared/utils";
 import type { Session, User } from "@supabase/supabase-js";
 import { ExternalLink, LogOut, Menu, Target, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
@@ -84,9 +85,12 @@ function WorkspaceSidebarProfile({ user }: { user: User }): JSX.Element {
       <CardContent className="p-3">
         <div className="flex flex-col flex-nowrap text-center items-center gap-3">
           <div className="relative shrink-0">
-            <img
+            <Image
               src={avatarUrl}
               alt=""
+              width={80}
+              height={80}
+              unoptimized
               className="h-20 w-20 rounded-full object-cover border border-zinc-700/80 bg-zinc-800"
             />
             <span
@@ -199,9 +203,12 @@ export function WorkspaceShell({
         >
           <ExternalLink className="h-3.5 w-3.5" />
           <span className="hidden min-[380px]:inline">Site</span>
-          <img
+          <Image
             src={avatarUrl}
             alt=""
+            width={20}
+            height={20}
+            unoptimized
             className="h-5 w-5 rounded-full border border-white/10 object-cover"
           />
         </a>

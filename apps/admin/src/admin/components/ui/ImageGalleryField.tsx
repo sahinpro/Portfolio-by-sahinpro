@@ -20,6 +20,7 @@ import {
   Images,
   Trash2,
 } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 const field =
@@ -249,9 +250,12 @@ export function ImageGalleryField({
                   <GripVertical className="h-4 w-4 opacity-50" />
                 </div>
                 <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-white/[0.08] bg-black/30">
-                  <img
+                  <Image
                     src={url}
                     alt=""
+                    width={96}
+                    height={64}
+                    unoptimized
                     className="h-full w-full object-cover"
                   />
                 </div>

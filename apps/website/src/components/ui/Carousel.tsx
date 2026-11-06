@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useMotionValue, type PanInfo, type Transition } from "framer-motion";
+import Image from "next/image";
 import "./Carousel.css";
 
 export interface CarouselItem {
@@ -52,12 +53,14 @@ function CarouselSlide({
       transition={transition}
     >
       <div className="carousel-item-image">
-        <img
+        <Image
           src={item.image.src}
           alt={item.image.alt}
+          fill
+          sizes="(max-width: 768px) 100vw, 400px"
+          priority={index === 0}
+          unoptimized
           draggable={false}
-          loading={index === 0 ? "eager" : "lazy"}
-          decoding="async"
         />
       </div>
     </motion.div>

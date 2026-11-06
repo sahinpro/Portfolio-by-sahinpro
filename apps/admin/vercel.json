@@ -1,16 +1,6 @@
 {
   "redirects": [
     {
-      "source": "/admin/leads",
-      "destination": "https://workspace.sahinpro.me/leads",
-      "permanent": false
-    },
-    {
-      "source": "/admin/leads/:path*",
-      "destination": "https://workspace.sahinpro.me/leads/:path*",
-      "permanent": false
-    },
-    {
       "source": "/admin",
       "destination": "/",
       "permanent": false

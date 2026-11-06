@@ -1,6 +1,7 @@
 "use client";
 
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
+import { CrispChat } from "@/components/crisp/CrispChat";
 import { PerfRuntime } from "@/components/layout/PerfRuntime";
 import { PublicSiteGate } from "@/components/layout/PublicSiteGate";
 import { VercelWebAnalytics } from "@/components/analytics/VercelWebAnalytics";
@@ -14,6 +15,7 @@ export function PublicLayoutShell({ children }: { children: ReactNode }): JSX.El
           <PageViewTracker />
         </Suspense>
         <VercelWebAnalytics />
+        <CrispChat />
         {children}
       </PublicSiteGate>
     </PerfRuntime>

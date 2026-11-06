@@ -21,6 +21,7 @@ import { Input } from "@sahinpro/shared/ui/input";
 import { Textarea } from "@sahinpro/shared/ui/textarea";
 import { cn } from "@sahinpro/shared/utils";
 import { Check, Loader2, Upload, X } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 function isProbablyImage(item: MediaLibraryItem): boolean {
@@ -368,13 +369,14 @@ export function MediaLibraryPickerModal({
                             : "border-white/[0.08] hover:border-white/[0.14]",
                         )}
                       >
-                        <div className="aspect-square bg-black/50">
+                        <div className="relative aspect-square bg-black/50">
                           {img ? (
-                            <img
+                            <Image
                               src={item.publicUrl}
                               alt=""
-                              className="h-full w-full object-cover"
-                              loading="lazy"
+                              fill
+                              sizes="8rem"
+                              className="object-cover"
                             />
                           ) : (
                             <div className="flex h-full items-center justify-center text-[10px] text-white/30">
