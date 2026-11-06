@@ -1,6 +1,7 @@
 import type { SocialLink } from "@/constants/socialLinks";
 import { getSocialLinkIconKey } from "@/components/public/socialBrands";
 import { Globe, Github, Link2, Linkedin, Mail, type LucideIcon } from "lucide-react";
+import Image from "next/image";
 import type { IconType } from "react-icons";
 import { BsBehance, BsTelegram, BsWhatsapp } from "react-icons/bs";
 import { FaInstagram, FaXTwitter } from "react-icons/fa6";
@@ -48,11 +49,13 @@ export function SocialLinkGlyph({
   const raw = (link.icon ?? "").trim();
   if (/^https?:\/\//i.test(raw)) {
     return (
-      <img
+      <Image
         src={raw}
         alt=""
+        width={24}
+        height={24}
+        unoptimized
         className={`${className} object-contain rounded-sm`}
-        loading="lazy"
       />
     );
   }

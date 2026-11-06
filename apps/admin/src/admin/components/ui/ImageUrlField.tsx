@@ -13,6 +13,7 @@ import {
 import { Input } from "@sahinpro/shared/ui/input";
 import { cn } from "@sahinpro/shared/utils";
 import { ImagePlus, Images } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 const field =
@@ -149,9 +150,12 @@ export function ImageUrlField({
           {uploading ? "…" : "Up"}
         </button>
         {/^https?:\/\//i.test(value) ? (
-          <img
+          <Image
             src={value}
             alt=""
+            width={24}
+            height={24}
+            unoptimized
             className="h-6 w-6 rounded object-cover border border-white/10 shrink-0"
           />
         ) : null}
@@ -234,10 +238,13 @@ export function ImageUrlField({
         {value ? (
           <div className="flex flex-col gap-3">
             <div className="shrink-0 self-start overflow-hidden rounded-xl border border-white/[0.1] bg-black/30">
-              <img
+              <Image
                 src={value}
                 alt=""
-                className="max-h-auto max-w-40 object-contain  sm:w-auto"
+                width={160}
+                height={120}
+                unoptimized
+                className="max-h-auto max-w-40 object-contain sm:w-auto"
               />
             </div>
             <div className="min-w-0 flex-1 space-y-1.5">

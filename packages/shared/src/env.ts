@@ -17,6 +17,10 @@ export const env = {
   get turnstileSiteKey(): string {
     return process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || "";
   },
+  /** Crisp website instance ID (public, from the Crisp dashboard → Settings → Settings → Website). */
+  get crispWebsiteId(): string {
+    return process.env.NEXT_PUBLIC_CRISP_WEBSITE_ID?.trim() || "";
+  },
   get adminEmail(): string | undefined {
     const email = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.trim().toLowerCase();
     return email || undefined;

@@ -6,6 +6,7 @@ import { isSupabaseConfigured, supabase } from "@sahinpro/shared/supabase";
 import { MAIN_WEBSITE_URL } from "@/lib/links";
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useId, useState } from "react";
 
@@ -66,12 +67,13 @@ export function AdminLoginPage(): JSX.Element | null {
         />
         <div className="relative flex flex-col items-center gap-6">
           <div className="h-14 w-14 rounded-2xl bg-white/[0.06] border border-white/10 animate-pulse flex items-center justify-center">
-            <img
+            <Image
               src="/logo.svg"
               alt=""
               className="h-9 w-9 opacity-40"
               width={36}
               height={36}
+              unoptimized
             />
           </div>
           <div className="flex items-center gap-2 text-white/50 text-sm">
@@ -171,12 +173,13 @@ export function AdminLoginPage(): JSX.Element | null {
       <div className="w-full max-w-[400px] relative z-10">
         <header className="mb-8 text-center">
           <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-white/[0.06] border border-white/10 shadow-lg shadow-black/40 mb-5">
-            <img
+            <Image
               src="/logo.svg"
               alt="Portfolio logo"
               className="h-10 w-10"
               width={40}
               height={40}
+              unoptimized
             />
           </div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45 mb-2">

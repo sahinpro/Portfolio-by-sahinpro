@@ -10,21 +10,50 @@ import {
 } from "@/lib/redisPublicCache";
 import { PUBLIC_CACHE_TTL_SECONDS } from "@sahinpro/shared/revalidate";
 
-/** Server reads: Redis → Supabase (no Next.js Data Cache). */
+/**
+ * Server reads: Redis → Supabase (no Next.js Data Cache).
+ *
+ * Process-local in-flight promise deduplication. When multiple concurrent
+ * callers within the same Node process (e.g. `generateMetadata` and the page
+ * component of a single render, or two overlapping requests) call
+ * `fetchPublishedProjects` / `fetchTestimonials` while the underlying Redis /
+ * Supabase fetch is still pending, they share one promise and therefore one
+ * round-trip. The slot is cleared on settle (`.finally`), so nothing is
+ * retained across requests.
+ *
+ * This is NOT React's request-scoped `cache()` — it is a lightweight
+ * equivalent that works on React 18. Safety requirement: both fetchers
+ * return fully public, non-user-specific data (published projects, all
+ * testimonials), with no dependency on cookies, headers, session, or any
+ * per-request argument. Redis keys are static. Sharing the in-flight
+ * promise across concurrent callers therefore cannot leak user-specific
+ * data.
+ */
+let projectsPromise: Promise<ProjectRow[]> | null = null;
+let testimonialsPromise: Promise<TestimonialRow[]> | null = null;
+
 export async function fetchPublishedProjects(): Promise<ProjectRow[]> {
-  return getRedisCached(
+  if (projectsPromise) return projectsPromise;
+  projectsPromise = getRedisCached(
     REDIS_PUBLIC_KEYS.projects,
     publicSupabase.fetchPublishedProjects,
     PUBLIC_CACHE_TTL_SECONDS,
-  );
+  ).finally(() => {
+    projectsPromise = null;
+  });
+  return projectsPromise;
 }
 
 export async function fetchTestimonials(): Promise<TestimonialRow[]> {
-  return getRedisCached(
+  if (testimonialsPromise) return testimonialsPromise;
+  testimonialsPromise = getRedisCached(
     REDIS_PUBLIC_KEYS.testimonials,
     publicSupabase.fetchTestimonials,
     PUBLIC_CACHE_TTL_SECONDS,
-  );
+  ).finally(() => {
+    testimonialsPromise = null;
+  });
+  return testimonialsPromise;
 }
 
 export async function fetchSiteSettingsMap(): Promise<Record<string, string>> {

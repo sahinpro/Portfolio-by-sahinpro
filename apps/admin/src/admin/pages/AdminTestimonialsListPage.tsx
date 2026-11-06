@@ -18,6 +18,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Fragment,
@@ -391,9 +392,12 @@ export function AdminTestimonialsListPage({
                     <div className="flex gap-3">
                       <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/[0.08] bg-[#2a4a66]">
                         {row.client_photo ? (
-                          <img
+                          <Image
                             src={row.client_photo}
                             alt=""
+                            width={48}
+                            height={48}
+                            unoptimized
                             className="h-full w-full object-cover"
                           />
                         ) : (
@@ -439,9 +443,12 @@ export function AdminTestimonialsListPage({
                   >
                     <div className="relative h-12 w-12 overflow-hidden rounded-full border border-white/[0.08] bg-[#2a4a66]">
                       {row.client_photo ? (
-                        <img
+                        <Image
                           src={row.client_photo}
                           alt=""
+                          width={48}
+                          height={48}
+                          unoptimized
                           className="h-full w-full object-cover"
                         />
                       ) : (
